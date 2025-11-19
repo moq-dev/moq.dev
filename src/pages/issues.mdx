@@ -3,6 +3,8 @@ layout: "@/layouts/global.astro"
 title: Issues
 ---
 
+import Support from "@/components/support"
+
 # Issues
 
 Yeah, so there's a lot of work to do.
@@ -14,6 +16,8 @@ But if you just want a Google Meet clone and want to do minimal work, then check
 This page is a summary of the major issues, updated periodically.
 If you want to help, jump in [Discord](https://discord.gg/FCYF3p99mr)!
 
+<Support client:only="solid-js" />
+
 ## What works
 Before we give into despair, here's what does work:
 
@@ -24,8 +28,6 @@ Before we give into despair, here's what does work:
 - **Clustering**: Multiple relays form a basic mesh network, providing CDN-like performance.
 - **On-Demand**: No encoding (JS only) or networking until the first viewer requests a track.
 - **Integrations**: Gstreamer and ffmpeg (via stdin).
-
-Now on to the issues.
 
 ## Networking
 
