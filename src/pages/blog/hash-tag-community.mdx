@@ -1,0 +1,104 @@
+---
+layout: "@/layouts/global.astro"
+title: "Hash Tag Community"
+author: kixelated
+description: My first task as the official MoQ \#influencer is to give everyone a shoutout. hurrah
+cover: "/blog/hash-tag-community/hash.png"
+date: 2025-12-05
+---
+
+# Hash Tag Community
+There's been a LOT of new contributors to the project.
+It is my job as the MoQ #influencer to give everyone a shoutout.
+
+## OBS
+[bpmedley](https://github.com/brianmed) and [emilsas](https://github.com/emilsas) got an initial [OBS plugin](https://github.com/qualabs/obs-moq) working.
+That's right, now you can use OBS with MoQ! 🎉
+
+Like most media libraries, OBS uses C++.
+But I'm a fan of the crab, so we created a generic Rust/C binding called [libmoq](https://github.com/kixelated/moq/blob/main/rs/moq-c/src/lib.rs).
+If you're a fan of the `SEGMENTATION FAULT`, you can also use this library to publish from your favorite C/C++ application.
+Brian has already started hacking MoQ support into ffmpeg; super cool.
+
+`libmoq` consists of synchronous C methods, utilizing Rust to parse the codec bitstream, build the catalog/container, and update the internal cache.
+There's a separate background thread (Rust+Tokio) responsible for serving any MoQ subscriptions.
+No need to perform any of the asynchronous nonsense in C; it just shovels media.
+
+Unfortunately, we need to [patch OBS](https://github.com/obsproject/obs-studio/compare/master...brianmed:obs-studio:32.0.2-moq) literally to just add `MoQ` to the UI.
+There's still a lot more polish needed too, like adding/testing codecs other than H264/AAC.
+If you're interested in helping out, [join the Discord](https://discord.gg/FCYF3p99mr).
+
+## iroh
+[Way back when](./first-cdn) I said:
+> I'd also love to get MoQ running over [Iroh](https://www.iroh.computer/) for peer-to-peer action if anybody wants to help.
+
+[Frando](https://github.com/Frando) heeded the call and made [iroh-live](https://github.com/n0-computer/iroh-live).
+That's right, now you can use P2P with MoQ! 🎉
+
+[Iroh](https://www.iroh.computer/) is a peer-to-peer protocol that utilizes QUIC.
+It's simpler and yet more powerful than the common alternative: WebRTC data channels.
+I'm a CDN stan because of the improved QoE and scale, but it's hard to beat the cost savings of P2P.
+
+Unfortunately, there's no P2P support for browsers yet (via WebTransport).
+However, with a few small tweaks to `moq-lite`, I think it's possible to use a CDN for web browsers and iroh for the rest.
+The ability to announce/discover broadcasts via multiple connections is a huge win for MoQ.
+
+`iroh-live` also includes native capture and encoding support so you don't *have to* use ffmpeg/gstreamer/obs.
+I'd love to see this functionality ~yoinked~ contributed into the [moq](https://github.com/kixelated/moq) repo!
+#winkyface
+
+## UI stuff
+It's no secret that I **loathe** frontend development.
+I only do it because somebody has to, and because I have a savior complex.
+The MoQ ecosystem is full of backend nerds who don't even know the difference between `null` and `undefined`.
+
+That's right, my Christmas wish has been granted, hallelujah! 🎄
+
+- [christriants](https://github.com/christriants) added the ability to [broadcast a file from disk](https://github.com/kixelated/moq/pull/715) and [a latency slider](https://github.com/kixelated/moq/pull/728).
+- [pzanella](https://github.com/pzanella) added [a buffering icon](https://github.com/kixelated/moq/pull/714) and a [debug stats panel](https://github.com/kixelated/moq/pull/733).
+- [jdreetz](https://github.com/jdreetz) split the [UI into a separate package](https://github.com/kixelated/moq/pull/717).
+- [julijane](https://github.com/julijane) fixed a [canvas resizing bug](https://github.com/kixelated/moq/pull/725).
+- [arturparkhisenko](https://github.com/arturparkhisenko) fixed a [typo](https://github.com/kixelated/moq/pull/743).
+
+There are plenty of [remaining issues](https://github.com/kixelated/moq/issues) if you're bored and/or interested in helping out!
+
+## Go + Java
+Speaking of plenty, there are plenty of other MoQ implementations in development (Cloudflare, Google, Akamai, etc).
+However none are as personally exciting as these two:
+- [daichi](https://github.com/okdaichi) made a [Go library](https://github.com/okdaichi/gomoqt) for MoQ.
+- [mondain](https://github.com/mondain) made a Java library for MoQ (open-source soon).
+
+Why are these two special?
+
+Because they implement the [moq-lite draft](https://www.ietf.org/archive/id/draft-lcurley-moq-lite-02.html), my minimal subset of the *official* IETF [moq-transport draft](https://www.ietf.org/archive/id/draft-ietf-moq-transport-15.html).
+The IETF standard [keeps churning](./transfork), adding fringe and yet somehow mandatory features.
+If you're interested in MoQ, you should absolutely start with `moq-lite`, get it working, and add support for the full standard later.
+
+**Fun fact**: My first implementation was [originally written in Go](https://github.com/kixelated/moq/commit/2601c40b54ec0e40c7651a4e870e1f3f65854fbe)
+I'm **crab pilled** now.
+
+## Asymmetric Authentication
+Last but not least, [einrobin](https://github.com/einrobin) added support for public keys ([Rust](https://github.com/kixelated/moq/pull/731) and [Typescript](https://github.com/kixelated/moq/pull/745)) using [JWK](https://datatracker.ietf.org/doc/html/rfc7517).
+That's right, you can now use Ed25519 or RSA authentication! 🎉
+
+Okay, it's not a huge deal unless you're a crypto nerd, but it's a great first step for a generic MoQ CDN.
+When a user connects to the relay, they pass a [JWT](https://datatracker.ietf.org/doc/html/rfc7519) in the URL (soon headers).
+This token is signed by an issuer (private key) and verified by the relay (public key).
+
+The key used to sign/verify is configurable:
+- Symmetric keys are faster/easier but also allow the relay to sign, not just verify.
+- Asymmetric keys are *way cooler* because they split up the sign/verify responsibilities.
+
+In the future, we could forward these asymmetric tokens to the origin so our generic relay/CDN can't access arbitrary content.
+But that's a task for future we.
+
+## FIN
+Given this is a community effort now, I think it's time to move the repos to a new [moq-dev](https://github.com/moq-dev) organization.
+No more typing `kixelated` over and over again.
+
+And just a reminder that the [Montevideo Tech Summer Camp](./monte-video) is happening.
+I'll be in Uruguay for that week and you too could have awkward conversations with me in person.
+wow.
+
+Written by [@kixelated](https://github.com/kixelated).
+![@kixelated](/blog/avatar.png)
