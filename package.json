@@ -13,7 +13,7 @@
 		"fix": "biome check --write && pnpm audit fix"
 	},
 	"dependencies": {
-		"@kixelated/hang": "^0.6.1",
+		"@moq/hang": "^0.1.0",
 		"astro": "^5.8.2",
 		"solid-js": "^1.9.7",
 		"unique-names-generator": "^4.7.1"
