@@ -29,7 +29,7 @@ npm run fix        # Auto-fix code issues and audit dependencies
 - **Styling**: Tailwind CSS
 - **Build**: Vite with WASM and mkcert plugins
 - **Code Quality**: Biome for linting/formatting
-- **Package Manager**: pnpm v10.11.0
+- **Package Manager**: bun v1.3.4
 
 ### Key Components
 
