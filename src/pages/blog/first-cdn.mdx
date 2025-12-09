@@ -29,15 +29,15 @@ Check it out if you want to see the ~cringe~ cool stuff you can do with MoQ.
 This is a [technical preview](https://developers.cloudflare.com/moq/), so it's both free and subject to change.
 
 Cloudflare is hosting a public `relay.cloudflare.mediaoverquic.com` endpoint that you can ~abuse~ test.
-Connect using [my library](https://github.com/kixelated/moq), [Mike's fork](https://github.com/englishm/moq-rs), [Lorenzo's imquic](https://www.meetecho.com/blog/imquic/), [Meta's moxygen](https://github.com/facebookexperimental/moxygen), or any client that supports this limited subset of draft-07.
+Connect using [my library](https://github.com/moq-dev/moq), [Mike's fork](https://github.com/englishm/moq-rs), [Lorenzo's imquic](https://www.meetecho.com/blog/imquic/), [Meta's moxygen](https://github.com/facebookexperimental/moxygen), or any client that supports this limited subset of draft-07.
 
-I'm biased so naturally I'm going to use [@kixelated/hang](https://github.com/kixelated/moq/tree/main/js/hang) (smash that star button).
-You can publish a live broadcast in the browser using the [web demo](/publish) or the [library](https://github.com/kixelated/moq/blob/main/js/hang-demo/src/publish.html#L25):
+I'm biased so naturally I'm going to use [@moq/hang](https://github.com/moq-dev/moq/tree/main/js/hang) (smash that star button).
+You can publish a live broadcast in the browser using the [web demo](/publish) or the [library](https://github.com/moq-dev/moq/blob/main/js/hang-demo/src/publish.html#L25):
 
 ```html
 <script type="module">
 	// Registers the <hang-publish> element.
-	import "@kixelated/hang/publish/element";
+	import "@moq/hang/publish/element";
 </script>
 
 <!-- You'll need to replace `name` with something unique/random. -->
@@ -47,11 +47,11 @@ You can publish a live broadcast in the browser using the [web demo](/publish) o
 </hang-publish>
 ```
 
-There's a link to watch your live broadcast using the [web demo](/watch), or again you can use the [library](https://github.com/kixelated/moq/blob/9f5f6153458c03f255877a036e36f68f742d5c85/js/hang-demo/src/index.html#L30):
+There's a link to watch your live broadcast using the [web demo](/watch), or again you can use the [library](https://github.com/moq-dev/moq/blob/9f5f6153458c03f255877a036e36f68f742d5c85/js/hang-demo/src/index.html#L30):
 ```html
 <script type="module">
 	// Registers the <hang-watch> element.
-	import "@kixelated/hang/watch/element";
+	import "@moq/hang/watch/element";
 </script>
 
 <!-- Use the same name as the broadcast you published. -->
@@ -69,7 +69,7 @@ But that's a whole separate blog post; it's pretty cool.
 [hang.live](/blog/first-app) uses the far more powerful Javascript API to do more complicated stuff like get access to individual video frames.
 There's a *super secret* section at the end of this blog if you LOVE sample code, but I'm not going to bore the rest of you.
 
-There's also a 🦀 Rust 🦀 library [to import MP4](https://github.com/kixelated/moq/tree/main/rs/hang), [pipe media from ffmpeg](https://github.com/kixelated/moq/blob/9f5f6153458c03f255877a036e36f68f742d5c85/rs/justfile#L103), and [publish/watch using gstreamer](https://github.com/kixelated/moq/blob/9f5f6153458c03f255877a036e36f68f742d5c85/rs/justfile#L119) so you can do more complicated media stuff without 🤮 Javascript 🤮.
+There's also a 🦀 Rust 🦀 library [to import MP4](https://github.com/moq-dev/moq/tree/main/rs/hang), [pipe media from ffmpeg](https://github.com/moq-dev/moq/blob/9f5f6153458c03f255877a036e36f68f742d5c85/rs/justfile#L103), and [publish/watch using gstreamer](https://github.com/moq-dev/moq/blob/9f5f6153458c03f255877a036e36f68f742d5c85/rs/justfile#L119) so you can do more complicated media stuff without 🤮 Javascript 🤮.
 I wish I could spend more time on the Rust side but **WebSupport** is a big deal.
 We are no longer forced to use WebRTC, but that also means we need to build our own WebRTC in 🤮 Javascript 🤮.
 I can suffer and you can reap the rewards.
@@ -82,15 +82,15 @@ Cloudflare is only supporting a *tiny* subset of an [old draft](https://www.ietf
 They're using a [fork](https://github.com/englishm/moq-rs) of my terrible code so bugs are guaranteed.
 
 - **There's no authentication yet**: choose an unguessable name for each broadcast.
-- **There's no ANNOUNCE support**: my [conferencing example](https://github.com/kixelated/moq/blob/main/js/hang-demo/src/meet.html) uses **ANNOUNCE** to discover when broadcasts start/stop, so that won't work.
+- **There's no ANNOUNCE support**: my [conferencing example](https://github.com/moq-dev/moq/blob/main/js/hang-demo/src/meet.html) uses **ANNOUNCE** to discover when broadcasts start/stop, so that won't work.
 - **There's no [Safari support](https://caniuse.com/webtransport)**: [It's coming eventually](https://github.com/WebKit/standards-positions/issues/18#issuecomment-1495890122).
 - **Nothing has been optimized**: the user experience will improve over time.
 
-If any of these are deal breakers, then you could always run your own [moq-relay](https://github.com/kixelated/moq/tree/main/rs/moq-relay) in the meantime.
+If any of these are deal breakers, then you could always run your own [moq-relay](https://github.com/moq-dev/moq/tree/main/rs/moq-relay) in the meantime.
 I've been adding new features and fixing a bunch of stuff *after* Cloudflare smashed that fork button.
 For example, authentication (via JWT) and a WebSocket fallback for Safari/TCP support.
 
-There's even a [terraform module](https://github.com/kixelated/moq/blob/main/cdn/relay.tf) that powers `cdn.moq.dev`.
+There's even a [terraform module](https://github.com/moq-dev/moq/blob/main/cdn/relay.tf) that powers `cdn.moq.dev`.
 You too can run your own "global" CDN with 3 nodes and pay ~GCP~ Linode a boatload of money for the privilege.
 It's not *quite* as good as Cloudflare's network, currently available for free...
 
@@ -168,10 +168,10 @@ I knew you would win.
 
 Here's an example of my reactive library in action.
 It powers [hang.live](/blog/first-app) so the API is subject to change and is probably already out of date.
-When in doubt, [consult the source code](https://github.com/kixelated/moq/tree/main/js/hang) like the hacker you are.
+When in doubt, [consult the source code](https://github.com/moq-dev/moq/tree/main/js/hang) like the hacker you are.
 
 ```typescript
-import { Watch } from "@kixelated/hang"
+import { Watch } from "@moq/hang"
 
 // Start downloading a broadcast.
 const watch = new Watch.Broadcast({
@@ -186,7 +186,7 @@ const watch = new Watch.Broadcast({
 watch.audio.enabled.set(true);
 
 // There are helpers to convert my custom signals, like for React:
-import react from "@kixelated/signals/react"
+import react from "@moq/signals/react"
 const audioInfo = react(watch.audio.info); // a JSON blob of track information
 
 // You could use the built-in renderers.
