@@ -1,8 +1,8 @@
 import { adjectives, animals, uniqueNamesGenerator } from "unique-names-generator";
 import { createSignal } from "solid-js";
 
-import "@kixelated/hang/support/element";
-import "@kixelated/hang/publish/element";
+import "@moq/hang/support/element";
+import "@moq/hang/publish/element";
 
 export default function () {
 	const name = uniqueNamesGenerator({ dictionaries: [adjectives, animals], separator: "-" });
@@ -71,7 +71,7 @@ export default function () {
 			<ul>
 				<li>
 					🔓 <strong>Open Source</strong>: <a href="/source">Typescript and Rust libraries</a>; this demo is{" "}
-					<a href="https://github.com/kixelated/moq/blob/main/js/hang-demo/src/publish.html">here</a>.
+					<a href="https://github.com/moq-dev/moq/blob/main/js/hang-demo/src/publish.html">here</a>.
 				</li>
 				<li>
 					🌐 <strong>100% Web</strong>: WebTransport, WebCodecs, WebAudio, WebWorkers, WebEtc.
@@ -95,7 +95,7 @@ export default function () {
 				</li>
 				<li>
 					🔧 <strong>Compatible</strong>: TCP fallback via{" "}
-					<a href="https://github.com/kixelated/web-transport/tree/main/web-transport-ws">WebSocket</a>, Safari fallback
+					<a href="https://github.com/moq-dev/web-transport/tree/main/web-transport-ws">WebSocket</a>, Safari fallback
 					via <a href="https://github.com/Yahweasel/libav.js/">libav.js.</a>
 				</li>
 			</ul>

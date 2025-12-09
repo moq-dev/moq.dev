@@ -7,45 +7,45 @@ title: Source
 
 Everything is open source and broken into two repositories:
 
-- [kixelated/moq](https://github.com/kixelated/moq): The core MoQ library, with implementations in Rust and Typescript.
-- [kixelated/moq.dev](https://github.com/kixelated/moq.dev): This website. Includes terraform to run multiple relays on GCP.
+- [moq-dev/moq](https://github.com/moq-dev/moq): The core MoQ library, with implementations in Rust and Typescript.
+- [moq-dev/moq.dev](https://github.com/moq-dev/moq.dev): This website. Includes terraform to run multiple relays on GCP.
 
 ## Rust
-Native code is written in [Rust](https://github.com/kixelated/moq/tree/main/rs) and is split into a few notable crates:
+Native code is written in [Rust](https://github.com/moq-dev/moq/tree/main/rs) and is split into a few notable crates:
 
 |                                                                               crate | description                                                                                                                                           |
 | ----------------------------------------------------------------------------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 |                [moq-lite](https://docs.rs/moq-lite/latest/moq_lite/) | A generic pub/sub transport. This is a minimal reinterpretation of the IETF [MoqTransport draft](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/).  |
-|                [moq-relay](https://github.com/kixelated/moq/tree/main/rs/moq-relay) | A Moq server that connects publishers to subscribers, caching and deduplicating any subscriptions. Note that MoQ does not support P2P; instead it utilizes relays to scale out to many subscribers.                                                            |
-|                [moq-clock](https://github.com/kixelated/moq/tree/main/rs/moq-clock) | It's a clock! Just to demonstrate that MoQ can be used for more than media.                                                                            |
+|                [moq-relay](https://github.com/moq-dev/moq/tree/main/rs/moq-relay) | A Moq server that connects publishers to subscribers, caching and deduplicating any subscriptions. Note that MoQ does not support P2P; instead it utilizes relays to scale out to many subscribers.                                                            |
+|                [moq-clock](https://github.com/moq-dev/moq/tree/main/rs/moq-clock) | It's a clock! Just to demonstrate that MoQ can be used for more than media.                                                                            |
 |                    [hang](https://docs.rs/hang/latest/hang/) | A media specific library built on top of moq-lite. This provides a JSON "catalog" that describes the media tracks and "container" that literally consists of a timestamp. The actual media decoding/encoding is left to the platform. |
-|                    [hang-cli](https://github.com/kixelated/moq/tree/main/hang-cli) | A client that integrates with ffmpeg to publish media. This pipes fMP4 over stdin, so it's not the most efficient...                                                                                             |
-|                    [hang-gst](https://github.com/kixelated/hang-gst) | A GStreamer plugin for publishing and consuming media. Separate repository to avoid GStreamer build dependency. |
-|                    [hang-wasm](https://github.com/kixelated/moq/tree/main/hang-wasm) | An MoQ web client utilizing WebAssembly, WebCodecs, and WebTransport. Deprecated in favor of the Typescript implementation; see below for justification. |
+|                    [hang-cli](https://github.com/moq-dev/moq/tree/main/hang-cli) | A client that integrates with ffmpeg to publish media. This pipes fMP4 over stdin, so it's not the most efficient...                                                                                             |
+|                    [hang-gst](https://github.com/moq-dev/gstreamer) | A GStreamer plugin for publishing and consuming media. Separate repository to avoid GStreamer build dependency. |
+|                    [hang-wasm](https://github.com/moq-dev/moq/tree/main/hang-wasm) | An MoQ web client utilizing WebAssembly, WebCodecs, and WebTransport. Deprecated in favor of the Typescript implementation; see below for justification. |
 
 
 There are some additional crates in other repositories that might be of interest:
 | crate | description |
 | ----: | ----------- |
 | [web-transport-quinn](https://docs.rs/web-transport-quinn/latest/web_transport_quinn/) | A [WebTransport](https://datatracker.ietf.org/doc/draft-ietf-webtrans-http3/) client and server utilizing [Quinn](https://github.com/quinn-rs/quinn). Copies the Quinn API and abstracts away the HTTP/3 handshake.  |
-| [web-transport-wasm](https://github.com/kixelated/web-transport-rs/tree/main/web-transport-wasm) | A WASM [WebTransport](https://datatracker.ietf.org/doc/draft-ietf-webtrans-http3/) wrapper around the `web-sys` bindings. |
-| [web-transport](https://github.com/kixelated/web-transport-rs) | A common (opinionated) interface, utilizing one of the above depending on the platform. This is what the `moq-lite` crate uses. |
+| [web-transport-wasm](https://github.com/moq-dev/web-transport/tree/main/web-transport-wasm) | A WASM [WebTransport](https://datatracker.ietf.org/doc/draft-ietf-webtrans-http3/) wrapper around the `web-sys` bindings. |
+| [web-transport](https://github.com/moq-dev/web-transport) | A common (opinionated) interface, utilizing one of the above depending on the platform. This is what the `moq-lite` crate uses. |
 | [web-codecs](https://docs.rs/web-codecs/latest/web_codecs/) | A wrapper around the [WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) for WASM. |
 | [web-streams](https://docs.rs/web-streams/latest/web_streams/) | A wrapper around the [Streams API](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API) for WASM. |
 
 
 ## Typescript
-Web code is written in [Typescript](https://github.com/kixelated/moq/tree/main/js) and is split into a few packages:
+Web code is written in [Typescript](https://github.com/moq-dev/moq/tree/main/js) and is split into a few packages:
 
 | package | description |
 | ------- | ----------- |
-| [@kixelated/moq](https://www.npmjs.com/package/@kixelated/moq) | A moq-lite client that mirrors the Rust API. You can publish and subscribe to generic tracks. Any media stuff is implemented at a higher layer. |
-| [@kixelated/hang](https://www.npmjs.com/package/@kixelated/hang) | A media library. This is where the bulk of the cool stuff happens, like capturing/encoding or decoding/rendering media. Includes Web Components to make setup super simple. [See the demos](https://github.com/kixelated/moq/tree/main/js/hang/demo). |
+| [@moq/moq](https://www.npmjs.com/package/@moq/moq) | A moq-lite client that mirrors the Rust API. You can publish and subscribe to generic tracks. Any media stuff is implemented at a higher layer. |
+| [@moq/hang](https://www.npmjs.com/package/@moq/hang) | A media library. This is where the bulk of the cool stuff happens, like capturing/encoding or decoding/rendering media. Includes Web Components to make setup super simple. [See the demos](https://github.com/moq-dev/moq/tree/main/js/hang/demo). |
 
 **Note**: These utilize browser-specific APIs and there's no currently no support for Node and other server runtimes.
 [Deno](https://deno.com/) is doing some cool stuff with WebTransport so maybe it'll work there someday.
 
-And before you ask, yes, it is possible to use WASM for web support as demonstrated by the [hang-wasm](https://github.com/kixelated/moq/tree/main/hang-wasm) crate.
+And before you ask, yes, it is possible to use WASM for web support as demonstrated by the [hang-wasm](https://github.com/moq-dev/moq/tree/main/hang-wasm) crate.
 However, it involves a lot of boilerplate, wrappers, and casting.
 The performance is not great because the WASM sandbox doesn't have networking or device access, requiring copying and/or message passing to use Web APIs.
 
