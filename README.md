@@ -5,7 +5,7 @@
 This repository contains the code for [moq.dev](https://moq.dev).
 
 This is a client only.
-You'll either need to run a local server using [moq-rs](https://github.com/kixelated/moq-rs) or use a public server such as [relay.moq.dev](https://moq.dev/relay).
+You'll either need to run a local server using [moq](https://github.com/kixelated/moq) or use a public server such as `cdn.moq.dev`.
 
 Join the [Discord](https://discord.gg/FCYF3p99mr) for updates and discussion.
 
