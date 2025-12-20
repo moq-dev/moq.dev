@@ -2,7 +2,7 @@
 layout: "@/layouts/global.astro"
 title: "Hash Tag Community"
 author: kixelated
-description: It is my duty as the official MoQ #influencer is to give everyone a shoutout. hurrah
+description: There's actually a community of people not named `kixelated` making MoQ better. YOU TOO!
 cover: "/blog/hash-tag-community/hash.png"
 date: 2025-12-20
 ---
@@ -18,6 +18,7 @@ Probably.
 
 I should have asked before posting.
 Too late now.
+Who even reads these blog posts live?
 
 ## moq-dev
 But first, some arbitrary renaming to break workflows.
@@ -32,7 +33,7 @@ I created a [moq-dev](https://github.com/moq-dev) Github organization to reflect
 - [moq-dev/web-transport](https://github.com/moq-dev/web-transport): Rust/Typescript WebTransport libraries.
 
 There's also a new `@moq` NPM organization.
-However, I've yet to publish *working* packages under these sick new names yet because of the yet another obscure bundler bug.
+However, I've yet to publish *working* packages under these sick new names yet because of yet another obscure bundler bug.
 The Javascript ecosystem is an absolute mess.
 
 - [@moq/lite](https://www.npmjs.com/package/@moq/lite): Generic network transport.
@@ -68,8 +69,8 @@ If you're a closet OBS maintainer and/or interested in helping out, [join the Di
 
 And more stuff is coming!
 Don't close your eyes!
-- pangaea has an initial [OBS MoQ source](https://github.com/moq-dev/obs/pull/14).
-- brianmed has an initial [ffmpeg fork with MoQ support](https://github.com/brianmed/FFmpeg/tree/feature/moq-integration).
+- pangaea has an initial [MoQ OBS source](https://github.com/moq-dev/obs/pull/14).
+- brianmed has an initial [MoQ ffmpeg fork](https://github.com/brianmed/FFmpeg/tree/feature/moq-integration).
 
 
 ## UI stuff
@@ -121,15 +122,15 @@ But I think with a few small tweaks, it's possible to use a CDN for web browsers
 In fact, I just got word that Frando has a draft PR that adds iroh support to [moq-relay](https://crates.io/crates/moq-relay) for this very purpose.
 celebration emoji
 
-I'm blushing at my decision to over-engineer the protocol.
+I'm blushing at my decision to over-engineer the [moq-lite](https://docs.rs/moq-lite/latest/moq_lite/) API.
 The ability to fanout/discover via multiple connections/CDNs is a huge win for MoQ.
-Tracks do not get transmitted over the network until requested, making P2P viable.
+Tracks do not get transmitted over the network until requested, which makes P2P viable.
 
 ## HLS/DASH/CMAF/HAM
 For some reason, the media industry really love acronyms.
 And big bunnies.
 
-But the media industry **REALLY** loves adding `LL-` in front of an acronym to say "this is the really, really low latency one I swear".
+But the media industry **REALLY** loves adding `LL-` in front of an existing protocol to say "this is the really, really low latency one I swear".
 
 Unfortunately, `LL-HLS` and `LL-DASH` are not quite low latency enough, so we need some way to convert them to MoQ.
 [sebastianpiq](https://github.com/sebastianpiq) has added a way to [convert a HLS playlist](https://github.com/moq-dev/moq/pull/789) into a MoQ stream.
@@ -140,7 +141,7 @@ The next steps are [CMAF passthrough](https://github.com/moq-dev/moq/issues/676)
 Finally, I have a [super secret plan](https://github.com/moq-dev/moq/issues/685) to serve HLS from a generic MoQ relay to make megacorp adoption even easier.
 
 I know, it's not exactly the most exciting stuff, but welcome to megacorp.
-Sometimes money trumps personal satisfaction.
+Money trumps personal satisfaction.
 
 
 ## Go + Java
@@ -156,7 +157,7 @@ The IETF standard [keeps churning](/blog/transfork), adding fringe and yet someh
 I'm still committed to being compatible with the standard, but there's no way I'm spending my limited time on this earth implementing every junk feature in the draft.
 
 **My advice**: If you're interested in MoQ, you should start with `moq-lite`.
-Get it running, either by forking my terrible code, or by writing your own terrible code.
+Focus on getting it running *in production*, either by forking my terrible code, or by writing your own terrible code.
 It's going to be at least another 4 years before the relevant RFCs are released, so you have plenty of time to converge later.
 
 **Fun fact**: My first (and second) MoQ implementations were [written in Go](https://github.com/moq-dev/moq/commit/2601c40b54ec0e40c7651a4e870e1f3f65854fbe).
