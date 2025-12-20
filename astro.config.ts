@@ -26,8 +26,8 @@ export default defineConfig({
 			fs: {
 				allow: [
 					".",
-					// Allow `npm link @moq/hang`
-					fs.realpathSync(path.resolve("node_modules/@moq/hang")),
+					// Allow `npm link @kixelated/hang`
+					fs.realpathSync(path.resolve("node_modules/@kixelated/hang")),
 				],
 			},
 		},
@@ -37,7 +37,7 @@ export default defineConfig({
 			},
 		},
 		optimizeDeps: {
-			exclude: ["@moq/hang"],
+			exclude: ["@kixelated/hang"],
 		},
 	},
 });
