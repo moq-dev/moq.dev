@@ -2,63 +2,104 @@
 layout: "@/layouts/global.astro"
 title: "Hash Tag Community"
 author: kixelated
-description: My first task as the official MoQ #influencer is to give everyone a shoutout. hurrah
+description: It is my duty as the official MoQ #influencer is to give everyone a shoutout. hurrah
 cover: "/blog/hash-tag-community/hash.png"
-date: 2025-12-09
+date: 2025-12-20
 ---
 
 # Hash Tag Community
-There's been a LOT of new contributors to the project.
-It is my job as the MoQ #influencer to give everyone a shoutout.
+There's been a LOT of new contributions to the project thanks primarily to the [Montevideo Tech Summer Camp](/blog/monte-video).
+It is my job as the official MoQ `#influencer` to give everyone a shoutout.
 
-## moq-dev org
-But first, some arbitrary renaming and breaking everybody's workflow:
+**Just a reminder**: I'll be in sunny Uruguay for the summer camp week.
+You too can fly out and have awkward conversations with me, *in person*.
+There's still time to sign up.
+Probably.
 
-Given this is more of a community effort now, it's time for a [moq-dev](https://github.com/moq-dev) Github organization.
-No more typing `kixelated/moq`, `kixelated/hang`, `kixelated/web-transport` like a bad beatlejuice knockoff.
+I should have asked before posting.
+Too late now.
 
-It doesn't make any difference for the Rust crates (no namespaces), but somehow the `@moq` NPM organization was available.
-There's some sweet new package names:
+## moq-dev
+But first, some arbitrary renaming to break workflows.
+No more typing `kixelated`, `kixelated`, `kixelated` like a beatlejuice knockoff.
 
-```bash
-npm install @moq/hang
-npm install @moq/hang-ui
-npm install @moq/lite
-npm install @moq/signals
-```
+I created a [moq-dev](https://github.com/moq-dev) Github organization to reflect the community's newfound professionalism.
 
-All of the versions have been reset to `0.1` so we can pretend to stay young *forever*.
+- [moq-dev/moq](https://github.com/moq-dev/moq): Rust/Typescript libraries.
+- [moq-dev/obs](https://github.com/moq-dev/obs): (*spoiler alert*) OBS plugins. (*spoiler alert*)
+- [moq-dev/gstreamer](https://github.com/moq-dev/gstreamer): Gstreamer plugins.
+- [moq-dev/moq.dev](https://github.com/moq-dev/moq.dev): This website. So meta.
+- [moq-dev/web-transport](https://github.com/moq-dev/web-transport): Rust/Typescript WebTransport libraries.
+
+There's also a new `@moq` NPM organization.
+However, I've yet to publish *working* packages under these sick new names yet because of the yet another obscure bundler bug.
+The Javascript ecosystem is an absolute mess.
+
+- [@moq/lite](https://www.npmjs.com/package/@moq/lite): Generic network transport.
+- [@moq/hang](https://www.npmjs.com/package/@moq/hang): Opinionated media library.
+- [@moq/hang-ui](https://www.npmjs.com/package/@moq/hang-ui): Optional UI for said opinionated media library.
+- [@moq/signals](https://www.npmjs.com/package/@moq/signals): Custom signaling library because I could.
+
+I will keep renaming stuff until moral improves.
+
 
 ## OBS
-[bpmedley](https://github.com/brianmed) and [emilsas](https://github.com/emilsas) got an initial [OBS plugin](https://github.com/moq-dev/obs) working.
+[bpmedley](https://github.com/brianmed), [emilsas](https://github.com/emilsas), and [pangaea](https://github.com/davegullo) managed to get an [OBS plugin](https://github.com/moq-dev/obs) working.
 That's right, now you can use OBS with MoQ! 🎉
 
-Like most media libraries, OBS uses C++.
-I'm a fan of the crab, so we created a generic Rust/C binding called [libmoq](https://github.com/moq-dev/moq/blob/main/rs/libmoq/src/lib.rs) for the fans of the `SEGMENTATION FAULT`.
-You can use this C library to publish MoQ from your favorite C/C++ application; ffmpeg maybe?
+Like most media libraries, OBS is written in C++ because they're a fan of `SEGMENTATION FAULT`.
+But I'm a fan of the crab instead, so I created a generic Rust/C binding called [libmoq](https://docs.rs/libmoq/latest/moq/).
+You can use this [static library](https://github.com/moq-dev/moq/releases) to both publish and consume MoQ from your favorite C/C++ application.
 
-`libmoq` consists of synchronous C methods, offloading the heavy lifting to Rust to parse the codec bitstream, build the catalog/container, and update the internal cache.
-There's a separate background thread (Rust+Tokio) responsible for serving any MoQ subscriptions.
-No need to perform any of the asynchronous nonsense in C; it just shovels media.
+I'm working on proper documentation but until then, a quick overview:
+- [libmoq](https://docs.rs/libmoq/latest/moq/) spawns a background thread, starts the [Tokio runtime](https://tokio.rs/), and exposes C functions to write/read frames of media.
+- [hang](https://docs.rs/hang/latest/hang/) parses the codec bitstream, builds the catalog/container (media stuff), and updates the network cache.
+- [moq-lite](https://docs.rs/moq-lite/latest/moq_lite/) does all the nasty async networking stuff based on the cache.
 
-Unfortunately, we need to [patch OBS](https://github.com/obsproject/obs-studio/compare/master...brianmed:obs-studio:32.0.2-moq) literally to just add `MoQ` to the UI.
-There's still a lot more polish needed too, like adding/testing codecs other than H264/AAC.
-If you're interested in helping out, [join the Discord](https://discord.gg/FCYF3p99mr).
+<figure>
+	![mfw](/blog/hash-tag-community/live.png)
+	<figcaption>
+		This is literally the user experience.
+	</figcaption>
+</figure>
+
+Unfortunately, we need to [patch OBS](https://github.com/obsproject/obs-studio/pull/12911) literally to just add `MoQ` to the UI.
+If you're a closet OBS maintainer and/or interested in helping out, [join the Discord](https://discord.gg/FCYF3p99mr).
+
+And more stuff is coming!
+Don't close your eyes!
+- pangaea has an initial [OBS MoQ source](https://github.com/moq-dev/obs/pull/14).
+- brianmed has an initial [ffmpeg fork with MoQ support](https://github.com/brianmed/FFmpeg/tree/feature/moq-integration).
+
 
 ## UI stuff
 It's no secret that I **loathe** frontend development.
 I only do it because someone has to, and because I have a savior complex.
 The MoQ ecosystem is full of backend nerds who don't even know the difference between `null` and `undefined`.
 
-That's right, my Christmas wish has been granted, hallelujah! 🎄
+🎵🎶 All I want for Christmas, is a frontend engineer 🎵🎶
 
-- [christriants](https://github.com/christriants) added the ability to [broadcast a file from disk](https://github.com/moq-dev/moq/pull/715) and [a latency slider](https://github.com/moq-dev/moq/pull/728).
+And that's right, my Christmas wish has been granted, hallelujah! 🎄
+
+- [christriants](https://github.com/christriants) added [file upload](https://github.com/moq-dev/moq/pull/715) and [a latency slider](https://github.com/moq-dev/moq/pull/728).
 - [pzanella](https://github.com/pzanella) added [a buffering icon](https://github.com/moq-dev/moq/pull/714) and a [debug stats panel](https://github.com/moq-dev/moq/pull/733).
 - [jdreetz](https://github.com/jdreetz) split the [UI into a separate package](https://github.com/moq-dev/moq/pull/717).
+- [gdavila](https://github.com/gdavila) fixed [rendering on pause](https://github.com/moq-dev/moq/pull/771).
+- [cotid](https://github.com/cotid-qualabs) added a [quality selector](https://github.com/moq-dev/moq/pull/760).
 - [julijane](https://github.com/julijane) fixed a [canvas resizing bug](https://github.com/moq-dev/moq/pull/725).
-- [arturparkhisenko](https://github.com/arturparkhisenko) fixed a [typo](https://github.com/moq-dev/moq/pull/743).
+- [arturparkhisenko](https://github.com/arturparkhisenko) fixed a [typo](https://github.com/moq-dev/moq/pull/743). (MVP)
 
-There are plenty of [remaining issues](https://github.com/moq-dev/moq/issues) if you're bored and/or interested in helping out!
+There are plenty of [remaining issues](https://github.com/moq-dev/moq/issues) if you're bored and know the difference between `null` and `undefined`.
+Please I beg you.
+I'll literally merge anything, even if you just change the color of a button.
+
+<figure>
+	![mfw](/blog/hash-tag-community/ui.png)
+	<figcaption>
+		Just like my mom always told me:
+		"You don't have to be pretty so long as you're functional."
+	</figcaption>
+</figure>
 
 ## iroh
 [Way back when](/blog/first-cdn) I said:
@@ -71,49 +112,82 @@ That's right, now you can use P2P with MoQ! 🎉
 It's simpler and yet more powerful than the common alternative: WebRTC data channels.
 I'm a CDN stan because of the improved QoE and scale, but it's hard to beat the cost savings of P2P.
 
-Unfortunately, there's no P2P support for browsers yet (via WebTransport).
-However, with a few small tweaks to `moq-lite`, I think it's possible to use a CDN for web browsers and iroh for the rest.
-The ability to announce/discover broadcasts via multiple connections is a huge win for MoQ.
+`iroh-live` also includes native capture and encoding support so you don't *have to* use the aforementioned ffmpeg/gstreamer/obs integrations.
+I think it's a great step towards getting MoQ on more platforms, and I'd love to see this functionality ~yoinked~ contributed to the [moq](https://github.com/moq-dev/moq) repo.
+;)
 
-`iroh-live` also includes native capture and encoding support so you don't *have to* use ffmpeg/gstreamer/obs.
-I'd love to see this functionality ~yoinked~ contributed to the [moq](https://github.com/moq-dev/moq) repo!
-#winkyface
+Unfortunately, there's no P2P support for browsers yet.
+But I think with a few small tweaks, it's possible to use a CDN for web browsers and iroh for P2P compatible clients.
+In fact, I just got word that Frando has a draft PR that adds iroh support to [moq-relay](https://crates.io/crates/moq-relay) for this very purpose.
+celebration emoji
+
+I'm blushing at my decision to over-engineer the protocol.
+The ability to fanout/discover via multiple connections/CDNs is a huge win for MoQ.
+Tracks do not get transmitted over the network until requested, making P2P viable.
+
+## HLS/DASH/CMAF/HAM
+For some reason, the media industry really love acronyms.
+And big bunnies.
+
+But the media industry **REALLY** loves adding `LL-` in front of an acronym to say "this is the really, really low latency one I swear".
+
+Unfortunately, `LL-HLS` and `LL-DASH` are not quite low latency enough, so we need some way to convert them to MoQ.
+[sebastianpiq](https://github.com/sebastianpiq) has added a way to [convert a HLS playlist](https://github.com/moq-dev/moq/pull/789) into a MoQ stream.
+That's right, now a megacorp can take their existing HLS infrastructure and put MoQ branding on it! 🎉
+
+It still needs quite a bit more work, like adding the aforementioned `LL-HLS` support.
+The next steps are [CMAF passthrough](https://github.com/moq-dev/moq/issues/676) and [MSE playback](https://github.com/moq-dev/moq/issues/682) so said megacorp can support DRM and legacy devices.
+Finally, I have a [super secret plan](https://github.com/moq-dev/moq/issues/685) to serve HLS from a generic MoQ relay to make megacorp adoption even easier.
+
+I know, it's not exactly the most exciting stuff, but welcome to megacorp.
+Sometimes money trumps personal satisfaction.
+
 
 ## Go + Java
-It's no secret that there are plenty of other MoQ implementations in development (Cloudflare, Google, Akamai, etc).
+It's no secret that there are plenty of other MoQ implementations in development ([Cloudflare](https://github.com/cloudflare/moq-rs), [Google](https://github.com/google/quiche/tree/4ecc13ccdad3359ff50ea209decb9be243927596/quiche/quic/moqt), [Akamai](https://openmoq.org/), etc).
 However none are as personally exciting as these two:
 - [daichi](https://github.com/okdaichi) made a [Go library](https://github.com/okdaichi/gomoqt) for MoQ.
-- [mondain](https://github.com/mondain) made a Java library for MoQ (open-source soon).
+- [mondain](https://github.com/mondain) made a Java library for MoQ. (open source soon?)
 
 Why are these two special?
 
 Because they implement the [moq-lite draft](https://www.ietf.org/archive/id/draft-lcurley-moq-lite-02.html), my minimal subset of the *official* IETF [moq-transport draft](https://www.ietf.org/archive/id/draft-ietf-moq-transport-15.html).
 The IETF standard [keeps churning](/blog/transfork), adding fringe and yet somehow mandatory features.
-If you're interested in MoQ, you should absolutely start with `moq-lite`, get it working, and add support for the full standard later.
+I'm still committed to being compatible with the standard, but there's no way I'm spending my limited time on this earth implementing every junk feature in the draft.
 
-**Fun fact**: My first implementation was [originally written in Go](https://github.com/moq-dev/moq/commit/2601c40b54ec0e40c7651a4e870e1f3f65854fbe)
-I'm **crab pilled** now.
+**My advice**: If you're interested in MoQ, you should start with `moq-lite`.
+Get it running, either by forking my terrible code, or by writing your own terrible code.
+It's going to be at least another 4 years before the relevant RFCs are released, so you have plenty of time to converge later.
+
+**Fun fact**: My first (and second) MoQ implementations were [written in Go](https://github.com/moq-dev/moq/commit/2601c40b54ec0e40c7651a4e870e1f3f65854fbe).
+I'm a crab now.
+
 
 ## Asymmetric Authentication
 Last but not least, [einrobin](https://github.com/einrobin) added support for public keys ([Rust](https://github.com/moq-dev/moq/pull/731) and [Typescript](https://github.com/moq-dev/moq/pull/745)) using [JWK](https://datatracker.ietf.org/doc/html/rfc7517).
 That's right, you can now use Ed25519 or RSA authentication! 🎉
 
-Okay, it's not a huge deal unless you're a crypto nerd, but it's a great first step for a generic MoQ CDN.
-When a user connects to the relay, they pass a [JWT](https://datatracker.ietf.org/doc/html/rfc7519) in the URL (soon headers).
-This token is signed by an issuer (private key) and verified by the relay (public key).
+Okay, this section is mostly for the cryptography nerds.
+I hate that I have to type out "cryptography" now thanks to "crypto" bros.
 
-The key used to sign/verify is configurable:
+When a user connects to the relay, they pass a token ([JWT](https://datatracker.ietf.org/doc/html/rfc7519)) in the URL.
+Eventually, the token will be in the `Authorization` header, but it's [not yet supported](https://github.com/w3c/webtransport/issues/263) by WebTransport.
+This token is signed by an issuer (ex. `hang.live`) and verified by the relay (ex. `cdn.moq.dev`).
+
+There's two types of keys you can use to sign/verify the token:
 - Symmetric keys are faster/easier but also allow the relay to sign, not just verify.
 - Asymmetric keys are *way cooler* because they split up the sign/verify responsibilities.
 
-In the future, we could forward these asymmetric tokens to the origin so our generic relay/CDN can't access arbitrary content.
-But that's a task for future we.
+So yeah, if you choose to use an asymmetric key, the CDN can't forge requests.
+Hurray?
+Hurray!
 
 ## FIN
+It's tiring being an influencer.
+This project is my legacy, and I greatly appreciate all of the help from the `#community`.
 
-And just a reminder that the [Montevideo Tech Summer Camp](/blog/monte-video) is happening.
-I'll be in Uruguay for that week and you too could have awkward conversations with me in person.
-wow.
+Just a reminder that I'm unemployed (on purpose) and available for *unpaid* consulting gigs if you, or your megacorp, are interested in MoQ.
+Message me on [Discord](https://discord.gg/FCYF3p99mr) if you, or your CTO, or your intern, want to schedule a call and exchange business cards.
 
 Written by [@kixelated](https://github.com/kixelated).
 ![@kixelated](/blog/avatar.png)
