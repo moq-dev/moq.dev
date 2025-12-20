@@ -1,8 +1,8 @@
 import { adjectives, animals, uniqueNamesGenerator } from "unique-names-generator";
 import { createSignal } from "solid-js";
 
-import "@moq/hang/support/element";
-import "@moq/hang/publish/element";
+import "@kixelated/hang/support/element";
+import "@kixelated/hang/publish/element";
 
 export default function () {
 	const name = uniqueNamesGenerator({ dictionaries: [adjectives, animals], separator: "-" });

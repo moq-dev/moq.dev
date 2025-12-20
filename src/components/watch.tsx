@@ -1,6 +1,6 @@
 // Use the hang web components.
-import "@moq/hang/support/element";
-import "@moq/hang/watch/element";
+import "@kixelated/hang/support/element";
+import "@kixelated/hang/watch/element";
 import { Show } from "solid-js";
 
 export default function () {

@@ -31,13 +31,13 @@ This is a [technical preview](https://developers.cloudflare.com/moq/), so it's b
 Cloudflare is hosting a public `relay.cloudflare.mediaoverquic.com` endpoint that you can ~abuse~ test.
 Connect using [my library](https://github.com/moq-dev/moq), [Mike's fork](https://github.com/englishm/moq-rs), [Lorenzo's imquic](https://www.meetecho.com/blog/imquic/), [Meta's moxygen](https://github.com/facebookexperimental/moxygen), or any client that supports this limited subset of draft-07.
 
-I'm biased so naturally I'm going to use [@moq/hang](https://github.com/moq-dev/moq/tree/main/js/hang) (smash that star button).
+I'm biased so naturally I'm going to use [@kixelated/hang](https://github.com/moq-dev/moq/tree/main/js/hang) (smash that star button).
 You can publish a live broadcast in the browser using the [web demo](/publish) or the [library](https://github.com/moq-dev/moq/blob/main/js/hang-demo/src/publish.html#L25):
 
 ```html
 <script type="module">
 	// Registers the <hang-publish> element.
-	import "@moq/hang/publish/element";
+	import "@kixelated/hang/publish/element";
 </script>
 
 <!-- You'll need to replace `name` with something unique/random. -->
@@ -51,7 +51,7 @@ There's a link to watch your live broadcast using the [web demo](/watch), or aga
 ```html
 <script type="module">
 	// Registers the <hang-watch> element.
-	import "@moq/hang/watch/element";
+	import "@kixelated/hang/watch/element";
 </script>
 
 <!-- Use the same name as the broadcast you published. -->
@@ -171,7 +171,7 @@ It powers [hang.live](/blog/first-app) so the API is subject to change and is pr
 When in doubt, [consult the source code](https://github.com/moq-dev/moq/tree/main/js/hang) like the hacker you are.
 
 ```typescript
-import { Watch } from "@moq/hang"
+import { Watch } from "@kixelated/hang"
 
 // Start downloading a broadcast.
 const watch = new Watch.Broadcast({
@@ -186,7 +186,7 @@ const watch = new Watch.Broadcast({
 watch.audio.enabled.set(true);
 
 // There are helpers to convert my custom signals, like for React:
-import react from "@moq/signals/react"
+import react from "@kixelated/signals/react"
 const audioInfo = react(watch.audio.info); // a JSON blob of track information
 
 // You could use the built-in renderers.

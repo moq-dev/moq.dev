@@ -29,11 +29,11 @@ npm run fix        # Auto-fix code issues and audit dependencies
 - **Styling**: Tailwind CSS
 - **Build**: Vite with WASM and mkcert plugins
 - **Code Quality**: Biome for linting/formatting
-- **Package Manager**: pnpm v10.11.0
+- **Package Manager**: bun v1.3.4
 
 ### Key Components
 
-1. **MoQ Client Implementation** (`@moq/hang` package):
+1. **MoQ Client Implementation** (`@kixelated/hang` package):
    - Custom web components: `<hang-publish>`, `<hang-watch>`, `<hang-support>`
    - WebTransport protocol for relay connections
    - Publishing: `src/components/publish.tsx` - Creates broadcasts with random names
@@ -67,6 +67,6 @@ npm run fix        # Auto-fix code issues and audit dependencies
 
 - WebTransport requires HTTPS even in development (handled by vite-plugin-mkcert)
 - Broadcasts are ephemeral - no persistence layer
-- The `@moq/hang` package handles all MoQ protocol implementation
+- The `@kixelated/hang` package handles all MoQ protocol implementation
 - For new blog posts, add MDX files to `src/pages/blog/`
 - Component changes in `src/components/` automatically reload with HMR

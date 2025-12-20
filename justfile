@@ -8,48 +8,47 @@ default:
 
 # Run the CI checks
 check:
-	pnpm i
+	bun i
 
 	# Lint the JS packages
-	pnpm exec biome check
+	bun exec biome check
 
 	# Make sure Typescript compiles
-	pnpm run check
+	bun run check
 
 # Automatically fix some issues.
 fix:
 	# Fix the JS packages
-	pnpm i
+	bun i
 
 	# Format and lint
-	pnpm exec biome check --fix
+	bun exec biome check --fix
 
 # Run any CI tests
 test:
 	# Run the JS tests via node.
-	pnpm test
+	bun test
 
 # Upgrade any tooling
 upgrade:
 	# Update the NPM dependencies
-	pnpm self-update
-	pnpm update
-	pnpm outdated
+	bun upgrade
+	bun outdated
 
 # Build the packages
 build:
-	pnpm i
-	pnpm astro build
+	bun i
+	bun astro build
 
 # Deploy the site to Cloudflare Pages
 deploy env="staging": build
-	pnpm wrangler deploy --env {{env}}
+	bun wrangler deploy --env {{env}}
 
 dev:
-	pnpm i
+	bun i
 
 	# Run the web development server
-	pnpm astro dev --open
+	bun astro dev --open
 
 preview: build
-	pnpm astro preview --open
+	bun astro preview --open
