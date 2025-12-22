@@ -4,30 +4,29 @@ title: You Don't Need It
 author: kixelated
 description: Do you need to use MoQ? What are we even doing with our lives?
 cover: "/blog/you-dont-need-it/sponge.jpg"
-date: 2025-12-21
+date: 2025-12-22
 ---
 
 # You Don't Need It
 MoQ is a neato new live media protocol.
-It's backed by some of the biggest companies in the world, [some big](https://blog.cloudflare.com/moq/) and [some small](https://www.nanocosmos.net/blog/media-over-quic-moq/).
-It's easy to get caught up in the momentum:
+It's backed by a bunch of companies, [some big](https://blog.cloudflare.com/moq/) and [some small](https://www.nanocosmos.net/blog/media-over-quic-moq/).
+It's easy to get caught up in the hype:
 
-- Should you use MoQ?
+- Do you need to adopt it?
 - Is it an [existential threat](https://webrtchacks.com/is-everyone-switching-to-moq/)?
-- Do you adopt it ASAP?
+- How do you even pronounce it?
 
-I'm the idiot that quit their job to work on MoQ open source.
-I'm at the forefront of peddling this new protocol.
-**The most invested person in the world.**
+Don't worry, I'll answer most of your hypothetical sockpuppet questions.
+For context, I'm the idiot that quit my job to work on MoQ open source.
+I'm at the forefront of ~peddling~ promoting this new protocol.
+**I'm the most invested person in the world.**
 
 But I'm obligated to say: **you don't need it**.
 
-There are often better alternatives.
+Like everything in life, there might be a better alternative.
 You need to take a step back and evaluate the problems that you're trying to solve.
 
 ## Problem Driven Development
-I need to preach like a LinkedIn influencer for a bit.
-
 You are Bob.
 You are a builder.
 You build software, hopefully for money, and hopefully to *solve a problem*.
@@ -36,22 +35,22 @@ You build software, hopefully for money, and hopefully to *solve a problem*.
 - You **should try** technologies that **might solve problems**: an AI fridge.
 - You **should not use** technologies that **do not solve problems**: an AI toaster.
 
-The hardest part of the job is figuring out what problems are real.
-There are plenty of solutions to evaluate, and you need to figure out if they could solve your problems.
+The hardest part of the job is figuring out what problems exist and which solutions are worth evaluating.
 [My road to MoQ](/blog/distribution-at-twitch) took years of trial and error.
-There are no shortcuts.
 
 `guest271314` is wrong about virtually everything, but [one of his turds of wisdom](https://discord.com/channels/1124083992740761730/1124083992740761733/1391116973873828091) has stuck with me:
 
 <figure>
 	![guest271314](/blog/you-dont-need-it/guest.png)
-	<figcaption>+33% higher bitrate, but nobody can discern the difference</figcaption>
+	<figcaption>base64 for +33% higher bitrate, but nobody can discern the difference</figcaption>
 </figure>
 
 He's right unfortunately, but on a technicality.
 `guest271314` only has one user and all his media is served via `localhost`.
-Virtually any technology will work for him and they all behave the same.
-**Your problems are scoped to your users.**
+It doesn't matter how the media is transmitted, the user experience will be identical.
+
+**Your problems are specific to your product.**
+There are no universal solutions.
 
 ## Solution Driven Development
 We are creative animals, always striving to resolve problems in new and "interesting" ways.
@@ -60,16 +59,17 @@ We are creative animals, always striving to resolve problems in new and "interes
 ["DOOM on a pregnancy test"](https://www.cnet.com/culture/programmer-makes-original-doom-playable-on-pregnancy-test/).
 
 That's why I love programming; it's a puzzle with an infinite number of solutions.
-But there's only a finite number of problems to solve, so sometimes we invent new ones.
-Build a solution, and then **try to find a problem**.
+But there are only a finite number of problems to solve, so sometimes we invent new ones.
+**Build a solution**, and then **try to find a problem**.
 
 Virtually every Javascript framework ever created has fallen into this trap.
 The entire blockchain industry is built on this principle.
+Don't get me started about AI.
 Unfortunately, I think the [IETF working group](https://datatracker.ietf.org/wg/moq/about/) has also fallen into this trap.
 
 My go-to example is `FETCH`, a *mandatory to implement* verb in [moq-transport](https://www.ietf.org/archive/id/draft-ietf-moq-transport-15.html#name-fetch).
-It's trying to reinvent HTTP... without trying to solve any of the problems with HTTP.
-It's a huge waste of time even if the design was perfect (it's not).
+It's trying to reinvent HTTP, but without solving any of the problems with HTTP.
+Without diving into the details, **it's a huge waste of time**.
 
 <figure>
 	![guest271314](/blog/you-dont-need-it/sponge.jpg)
@@ -77,26 +77,20 @@ It's a huge waste of time even if the design was perfect (it's not).
 </figure>
 
 **Just use HTTP**.
-There is no problem to solve here.
-As a bonus, you fix a real problem and support "old" clients still using HLS/DASH.
 You don't need MoQ for your VOD content.
+It's not solving a problem, it's only creating a solution.
 
 ## Production Driven Development
-Okay, last LinkedIn influencer moment and then we can get to actual hot takes.
 In a [previous blog post](/blog/application-first), I ranted about how critical it is to focus on the application.
 
-You should always **plan for production** because it makes our monkey brains think about problems.
-Otherwise, the boring problems get punted in favor of building cool solutions.
-Authentication is boring, backwards compatibility is boring, etc.
-
-Vibe coding a cool prototype is fun, but soon enough you're in too deep.
-There's no turning back now to readdress these boring problems.
-You ship a shit product rather than declare bankruptcy.
-And everybody laughs at you.
+I think you should always **have a production plan**, even for a prototype.
+It makes our monkey brains think about the boring problems that *still need to be solved*.
+Stuff like authentication, backwards compatibility, and other stuff that nobody has fun thinking about.
 
 Of course, you can always live a hermit lifestyle like `guest271314`.
-Programming is fun, and sometimes your code never needs to leave `localhost`.
-You just have to leave a big disclaimer that "you should not use this"... instead of spamming the MoQ discord pretending to be an expert.
+**Programming should be fun.**
+Your code never needs to leave `localhost`.
+Just don't spam the MoQ discord pretending to be an expert.
 
 <figure>
 	![guest271314](/blog/you-dont-need-it/guest2.png)
@@ -105,7 +99,7 @@ You just have to leave a big disclaimer that "you should not use this"... instea
 
 
 ## You Should Not Use This
-Enough blabbing, let's get to some concrete examples already:
+Enough philosophizing, let's get to the point.
 
 **You *should not* use MoQ for high-quality content**.
 
@@ -114,20 +108,19 @@ There's a lot of nuance of course.
 
 ## TCP vs QUIC
 
-Unequivocally, TCP is the best protocol for **reliable** content delivery.
+Unequivocally, TCP is the best protocol for **reliable** delivery over the internet.
 It has universal adoption and has been hyper-optimized for decades.
-There are massive CDN companies fighting to charge you pennies to serve your funny cat videos over HTTP.
+There are massive CDN companies eager to charge you pennies to serve your funny cat videos over HTTP.
 
 The problem with TCP, of course, is that its reliability comes at the expense of latency.
 Specifically, TCP will queue data during network congestion.
-QUIC (and UDP in general) gives you the option to **sacrifice reliability** instead.
+QUIC (and UDP in general) give you the ability to **sacrifice reliability**, opting to skip data instead.
 
 And that's all it provides.
 QUIC can't move more bytes, or move them faster.
 Your 100MB cat video will take just as long to download over QUIC as it does over TCP.
-QUIC only offers a way to drop old data instead of blocking on it, which is why we use it for MoQ.
 
-So if you're delivering "high-quality content":
+So if you're delivering "high-quality content", you have to ask yourself:
 - Do you want to sacrifice quality for latency?
 - Do you want viewers to skip chunks of the sportsball game?
 - Can viewers even discern the difference between 200 milliseconds or 5 seconds of latency?
@@ -148,23 +141,25 @@ The same protocol can serve a variety of different use-cases.
 For example, I initially built [MoQ for Twitch](/blog/distribution-at-twitch).
 In theory it falls under the "high-quality content" category above, even though most of the content consists of loading screens and bathroom breaks.
 
-However, Twitch chat is why MoQ exists.
+Twitch chat is why MoQ exists.
 OMEGALUL
 <figure>
 	![omegalul](/blog/you-dont-need-it/omegalul.png)
 	<figcaption>I've been told that this is fun to spam in chat.</figcaption>
 </figure>
 
-The project initially started with WebRTC, giving users the ability to have real-time chats with their favorite streamers.
+Some users want to have a real-time chat with their favorite streamer.
 **Some users want to sacrifice quality for latency**.
-It's a really cool experience that I wish we got to ship.
 
-But most users don't want their live stream served with Google Meet quality.
-They don't care about latency if they're not engaged with chat.
-They don't want video to be skipped, and dare I suggest it, they might even **want buffering**.
-Constant micro-stutters can be more jarring than a one time buffering event.
+Our first attempt used WebRTC.
+For the highly engaged users, this was great product.
+They don't care if some video is skipped, they're too busy typing OMEGALUL in chat.
 
-So you, roleplaying as Bob the Builder, can choose to build:
+But most users don't want their live stream served via Google Meet.
+The quality of the broadcast is worse for no discernible reason.
+Some people just want to watch TV in their underwear.
+
+So you, roleplaying as Bob the Builder, need to decide what to build:
 - two separate stacks, one for HLS and one for WebRTC?
 - or a single MoQ stack and let **viewers can choose their experience**?
 
@@ -172,7 +167,7 @@ There's no right answer.
 I chose the latter and look where I ended up.
 
 <figure>
-	![guest271314](/blog/you-dont-need-it/guest3-long.png)
+	![guest271314](/blog/you-dont-need-it/guest5.png)
 	<figcaption>At least I think I'm funny.</figcaption>
 </figure>
 
@@ -180,36 +175,38 @@ I chose the latter and look where I ended up.
 Unless you work for a [Twitch clone](https://kick.com/), your use-case will be different.
 I can't pretend to understand what you're building, but that's not going to stop me from giving unsolicited advice.
 
-**AI Voice Chat**:
-Don't use WebRTC.
-Otherwise you'll spend so much money/time running the model only to drop the output at the network layer.
-[Use WebSockets](https://blog.helix.ml/p/we-killed-webrtc-and-nobody-noticed) until models get much faster, then consider MoQ.
-
 **Live Sports**:
-Use HLS/DASH.
-Consider MoQ if some users want gambling or "interactive" content.
+Use HLS/DASH for mass distribution.
+Consider MoQ when *some* users want 1s latency for gambling or interactivity.
 
 **Conferencing**:
 Use WebRTC if you want a [Google Meet clone](/blog/replacing-webrtc).
-Consider MoQ if you want to do [dumb custom shit](/blog/first-app).
+Consider MoQ when you want to do [dumb custom shit](/blog/first-app).
 
 **Production Studio**:
 Use SRT because that's what your expensive hardware supports.
-Consider MoQ if you're doing cloud compositing and to avoid pushing all feeds.
+Consider MoQ when you need to save bandwidth.
+
+**AI Voice Chat**:
+Use WebSockets and WebCodecs.
+Please don't use WebRTC, otherwise you'll spend so much money/time running the model, only to drop the output.
+Consider MoQ when models get much faster.
+
 
 Look you get the idea.
-Consider MoQ if there are problems with the usual suspects.
-It's a green field with its own set of problems, but you can help chip away at them.
+You can and should use whatever protocol best solves your problems.
+**You don't need to use MoQ just because it's new and cool.**
 
-<figure>
-	![guest271314](/blog/you-dont-need-it/guest5.png)
-	<figcaption></figcaption>
-</figure>
+(but I don't blame you)
 
 ## FIN
 [Join the Discord](https://discord.gg/FCYF3p99mr) already and help me troll `guest271314`.
-
 Just make sure to read the `#rules` first.
+
+<figure>
+	![guest271314](/blog/you-dont-need-it/guest3-long.png)
+</figure>
+
 
 Written by [@kixelated](https://github.com/kixelated).
 ![@kixelated](/blog/avatar.png)
