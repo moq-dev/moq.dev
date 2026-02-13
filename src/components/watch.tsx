@@ -27,14 +27,6 @@ export default function () {
 				<canvas style={{ "max-width": "100%", height: "auto", margin: "0 auto", "border-radius": "1rem" }} />
 			</hang-watch>
 
-			<Show when={name === "bbb"}>
-				<h3>Known Issue:</h3>
-				<p>
-					<strong>TODO:</strong> The GCP instance publishing this broadcast deadlocks after a few weeks and I'm too busy
-					to investigate why. If the stream is offline, try <a href="/publish">publishing your own</a> instead.
-				</p>
-			</Show>
-
 			<h3>Features:</h3>
 			<ul>
 				<li>
