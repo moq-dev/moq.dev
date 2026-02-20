@@ -33,21 +33,9 @@ npm run fix        # Auto-fix code issues and audit dependencies
 
 ### Key Components
 
-1. **MoQ Client Implementation** (`@kixelated/hang` package):
-   - Custom web components: `<hang-publish>`, `<hang-watch>`, `<hang-support>`
-   - WebTransport protocol for relay connections
-   - Publishing: `src/components/publish.tsx` - Creates broadcasts with random names
-   - Watching: `src/components/watch.tsx` - Connects to broadcasts by name
-
-2. **Routing Structure**:
-   - `/publish` - Create new broadcasts
-   - `/watch/{name}` - View specific broadcast
-   - `/blog/` - MDX-based blog posts
-   - Dynamic routes use `export const prerender = false` for SSR
-
-3. **Environment Configuration**:
-   - `PUBLIC_RELAY_URL` - WebTransport URL
-   - Separate `.env` files for dev/production
+**MoQ Client Implementation** (`@moq/publish` + `@moq/watch` packages):
+   - Custom web components: `<moq-publish>`, `<moq-watch>`
+   - UI wrapper components: `<moq-publish-ui>`, `<moq-watch-ui>`
 
 ### Important Patterns
 
@@ -67,6 +55,6 @@ npm run fix        # Auto-fix code issues and audit dependencies
 
 - WebTransport requires HTTPS even in development (handled by vite-plugin-mkcert)
 - Broadcasts are ephemeral - no persistence layer
-- The `@kixelated/hang` package handles all MoQ protocol implementation
+- The `@moq/publish` and `@moq/watch` packages handle all MoQ protocol implementation
 - For new blog posts, add MDX files to `src/pages/blog/`
 - Component changes in `src/components/` automatically reload with HMR

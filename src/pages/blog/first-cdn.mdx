@@ -31,34 +31,40 @@ This is a [technical preview](https://developers.cloudflare.com/moq/), so it's b
 Cloudflare is hosting a public `relay.cloudflare.mediaoverquic.com` endpoint that you can ~abuse~ test.
 Connect using [my library](https://github.com/moq-dev/moq), [Mike's fork](https://github.com/englishm/moq-rs), [Lorenzo's imquic](https://www.meetecho.com/blog/imquic/), [Meta's moxygen](https://github.com/facebookexperimental/moxygen), or any client that supports this limited subset of draft-07.
 
-I'm biased so naturally I'm going to use [@kixelated/hang](https://github.com/moq-dev/moq/tree/main/js/hang) (smash that star button).
+I'm biased so naturally I'm going to use my [@moq](https://github.com/moq-dev/moq/tree/main/js) packages (smash that star button).
 You can publish a live broadcast in the browser using the [web demo](/publish) or the [library](https://github.com/moq-dev/moq/blob/main/js/hang-demo/src/publish.html#L25):
 
 ```html
 <script type="module">
-	// Registers the <hang-publish> element.
-	import "@kixelated/hang/publish/element";
+	// Registers the <moq-publish> and <moq-publish-ui> elements.
+	import "@moq/publish/element";
+	import "@moq/publish/ui";
 </script>
 
-<!-- You'll need to replace `name` with something unique/random. -->
-<hang-publish url="https://relay.cloudflare.mediaoverquic.com" name="unique-name-abc123" audio video controls captions>
-	<!-- It's optional to provide a video element to preview the outgoing media. -->
-	<video style="max-width: 100%; height: auto; border-radius: 4px; margin: 0 auto;" muted autoplay></video>
-</hang-publish>
+<!-- You'll need to replace `path` with something unique/random. -->
+<moq-publish-ui>
+	<moq-publish url="https://relay.cloudflare.mediaoverquic.com" path="unique-name-abc123" source="camera">
+		<!-- It's optional to provide a video element to preview the outgoing media. -->
+		<video style="max-width: 100%; height: auto; border-radius: 4px; margin: 0 auto;" muted autoplay></video>
+	</moq-publish>
+</moq-publish-ui>
 ```
 
 There's a link to watch your live broadcast using the [web demo](/watch), or again you can use the [library](https://github.com/moq-dev/moq/blob/9f5f6153458c03f255877a036e36f68f742d5c85/js/hang-demo/src/index.html#L30):
 ```html
 <script type="module">
-	// Registers the <hang-watch> element.
-	import "@kixelated/hang/watch/element";
+	// Registers the <moq-watch> and <moq-watch-ui> elements.
+	import "@moq/watch/element";
+	import "@moq/watch/ui";
 </script>
 
-<!-- Use the same name as the broadcast you published. -->
-<hang-watch url="https://relay.cloudflare.mediaoverquic.com" name="unique-name-abc123" muted controls captions>
-	<!-- It's optional to provide a canvas if you want audio only -->
-	<canvas style="max-width: 100%; height: auto; border-radius: 4px; margin: 0 auto;"></canvas>
-</hang-watch>
+<!-- Use the same path as the broadcast you published. -->
+<moq-watch-ui>
+	<moq-watch url="https://relay.cloudflare.mediaoverquic.com" path="unique-name-abc123" muted>
+		<!-- It's optional to provide a canvas if you want audio only -->
+		<canvas style="max-width: 100%; height: auto; border-radius: 4px; margin: 0 auto;"></canvas>
+	</moq-watch>
+</moq-watch-ui>
 ```
 
 You might even notice **closed captions** because I've been experimenting with AI features (gotta get funding eventually 💰).
@@ -171,13 +177,13 @@ It powers [hang.live](/blog/first-app) so the API is subject to change and is pr
 When in doubt, [consult the source code](https://github.com/moq-dev/moq/tree/main/js/hang) like the hacker you are.
 
 ```typescript
-import { Watch } from "@kixelated/hang"
+import { Watch } from "@moq/watch"
 
 // Start downloading a broadcast.
 const watch = new Watch.Broadcast({
 	enabled: true,
 	url: "https://relay.cloudflare.mediaoverquic.com",
-	name: "unique-name-abc123",
+	path: "unique-name-abc123",
 	video: { enabled: true },
 	reload: false, // required for Cloudflare's CDN
 });
@@ -186,7 +192,7 @@ const watch = new Watch.Broadcast({
 watch.audio.enabled.set(true);
 
 // There are helpers to convert my custom signals, like for React:
-import react from "@kixelated/signals/react"
+import react from "@moq/signals/react"
 const audioInfo = react(watch.audio.info); // a JSON blob of track information
 
 // You could use the built-in renderers.
@@ -214,7 +220,7 @@ Stay tuned for a blog post about that if I can figure out a better use-case than
 const publish = new Watch.Publish({
 	enabled: true,
 	url: "https://relay.cloudflare.mediaoverquic.com",
-	name: "unique-name-abc123",
+	path: "unique-name-abc123",
 	device: "camera",
 	video: {
 		enabled: true,

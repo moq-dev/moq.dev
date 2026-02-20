@@ -13,7 +13,8 @@
 		"fix": "biome check --write && bun audit fix"
 	},
 	"dependencies": {
-		"@kixelated/hang": "^0.6.1",
+		"@moq/publish": "^0.1.0",
+		"@moq/watch": "^0.1.0",
 		"astro": "^5.8.2",
 		"solid-js": "^1.9.7",
 		"unique-names-generator": "^4.7.1"

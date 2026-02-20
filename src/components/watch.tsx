@@ -1,6 +1,7 @@
-// Use the hang web components.
-import "@kixelated/hang/support/element";
-import "@kixelated/hang/watch/element";
+// Use the moq web components.
+import "@moq/watch/support/element";
+import "@moq/watch/element";
+import "@moq/watch/ui";
 import { Show } from "solid-js";
 
 export default function () {
@@ -8,24 +9,27 @@ export default function () {
 	const name = params.get("name") ?? "bbb";
 
 	let url: URL;
-	if (name === "bbb") {
-		url = new URL(`/demo?jwt=${import.meta.env.PUBLIC_RELAY_TOKEN}`, import.meta.env.PUBLIC_RELAY_URL);
+	const token = import.meta.env.PUBLIC_RELAY_TOKEN;
+	if (name === "bbb" && token) {
+		url = new URL(`/demo?jwt=${token}`, import.meta.env.PUBLIC_RELAY_URL);
 	} else {
 		url = new URL("/anon", import.meta.env.PUBLIC_RELAY_URL);
 	}
 
 	return (
 		<>
-			<hang-support prop:mode="watch" prop:show="partial" />
+			<moq-watch-support prop:show="always" />
 			<div class="mb-8">
 				<h3 class="inline">Broadcast:</h3>{" "}
 				<a href={`/watch?name=${name}`} class="ml-2 text-2xl">
 					{name}
 				</a>
 			</div>
-			<hang-watch prop:url={url} prop:name={name} prop:muted={true} prop:controls={true} prop:captions={true} prop:reload={true}>
-				<canvas style={{ "max-width": "100%", height: "auto", margin: "0 auto", "border-radius": "1rem" }} />
-			</hang-watch>
+			<moq-watch-ui>
+				<moq-watch attr:url={url.toString()} attr:path={name} attr:muted="" attr:reload="">
+					<canvas style={{ "max-width": "100%", height: "auto", margin: "0 auto", "border-radius": "1rem" }} />
+				</moq-watch>
+			</moq-watch-ui>
 
 			<h3>Features:</h3>
 			<ul>

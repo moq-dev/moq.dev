@@ -2,15 +2,23 @@
 // See: https://github.com/solidjs/solid/issues/616#issuecomment-1144074821
 declare module "solid-js" {
 	namespace JSX {
+		type Attrs = {
+			// Allow setting any HTML attribute via Solid's attr: prefix
+			[key: `attr:${string}`]: string | undefined;
+		};
 		type ElementProps<T> = {
 			// Add both the element's prefixed properties and the attributes
-			[K in keyof T]: Props<T[K]> & HTMLAttributes<T[K]>;
+			[K in keyof T]: Props<T[K]> & HTMLAttributes<T[K]> & Attrs;
 		};
 		// Prefixes all properties with `prop:` to match Solid's property setting syntax
 		type Props<T> = {
 			[K in keyof T as `prop:${string & K}`]?: T[K];
 		};
-		interface IntrinsicElements extends ElementProps<HTMLElementTagNameMap> {}
+		interface IntrinsicElements extends ElementProps<HTMLElementTagNameMap> {
+			// UI wrapper elements from @moq/publish and @moq/watch
+			"moq-publish-ui": HTMLAttributes<HTMLElement>;
+			"moq-watch-ui": HTMLAttributes<HTMLElement>;
+		}
 	}
 }
 
