@@ -3,8 +3,6 @@ layout: "@/layouts/global.astro"
 title: Issues
 ---
 
-import Support from "@/components/support"
-
 # Issues
 
 Yeah, so there's a lot of work to do.
@@ -16,8 +14,6 @@ But if you just want a Google Meet clone and want to do minimal work, then check
 This page is a summary of the major issues, updated periodically.
 If you want to help, jump in [Discord](https://discord.gg/FCYF3p99mr)!
 
-<Support client:only="solid-js" />
-
 ## What works
 Before we give into despair, here's what does work:
 
@@ -27,7 +23,7 @@ Before we give into despair, here's what does work:
 - **Catalog**: Live updates for all available tracks.
 - **Clustering**: Multiple relays form a basic mesh network, providing CDN-like performance.
 - **On-Demand**: No encoding (JS only) or networking until the first viewer requests a track.
-- **Integrations**: Gstreamer and ffmpeg (via stdin).
+- **Integrations**: OBS, Gstreamer, and ffmpeg (via stdin).
 
 ## Networking
 
@@ -42,7 +38,6 @@ Before we give into despair, here's what does work:
 | name                      | description                                                                                                                                                                      |
 | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Adaptive Bitrate  	| Currently, the bitrate for a broadcast is fixed at creation time. We need to implement back-pressure so the broadcaster lowers its bitrate during congestion. In addition, we could use simulcast to create multiple tracks allowing the viewer to choose what to receive. |
-| OBS Plugin      | We should develop an [OBS](https://obsproject.com/) plugin to make it easier to publish broadcasts. The gstreamer plugin should also be improved but it mostly works. |
 | Viewer Feedback | Currently, viewers don't provide any feedback to the broadcaster(s). This would be very useful for small broadcasts for stuff like negotiating codecs, bitrates, etc. |
 
 

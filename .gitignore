@@ -1,26 +1,14 @@
 # Logs
 logs
 *.log
-npm-debug.log*
 
-# NPM
-node_modules/*
+# Dependencies
+node_modules/
 
 # Build output
 dist/
 .astro/
-
-# logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# Just in case somebody runs the wrong command
-yarn.lock
-package-lock.json
 tsconfig.tsbuildinfo
-bun.lockb
 
 # Mac shit
 .DS_Store

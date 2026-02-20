@@ -8,7 +8,7 @@ title: Source
 Everything is open source and broken into two repositories:
 
 - [moq-dev/moq](https://github.com/moq-dev/moq): The core MoQ library, with implementations in Rust and Typescript.
-- [moq-dev/moq.dev](https://github.com/moq-dev/moq.dev): This website. Includes terraform to run multiple relays on GCP.
+- [moq-dev/moq.dev](https://github.com/moq-dev/moq.dev): This website.
 
 ## Rust
 Native code is written in [Rust](https://github.com/moq-dev/moq/tree/main/rs) and is split into a few notable crates:
@@ -39,8 +39,9 @@ Web code is written in [Typescript](https://github.com/moq-dev/moq/tree/main/js)
 
 | package | description |
 | ------- | ----------- |
-| [@kixelated/moq](https://www.npmjs.com/package/@kixelated/moq) | A moq-lite client that mirrors the Rust API. You can publish and subscribe to generic tracks. Any media stuff is implemented at a higher layer. |
-| [@kixelated/hang](https://www.npmjs.com/package/@kixelated/hang) | A media library. This is where the bulk of the cool stuff happens, like capturing/encoding or decoding/rendering media. Includes Web Components to make setup super simple. [See the demos](https://github.com/moq-dev/moq/tree/main/js/hang/demo). |
+| [@moq/lite](https://www.npmjs.com/package/@moq/lite) | A moq-lite client that mirrors the Rust API. You can publish and subscribe to generic tracks. Any media stuff is implemented at a higher layer. |
+| [@moq/publish](https://www.npmjs.com/package/@moq/publish) | Publishing library with web components and UI. Provides `<moq-publish>` element and `<moq-publish-ui>` wrapper. |
+| [@moq/watch](https://www.npmjs.com/package/@moq/watch) | Watching library with web components and UI. Provides `<moq-watch>` element and `<moq-watch-ui>` wrapper. |
 
 **Note**: These utilize browser-specific APIs and there's no currently no support for Node and other server runtimes.
 [Deno](https://deno.com/) is doing some cool stuff with WebTransport so maybe it'll work there someday.

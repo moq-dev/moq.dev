@@ -1,8 +1,9 @@
-import { adjectives, animals, uniqueNamesGenerator } from "unique-names-generator";
 import { createSignal } from "solid-js";
+import { adjectives, animals, uniqueNamesGenerator } from "unique-names-generator";
 
-import "@kixelated/hang/support/element";
-import "@kixelated/hang/publish/element";
+import "@moq/publish/support/element";
+import "@moq/publish/element";
+import "@moq/publish/ui";
 
 export default function () {
 	const name = uniqueNamesGenerator({ dictionaries: [adjectives, animals], separator: "-" });
@@ -23,8 +24,6 @@ export default function () {
 
 	return (
 		<div>
-			<hang-support prop:mode="publish" prop:show="partial" />
-
 			<div class="mb-8 flex items-center gap-3">
 				<div>
 					<h3 class="inline">Broadcast:</h3>{" "}
@@ -52,20 +51,17 @@ export default function () {
 				</button>
 			</div>
 
-			<hang-publish
-				prop:url={url}
-				prop:name={name}
-				prop:controls={true}
-				prop:video={true}
-				prop:audio={true}
-				prop:captions={true}
-			>
-				<video
-					style={{ "max-width": "100%", height: "100%", margin: "0 auto", "border-radius": "1rem" }}
-					autoplay
-					muted
-				/>
-			</hang-publish>
+			<moq-publish-ui>
+				<moq-publish attr:url={url.toString()} attr:path={name} attr:source="camera">
+					<video
+						style={{ "max-width": "100%", height: "100%", margin: "0 auto", "border-radius": "1rem" }}
+						autoplay
+						muted
+					/>
+				</moq-publish>
+			</moq-publish-ui>
+
+			<moq-publish-support prop:show="always" />
 
 			<h3>Features:</h3>
 			<ul>
