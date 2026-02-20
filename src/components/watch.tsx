@@ -18,7 +18,6 @@ export default function () {
 
 	return (
 		<>
-			<moq-watch-support prop:show="always" />
 			<div class="mb-8">
 				<h3 class="inline">Broadcast:</h3>{" "}
 				<a href={`/watch?name=${name}`} class="ml-2 text-2xl">
@@ -30,6 +29,8 @@ export default function () {
 					<canvas style={{ "max-width": "100%", height: "auto", margin: "0 auto", "border-radius": "1rem" }} />
 				</moq-watch>
 			</moq-watch-ui>
+
+			<moq-watch-support prop:show="always" />
 
 			<h3>Features:</h3>
 			<ul>

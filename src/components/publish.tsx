@@ -24,8 +24,6 @@ export default function () {
 
 	return (
 		<div>
-			<moq-publish-support prop:show="always" />
-
 			<div class="mb-8 flex items-center gap-3">
 				<div>
 					<h3 class="inline">Broadcast:</h3>{" "}
@@ -62,6 +60,8 @@ export default function () {
 					/>
 				</moq-publish>
 			</moq-publish-ui>
+
+			<moq-publish-support prop:show="always" />
 
 			<h3>Features:</h3>
 			<ul>

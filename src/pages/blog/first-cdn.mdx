@@ -177,7 +177,7 @@ It powers [hang.live](/blog/first-app) so the API is subject to change and is pr
 When in doubt, [consult the source code](https://github.com/moq-dev/moq/tree/main/js/hang) like the hacker you are.
 
 ```typescript
-import { Watch } from "@moq/watch"
+import * as Watch from "@moq/watch"
 
 // Start downloading a broadcast.
 const watch = new Watch.Broadcast({
@@ -216,8 +216,10 @@ Like running an object detection model in browser and publishing the results as 
 Stay tuned for a blog post about that if I can figure out a better use-case than a cat cam. 🐈
 
 ```typescript
+import * as Publish from "@moq/publish"
+
 // Publish a broadcast.
-const publish = new Watch.Publish({
+const publish = new Publish.Broadcast({
 	enabled: true,
 	url: "https://relay.cloudflare.mediaoverquic.com",
 	path: "unique-name-abc123",

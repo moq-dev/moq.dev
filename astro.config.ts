@@ -37,8 +37,5 @@ export default defineConfig({
 				"@": "/src",
 			},
 		},
-		optimizeDeps: {
-			exclude: ["@moq/publish", "@moq/watch"],
-		},
 	},
 });

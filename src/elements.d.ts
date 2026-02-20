@@ -14,11 +14,7 @@ declare module "solid-js" {
 		type Props<T> = {
 			[K in keyof T as `prop:${string & K}`]?: T[K];
 		};
-		interface IntrinsicElements extends ElementProps<HTMLElementTagNameMap> {
-			// UI wrapper elements from @moq/publish and @moq/watch
-			"moq-publish-ui": HTMLAttributes<HTMLElement>;
-			"moq-watch-ui": HTMLAttributes<HTMLElement>;
-		}
+		interface IntrinsicElements extends ElementProps<HTMLElementTagNameMap> {}
 	}
 }
 
