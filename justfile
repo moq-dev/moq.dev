@@ -50,5 +50,5 @@ dev:
 	# Run the web development server
 	bun astro dev --open
 
-preview: build
+prod: build
 	bun astro preview --open
