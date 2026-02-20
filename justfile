@@ -11,7 +11,7 @@ check:
 	bun i
 
 	# Lint the JS packages
-	bun exec biome check
+	bunx biome check
 
 	# Make sure Typescript compiles
 	bun run check
@@ -22,7 +22,7 @@ fix:
 	bun i
 
 	# Format and lint
-	bun exec biome check --fix
+	bunx biome check --fix
 
 # Run any CI tests
 test:

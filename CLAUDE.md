@@ -10,26 +10,29 @@ moq.dev is a web blog and demo for Media over QUIC (MoQ) protocol. It's built wi
 
 ```bash
 # Development
-npm run dev        # Start dev server with auto-open and HTTPS
+just dev           # Start dev server with auto-open
 
-# Build & Production
-npm run build      # Production build
-npm run prod       # Build and preview production
+# Build & Deploy
+just build         # Production build
+just deploy        # Deploy to Cloudflare Pages (staging by default)
+just deploy live   # Deploy to production
+just prod          # Build and preview production locally
 
 # Code Quality
-npm run check      # Run Biome linting and TypeScript checking
-npm run fix        # Auto-fix code issues and audit dependencies
+just check         # Run Biome linting and TypeScript checking
+just fix           # Auto-fix code formatting/lint issues
 ```
 
 ## Architecture Overview
 
 ### Technology Stack
-- **Framework**: Astro with SSR via Node.js adapter
+- **Framework**: Astro (static output)
 - **UI Components**: Solid.js for interactive elements
 - **Styling**: Tailwind CSS
-- **Build**: Vite with WASM and mkcert plugins
+- **Build**: Vite
 - **Code Quality**: Biome for linting/formatting
 - **Package Manager**: bun v1.3.4
+- **Task Runner**: just
 
 ### Key Components
 
@@ -47,13 +50,11 @@ npm run fix        # Auto-fix code issues and audit dependencies
 
 ### Deployment
 
-- Docker multi-stage builds
-- Terraform infrastructure in `/infra/`
-- Production entry: `dist/server/entry.mjs`
+- Cloudflare Pages via Wrangler
+- `just deploy` for staging, `just deploy live` for production
 
 ## Development Tips
 
-- WebTransport requires HTTPS even in development (handled by vite-plugin-mkcert)
 - Broadcasts are ephemeral - no persistence layer
 - The `@moq/publish` and `@moq/watch` packages handle all MoQ protocol implementation
 - For new blog posts, add MDX files to `src/pages/blog/`
