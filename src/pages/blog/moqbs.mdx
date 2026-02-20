@@ -1,0 +1,107 @@
+---
+layout: "@/layouts/global.astro"
+title: "libmoq + OBS = MoQBS"
+author: kixelated
+description: First class support for MoQ in OBS... via a fork. Go forth and integrate libmoq into all of your favorite tools still using C for some reason.
+cover: "/blog/moqbs/moqbs.png"
+date: 2026-02-20
+---
+
+# libmoq + OBS = MoQBS
+Oh hey, long time no chat.
+
+As part of the [Montevideo Tech Summer Camp](/blog/monte-video), we worked on an OBS plugin.
+I'm here to announce the culmination of that effort... a *temporary* fork of OBS.
+
+<figure>
+	![MoQBS](/blog/moqbs/moqbs.png)
+	<figcaption>I drew the logo myself. At least you know it's not AI generated.</figcaption>
+</figure>
+
+## How Do Download?
+If you want to build it yourself:
+```bash
+git clone https://github.com/moq-dev/moqbs
+cd moqbs
+cmake --preset=macos
+cmake --build --preset=macos
+# Idk I think that's all you need.
+```
+
+If you're lazy and want to use pre-built binaries:
+- [Mac (ARM)](https://obs.moq.dev/macos/arm64/32.1.0-rc1-35-g98607152d-9860715/moqbs-macos-arm64.dmg)
+- [Mac (Intel)](https://obs.moq.dev/macos/x86_64/32.1.0-rc1-35-g98607152d-9860715/moqbs-macos-x86_64.dmg)
+- [Linux (x86_64)](https://obs.moq.dev/linux/x86_64/32.1.0-rc1-35-g98607152d-9860715/moqbs-linux-x86_64.deb)
+- [Windows (x64)](https://obs.moq.dev/windows/x64/32.0.4-9860715/moqbs-windows-x64.zip)
+
+Claude built these so no promises.
+I'm not going to set up a proper CI/CD pipeline because we want to delete this fork as soon as possible.
+
+## Why Do Fork?
+The [MoQ OBS plugin](https://github.com/moq-dev/obs) does work with stable OBS... but it's not exposed via the UI.
+
+Seriously, we had to fork OBS just to add a "MoQ" dropdown to the UI.
+Go +1 [this PR](https://github.com/obsproject/obs-studio/pull/12911) so the UI becomes dynamic.
+Then we can delete the abomination that is `MoQBS`.
+
+## How Do Use?
+You can publish to any `moq-relay` server:
+- `https://cdn.moq.dev/anon`
+- `https://draft-14.cloudflare.mediaoverquic.com`
+- `https://localhost:4443/anon` (when using `just dev`)
+
+<figure>
+	![Settings Page](/blog/moqbs/settings.png)
+	<figcaption>Open up the OBS settings. Change `test` to a unique broadcast name and remember that this endpoint is **PUBLIC**.</figcaption>
+</figure>
+
+And you can watch from any `moq-relay` server too.
+I literally tested this for the first time ever just to take a screenshot.
+Huge shoutout to [pangaea](https://github.com/davegullo) and [Claude](https://claude.ai/code) for coding this beast.
+
+<figure>
+	![Watch Page](/blog/moqbs/watch.png)
+	<figcaption>Wow it actually works. Note that you won't need the `?jwt` token for the `/anon` endpoint. I'm just lazy and used the `bbb` demo.</figcaption>
+</figure>
+
+## What Do Support?
+- Codecs: H.264, H.265, OPUS, AAC, AV1
+- Transport: [QUIC](https://doc.moq.dev/concept/layer/quic.html), [WebTransport](https://doc.moq.dev/concept/layer/web-transport.html), [WebSocket](https://doc.moq.dev/concept/layer/web-socket.html)
+- Versions: [moq-lite](https://doc.moq.dev/concept/layer/moq-lite.html), [moq-transport](https://doc.moq.dev/concept/standard/moq-transport.html) (14+)
+- Format: [hang](https://doc.moq.dev/concept/layer/hang.html), CMAF (soon™)
+
+## How Do Work?
+If you ever see me writing a C++ implementation of MoQ, shoot.
+It's not the real `@kixelated`.
+
+That's why we created [libmoq](https://docs.rs/libmoq/latest/moq/) instead.
+It's a C binding on top of the Rust library providing both publish and subscribe functionality.
+It basically converts `async` Rust code into a bunch of C callbacks.
+
+You can [download the latest](https://github.com/moq-dev/moq/releases) version if you want to give it a try yourself.
+The gross async networking stuff is handled by Rust+Tokio in a separate thread, dramatically simplifying the API.
+It's a static library so hopefully it just works™.
+
+## What Do Next?
+Go forth and use `libmoq` in all of your favorite tools still using C for some reason.
+The current API is media-specific, but we're going to add support for generic tracks too.
+
+[Software Mansion](https://swmansion.com/) just started on native iOS/Android support for MoQ using libmoq.
+It took them a day to get [playback working on iOS](https://discord.com/channels/1124083992740761730/1124083992740761733/1473997800273608744).
+Go pay them if you're a big corpo using React Native... or wait until its open source.
+
+There's also an [ffmpeg fork](https://github.com/brianmed/FFmpeg/tree/feature/moq-integration) if forking OBS was not good enough.
+Unfortunately, ffmpeg doesn't have a plugin system so you're stuck with a fork.
+
+If you're bored, vibe code a binding for your favorite language/platform/application and we'll throw it into the `moq-dev` organization.
+Bonus points for VLC.
+
+## Who Do Did?
+Again a huge shoutout to [pangaea](https://github.com/davegullo), [bpmedley](https://github.com/brianmed), [emilsas](https://github.com/emilsas), and everyone from [Qualabs](https://qualabs.com/) for all of their hard work.
+It feels great delegating the hard parts to others.
+
+I could get used to this.
+
+Written by [@kixelated](https://github.com/kixelated).
+
+![@kixelated](/blog/avatar.png)
