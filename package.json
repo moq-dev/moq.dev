@@ -13,8 +13,8 @@
 		"fix": "biome check --write && bun audit fix"
 	},
 	"dependencies": {
-		"@moq/publish": "^0.1.0",
-		"@moq/watch": "^0.1.0",
+		"@moq/publish": "^0.1.1",
+		"@moq/watch": "^0.1.1",
 		"astro": "^5.17.3",
 		"solid-js": "^1.9.11",
 		"unique-names-generator": "^4.7.1"
