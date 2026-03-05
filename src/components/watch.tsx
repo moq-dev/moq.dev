@@ -2,6 +2,7 @@
 import "@moq/watch/support/element";
 import "@moq/watch/element";
 import "@moq/watch/ui";
+import { Lite } from "@moq/watch";
 import { Show } from "solid-js";
 
 export default function () {
@@ -25,7 +26,7 @@ export default function () {
 				</a>
 			</div>
 			<moq-watch-ui>
-				<moq-watch attr:url={url.toString()} attr:path={name} attr:muted="" attr:reload="">
+				<moq-watch prop:url={url} prop:name={Lite.Path.from(name)} prop:muted={true} prop:reload={true}>
 					<canvas style={{ "max-width": "100%", height: "auto", margin: "0 auto", "border-radius": "1rem" }} />
 				</moq-watch>
 			</moq-watch-ui>
