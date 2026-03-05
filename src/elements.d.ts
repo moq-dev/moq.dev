@@ -2,13 +2,8 @@
 // See: https://github.com/solidjs/solid/issues/616#issuecomment-1144074821
 declare module "solid-js" {
 	namespace JSX {
-		type Attrs = {
-			// Allow setting any HTML attribute via Solid's attr: prefix
-			[key: `attr:${string}`]: string | undefined;
-		};
 		type ElementProps<T> = {
-			// Add both the element's prefixed properties and the attributes
-			[K in keyof T]: Props<T[K]> & HTMLAttributes<T[K]> & Attrs;
+			[K in keyof T]: Props<T[K]> & HTMLAttributes<T[K]>;
 		};
 		// Prefixes all properties with `prop:` to match Solid's property setting syntax
 		type Props<T> = {

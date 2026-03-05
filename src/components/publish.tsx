@@ -4,6 +4,7 @@ import { adjectives, animals, uniqueNamesGenerator } from "unique-names-generato
 import "@moq/publish/support/element";
 import "@moq/publish/element";
 import "@moq/publish/ui";
+import { Lite } from "@moq/publish";
 
 export default function () {
 	const name = uniqueNamesGenerator({ dictionaries: [adjectives, animals], separator: "-" });
@@ -52,7 +53,7 @@ export default function () {
 			</div>
 
 			<moq-publish-ui>
-				<moq-publish attr:url={url.toString()} attr:path={name} attr:source="camera">
+				<moq-publish prop:url={url} prop:name={Lite.Path.from(name)} prop:source="camera">
 					<video
 						style={{ "max-width": "100%", height: "100%", margin: "0 auto", "border-radius": "1rem" }}
 						autoplay
