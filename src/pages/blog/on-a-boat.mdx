@@ -1,0 +1,175 @@
+---
+layout: "@/layouts/global.astro"
+title: On a Boat
+author: kixelated
+description: I'm on a boat.
+cover: "/blog/never-use-datagrams/bodies.jpeg"
+date: 2026-02-26
+---
+
+# On a Boat
+[Saronic](https://www.saronic.com/) posted a [blog](https://medium.com/saronic-technologies/the-ground-moves-building-on-early-open-source-without-getting-burned-ba2af78beb78) about how they've been using MoQ for years.
+Go read it.
+I'm Luke btw.
+
+I'm stoked because I can *finally* talk about boats.
+
+## Bandwidth Constrained
+Imagine this:
+
+- You're on a boat, man.
+- You're going fast, man.
+- You've got 9 cameras and StarLink is expensive, man.
+
+It's not sustainable to constantly transmit a full HD stream from every camera.
+Even if you can afford it, ship happens.
+Your bandwidth will fluctuate and camera feeds will drop out.
+
+Existing contribution protocols (ex. WebRTC, SRT, RTSP, RTMP) are push-based.
+A publisher, like a security camera on a boat, constantly transmits *everything* to a server.
+Not good when you're on a boat.
+
+But **MoQ is pull-based**\*.
+We are the ugly duckling of the media publishing world.
+
+\* Well technically, the IETF nerds added an (optional) `PUBLISH` message to [moq-transport](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/), so it can do both.
+But I *strongly* discourage you from using it, and here's why:
+
+## LIKE, COMMENT, SUBSCRIBE
+But first the basics.
+
+A MoQ broadcast is split into live streams called "tracks".
+It's completely up to your application to decide how to split stuff into tracks.
+For example, [hang.live](https://hang.live) uses:
+- `1080p`
+- `360p`
+- `audio`
+- `captions`
+- `chat`
+- etc
+
+Every MoQ viewer has to explicitly `SUBSCRIBE` to each track, otherwise it won't be transmitted.
+This is *fantastic* for extensibility because tracks are optional.
+If your player don't support something, or explicitly doesn't want it (ex. audio muted), then it won't `SUBSCRIBE`.
+
+But how do these subscriptions *flow upstream*?
+That's handled by [moq-relay](https://doc.moq.dev/app/relay/).
+100 viewers could `SUBSCRIBE 1080p` but they get coalesced into a single `SUBSCRIBE 1080p` request upstream.
+If all viewers `UNSUBSCRIBE`, then so does the relay.
+
+And you don't run just one relay, but instead a [cluster](https://doc.moq.dev/app/relay/cluster) of relays.
+Throw in some caching and suddenly **any number** of viewers can watch without causing additional strain on de boat.
+
+Basically, we're copying HTTP CDNs but for live streams.
+MoQ is being standardized specificially so you can use a [CDN like Cloudflare](./blog/first-cdn) to scale world-wide.
+Or you could self-host [moq-relay](https://doc.moq.dev/app/relay/) (like Saronic) and keep everything in your network.
+
+
+## Enter, Renditions
+**Mr Skeptic Strawman** says:
+> I have a single viewer, why should I care about mass fanout?
+
+Well **Mr Skeptic Strawman**, let's talk about renditions.
+
+In new reality land, you don't want a *human* viewer.
+You instead throw an AI model at that shit.
+The AI will subscribe to the 360p stream from every camera and try to detect anomalies.
+Like a kraken is attacking or something.
+
+idk I don't sail.
+
+If there's no kraken in view, then only the 360p stream is being transmitted.
+If AI detects a kraken on the starboard bow, then it subscribes to the 1080p stream.
+
+But what happens during congestion if we can't transmit everything?
+**Answer**: it's your choice buddy.
+
+All subscriptions share a connection and contain a priority:
+- **Do you want the kraken cam?** Probably, set the priority to 10.
+- **Do you want to crash the boat?** Probably not, set the front-facing cameras to 5.
+- **Do you want audio?** Idk I don't sail, maybe set it to 15.
+
+The QUIC library will transmit packets based on the specified priorities.
+In this example: audio, then the kraken, then front cameras, then anything else.
+This is all best-effort, so your sloppy-seconds might get queued/dropped if the bandwidth is too low.
+
+**Something** has to be queued/dropped, but we do our best to make sure the most important stuff gets transmitted.
+Hopefully it's the kraken.
+
+## Backfill that Boat
+Another MoQ difference is that we don't drop frames, we prioritize/queue.
+
+**Mr Skeptic Strawman** says:
+> huh?
+
+So lets say the kraken is consuming our crew, and our available bandwidth.
+We get an alert that the kraken is attacking.
+
+A human wants to see that shit in real-time and configures a maximum latency of 100ms.
+If a frame takes longer than that, then we skip ahead.
+We don't want a spinny boye getting in the way of the action.
+
+But let's say there's also a VOD worker recording the footage for the post-mortem.
+It can tolerate higher delays, configuring a maximum latency of 30 seconds.
+
+Normally, a WebRTC publisher would have dropped that frame after 100ms, but MoQ doesn't.
+We instead deprioritize it, sending newer frames instead but keeping old frames in RAM.
+
+**We know the kraken will eventually be satiated**.
+Once we recover, we might have enough spare bandwidth backfill the VOD before the 30s deadline.
+
+The end result is a lossy live stream AND a pristine VOD.
+Just because one viewer wants real-time latency doesn't mean the rest of the world has to suffer.
+
+Literally huge.
+
+## Bonded Pairs
+What if you're near the coast?
+Can we use a cellular connection in addition to the satellite connection?
+
+Why of course, retorical question.
+QUIC supports path migration, seamlessly switching between multiple paths (active-backup).
+You can switch from Wifi to cellular to satellite without severing the QUIC connection (unlike TCP).
+
+There's also a [multi-path extension](https://datatracker.ietf.org/doc/draft-ietf-quic-multipath/) that can use multiple paths at the same time (active-active).
+If you want to give it a spin, the [iroh](https://iroh.computer/) folks just released their [Quinn fork](https://github.com/n0-computer/noq).
+It's gated [behind a feature flag](https://github.com/moq-dev/moq/blob/main/rs/moq-native/Cargo.toml) if you want to try it with MoQ.
+
+And that's only at the QUIC level.
+Another option is to establish multiple MoQ connections, advertising the broadcast as available on all of them.
+The viewer will automatically route subscriptions to the "best" connection.
+For example, via a P2P connection (via [iroh](https://iroh.computer/)) otherwise via CDN connection.
+
+And remember, MoQ won't transmit a track until there's a `SUBSCRIBE` for it.
+You can establish multiple connections, possibly to different CDNs, and only transmit the bare minimum.
+
+Push-based protocols can't do this.
+**Pull-based is based.**
+
+## The Wake not Taken
+You need pretty huge buoys to be an early adopter.
+Saronic has been using my [moq.dev](https://github.com/moq-dev/moq) libraries for maybe ~2 years now... even back when audio was non-functional.
+
+I want to thank them for their patience and support.
+They could have hacked most of these features into a custom WebRTC orchestration layer.
+But they didn't.
+Instead they put up with my overzealous refactoring and renaming.
+
+There's a few other cant-be-named companies evaluating MoQ for *security purposes*.
+I can't say that was the plan... but it makes perfect sense.
+Hit me up if you want to chat about your use-case and how I can help, even if it requires an NDA.
+
+I'm just happy to see MoQ being used in the wild.
+[Dave Gullo](https://www.enginesofchange.ai/p/the-viewer-takes-the-switchboard) earns a shoutout for doing just that and announcing [ooda.video](https://ooda.video/).
+He's using the dope [MoQ OBS plugin](http://localhost:4321/blog/moqbs) we built in [Montevideo](/blog/monte-video) to do all of the kraken detection stuff.
+
+## Conclusion
+MoQ is great for boats.
+And other vehicles.
+And stationary objects.
+
+Want to learn more?
+I'm working on [more documentation](https://doc.moq.dev), including other non-boat [use-cases](https://doc.moq.dev/concept/use-case/).
+
+Until next time sailor.
+![@kixelated](/blog/avatar.png)
