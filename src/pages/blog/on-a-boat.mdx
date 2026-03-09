@@ -58,15 +58,15 @@ This is fantastic because now tracks are optional.
 Window minimized? Codec unsupported? Screen too small? Don't `SUBSCRIBE 1080p`.
 
 What if 100 viewers `SUBSCRIBE 1080p`?
-[moq-relay](https://doc.moq.dev/app/relay/) is the champ that them into a single *upstream* `SUBSCRIBE 1080p`.
+[moq-relay](https://doc.moq.dev/app/relay/) is the champ that merges them into a single *upstream* `SUBSCRIBE 1080p`.
 Your boat is safe from the flood and serves *at most* one copy of each track.
 
 What if 100,000 viewers `SUBSCRIBE 1080p`?
 Run a [cluster](https://doc.moq.dev/app/relay/cluster) of relays.
 Sprinkle them around the world and suddenly you have a global CDN.
 
-It's the exact same concept at HTTP CDNs, but for live streams.
-MoQ is being standardized specificially so you can use a [CDN like Cloudflare](./blog/first-cdn) to scale world-wide.
+It's the exact same concept as HTTP CDNs, but for live streams.
+MoQ is being standardized specifically so you can use a [CDN like Cloudflare](/blog/first-cdn) to scale world-wide.
 Or you could self-host [moq-relay](https://doc.moq.dev/app/relay/) (like Saronic) and keep everything in your network.
 
 
@@ -127,7 +127,7 @@ Normally, a WebRTC publisher would have dropped that frame after 100ms, but MoQ 
 We instead deprioritize it, sending newer frames instead but keeping old frames in RAM.
 
 **We know the kraken will eventually be satiated**.
-Once we recover, we might have enough spare bandwidth backfill the VOD before the 30s deadline.
+Once we recover, we might have enough spare bandwidth to backfill the VOD before the 30s deadline.
 
 The end result is a lossy live stream AND a pristine VOD.
 Just because one viewer wants real-time latency doesn't mean the rest of the world has to suffer.
@@ -138,7 +138,7 @@ Literally huge.
 What if you're near the coast?
 Can we use a cellular connection in addition to the satellite connection?
 
-Why of course, retorical question.
+Why of course, rhetorical question.
 QUIC supports path migration, seamlessly switching between multiple paths (active-backup).
 You can switch from Wifi to cellular to satellite without severing the QUIC connection (unlike TCP).
 
