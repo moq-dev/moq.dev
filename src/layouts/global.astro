@@ -24,7 +24,7 @@ const fullTitle = title ? `${title} - Media over QUIC` : "Media over QUIC";
 const fullDescription = description
 	? `Media over QUIC: ${description}`
 	: "Media over QUIC is a new live media protocol designed for simplicity and scale. It uses new browser technologies like WebTransport and WebCodecs to deliver media with latency that rivals WebRTC.";
-const ogImage = new URL(frontmatter?.cover ?? "/layout/logo.png", siteUrl).toString();
+const ogImage = new URL(frontmatter?.cover ?? "/layout/icon.png", siteUrl).toString();
 ---
 
 <!doctype html>
@@ -45,8 +45,8 @@ const ogImage = new URL(frontmatter?.cover ?? "/layout/logo.png", siteUrl).toStr
 		<meta property="og:url" content={pageUrl} />
 		<meta property="og:site_name" content="Media over QUIC" />
 		<meta property="og:image" content={ogImage} />
-		<meta property="og:image:width" content="1200" />
-		<meta property="og:image:height" content="630" />
+		<meta property="og:image:width" content="650" />
+		<meta property="og:image:height" content="600" />
 
 		<!-- Twitter Card -->
 		<meta name="twitter:card" content="summary_large_image" />
