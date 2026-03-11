@@ -10,24 +10,52 @@ interface Props {
 		title: string;
 		date: string;
 		description: string;
+		cover?: string;
 	};
 }
 
 let { title, frontmatter, description } = Astro.props;
 if (frontmatter?.title) title = frontmatter.title;
 if (frontmatter?.description) description = frontmatter.description;
+
+const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "https://moq.dev";
+const pageUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const fullTitle = title ? `${title} - Media over QUIC` : "Media over QUIC";
+const fullDescription = description
+	? `Media over QUIC: ${description}`
+	: "Media over QUIC is a new live media protocol designed for simplicity and scale. It uses new browser technologies like WebTransport and WebCodecs to deliver media with latency that rivals WebRTC.";
+const ogImage = new URL(frontmatter?.cover ?? "/layout/logo.png", siteUrl).toString();
 ---
 
 <!doctype html>
 <html lang="en" class="text-slate-100 sl-theme-dark">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="description" content={description ? `Media over QUIC: ${description}` : "Media over QUIC is a new live media protocol designed for simplicity and scale. It uses new browser technologies like WebTransport and WebCodecs to deliver media (and arbitrary data) with latency that rivals WebRTC. It is being standardized by the IETF." } />
+		<meta name="description" content={fullDescription} />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/layout/favicon.svg" />
 		<link rel="alternate" type="application/rss+xml" title="moq.dev RSS Feed" href={new URL("rss.xml", Astro.site)} />
 		<meta name="generator" content={Astro.generator} />
-		<title>{title ? `${title} - Media over QUIC` : "Media over QUIC"}</title>
+		<title>{fullTitle}</title>
+
+		<!-- Open Graph -->
+		<meta property="og:type" content={frontmatter?.date ? "article" : "website"} />
+		<meta property="og:title" content={fullTitle} />
+		<meta property="og:description" content={fullDescription} />
+		<meta property="og:url" content={pageUrl} />
+		<meta property="og:site_name" content="Media over QUIC" />
+		<meta property="og:image" content={ogImage} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+
+		<!-- Twitter Card -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={fullTitle} />
+		<meta name="twitter:description" content={fullDescription} />
+		<meta name="twitter:image" content={ogImage} />
+
+		<!-- Theme color -->
+		<meta name="theme-color" content="#0f172a" />
 	</head>
 	<body class="min-h-screen bg-slate-900 flex justify-center">
 		<div class="flex flex-col md:flex-row gap-0 bg-slate-900 shadow-2xl max-w-6xl w-full p-4">
