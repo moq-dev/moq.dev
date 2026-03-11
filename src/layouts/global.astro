@@ -24,9 +24,7 @@ const fullTitle = title ? `${title} - Media over QUIC` : "Media over QUIC";
 const fullDescription = description
 	? `Media over QUIC: ${description}`
 	: "Media over QUIC is a new live media protocol designed for simplicity and scale. It uses new browser technologies like WebTransport and WebCodecs to deliver media with latency that rivals WebRTC.";
-const ogImage = frontmatter?.cover
-	? `${siteUrl}${frontmatter.cover}`
-	: `${siteUrl}/layout/logo.png`;
+const ogImage = new URL(frontmatter?.cover ?? "/layout/logo.png", siteUrl).toString();
 ---
 
 <!doctype html>
