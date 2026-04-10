@@ -8,24 +8,25 @@ layout: "@/layouts/global.astro"
 
 **Media over QUIC** is a live media protocol powered by [QUIC](https://quicwg.org/):
 a super-charged TCP/UDP replacement that powers [HTTP/3](https://en.wikipedia.org/wiki/HTTP/3).
-It's being developed by the [IETF](https://www.ietf.org/)\* and your _favorite_ big tech companies such as Google, Meta, Cisco, Akamai, Cloudflare, etc.
+It's being developed by the [IETF](https://www.ietf.org/) and your _favorite_ big tech companies such as Google, Cisco, Akamai, Cloudflare, etc.
 
-That's right, you no longer need to hack WebRTC!
-There's a new way to achieve **real-time latency** in the browser, including contribution and mass distribution via generic CDNs.
-
-<p class="tagline">Try out the web demo! [Watch](/watch) or [Publish](/publish) a broadcast</p>
+MoQ supports **real-time latency**, scales out via **generic CDNs**, and **works in browsers**.
+You no longer need to hack WebRTC!
 
 <div class="flex items-center gap-8">
 	<a href="https://hang.live" rel="noreferrer" target="_blank">
 		<img src="/hang.svg" class="w-32" alt="hang.live" />
 	</a>
 	<div>
-		Want a better demo?
-		<a href="https://hang.live" rel="noreferrer" target="_blank">hang.live</a> uses the same open-source libraries.
-		But with more features and cringe layered on top.
+		Want to hang? <a href="https://hang.live" rel="noreferrer" target="_blank">hang.live</a> is a full conferencing app that uses MoQ for EVERYTHING.
+		It's <a href="http://github.com/moq-dev/hang.live">open source</a> too!
 	</div>
 </div>
 
+But MoQ is more than just a [WebRTC replacement](./blog/replacing-webrtc); it's a [HLS/DASH](./blog/replacing-hls-dash) and [RTMP/SRT](./blog/on-a-boat) replacement too!
+Support **contribution**, mass **distribution**, multiple **latency targets**, **generic** live tracks, and more with an extensible protocol.
+
+But seriously, <a href="/demo">try the demos already</a>. There's even a gameboy emulator. Don't pretend like you're not excited.
 
 ### ✨ Features
 
@@ -40,20 +41,22 @@ There's a new way to achieve **real-time latency** in the browser, including con
 - 🔧 **Customizable**: Hardware accelerated encoding, the rest is in your control.
 
 ### *Standards
-This website uses [moq-lite](https://doc.moq.dev/concept/layer/moq-lite), a subset of the IETF [moq-transport](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/) draft.
-moq-lite is forwards compatible with moq-transport and works with any moq-transport CDN (ex. [Cloudflare](/blog/first-cdn)).
-The principles behind MoQ are fantastic, but standards are **SLOW** and involve too much arguing.
-My goal is to build something simple that you can use *now*, even if it's not a standard *yet*.
+This website uses [moq-lite](https://doc.moq.dev/concept/layer/moq-lite), a subset of the *official* [moq-transport](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/) draft.
+moq-lite is forwards compatible with moq-transport (draft-14+) and works with any MoQ CDN (ex. [Cloudflare](/blog/first-cdn)).
+The principles behind MoQ are fantastic, but standards are **SLOW** and involve too much arguing/bloat.
+My goal is to get MoQ in __production now__, even if it's not a standard yet.
 
 
-### Learn More
-Check out the [blog](/blog) for more information and a smattering of jokes.
-Once you're ready for more, check out the [Github](https://github.com/moq-dev/moq) and/or join [Discord](https://discord.gg/FCYF3p99mr).
-
+### More Stuff
+- The [blog](/blog) if you're a fan of hot takes.
+- The [docs](https://doc.moq.dev) and [Github](https://github.com/moq-dev/moq) if you're a nerd.
+- The [discord](https://discord.gg/FCYF3p99mr) if you want to chat with me or other unhinged developers.
+- The [demos](/demo) if you seriously got this far without clicking on a link.
 
 Contributions are welcome, of course.
 But also feel free to just yoink the code, fork it, and make it your own.
-If you're using some flavor of MoQ in the wild, I'd love to hear about it!
-My DMs are always open; `@kixelated` on Discord.
+If you're using some flavor of MoQ in the wild, or would like some help/advice, I'd love to hear about it
+
+Feel free to mail me! `me@kixel.me`
 
 ![@kixelated](/blog/avatar.png)

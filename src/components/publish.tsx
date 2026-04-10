@@ -67,8 +67,8 @@ export default function () {
 			<h3>Features:</h3>
 			<ul>
 				<li>
-					🔓 <strong>Open Source</strong>: <a href="/source">Typescript and Rust libraries</a>; this demo is{" "}
-					<a href="https://github.com/moq-dev/moq/blob/main/js/hang-demo/src/publish.html">here</a>.
+					🔓 <strong>Open Source</strong>: powered by the{" "}
+					<a href="https://github.com/moq-dev/moq/tree/main/js/publish">@moq/publish</a> library.
 				</li>
 				<li>
 					🌐 <strong>100% Web</strong>: WebTransport, WebCodecs, WebAudio, WebWorkers, WebEtc.
