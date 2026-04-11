@@ -1,4 +1,3 @@
-import { onMount } from "solid-js";
 import hljs from "@/lib/highlight";
 
 export default function WatchEmbed() {
@@ -52,25 +51,19 @@ const audioSource = new Watch.Audio.Source(sync, { broadcast });
 const audioDecoder = new Watch.Audio.Decoder(audioSource);
 const audioEmitter = new Watch.Audio.Emitter(audioDecoder, { paused: false });`;
 
-	let htmlRef: HTMLElement | undefined;
-	let jsRef: HTMLElement | undefined;
-
-	onMount(() => {
-		if (htmlRef) hljs.highlightElement(htmlRef);
-		if (jsRef) hljs.highlightElement(jsRef);
-	});
+	const highlight = (el: HTMLElement) => queueMicrotask(() => hljs.highlightElement(el));
 
 	return (
 		<>
 			<pre>
-				<code ref={htmlRef} class="language-html">
+				<code ref={highlight} class="language-html">
 					{embedHtml}
 				</code>
 			</pre>
 
 			<p>Or skip the web component entirely and drive the lower-level JavaScript API directly.</p>
 			<pre>
-				<code ref={jsRef} class="language-typescript">
+				<code ref={highlight} class="language-typescript">
 					{embedJs}
 				</code>
 			</pre>

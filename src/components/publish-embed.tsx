@@ -1,4 +1,3 @@
-import { onMount } from "solid-js";
 import { adjectives, animals, uniqueNamesGenerator } from "unique-names-generator";
 import hljs from "@/lib/highlight";
 
@@ -20,15 +19,11 @@ export default function PublishEmbed() {
     </moq-publish>
 </moq-publish-ui>`;
 
-	let ref: HTMLElement | undefined;
-
-	onMount(() => {
-		if (ref) hljs.highlightElement(ref);
-	});
+	const highlight = (el: HTMLElement) => queueMicrotask(() => hljs.highlightElement(el));
 
 	return (
 		<pre>
-			<code ref={ref} class="language-html">
+			<code ref={highlight} class="language-html">
 				{embedHtml}
 			</code>
 		</pre>

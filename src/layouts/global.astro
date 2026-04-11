@@ -1,5 +1,8 @@
 ---
 import "./global.css";
+// Imported after global.css so the theme's .hljs-* color rules land later in
+// the cascade and beat the prose plugin's .markdown :where(pre code) { color: inherit }.
+import "highlight.js/styles/atom-one-dark.css";
 
 // NOTE: This is magically used as the type for Astro.props
 interface Props {
