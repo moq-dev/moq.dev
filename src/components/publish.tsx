@@ -6,7 +6,7 @@ import "@moq/publish/element";
 import "@moq/publish/ui";
 import { Lite } from "@moq/publish";
 
-export default function () {
+export default function Publish() {
 	const name = uniqueNamesGenerator({ dictionaries: [adjectives, animals], separator: "-" });
 	const url = new URL("/anon", import.meta.env.PUBLIC_RELAY_URL);
 	const [copied, setCopied] = createSignal(false);
@@ -63,39 +63,6 @@ export default function () {
 			</moq-publish-ui>
 
 			<moq-publish-support prop:show="always" />
-
-			<h3>Features:</h3>
-			<ul>
-				<li>
-					🔓 <strong>Open Source</strong>: powered by the{" "}
-					<a href="https://github.com/moq-dev/moq/tree/main/js/publish">@moq/publish</a> library.
-				</li>
-				<li>
-					🌐 <strong>100% Web</strong>: WebTransport, WebCodecs, WebAudio, WebWorkers, WebEtc.
-				</li>
-				<li>
-					🎬 <strong>Modern Codecs</strong>: Supports AV1, H.265, H.264, VP9, Opus, AAC, etc.
-				</li>
-				<li>
-					💬 <strong>Automatic Captions</strong>: Generated{" "}
-					<a href="https://huggingface.co/docs/transformers.js/en/index">in-browser</a> using WebGPU and{" "}
-					<a href="https://github.com/openai/whisper">Whisper</a>.
-				</li>
-				<li>
-					⚡ <strong>Real-Time</strong>: Minimal latency by skipping unimportant media during congestion.
-				</li>
-				<li>
-					🚀 <strong>Massive Scale</strong>: Everything is deduplicated and distributed across a global CDN.
-				</li>
-				<li>
-					💪 <strong>Efficient</strong>: No encoding or bandwidth usage until a viewer needs it.
-				</li>
-				<li>
-					🔧 <strong>Compatible</strong>: TCP fallback via{" "}
-					<a href="https://github.com/moq-dev/web-transport/tree/main/web-transport-ws">WebSocket</a>, Safari fallback
-					via <a href="https://github.com/Yahweasel/libav.js/">libav.js.</a>
-				</li>
-			</ul>
 		</div>
 	);
 }

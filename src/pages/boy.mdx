@@ -1,0 +1,25 @@
+---
+layout: "@/layouts/global.astro"
+title: MoQ Boy
+description: Play Game Boy games together over MoQ.
+---
+
+import Boy from "@/components/boy.astro";
+
+<center>
+	<img src="/demo/moqboy.svg" class="h-40" alt="MoQ Boy" />
+</center>
+
+<Boy />
+
+Click a game to play. Multiple players can play at the same time; anarchy included.
+
+## Features
+
+- 🦀 **Rust**: [moq-boy](https://doc.moq.dev/rs/crate/moq-boy) handles emulation and encoding. [moq-mux](https://doc.moq.dev/rs/crate/moq-mux) slurps in H.264/Opus bitstreams while [moq-lite](https://doc.moq.dev/rs/crate/moq-lite) handles the networking/caching.
+- 🌐 **Web**: [@moq/boy](https://doc.moq.dev/js/@moq/boy) is the browser player. [@moq/watch](https://doc.moq.dev/js/@moq/watch) handles decoding/rendering while [@moq/lite](https://doc.moq.dev/js/@moq/lite) handles the networking.
+- 💤 **On-Demand**: Nothing is emulated or encoded until at least one viewer subscribes (per track). Saves you CPU and bandwidth!
+- 🧩 **Extensible**: Player controls and game status are sent as custom tracks (JSON in this case). You can do whatever you want!
+- 🌍 **Global CDN**: A generic MoQ CDN routes subscriptions over the backbone. Every client connects to the closest edge node to maximize QoS and minimize latency.
+- 🔍 **Discoverable**: The CDN announces which games are available _and_ who wants to play. There's no custom orchistration layer; all clients connect to `cdn.moq.dev` **ONLY**.
+- 🤠 **Texas**: The emulators currently run in us-central, so your latency depends on your distance from the Lone Star State. Sorry about that euros; yee-haa.

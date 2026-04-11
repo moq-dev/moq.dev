@@ -1,0 +1,29 @@
+---
+layout: "@/layouts/global.astro"
+title: Publish
+description: Publish a public broadcast.
+---
+
+import Publish from "@/components/publish.astro";
+import PublishEmbed from "@/components/publish-embed.astro";
+
+Publishing a **PUBLIC** broadcast. Pls don't do anything stupid.
+
+<Publish />
+
+## Features
+
+- 🔓 **Open Source**: powered by the [@moq/publish](https://github.com/moq-dev/moq/tree/main/js/publish) library.
+- 🌐 **100% Web**: WebTransport, WebCodecs, WebAudio, WebWorkers, WebEtc.
+- 🎬 **Modern Codecs**: Supports AV1, H.265, H.264, VP9, Opus, AAC, etc.
+- 💬 **Automatic Captions**: Generated [in-browser](https://huggingface.co/docs/transformers.js/en/index) using WebGPU and [Whisper](https://github.com/openai/whisper).
+- ⚡ **Real-Time**: Minimal latency by skipping unimportant media during congestion.
+- 🚀 **Massive Scale**: Everything is deduplicated and distributed across a global CDN.
+- 💪 **Efficient**: No encoding or bandwidth usage until a viewer needs it.
+- 🔧 **Compatible**: TCP fallback via [WebSocket](https://github.com/moq-dev/web-transport/tree/main/web-transport-ws), Safari fallback via [libav.js](https://github.com/Yahweasel/libav.js/).
+
+## Embed it
+
+Drop this in any HTML page.
+
+<PublishEmbed />

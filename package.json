@@ -17,6 +17,7 @@
 		"@moq/publish": "^0.2.4",
 		"@moq/watch": "^0.2.5",
 		"astro": "^5.18.1",
+		"highlight.js": "^11.11.1",
 		"solid-js": "^1.9.12",
 		"unique-names-generator": "^4.7.1"
 	},

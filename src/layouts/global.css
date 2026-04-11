@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* highlight.js's atom-one-dark theme paints its own background on code.hljs,
+   which double-stacks with the prose plugin's pre background. Strip it. */
+code.hljs,
+pre code.hljs {
+	background: transparent;
+	padding: 0;
+}
+
 @layer components {
 	/* see https://tailwindcss.com/docs/typography-plugin */
 	.markdown {

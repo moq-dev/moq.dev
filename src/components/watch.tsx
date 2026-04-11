@@ -1,11 +1,9 @@
-// Use the moq web components.
 import "@moq/watch/support/element";
 import "@moq/watch/element";
 import "@moq/watch/ui";
 import { Lite } from "@moq/watch";
-import { Show } from "solid-js";
 
-export default function () {
+export default function Watch() {
 	const params = new URLSearchParams(window.location.search);
 	const name = params.get("name") ?? "bbb";
 
@@ -32,41 +30,6 @@ export default function () {
 			</moq-watch-ui>
 
 			<moq-watch-support prop:show="always" />
-
-			<h3>Features:</h3>
-			<ul>
-				<li>
-					🔓 <strong>Open Source</strong>: powered by the{" "}
-					<a href="https://github.com/moq-dev/moq/tree/main/js/watch">@moq/watch</a> library.
-				</li>
-				<li>
-					🌐 <strong>100% Web</strong>: WebTransport, WebCodecs, WebAudio, WebWorkers, WebEtc.
-				</li>
-				<li>
-					🎬 <strong>Modern Codecs</strong>: Supports AV1, H.265, H.264, VP9, Opus, AAC, etc.
-				</li>
-				<Show when={name !== "bbb"}>
-					<li>
-						💬 <strong>Automatic Captions</strong>: Generated{" "}
-						<a href="https://huggingface.co/docs/transformers.js/en/index">in-browser</a> using WebGPU and{" "}
-						<a href="https://github.com/openai/whisper">Whisper</a>.
-					</li>
-				</Show>
-				<li>
-					⚡ <strong>Real-Time</strong>: Minimal latency by skipping unimportant media during congestion.
-				</li>
-				<li>
-					🚀 <strong>Massive Scale</strong>: Downloaded from the nearest CDN edge.
-				</li>
-				<li>
-					💪 <strong>Efficient</strong>: No video is downloaded when minimized, or audio when muted.
-				</li>
-				<li>
-					🔧 <strong>Compatible</strong>: TCP fallback via{" "}
-					<a href="https://github.com/moq-dev/web-transport/tree/main/web-transport-ws">WebSocket</a>, Safari fallback
-					via <a href="https://github.com/Yahweasel/libav.js/">libav.js.</a>
-				</li>
-			</ul>
 		</>
 	);
 }

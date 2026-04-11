@@ -1,0 +1,27 @@
+---
+layout: "@/layouts/global.astro"
+title: Watch
+description: Watch a live broadcast.
+---
+
+import Watch from "@/components/watch.astro";
+import WatchEmbed from "@/components/watch-embed.astro";
+
+<Watch />
+
+## Features
+
+- 🔓 **Open Source**: powered by the [@moq/watch](https://github.com/moq-dev/moq/tree/main/js/watch) library.
+- 🌐 **100% Web**: WebTransport, WebCodecs, WebAudio, WebWorkers, WebEtc.
+- 🎬 **Modern Codecs**: Supports AV1, H.265, H.264, VP9, Opus, AAC, etc.
+- 💬 **Automatic Captions**: Generated [in-browser](https://huggingface.co/docs/transformers.js/en/index) using WebGPU and [Whisper](https://github.com/openai/whisper).
+- ⚡ **Real-Time**: Minimal latency by skipping unimportant media during congestion.
+- 🚀 **Massive Scale**: Downloaded from the nearest CDN edge.
+- 💪 **Efficient**: No video is downloaded when minimized, or audio when muted.
+- 🔧 **Compatible**: TCP fallback via [WebSocket](https://github.com/moq-dev/web-transport/tree/main/web-transport-ws), Safari fallback via [libav.js](https://github.com/Yahweasel/libav.js/).
+
+## Embed it
+
+Drop this in any HTML page.
+
+<WatchEmbed />
