@@ -13,7 +13,7 @@ pre code.hljs {
 @layer components {
 	/* see https://tailwindcss.com/docs/typography-plugin */
 	.markdown {
-		@apply prose prose-lg lg:prose-xl;
+		@apply prose prose-lg lg:prose-xl max-w-none;
 		@apply prose-moq;
 		@apply prose-headings:underline prose-headings:decoration-green-500 prose-headings:decoration-4 prose-headings:underline-offset-4;
 		@apply prose-h3:text-2xl;
