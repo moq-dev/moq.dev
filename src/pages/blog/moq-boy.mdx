@@ -1,0 +1,130 @@
+---
+layout: "@/layouts/global.astro"
+title: "MoqBoy"
+author: kixelated
+description: ""
+cover: "/blog/monte-video/uruguay.png"
+date: 2026-04-14
+---
+import Boy from "@/components/boy.astro";
+
+<center>
+	<img src="/demo/moqboy.svg" class="h-40" alt="MoQ Boy" />
+</center>
+
+<Boy />
+
+# MoqBoy
+It's like Twitch Plays Pokemon, but I don't want to get sued so enjoy homebrew games lul.
+
+**EVERYTHING** uses a single connection to a generic MoQ CDN. Wowee.
+
+## On-Demand
+First I want to gloat about the most impressive feature: **SAVING MOOLAH**.
+
+When a viewer wants audio and/or video, they issue a `SUBSCRIBE` request.
+moq-relay takes that `SUBSCRIBE` and deduplicates it, combining it with other identical subscriptions.
+A few hops later, the underpowered cloud VM running the emulator gets zero or one `SUBSCRIBE` requests for each track.
+
+By default, a MoQ publisher will only transmit a track if there's an active subscription.
+So our emulator would still run and encode, while the precious pixels sit in RAM waiting for their time to shine.
+
+But we big brain. That not good enough.
+We turn the encoder on/off if there's an active subscription:
+
+- If there's no audio subscription, the Opus encoder sleep.
+- If there's no video subscription, the H.264 encoder sleep.
+
+But we even bigger brain than that:
+
+- If there's no audio AND video subscription, the emulator sleep.
+
+That's right, we're not burning through the CPU/GPU unless somebody needs it.
+And I mean _needs_ it; the web player will `UNSUBSCRIBE` to video if you scroll or tab away.
+Scroll back up to the demos and you might see a black screen while the encoder/emulator/subscription reinitializes.
+
+Obviously this is not a huge deal for a gameboy emulator.
+The screen is 160x144, even your vape pen could run it.
+
+But it does start to matter for anybody running expensive transcoding and AI models.
+If nobody wants captions, then don't run Whisper lul.
+And it's all built into MoQ baybee.
+
+
+## Discovery
+A boring person would have hard-coded the list of available games.
+But I'm HYPER-C00l, so MoqBoy instead uses MoQ's ability to discover available "broadcasts".
+
+The viewer asks the CDN for every broadcast with the prefix `demo/boy/**`.
+It will get a live notification when a matching broadcast comes online or goes offline.
+
+- One worker publishes `demo/boy/big2small`.
+- Another worker publishes `demo/boy/opossum`.
+- The viewer discovers both and inserts them into the grid.
+
+Also I can't let this slide.
+"opossum" is a made up word.
+It can't be spelled like that.
+It can't be real.
+
+Anyway, this is also how [hang.live](https://hang.live) discovers users in each conference room.
+It's as easy as "tell me when somebody publishes `room123/**`".
+You don't need a separate "room" service that manages membership, just use MoQ lul.
+
+
+## Controls
+MoQ is a one-directional protocol.
+Broadcasters broadcast, viewers view.
+But how do players play?
+
+Psst, I'll tell you a secret.
+**Each viewer is a broadcaster too!**
+
+Each player publishes a broadcast called `demo/viewer/big2small/<id>`, with a random ID.
+They produce a single `controls` track, and when a button is pressed, writes a JSON blob to it:
+```json
+{
+  a: true,
+  up: true
+}
+```
+
+The MoqBoy publisher uses the same DISCOVERY mechanism listed above to find all players.
+It subscribes to the `controls` track for any broadcasts with the prefix `demo/viewer/big2small/`.
+
+Bada bing, bada boom.
+We reinvented bidirectional streams using multiple unidirectional streams.
+
+But why not build bidirectional streams into MoQ proper?
+Well it's because of business logic you nerd.
+
+This demo uses anarchy, where the broadcaster chooses to SUBSCRIBE to **ALL** players.
+Your flesh mangling robot might want lockout, where the broadcaster chooses to SUBSCRIBE to **ONE** player.
+Or maybe it gains sentience and doesn't want to SUBSCRIBE to **ANY** pathetic humans any longer.
+
+IDK it's just easier to design/scale a protocol that fans out.
+We're not in the business of adding business logic to the relay to merge JSON blobs or some other nonsense.
+
+## Open Source
+Oh right and you can run it yourself.
+[Setup the mono repo], then run `just boy`.
+
+It's fun to type.
+Just boy.
+Just boy.
+
+If you're too lazy to ask Claude, here's the [Rust publisher](https://github.com/moq-dev/moq/tree/main/rs/moq-boy) and [JS player](https://github.com/moq-dev/moq/tree/main/js/moq-boy).
+
+## A Real Demo
+So I know this looks like a fun emulator side project, but I swear it's not.
+This is meant to be a DEMO of how you should use MoQ for robots, drones, and other murder machines.
+
+If you work in one of those lucrative industries and want some help, hit me up.
+I've started contracting as a way of getting MoQ pilots off the ground (literally and figuratively).
+
+Email me at: `me@kixel.me`
+
+Or DM me on [Discord](https://discord.gg/FCYF3p99mr), that's way more fun.
+
+Written by [@kixelated](https://github.com/kixelated).
+![@kixelated](/blog/avatar.png)
