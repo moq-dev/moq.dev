@@ -16,7 +16,7 @@ Here's my MoQ copy of [Twitch Plays Pokemon](https://en.wikipedia.org/wiki/Twitc
 But there's a dilemma: I don't want to get sued by Nintendo.
 So enjoy homebrew games instead lul.
 
-And remember to scroll down and read the actual blog once you're done GAMING.
+And remember to scroll down and read the actual blog post once you're done GAMING.
 
 <Boy />
 
@@ -24,7 +24,7 @@ And remember to scroll down and read the actual blog once you're done GAMING.
 There are N emulator workers.
 There are M human players.
 
-**EVERYTHING** uses a single connection to a generic MoQ CDN.
+They use a single connection to a generic MoQ CDN for **EVERYTHING**.
 
 But how??
 
@@ -35,7 +35,7 @@ A feature so secret, I gloat about it first.
 
 When a viewer wants audio and/or video, they issue a `SUBSCRIBE` request to the MoQ CDN.
 The MoQ CDN (moq-relay nodes) slurp up all `SUBSCRIBE` requests for the same track and combines them.
-The end result: the underpowered cloud VM running the emulator gets at most one `SUBSCRIBE` request for each track.
+The end result: the underpowered cloud VM running the emulator gets at most one `SUBSCRIBE` request per track, regardless of viewer count.
 
 By default, a MoQ publisher will only transmit a track if there's an active subscription.
 Our emulator would encode media, but those precious pixels would sit in RAM until there's a viewer.
@@ -75,7 +75,7 @@ The screen is 160x144 after all, even your vape pen could run it.
 But it does start to matter for anybody running expensive subscriptions.
 - If nobody wants captions, then don't run Whisper lul.
 - If nobody wants H265, then don't transcode it lul.
-- If nobody wants wants to watch your shitty Lets Play, then send it to `/dev/null` lul.
+- If nobody wants to watch your shitty Lets Play, then send it to `/dev/null` lul.
 
 And it's all built into MoQ baybee.
 
@@ -96,7 +96,7 @@ It will get a live notification when games come online and go offline.
 Like a city planner, we throw them in a grid.
 
 <figure>
-	![pub1](/blog/moq-boy/pub1.png)
+	![pub boy](/blog/moq-boy/pub1.png)
 	<figcaption>
 		pub boy
 	</figcaption>
@@ -109,8 +109,8 @@ It can't be real.
 Who took a look at that thing and decided, that right there is an "opossum".
 
 Anyway, this is also how [hang.live](https://hang.live) discovers other users.
-It's as easy as "tell me when somebody publishes a broadcast starting with `room123/`
-You don't need a separate "room" service that manages membership
+It's as easy as "tell me when somebody publishes a broadcast starting with `room123/`".
+You don't need a separate "room" service that manages membership.
 
 Just use MoQ lul.
 
@@ -127,8 +127,8 @@ Each player publishes a broadcast called `demo/viewer/big2small/<id>`, with a ra
 They produce a single `controls` track, and when a button is pressed, writes a JSON blob to it:
 ```json
 {
-  a: true,
-  up: true
+  "a": true,
+  "up": true
 }
 ```
 
@@ -139,7 +139,7 @@ Bada bing, bada boom.
 We now have a "bidirectional" stream by using two unidirectional streams.
 
 <figure>
-	![pub1](/blog/moq-boy/pub2.png)
+	![sub boy](/blog/moq-boy/pub2.png)
 	<figcaption>
 		sub boy
 	</figcaption>
@@ -162,7 +162,7 @@ Your application is responsible for implementing fan in.
 
 ## Open Source
 Oh right and you can run it yourself.
-[Setup the mono repo], then run `just boy`.
+[Setup the mono repo](https://doc.moq.dev/setup/), then run `just boy`.
 
 It's fun to type.
 Just boy.
@@ -179,18 +179,18 @@ This is meant to be a DEMO of how you should use MoQ for robots, drones, and oth
 Just replace the GameBoy emulation with REAL LIFE via a camera feed.
 
 <figure>
-	![pub1](/blog/moq-boy/moqboy.png)
+	![weapon of mass destruction](/blog/moq-boy/moqboy.png)
 	<figcaption>
 		weapon of mass destruction?
 	</figcaption>
 </figure>
 
 Also, I've started contracting as a way of getting MoQ pilots off the ground (literally and figuratively).
-My express goal is expand the MoQ ecosystem, which means I still want most stuff to be open source.
+My primary goal is expand the MoQ ecosystem, which means most of what I do needs to be open source.
 
 Email me at `me@kixel.me`, or DM on [Discord](https://discord.gg/FCYF3p99mr) if you want:
 - some advice on how to use MoQ.
-- to sponsor some open source contribitions.
+- to sponsor some open source contributions.
 - a MoQ pilot to replace your crummy setup.
 
 Written by [@kixelated](https://github.com/kixelated).
