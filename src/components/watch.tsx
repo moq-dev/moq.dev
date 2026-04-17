@@ -7,13 +7,7 @@ export default function Watch() {
 	const params = new URLSearchParams(window.location.search);
 	const name = params.get("name") ?? "bbb";
 
-	let url: URL;
-	const token = import.meta.env.PUBLIC_RELAY_TOKEN;
-	if (name === "bbb" && token) {
-		url = new URL(`/demo?jwt=${token}`, import.meta.env.PUBLIC_RELAY_URL);
-	} else {
-		url = new URL("/anon", import.meta.env.PUBLIC_RELAY_URL);
-	}
+	const url = new URL(name === "bbb" ? "/demo" : "/anon", import.meta.env.PUBLIC_RELAY_URL);
 
 	return (
 		<>

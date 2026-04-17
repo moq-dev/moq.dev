@@ -13,9 +13,9 @@
 		"fix": "biome check --write && bun audit fix"
 	},
 	"dependencies": {
-		"@moq/boy": "^0.2.5",
-		"@moq/publish": "^0.2.4",
-		"@moq/watch": "^0.2.7",
+		"@moq/boy": "^0.2.6",
+		"@moq/publish": "^0.2.5",
+		"@moq/watch": "^0.2.8",
 		"astro": "^5.18.1",
 		"highlight.js": "^11.11.1",
 		"solid-js": "^1.9.12",
