@@ -3,7 +3,7 @@ layout: "@/layouts/global.astro"
 title: "MoqBoy"
 author: kixelated
 description: "Using MoQ for REAL-TIME BIDIRECTIONAL STREAMING. Gameboy games!"
-cover: "/blog/moq-boy/bren2.png"
+cover: "/blog/moq-boy/moqboy.png"
 date: 2026-04-16
 ---
 import Boy from "@/components/boy.astro";
@@ -16,7 +16,7 @@ Here's my MoQ copy of [Twitch Plays Pokemon](https://en.wikipedia.org/wiki/Twitc
 But there's a dilemma: I don't want to get sued by Nintendo.
 So enjoy homebrew games instead lul.
 
-And remember to scroll down and read the actual blog post once you're done GAMING.
+And remember to scroll down and read the actual blog post once you're done **GAMING**.
 
 <Boy />
 
@@ -33,8 +33,8 @@ But I want to first gloat about a secret feature.
 A feature so secret, I gloat about it first.
 **SAVING MOOLAH**.
 
-When a viewer wants audio and/or video, they issue a `SUBSCRIBE` request to the MoQ CDN.
-The MoQ CDN (moq-relay nodes) slurp up all `SUBSCRIBE` requests for the same track and combines them.
+When a viewer wants audio and/or video, they issue a `SUBSCRIBE` request to a MoQ CDN.
+The MoQ CDN slurps up all `SUBSCRIBE` requests for the same track and combines them.
 The end result: the underpowered cloud VM running the emulator gets at most one `SUBSCRIBE` request per track, regardless of viewer count.
 
 By default, a MoQ publisher will only transmit a track if there's an active subscription.
@@ -57,9 +57,9 @@ But we even bigger brain than that:
 
 - If there's no audio AND video subscription, **the emulator sleep**.
 
-That's right, we're not burning through the CPU/GPU unless some eye balls or ear holes will benefit.
-This is aggressive; the web player will `UNSUBSCRIBE` to video if you scroll or tab away.
-Scroll back up to the demos and you might see a black screen while the encoder/emulator/subscription reinitializes.
+We're not burning through the CPU/GPU unless some eye balls or ear holes will benefit!
+Try scrolling back up to the demos and you might see a brief black screen.
+The player automatically `UNSUBSCRIBE`s when out of view, and if everybody does it, then no more Mr. Emulation.
 
 <figure>
 	![bigger bren](/blog/moq-boy/bren2.png)
@@ -148,15 +148,15 @@ We now have a "bidirectional" stream by using two unidirectional streams.
 But why not build bidirectional streams into MoQ proper?
 Well it's because of business logic you nerd.
 
-This demo uses anarchy, where the broadcaster chooses to SUBSCRIBE to **ALL** players.
-Your flesh mangling robot might want lockout, where the broadcaster chooses to SUBSCRIBE to **ONE** player.
-Or maybe it gains sentience and doesn't want to SUBSCRIBE to **ANY** pathetic humans any longer.
+- MoqBoy uses anarchy, where the broadcaster chooses to SUBSCRIBE to **ALL** players.
+- Your flesh mangling robot might want enforce lockout, where the broadcaster chooses to SUBSCRIBE to **ONE** player.
+- Or your flesh mangling robot has reached AGI (Sam be proud) and doesn't want to SUBSCRIBE to **ANY** pathetic humans any longer.
 
-And as a perk, you can easily fan out controls just like any MoQ track.
-Multiple robots can subscribe to the same `controls` track, ex. to listen for a shared kill switch.
+One perk of unidirectional streams is that they easily fan out.
+**Multiple** robots can subscribe to the **same** `killswitch` track.
 They obviously will ignore it, but the thought counts.
 
-It's also just easier to scale a protocol that ALWAYS fans out.
+It's also just easier to scale a protocol that **ALWAYS** fans out.
 We're not in the business of adding business logic to the relay to merge JSON blobs or some other nonsense.
 Your application is responsible for implementing fan in.
 
@@ -173,10 +173,23 @@ If you're too lazy to ask AI, here's the relevant folders:
 - [JS player](https://github.com/moq-dev/moq/tree/main/js/moq-boy).
 - [Web/ROM stuff](https://github.com/moq-dev/moq/tree/main/demo/boy).
 
+The [Software Mansion](https://swmansion.com/) folks are hard at work on React Native bindings.
+Here's a sneak peak of this MOQ BOY demo running on a real phone!
+
+<figure>
+	![native screenshot](/blog/moq-boy/native.jpg)
+	<figcaption>
+		Definitely the future of gaming.
+	</figcaption>
+</figure>
+
+Definitely hit them up if you want MoQ on phone.
+Or use the open source `Rust -> C/Kotlin/Swift/Python` bindings yourself!
+
 ## A Real Demo
 So I know this looks like a fun emulator side project, but I swear it's not.
-This is meant to be a DEMO of how you should use MoQ for robots, drones, and other murder machines.
-Just replace the GameBoy emulation with REAL LIFE via a camera feed.
+This is meant to be a DEMO of how you should use MoQ for robots, drones, and other ~murder~ machines.
+Just replace the GameBoy emulation with REAL LIFE via a camera feed, nobody will be the wiser.
 
 <figure>
 	![weapon of mass destruction](/blog/moq-boy/moqboy.png)
@@ -186,7 +199,7 @@ Just replace the GameBoy emulation with REAL LIFE via a camera feed.
 </figure>
 
 Also, I've started contracting as a way of getting MoQ pilots off the ground (literally and figuratively).
-My primary goal is expand the MoQ ecosystem, which means most of what I do needs to be open source.
+My primary goal is expand the MoQ ecosystem, even if it means signing NDAs.
 
 Email me at `me@kixel.me`, or DM on [Discord](https://discord.gg/FCYF3p99mr) if you want:
 - some advice on how to use MoQ.
