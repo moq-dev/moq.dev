@@ -1,0 +1,266 @@
+# Live Video Architecture: Scale or Profit?
+
+It's time to get that Staff Engineer promotion.
+That's right, we're talking about _distributed systems design_.
+It's not every day that you get to design a live video system (without blindly asking ChatGPT at least).
+
+Each is an iteration on the previous design with increasing complexity and usually cost.
+Be warned that there is never a "right" answer in systems design and the investment you should make depends solely on your product.
+Start small and build upon success and failure
+
+
+## Requirements 
+But first, a message from our sponsor: __requirements__
+
+We're going to build a real-time media application.
+There will be N broadcasters and M viewers in a room, some performing both roles.
+Think Discord or Google Meet or Zoom or _your least favorite meeting app_ (there's a lot of them).
+
+Considerations to be had:
+- Some users will have poor networks.
+- Some users will want higher quality/latency (ex. screen share) 
+- Some users might be geo-dispersed. ex. some might live in Europe while some might live in North of Mexico, and there's an ocean between them.
+- Some customers might be willing to pay for better connectivity/quality.
+
+Got that?
+Basically just make a conferencing application.
+
+## Design 0: Peer to Peer 
+We start with somehow both the least and most complex design: __peer-to-peer__.
+
+That's right, boot up your favorite game from the 2000s and enter your friend's IP address manually.
+We don't need no stinking servers... at least until your "friend" enables `noclip`.
+
+The design is very simple, even if the implementation isn't.
+Users connect directly to each other with only routers and switches in the middle.
+
+The very first problem with P2P hits us immediately: how do you connect?
+One of the clients needs to have a static IP/port which is unlikely because of these pesky things called __NATs__.
+
+Even in a client/client protocol, one of the clients needs a public IP address.
+You see, firewalls and NATs are widespread (even with IPv6) and unless configured (port forwarding), they only allow outgoing connections.
+Even a fully peer-to-peer protocol requires at least one client to be the designated IT guy and act as a server just to get connections established.
+
+But you also should still have _some_ central server to exchange user details, like a "lobby" service, because we don't want to enter IPs manually or scan the Internet for friends.
+No, we're not going to build "Media over Blockchain".
+This same server can be used to punch holes in NATs *most of the time* via a protocol like ICE/STUN used in WebRTC.
+I say *most of the time* with slanty text because it doesn't work for symmetric NATs.
+Depending on the router you have at home, peer-to-peer might be impossible without literally proxying all traffic through an intermediate server (TURN). 
+
+But NATs are not the deal-breaker for P2P in many applications.
+That award is reserved for _fanout_.
+
+You see, if Alice is on a peer-to-peer call with Bob, then Alice needs to send their audio/video to Bob only.
+Thats like 3Mb/s at least for good quality video.
+But if Candy, Dandy, Eric, Fritz, Geof, Harry, Iguana, Joel, Katrina, Luke, Mochael, Nigel, 🍊, Paul, Q, Raul, Steve, Tavana, Uguana, Video, Windy, Xylan, Yennifer, and Zee all join the call, then now Alice needs to send N copies of their media.
+There's no way to share the upload*, and now we need at least 78Mb/s of upload capacity now to make sure everyone gets the video.
+Your home Internet might be able to support that, but what about your cell phone?
+
+We need a different architecture.
+
+## Design -1: Multicast
+"Well of course, you daft blog author, that's why you use multicast!"
+
+It's true, multicast lets you send one packet to multiple destinations.
+The participants would all join a multicast group and then the network would figure it out.
+
+"But, you daft blog author, nobody uses multicast!"
+
+It's true, the protocol designed to solve all of our problems doesn't actually work on the internet.
+There are a number of reasons but I'd be lying if I said I knew why.
+My theory is that its because multicast requires the world's ISPs to collaborate and work together to build what amounts to a global CDN.
+Multicast is still a good option within internal networks and datacenters provided you buy the right networking equipment.
+
+So instead of asking ISPs to build a global CDN, we're going to build a global CDN using unicast.
+
+So we're using unicast.
+But, we're using _the ideas behind multicast_.
+
+**New Requirement:** The broadcaster MUST send only one copy of the media.
+Instead of the network layer (L2) performing fanout via multicast, we can fanout at the application layer (L7) instead.
+That's ultimately the premise behind CDNs: more expressive routing and caching can be performed at higher layers.
+But those are spoilers; keep reading.
+
+## Design 1: Hub and Spoke
+Okay so we're going to use servers with public IPs.
+We must first ask ourselves: "How do you determine which client connects to which server?"
+
+I've got an answer for you: have everyone connect to the same server.
+
+We're already at the most common conferencing architecture.
+Discord uses it as do many conferencing applications.
+It's a good deaign when meetings consist of a handful of cost-sensitive users.
+I thought distributed systems design was supposed to be hard.
+
+Unfortunately, there are two problems with our simple approach:
+1. The maximum channel size is limited by the server size.
+2. Users far away from the server will have a degraded experience.
+
+When you hear the phrase "WebRTC doesn't scale", this is the architecture being referenced.
+A single host has limits in terms of throughput and quality.
+If we want to have thousands of people in the same room our only option is to scale vertically.
+You can throw larger CPUs and NICs at the problem but eventually you hit a limit.
+Other designs can scale horizontally so this isn't a fundamental problem with WebRTC.
+
+And _who_ decides which server to use?
+Ideally, the server is the closest on average to all users, but what if users trickle in one at a time?
+There's no right answer, only convoluted business logic, but usually it's based on the first user to connect (aka the "host").
+
+**Fun tip**: Next time you have a meeting, make sure the solo Euro member doesn't create the meeting.
+Let them suffer alone with poor video quality and free healthcare.
+
+## Design 2: Edge Nodes
+So you're serious about improving the user experience and have additional cash to throw around?
+Good?
+
+There is an unspoken rule of the internet: it sucks.
+The "public" internet consists of interconnected ISPs and transit providers that want to pay as little as possible while keeping customers happy enough.
+You might have a fiber internet connection to your ISP's servers, but obviously they're not going to give you a dedicated fiber connection to everywhere in the world.
+You're going to get a dedicated connection to the nearest speed test website and that's it.
+
+The internet is the world's largest sharing experiment.
+But to get the most reliable experience, we need to explicitly not share.
+We want our media packets to spend as little time as possible on the public **inter**net and as much time on our private **intra**net.
+
+That's right, it's time to copy a HTTP CDN and put edge servers next to each user.
+Queue the map with all of the datacenters around the world.
+
+<globe of dots>
+
+That's the one, good stuff.
+
+So we provision servers around the world and users will connect to the closest one.
+This minimizes the amount of time our user's packets spend mingling with the commoners.
+We're now a toddler who refuses to share with anyone else and can better control the quality/cost once the packets are in our network.
+
+But how does a user know which server is the closest?
+There's a few options:
+
+1. Ping them all, use the min.
+2. Use GeoDNS
+3. Use anycast.
+
+I'm a big anycast 🪭 as are most CDNs.
+Basically, all of our servers advertise the same IP address and BGP figures out which one is closest.
+This gives ISPs greater control on how traffic should be routed, potentially over paths with higher RTTs but lower congestion.
+
+But I'm going to stop blabbing about anycast; we've got _distributed systems_ to design.
+
+Note that we still have a central server that "owns" the meeting room.
+This is commonly called the "origin" and each edge node needs to know it's address to proxy media.
+Store this in a database or something.
+
+
+## Design 3: Deduplication
+
+So the previous design has users connect to the closest server, but how do the servers 
+
+But critically, It also gives us the ability to **deduplicate**, serving the same content to multiple users kinda like multicast.
+That's why Google even has a CDN edge on a cruise ship.
+
+The other benefit of point-to-point is more subtle: it prevents __tromboning__.
+For example, let's say someone from Boston is trying to call someone from the UK a ~~lolly gagger~~ (TODO make sure that properly censors the bad word).
+
+- If we're using a single SFU in us-west, then the traffic first heads west and then back east.
+- If we're using multiple SFUs, then the traffic more closely follows the shortest path.
+
+This tromboning is rare in practice as most traffic is regional, but shush I'm trying to over-engineer the system.
+We don't want to send traffic back and forth for no reason because it increases latency and reduces capacity.
+
+So yeah, we have every user connect to the closet server via anycast or geo-DNS.
+There's some database or gossip protocol used to discover the "origin" server for each user.
+When the server needs to route traffic to a user, it routes it to the origin instead.
+
+But the end result looks like a tangled mess.
+Or because it 'twis the season, the end result looks more like my 🎄 lights after they magically knotted themselves in the attic (a miracle).
+This is no good, because if every edge can connect to any other edge, there can be a lot of duplicated traffic on each link.
+
+## Design 4: A Tree
+The internet certainly behaves like a net.
+There are many forks and traffic needs to figure out if it should go right or left.
+
+We need to avoid our media going both left and right because it's a waste of our limited network capacity.
+But we need to avoid multiple copies too.
+
+For example, let's say an edge in the UK wants to fetch content from an origin in San Francisco
+It could fetch from a server in Ireland, then New York, then Chicago, then Utah, then Frisco (nobody calls it that).
+If other servers take a similar route, intersecting at some point, then we can combine multiple fetches into one.
+
+It was called a tree at Twitch but it's really more like a river with many tributaries.
+Each layer in the tree compounds, reducing hundreds of thousands of edge requests into a handful of origin requests.
+
+But computing this tree is not easy.
+Ar Twitch we literally updated it by hand every time there was outage or some sort of change to the network topology.
+The process has since been automated as some smart engineers earned their paychecks... only to be scrapped as Twitch was absorbed into the mothership.
+But that's a tale for another time...
+
+So yeah, we're doing some application-based routing to try and maximize the cache-hit ratio.
+This means less duplicate media flowing over the backbone which means less compute and network capacity needed, which means less money burned on the cloud.
+It's just getting increasingly difficult to design as users can join from any edge and leave at any time.
+
+## Design 5: Coalesce
+The key word in that last sentence is _any_.
+If a user can connect to _any_ edge, then we've already started at a disadvantage.
+
+For example, let's say there's 3 Australian viewers connecting to our service and we have 6 servers in our Sydney datacenter.
+If each user connects via anycast or round-robin DNS to the "closest" edge, there's actually some randomization involved to break ties.
+Our servers within the Sydney data center have equal latency so our users will be assigned randomly.
+This works, but it's not the cheapest.
+
+You see, we want all of those users to connect to the same host so we can serve them from a single cache.
+If they're connected to different edges within the same datacenter, then we need to transfer the media between those hosts eating up more compute and network resources.
+Every host within the datacenter provides an equal user experience (provided they aren't full) so coalescing users to the same host is pure cost savings.
+
+We need to designate at least one server per datacenter as the "owner" of each meeting.
+But there's a gotcha, as now we can cause lopsided load as some meetings are larger than others.
+We also need the ability to spill over to additional servers for the largest events as a single server is not enough to serve the Superbowl.
+
+There's a few ways to accomplish this.
+One approach is to create a service that assigns each user to a host, but it quickly becomes a monolith as it needs the state of the entire system.
+Another approach is to rely on hashing, returning a stateless assignment based on the meeting name with some mechanism to avoid overloading individual hosts.
+
+## Design 6: Optimization 
+Now we're in the optimization end-game.
+
+One key flaw in the previous designs is the word "any".
+We went from a user connecting to a single host to the user connecting to _any_ host.
+
+If we get academic for just a second, we have a connected graph.
+- Every node in the graph is a user or server.
+- Every edge is a possible route between servers or a user.
+
+The number of permutations balloons out of control.
+Even finding the shortest path starts becoming difficult.
+But we're not trying to find the shortest path, we're also trying to find a cheap one.
+
+There's a cost associated with every node and edge.
+Some are cheap, some are shit, and some are both although there's not much correlation.
+Interconnect is a world of politics filled with price gouging and anti-competitive behavior.
+No specifics will be mentioned lest I get sued by a South Korean ISP, or a German one, or really any nationality.
+
+So, we have a classic graph optimization problem where every node/edge has a cost.
+But what's really cool about this problem is that _only unique traffic counts_.
+The more users we serve from cache, the cheaper a node/link becomes _per user_.
+
+What's the ramifications of this?
+Well, maybe serving those 3 users from Australia out of the Syndey data center isn't worth it.
+It's expensive to reserve capacity on a wire sitting on the floor of the world's largest ocean.
+The Aussies are used to awful Internet, how about we send their traffic over congestion transit links instead?
+
+Maybe if there were 20 users then the cost would average out to something more palatable.
+But again, users can join/leave at any time so the "optimal" decision constantly changes.
+It's no feasible to constantly _recalculating splines_ so at some point you have to rely on heuristics.
+
+And we have plenty of crude heuristics.
+Before beefing up capacity, Twitch would only allow assignments to data centers based on _global_ viewership. 
+20 Aussies watching a neighborhood event?
+Sorry mate, best we can do is LA.
+100 Brazilian viewers and the first Australian viewer shows up?
+Welcome to our Sydney data center.
+
+I believe this optimization problem is impossible to solve at scale.
+But it's also the secret sauce behind every CDN; as you scale up, more can be cached but where do you draw the line between quality/cost?
+
+# quic.video
+
+<map of 3 edges>
