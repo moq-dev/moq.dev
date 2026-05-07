@@ -9,7 +9,7 @@ date: 2026-05-06
 
 # OpenAI's WebRTC Problem
 
-OpenAI [posted a technical blog](https://openai.com/index/delivering-low-latency-voice-ai-at-scale/) post a few days ago.
+OpenAI [posted a technical blog](https://openai.com/index/delivering-low-latency-voice-ai-at-scale/) a few days ago.
 This blog post triggered me more than it should have.
 I urge to slap my meaty fingers on the keyboard.
 
@@ -62,8 +62,8 @@ After all, I'm paying good money to boil the ocean, and a garbage prompt means a
 It's not like LLMs are particularly responsive anyway.
 
 **But I'm not allowed to wait**.
-It's *impossible* to even retransmit an audio packet with WebRTC; we tried at Discord.
-The protocol is hard-coded for real-time latency **or else**.
+It's *impossible* to even retransmit a WebRTC audio packet within a browser; we tried at Discord.
+The *implementation* is hard-coded for real-time latency **or else**.
 
 Yes, Voice AI agents will eventually get the latency down to the conversational range.
 But **reducing latency has trade-offs**.
@@ -86,11 +86,11 @@ That way, if there's a network blip, some audio is buffered locally.
 The user might not even notice the network blip.
 
 But nope, WebRTC has **no buffering** and renders based on **arrival time**.
-Like seriously, timestamps are ignored.
-It's even more annoying when video is introduced because WebRTC has no A/V sync.
+Like seriously, timestamps are just suggestions.
+It's even more annoying when video enters the picture.
 
 To compensate for this, OpenAI has to make sure packets arrive *exactly* when they should be rendered.
-They have to **add a sleep** in front of every audio packet **before sending it**.
+They need to **add a sleep** in front of every audio packet **before sending it**.
 But if there's network congestion, *oops* we lost that audio packet and it'll never be retransmitted.
 
 OpenAI is literally introducing artificial latency, and then aggressively dropping packets to "keep latency low".
@@ -194,17 +194,16 @@ Signaling server (ex. [WHIP](https://www.rfc-editor.org/rfc/rfc9725.html)):
 - 1 for HTTP
 
 Media server:
-- 1 for STUN (with server)
-- 1 for ICE
+- 1 for ICE (with server)
 - 2 for DTLS 1.2
-- 1 for SCTP
+- 2 for SCTP
 
 \* It's complicated to compute, because some protocols can be pipelined to avoid 0.5 RTT.
 Kinda like [half an A-Press](https://www.youtube.com/watch?v=kpk2tdsPh0A).
 
 <figure>
 	![8 RTTS ahead](/blog/webrtc-is-the-problem/rtt.png)
-	<figcaption>It's an [obscure reference](https://www.youtube.com/watch?v=catXIV3zAGY) to an obscure reference. wow so meta</figcaption>
+	<figcaption>an [obscure reference](https://www.youtube.com/watch?v=catXIV3zAGY) to an obscure reference</figcaption>
 </figure>
 
 All of this nonsense is because WebRTC needs to support P2P.
@@ -236,13 +235,13 @@ But we still have to implement everything for web clients.
 ## But What Instead?
 If not WebRTC, then what should you use for Voice AI?
 
-Honestly, just stream audio over WebSockets.
+Honestly, if I was working at OpenAI, I'd just stream audio over WebSockets.
 You can leverage existing TCP/HTTP infrastructure instead of inventing a custom WebRTC load balancer.
-It makes for a boring blog post, but it's simple and works at OpenAI scale.
+It makes for a boring blog post, but it's simple, works with Kubernetes, and SCALES.
 
-The day might come when you want to drop audio packets.
+The day will come when it's desirable to drop audio packets.
 Or you want to transmit video over the same connection.
-Then you can switch to QUIC/WebTransport, because...
+Then you *should* switch to QUIC/WebTransport, because...
 
 ## QUIC Fixes This
 Look I've spent a long time dunking on WebRTC.
@@ -265,7 +264,7 @@ Good times.
 The idea is literally copied from QUIC.
 
 QUIC ditches source IP/port based routing.
-Instead, every packet instead contains a `CONNECTION_ID`, which can be 0-20 bytes long.
+Instead, every packet contains a `CONNECTION_ID`, which can be 0-20 bytes long.
 And most importantly for us: **it's chosen by the receiver**.
 
 So our QUIC server generates a unique `CONNECTION_ID` for each connection.
@@ -302,7 +301,7 @@ Cloudflare uses this extensively; no need for a global Redis cluster.
 **Unpaid Shill**: [AWS NLB](https://aws.amazon.com/about-aws/whats-new/2025/11/aws-network-load-balancer-quic-passthrough-mode/) offers QUIC load balancing using QUIC-LB.
 Other cloud providers need to step up their game and offer it too.
 
-## Unicast in 2026
+## Anycast + Unicast
 Based on the OpenAI blog, it sounds like they assign connections to regional load balancers.
 Functional but lame.
 [Anycast](https://en.wikipedia.org/wiki/Anycast) is way cooler.
@@ -334,6 +333,11 @@ The anycast address is basically a health check!
 Holy shit I wish I actually had the scale to build this.
 Reach out if you work for the orange butthole company.
 
+<figure>
+	![claude](/blog/webrtc-is-the-problem/claude.png)
+	<figcaption>Looks something like this but orange.</figcaption>
+</figure>
+
 ## Summary
 **WebRTC**
 1. hurts your product
@@ -347,17 +351,17 @@ Reach out if you work for the orange butthole company.
 
 <figure>
 	![QUIC is chad](/blog/webrtc-is-the-problem/chad.png)
-	<figcaption>Your argument is irrelevant, as I have labeled QUIC as the chad.</figcaption>
+	<figcaption>I have labeled QUIC as the chad, therefore it is the superior protocol.</figcaption>
 </figure>
 
 ## To Be Fair
 I know many engineers at OpenAI and they are extremely bright.
-They're dealing with an unprecedented levels of stress.
+They're dealing with unprecedented levels of stress.
 They **MUST** scale and they **MUST** scale now.
 
 I'm just some guy who quit my job to work on a passion project.
 I literally spend my time tracing memes.
-It's very easy for me judge from my lofty position, like a movie critic ranting about how *they casted Jared Leto again*?
+It's easy for me to judge from my lofty position, like a movie critic ranting about how *they casted Jared Leto again*?
 
 I just don't think the obvious solution is a good fit for Voice AI.
 And the obvious solution is very difficult to scale.
