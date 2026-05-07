@@ -3,7 +3,7 @@ layout: "@/layouts/global.astro"
 title: OpenAI's WebRTC Problem
 author: kixelated
 description: There are ways to do voice AI without being traumatized by WebRTC.
-cover: "/blog/transfork/fork.png"
+cover: "/blog/webrtc-is-the-problem/rtt.png"
 date: 2026-05-06
 ---
 
@@ -61,7 +61,7 @@ The idea is that conference calls depend on rapid back-and-forth, so pausing to 
 After all, I'm paying good money to boil the ocean, and a garbage prompt means a garbage response.
 It's not like LLMs are particularly responsive anyway.
 
-**But I'm not not allowed to wait**.
+**But I'm not allowed to wait**.
 It's *impossible* to even retransmit an audio packet with WebRTC; we tried at Discord.
 The protocol is hard-coded for real-time latency **or else**.
 
@@ -99,7 +99,7 @@ It's the equivalent of screen sharing a YouTube video instead of buffering it.
 
 <figure>
 	![You should not drink bleach](/blog/webrtc-is-the-problem/bleach.png)
-	<figcaption>Thank for Mr Robot friend for the unambigious advice</figcaption>
+	<figcaption>Thank for Mr Robot friend for the unambiguous advice</figcaption>
 </figure>
 
 **Fun fact**: WebRTC actually adds latency.
@@ -129,7 +129,7 @@ A WebRTC implementation is *supposed* to allocate an ephemeral port for each con
 That way, a WebRTC session can identified by the destination IP/port only; the source is irrelevant.
 If the source IP/port changes, oh hey that's still Bob because the destination port is the same.
 
-But as OpenAI corroberates, this causes issues at scale because...
+But as OpenAI corroborates, this causes issues at scale because...
 - Servers only have a limited number of ports available.
 - Firewalls love to block ephemeral ports.
 - Kubernetes lul
@@ -153,7 +153,7 @@ But like, if you're on a Discord voice call on the Amazon corporate network, you
 **HOWEVER, HUGE PROBLEM**.
 
 WebRTC is actually a bunch of standards in a trenchcoat, and 5 of those go over UDP directly.
-It's [not hard](https://datatracker.ietf.org/doc/html/rfc5764) to figure out which protocol a packet is using, but we need figure out how to route each packet.
+It's [not hard](https://datatracker.ietf.org/doc/html/rfc5764) to figure out which protocol a packet is using, but we need to figure out how to route each packet.
 
 - **STUN**: We can choose a unique `ufrag` and route on it.
 - **SRTP/SRTCP**: The browser chooses a random `ssrc` (u32)... which we can *usually* route based on.
@@ -171,7 +171,7 @@ But a necessary hack, because the core protocol is at fault.
 
 <figure>
 	![trenchcoat](/blog/webrtc-is-the-problem/trenchcoat.png)
-	<figcaption>Personally, I would prefer 3 racoons.</figcaption>
+	<figcaption>Personally, I would prefer 3 raccoons.</figcaption>
 </figure>
 
 
@@ -226,7 +226,7 @@ The browser implementation is owned by Google and tailor made for Google Meet, s
 **It's the only way to avoid using WebRTC**.
 
 OpenAI definitely has the ~~debt~~ funding to do this.
-But I think should also throw the baby out with the bath water.
+But I think they should also throw the baby out with the bath water.
 Don't fork WebRTC, replace it with something that has browser support.
 
 **Fun Fact**: Discord has forked WebRTC *so hard* that native clients only implement a tiny fraction of the protocol.
@@ -288,7 +288,7 @@ Not having a database.
 Here's how [QUIC-LB](https://www.ietf.org/archive/id/draft-ietf-quic-load-balancers-21.html) does it:
 
 When a client initiates a QUIC connection, the load balancer forwards the packet to healthy backend server.
-The backend server completes the handshake and **encodes it's own ID** into the `CONNECTION_ID`.
+The backend server completes the handshake and **encodes its own ID** into the `CONNECTION_ID`.
 That way **every subsequent QUIC packet** contains the ID of the backend server.
 
 Now packets become trivial for load balancers to forward.
