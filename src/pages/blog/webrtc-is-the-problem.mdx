@@ -1,173 +1,194 @@
+---
+layout: "@/layouts/global.astro"
+title: OpenAI's WebRTC Problem
+author: kixelated
+description: There are ways to do voice AI without being traumatized by WebRTC.
+cover: "/blog/transfork/fork.png"
+date: 2026-05-06
+---
+
 # OpenAI's WebRTC Problem
 
-[OpenAI](https://openai.com/index/delivering-low-latency-voice-ai-at-scale/) posted a technical blog post a few days ago.
+OpenAI [posted a technical blog](https://openai.com/index/delivering-low-latency-voice-ai-at-scale/) post a few days ago.
 This blog post triggered me more than it should have.
 I urge to slap my meaty fingers on the keyboard.
 
 **You should NOT copy OpenAI.**
-The problem is WebRTC.
-You should NOT use WebRTC for voice AI.
 
-## Context
-IDK like 5 years ago I wrote a WebRTC SFU in Go at Twitch.
-Originally we used [Pion](https://github.com/pion) just like OpenAI, but it was too slow.
-So I wrote my own WebRTC stack, because of course I did!
+I don't think you should use WebRTC for voice AI.
+WebRTC is the problem.
 
-More recently, I was at Discord and I rewrote the WebRTC SFU in Rust.
+## Me
+Like 6 years ago I wrote a WebRTC SFU at Twitch.
+Originally we used [Pion](https://github.com/pion) (Go) just like OpenAI, but forked after benchmarking revealed that it was too slow.
+I ended up rewriting every protocol, because of course I did!
+
+Just a year ago, I was at Discord and I rewrote the WebRTC SFU in Rust.
 Because of course I did!
-That's literally that's why you use Rust; to rewrite things.
+You're probably noticing a trend.
 
-You should consider me a **WebRTC Expert** at this point.
+**Fun Fact**: WebRTC consists of ~45 RFCs dating back to the early 2000s.
+And some de-facto standards that are technically drafts (ex. TWCC, REMB).
+Not a fun fact when you have to implement them all.
+
+You should consider me a **Certified WebRTC Expert**.
 Which is why I never, never want to use WebRTC again.
 
+## Product Fit
+I'm going to cheat a little bit and start with the hot takes before they get cold.
+Don't worry, we'll get right back to talking about the OpenAI blog post and load balancing, I promise.
+
+**WebRTC is a poor fit for Voice AI.**
+
+But that seems counter-intuitive?
+WebRTC is for conferencing, and that involves speaking?
+And robots can speak, right?
+
+## WebRTC is too aggressive
+Let's say I pull up my OpenAI app on my phone.
+I say hi to ~~Scarlett Johansson~~ Sky and then I utter:
+> should I walk or drive to the car wash?
+
+WebRTC is designed to **degrade and drop my prompt** during poor network conditions.
+
+wtf my dude
+
+WebRTC aggressively drops audio packets to keep latency low.
+If you've ever heard distorted audio on a conference call, that's WebRTC baybee.
+The idea is that conference calls depend on rapid back-and-forth, so pausing to wait for audio is unacceptable.
+
+...but as a user, I would much rather wait an extra 200ms for my slow/expensive prompt to be accurate.
+After all, I'm paying good money to boil the ocean, and a garbage prompt means a garbage response.
+It's not like LLMs are particularly responsive anyway.
+
+**But I'm not not allowed to wait**.
+It's *impossible* to even retransmit an audio packet with WebRTC; we tried at Discord.
+The protocol is hard-coded for real-time latency **or else**.
+
+Yes, Voice AI agents will eventually get the latency down to the conversational range.
+But **reducing latency has trade-offs**.
+I'm not even sure that purposely degrading audio prompts will ever be worth it.
+
+<figure>
+	![car or wash](/blog/webrtc-is-the-problem/car.png)
+	<figcaption>Two roads diverged in a yellow wood. And sorry I could not travel both. And be one traveler, long I stood. And looked down one as far as I could. Until I ran out of tokens.</figcaption>
+</figure>
+
+
+
+## TTS is faster than real-time
+You speak into the microphone, it gets sent to one of OpenAI's billion servers, and then a GPU pretends to talk to you via text-to-speech.
+Neato.
+
+Let's say it takes 2s of GPUs to generate 8s of audio.
+In an ideal world, we would stream the audio as it's being generated (over 2s) and the client would start playing it back (over 8s).
+That way, if there's a network blip, some audio is buffered locally.
+The user might not even notice the network blip.
+
+But nope, WebRTC has **no buffering** and renders based on **arrival time**.
+Like seriously, timestamps are ignored.
+It's even more annoying when video is introduced because WebRTC has no A/V sync.
+
+To compensate for this, OpenAI has to make sure packets arrive *exactly* when they should be rendered.
+They have to **add a sleep** in front of every audio packet **before sending it**.
+But if there's network congestion, *oops* we lost that audio packet and it'll never be retransmitted.
+
+OpenAI is literally introducing artificial latency, and then aggressively dropping packets to "keep latency low".
+It's the equivalent of screen sharing a YouTube video instead of buffering it.
+**The quality will be degraded**.
+
+<figure>
+	![You should not drink bleach](/blog/webrtc-is-the-problem/bleach.png)
+	<figcaption>Thank for Mr Robot friend for the unambigious advice</figcaption>
+</figure>
+
+**Fun fact**: WebRTC actually adds latency.
+It's not much, but WebRTC has a dynamic jitter buffer that can be sized anywhere from 20ms to 200ms (for audio).
+This is meant to smooth out network jitter, but none of this is needed if you transfer faster than real-time.
+
+
 ## Ports Ports Ports
+Okay but let's talk about the *technical meat* of the OpenAI article.
 We're no longer [on a boat](/blog/on-a-boat), but let's talk about ports.
 
 When you host a TCP server, you open a port (ex. 443 for HTTPS) and listen for incoming connections.
 The TCP client will randomly select an ephemeral port to use, and the connection is identified by the source/destination IP/ports.
 For example, a connection might be identified as `123.45.67.89:54321 -> 192.168.1.2:443`.
 
-Btw this is usually called a 5-tuple (the 5th item is the protocol), but I think that name is lame.
-IP/port it is.
-
-But there's a major problem with TCP... client addresses can change.
+But there's a minor problem... client addresses can change.
 When your phone switches from WiFi to cellular, oops your IP changes.
 NATs can also arbitrarily change your source IP/port because of course they can.
 
-Whenever this happens, bye bye TCP connection, it's time to dial a new one.
-And that means an expensive TCP + TLS handshake, which takes at least 2-3 RTTs.
-The users notice the network hiccup.
+Whenever this happens, **bye bye connection**, it's time to dial a new one.
+And that means an expensive TCP + TLS handshake which takes at least 2-3 RTTs.
+The users definitely notice the network hiccup when you're live streaming.
 
-## WebRTC As Designed
-WebRTC tried to solve this issue but it made things worse.
-Seriously.
+WebRTC tried to solve this issue but made things worse. **Seriously**.
 
-A WebRTC server is *supposed* to allocate an ephemeral port for each connection.
-That's because a WebRTC session is actually identified by the destination IP/port; the source is irrelevant.
-If the user's source IP/port changes, oh hey that's still Bob because the destination port is the same.
+A WebRTC implementation is *supposed* to allocate an ephemeral port for each connection.
+That way, a WebRTC session can identified by the destination IP/port only; the source is irrelevant.
+If the source IP/port changes, oh hey that's still Bob because the destination port is the same.
 
-As OpenAI describes, this causes issues at scale because...
-- We only have a limited number of ephemeral ports available (10,000-65,535)
+But as OpenAI corroberates, this causes issues at scale because...
+- Servers only have a limited number of ports available.
 - Firewalls love to block ephemeral ports.
 - Kubernetes lul
 
 You could probably abuse IPv6 to work around this, but IDK I never tried.
 Twitch didn't even support IPv6...
 
-## WebRTC In Practice
-So most services end up using a single port instead.
+## Hacks by Necessity
+So most services end up ignoring the WebRTC specifications.
+Because of course they do.
+We mux multiple connections onto a single port instead.
 
 At Twitch I literally hosted my WebRTC server on `UDP:443`.
-That's *supposed* to be the HTTPS/QUIC port, but lying means we can get past more firewalls.
+That's *supposed* to be the HTTPS/QUIC port, but lying meant we could get past more firewalls.
+Like the Amazon corporate network, which blocked all but ~30 ports.
 
-Discord actually uses 50000-50032 so each CPU core can get its own port.
-As a result it gets blocked on more corporate networks, but you should be doing work anyway.
+Discord uses ports 50000-50032, one for each CPU core.
+As a result it gets blocked on more corporate networks.
+But like, if you're on a Discord voice call on the Amazon corporate network, you probably won't be there much longer anyway.
 
 **HOWEVER, HUGE PROBLEM**.
 
-WebRTC is actually a bunch of protocols in a trenchcoat, and 5 of of those go over UDP directly.
-It's [not hard](https://datatracker.ietf.org/doc/html/rfc7983) to figure out which protocol a packet is using, but we need to parse/route each packet.
+WebRTC is actually a bunch of standards in a trenchcoat, and 5 of those go over UDP directly.
+It's [not hard](https://datatracker.ietf.org/doc/html/rfc5764) to figure out which protocol a packet is using, but we need figure out how to route each packet.
 
-- **STUN**: We use can choose a unique `ufrag` and route packets based on it.
-- **SRTP/SRTCP**: The browser chooses a random `ssrc` (u32)... we can *usually* route based on that.
+- **STUN**: We can choose a unique `ufrag` and route on it.
+- **SRTP/SRTCP**: The browser chooses a random `ssrc` (u32)... which we can *usually* route based on.
 - **DTLS**: Uh oh. We pray that [RFC9146](https://www.rfc-editor.org/rfc/rfc9146.html) gets widespread support.
 - **TURN**: IDK I've never implemented it.
 
-**Fun fact**: Browsers can randomly generate the same `ssrc`; it's only 4 bytes long.
+So OpenAI only uses STUN:
+> No protocol termination: Relay parses only STUN headers/ufrag; it uses cached state for subsequent DTLS, RTP, and RTCP, keeping packets opaque.
+
+It's a positive way of saying:
+> We really hope the user's source IP/port never changes, because we broke that functionality.
+
+While it's impressive load balancing *anything* at OpenAI scale, their custom load balancing is a hack.
+But a necessary hack, because the core protocol is at fault.
+
+<figure>
+	![trenchcoat](/blog/webrtc-is-the-problem/trenchcoat.png)
+	<figcaption>Personally, I would prefer 3 racoons.</figcaption>
+</figure>
+
+
+**Fun fact**: Browsers can randomly generate the same `ssrc`.
 If there is a collision, and no source IP/port mapping is available, Discord attempts to decrypt the packet with each possible decryption key.
 If the key worked, hey we identified the connection!
 
-But OpenAI doesn't even look at RTP/RTCP:
-> No protocol termination: Relay parses only STUN headers/ufrag; it uses cached state for subsequent DTLS, RTP, and RTCP, keeping packets opaque.
-
-AKA "we really hope the source IP/port never changes".
-
-Thats not a problem per-se, source address migration is relatively rare and it's the status quo for TCP.
-But it feels gross to have this much complexity just to *downgrade* WebRTC.
-
-## QUIC Fixes This
-Remember that link to [RFC9146](https://www.rfc-editor.org/rfc/rfc9146.html)?
-In the DTLS section?
-Good times.
-It's literally copied from QUIC.
-
-If you're tight in the networking nerd circle, QUIC famously ditches source IP/port based routing.
-Every packet instead contains a `CONNECTION_ID`, which can be 0-20 bytes long.
-And most importantly: **it's chosen by the receiver**.
-
-So our QUIC server generates a unique `CONNECTION_ID` for each connection.
-Cool, we can use a single port and support connection migration, problem solved.
-None of this complicated WebRTC protocol demuxing and custom routing bullshit.
-
-But if your gut reaction is: "how dare they! this is a waste of bytes!"
-These bytes are *very* important, keep reading u nerd.
-
-## Stateless Load Balancing
-I glossed over this, but OpenAI's load balancers (like most) depend on *shared state*.
-Even if you have a sticky packet router, load balancers can still restart/crash and need to failover.
-They're using a Redis instance to store the mapping of source IP/port to backend server, simple and easy.
-
-But do you know what is even simpler and easier?
-[QUIC-LB](https://www.ietf.org/archive/id/draft-ietf-quic-load-balancers-21.html) *uses the `CONNECTION_ID`* to store the backend server:
-
-- The client initiates a QUIC connection.
-- A load balancer receives the QUIC INITIAL packet, chooses a backend server, and encodes that decision into a unique `CONNECTION_ID`.
-- The client echoes the `CONNECTION_ID` on every subsequent packet.
-- A load balancer decodes the `CONNECTION_ID` and routes the packet to the appropriate backend server.
-
-It works!
-Just remember to encrypt the ID if you don't want to allow users to target arbitrary servers.
-
-*Zero state* also means *zero global state*.
-Theese load balancers could listen on a global anycast address, forwarding packets from anywhere in the world to the indicated backend server.
-Cloudflare uses this extensively; no need for a global Redis cluster.
-
-**Unpaid Shill**: [AWS NLB](https://aws.amazon.com/about-aws/whats-new/2025/11/aws-network-load-balancer-quic-passthrough-mode/) offers QUIC load balancing using QUIC-LB.
-Other cloud providers need to step up their game and offer it too.
-
-## Unicast in 2026
-Based on the OpenAI blog, it sounds like they assign connections to regional load balancers.
-
-Lame.
-[Anycast](https://en.wikipedia.org/wiki/Anycast) is way cooler.
-
-I brought this up in my ancient [Quic Powers](https://moq.dev/blog/quic-powers/) blog post, but I'll excuse you for not reading it (yet).
-QUIC has something called `preferred_address` that is a game changer for load balancing.
-
-Let's say we have thousands of servers around the world that could handle a new connection.
-We have them all advertise the same anycast address, ex. `1.2.3.4`.
-When a client tries to connect to `1.2.3.4`, the magic internet routers forward the packet to one of the servers.
-
-Now, we could just use QUIC-LB and route traffic to the indicated backend.
-But that would be boring.
-
-Instead, we can give each QUIC server a unique unicast address, ex. `5.6.7.8`.
-The idea is that we use anycast for handshakes and unicast for stateful connections.
-
-- Server: Listen for QUIC packets on `1.2.3.4` and `5.6.7.8`.
-- Client: Sends a QUIC handshake packet to `1.2.3.4`.
-- Server: Establishs the QUIC connection, indicating `preferred_address=5.6.7.8`.
-- Client: Sends future packets to `5.6.7.8`.
-
-When the server is overloaded and doesn't want more connections, it stops advertising `1.2.3.4`.
-We won't drop existing connections because they're safe on unicast.
-
-Just like that, no load balancers needed!
-The anycast address is basically a health check!
-
-Holy shit I wish I actually had the scale to build this.
-Reach out if you work for the orange butthole company.
-
 ## Round Trips and U
-The OpenAI blog post starts with a requirement:
-> Fast connection setup so a user can start speaking as soon as a session begins
+The OpenAI blog post starts with 3 requirements, one of them is:
+> - Fast connection setup so a user can start speaking as soon as a session begins
 
 lol
 
-Assuming a cold start, it takes 8\* round trips to establish a WebRTC connection.
+It takes a minimum of 8\* round trips (RTT) to establish a WebRTC connection.
+While we *try* to run CDN edge nodes close enough to every user to minimize RTT, it adds up.
 
 Signaling server (ex. [WHIP](https://www.rfc-editor.org/rfc/rfc9725.html)):
-- 0-1 for DNS (cached)
 - 1 for TCP
 - 1 for TLS 1.3
 - 1 for HTTP
@@ -179,89 +200,180 @@ Media server:
 - 1 for SCTP
 
 \* It's complicated to compute, because some protocols can be pipelined to avoid 0.5 RTT.
-Kinda like the [A-Button Challenge](https://www.youtube.com/watch?v=kpk2tdsPh0A).
+Kinda like [half an A-Press](https://www.youtube.com/watch?v=kpk2tdsPh0A).
+
+<figure>
+	![8 RTTS ahead](/blog/webrtc-is-the-problem/rtt.png)
+	<figcaption>It's an [obscure reference](https://www.youtube.com/watch?v=catXIV3zAGY) to an obscure reference. wow so meta</figcaption>
+</figure>
 
 All of this nonsense is because WebRTC needs to support P2P.
 It doesn't matter if you have a server with a static IP address, you still need to do this dance.
-It's extra depressing when the signaling and media server are running on the same host/process; you end up doing two (expensive) TLS handshakes.
 
-QUIC fixes this of course:
-- 0 for DNS (cached)
-- 1 for QUIC
-- 1 for HTTP/3 or WebTransport
+It's extra depressing when the signaling and media server are running on the same host/process.
+You end up doing two redundant and expensive handshakes.
+It's like walking AND driving your car to the car wash.
 
-\* Technically, QUIC and TLS 1.3 can support 0-RTT for resumption, but there are security caveats.
 
-If you really need P2P, layer something like [Iroh](https://www.iroh.computer/) on top of QUIC.
+## Forking the Protocol
+**Fun Fact**: This was originally going to be a **Fun Fact**, but it gets its own section now.
 
-## What's The Point?
-Okay we're way too deep in the weeds, let's zoom out a bit.
-Even if we ignore these technical barbs:
+WebRTC practically encourages you to fork the protocol.
+There's so many limitations that I've barely scratched the surface.
+The browser implementation is owned by Google and tailor made for Google Meet, so it's also an existential threat for conferencing apps.
 
-**WebRTC is a poor fit for Voice AI.**
+**Sad Fact**: That's why every conferencing app (except Google Meet) tries to shove a native app down your throat.
+**It's the only way to avoid using WebRTC**.
 
-Huh?
-But it seems like a natural fit?
-WebRTC is for conferencing, and that involves speaking, right?
+OpenAI definitely has the ~~debt~~ funding to do this.
+But I think should also throw the baby out with the bath water.
+Don't fork WebRTC, replace it with something that has browser support.
 
-...but there are core problems.
-
-## TTS is faster than real-time
-You speak into the microphone, it gets sent to one of OpenAI's billion servers, and they reply via text-to-speech.
-
-Let's say it takes 1s of compute to generate 8s of audio.
-In an ideal world, we would stream the audio as it's being generated (1s elapsed) and the client will slowly play it back (8s elapsed).
-That way, if there's a network blip, well I already have audio buffered locally so it doesn't matter.
-
-But nope, WebRTC *has no buffering* and renders based on arrival time.
-OpenAI has to pace transmissions so it takes 8s to deliver the audio.
-This means adding a sleep in front of every audio packet *before sending it*.
-
-Believe it or not, this **actually increases latency**.
-WebRTC has a dynamic (audio) jitter buffer that can be sized anywhere from 20ms to 200ms, based on the RTT.
-The idea is to smooth out network variance... but we're the ones causing the problem!
-
-If you instead use WebSocket/WebTransport to stream the audio faster than real-time, you can avoid this jitter buffer.
-
-## WebRTC is too aggressive
-WebRTC reduces latency by aggressively dropping packets.
-If you've ever heard distorted audio on a conference call, that's WebRTC.
-
-But I'd argue there's a product+techoloy mismatch here.
-All of this expensive inference is being wasted when WebRTC decides to drop a packet.
-
-Let's say I'm speaking to ~~Scarlett Johansson~~ Sky and I ask "how's your day going honey?".
-If my input is garbled, I don't want to waste my tokens on equally garbled output.
-Seriously, I'd rather wait an extra 100ms to retransmit these lost packets.
-
-But guess what?
-It's *impossible* to retransmit lost audio packets with WebRTC.
-We tried at Discord, none of our hacks worked.
-The protocol is designed to transmit an audio packet a single time.
-
-And like I said above, it's just dumb that TTS replies can be dropped at all.
-You're intentionally hurting the user experience by dropping packets to keep latency low... but the server artifically introduced that latency.
-
-Like I just don't understand why you would ever use WebRTC for voice AI
-Yes, Voice AI agents will eventually get the latency down to the conversational range, but we're not there yet
-The inference still takes 500ms+, it's not worth dropping audio packets.
+**Fun Fact**: Discord has forked WebRTC *so hard* that native clients only implement a tiny fraction of the protocol.
+No more SDP/ICE/STUN/TURN/DTLS/SCTP/SRTP/etc.
+But we still have to implement everything for web clients.
 
 ## But What Instead?
 If not WebRTC, then what should you use for Voice AI?
 
 Honestly, just stream audio over WebSockets.
 You can leverage existing TCP/HTTP infrastructure instead of inventing a custom WebRTC load balancer.
-You'll have higher quality and potentially even lower latency.
-It's simple and works for OpenAI scale.
+It makes for a boring blog post, but it's simple and works at OpenAI scale.
 
 The day might come when you want to drop audio packets.
 Or you want to transmit video over the same connection.
-Then you can switch to WebTransport or MoQ.
+Then you can switch to QUIC/WebTransport, because...
 
-If you do want to explore MoQ, hit me up.
-It's cool.
+## QUIC Fixes This
+Look I've spent a long time dunking on WebRTC.
+It's time to be positive and gush about QUIC.
+
+Remember the round trip discussion?
+Good times.
+Here's how many RTTs it takes to establish a QUIC connection:
+
+- 1 for QUIC+TLS
+
+But that was an easy one.
+Let's dive into the deeper details of QUIC that you wouldn't know about unless you're a turbo QUIC nerd (it me).
+
+## Connection ID
+Remember that link to [RFC9146](https://www.rfc-editor.org/rfc/rfc9146.html)?
+In the DTLS section?
+That you didn't click?
+Good times.
+The idea is literally copied from QUIC.
+
+QUIC ditches source IP/port based routing.
+Instead, every packet instead contains a `CONNECTION_ID`, which can be 0-20 bytes long.
+And most importantly for us: **it's chosen by the receiver**.
+
+So our QUIC server generates a unique `CONNECTION_ID` for each connection.
+Now we can use a single port and still figure out when the source IP/port changes.
+When it does, QUIC automatically switches to the new address instead of severing the connection like TCP.
+
+But if your gut reaction is: "how dare they! this is a waste of bytes!"
+These bytes are *very* important, keep reading u nerd.
+
+## Stateless Load Balancing
+I glossed over this, but OpenAI's load balancers (like most) depend on *shared state*.
+Even if you have a sticky packet router, load balancers can still restart/crash.
+Something has to store the mapping from source IP/port -> backend server.
+
+They're using a Redis instance to store the mapping of source IP/port to backend server.
+Simple and easy, I approve.
+
+But do you know what is even simpler and easier?
+Not having a database.
+Here's how [QUIC-LB](https://www.ietf.org/archive/id/draft-ietf-quic-load-balancers-21.html) does it:
+
+When a client initiates a QUIC connection, the load balancer forwards the packet to healthy backend server.
+The backend server completes the handshake and **encodes it's own ID** into the `CONNECTION_ID`.
+That way **every subsequent QUIC packet** contains the ID of the backend server.
+
+Now packets become trivial for load balancers to forward.
+They don't need encryption keys or a routing table, just decode the first few bytes and forward it to that guy.
+It doesn't even matter if the server reboots.
+
+**Zero state** also means **zero global state**.
+These load balancers could listen on a *global* anycast address and forward packets *globally* to the indicated backend server.
+Cloudflare uses this extensively; no need for a global Redis cluster.
+
+**Unpaid Shill**: [AWS NLB](https://aws.amazon.com/about-aws/whats-new/2025/11/aws-network-load-balancer-quic-passthrough-mode/) offers QUIC load balancing using QUIC-LB.
+Other cloud providers need to step up their game and offer it too.
+
+## Unicast in 2026
+Based on the OpenAI blog, it sounds like they assign connections to regional load balancers.
+Functional but lame.
+[Anycast](https://en.wikipedia.org/wiki/Anycast) is way cooler.
+
+I brought this up in my ancient [Quic Powers](https://moq.dev/blog/quic-powers/) blog post, but I'll excuse you for not reading it (yet).
+QUIC has something called `preferred_address` that is a game changer for load balancing.
+
+Let's say we have thousands of backend servers around the world that could accept a new connection.
+We have them all advertise the same anycast address, ex. `1.2.3.4`.
+When a client tries to connect to `1.2.3.4`, the magic internet routers forward the packet to one of the servers.
+
+Now, we could just use QUIC-LB and route traffic to the indicated backend.
+But that would be boring.
+
+Instead, we can give each QUIC server a unique unicast address, ex. `5.6.7.8`.
+The idea is that we use anycast for handshakes and unicast for stateful connections.
+
+- **Server**: Listen for QUIC packets on `1.2.3.4` and `5.6.7.8`.
+- **Client**: Sends a QUIC handshake packet to `1.2.3.4`.
+- **Server**: Establishes the QUIC connection, indicating `preferred_address=5.6.7.8`.
+- **Client**: Sends future packets to `5.6.7.8`.
+
+When the server is overloaded and doesn't want more connections, it stops advertising `1.2.3.4`.
+We won't drop existing connections because they're safe on unicast.
+
+Just like that, no load balancers needed!
+The anycast address is basically a health check!
+
+Holy shit I wish I actually had the scale to build this.
+Reach out if you work for the orange butthole company.
+
+## Summary
+**WebRTC**
+1. hurts your product
+2. hurts your load balancing
+3. hurts your dog, maybe
+
+**QUIC**
+1. loves your product
+2. loves your load balancing
+3. loves your dog, definitely
+
+<figure>
+	![QUIC is chad](/blog/webrtc-is-the-problem/chad.png)
+	<figcaption>Your argument is irrelevant, as I have labeled QUIC as the chad.</figcaption>
+</figure>
+
+## To Be Fair
+I know many engineers at OpenAI and they are extremely bright.
+They're dealing with an unprecedented levels of stress.
+They **MUST** scale and they **MUST** scale now.
+
+I'm just some guy who quit my job to work on a passion project.
+I literally spend my time tracing memes.
+It's very easy for me judge from my lofty position, like a movie critic ranting about how *they casted Jared Leto again*?
+
+I just don't think the obvious solution is a good fit for Voice AI.
+And the obvious solution is very difficult to scale.
+WebRTC is Jared Leto.
+There I said it.
+
+And I'll be honest, MoQ isn't a perfect fit for Voice AI either.
+It'll work, but a lot of the cache/fanout semantics are useless for 1:1 audio.
+You should definitely use QUIC though.
+
+## Me
+Anyway, hit me up if you want to chat: `meself@kixel.me`
+
+I'm cool.
 You won't regret it.
-I promise.
+Probably.
 
 Written by [@kixelated](https://github.com/kixelated).
 ![@kixelated](/blog/avatar.png)
