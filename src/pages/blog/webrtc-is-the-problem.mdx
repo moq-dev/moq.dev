@@ -65,7 +65,11 @@ It's not like LLMs are particularly responsive anyway.
 It's *impossible* to even retransmit a WebRTC audio packet within a browser; we tried at Discord.
 The *implementation* is hard-coded for real-time latency **or else**.
 
-Yes, Voice AI agents will eventually get the latency down to the conversational range.
+**UPDATE**: Some WebRTC folks are claiming this is a skill issue.
+It might be possible to enable audio NACKs, but we couldn't figure out the correct SDP munging.
+Either way, the WebRTC jitter buffer is aggressively small.
+
+And yes, Voice AI agents will eventually get the latency down to the conversational range.
 But **reducing latency has trade-offs**.
 I'm not even sure that purposely degrading audio prompts will ever be worth it.
 
@@ -235,17 +239,15 @@ But we still have to implement everything for web clients.
 ## But What Instead?
 If not WebRTC, then what should you use for Voice AI?
 
-Honestly, if I was working at OpenAI, I'd just stream audio over WebSockets.
+Honestly, if I was working at OpenAI, I'd start by stream audio over WebSockets.
 You can leverage existing TCP/HTTP infrastructure instead of inventing a custom WebRTC load balancer.
 It makes for a boring blog post, but it's simple, works with Kubernetes, and SCALES.
 
-The day will come when it's desirable to drop audio packets.
-Or you want to transmit video over the same connection.
-Then you *should* switch to QUIC/WebTransport, because...
+I think head-of-line blocking is a desirable user experience, not a liability.
+But the fated day will come and dropping/prioritizing some packets will be necessary.
+Then I think OpenAI *should* copy MoQ and utilize [WebTransport](https://developer.mozilla.org/en-US/docs/Web/API/WebTransport_API), because...
 
-## QUIC Fixes This
-Look I've spent a long time dunking on WebRTC.
-It's time to be positive and gush about QUIC.
+**QUIC FIXES THIS**
 
 Remember the round trip discussion?
 Good times.
