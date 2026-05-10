@@ -7,7 +7,7 @@ import "@moq/publish/ui";
 import { Lite } from "@moq/publish";
 
 export default function Publish() {
-	const name = uniqueNamesGenerator({ dictionaries: [adjectives, animals], separator: "-" });
+	const name = `${uniqueNamesGenerator({ dictionaries: [adjectives, animals], separator: "-" })}.hang`;
 	const url = new URL("/anon", import.meta.env.PUBLIC_RELAY_URL);
 	const [copied, setCopied] = createSignal(false);
 

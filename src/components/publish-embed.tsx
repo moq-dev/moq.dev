@@ -2,7 +2,7 @@ import { adjectives, animals, uniqueNamesGenerator } from "unique-names-generato
 import hljs from "@/lib/highlight";
 
 export default function PublishEmbed() {
-	const name = uniqueNamesGenerator({ dictionaries: [adjectives, animals], separator: "-" });
+	const name = `${uniqueNamesGenerator({ dictionaries: [adjectives, animals], separator: "-" })}.hang`;
 	const url = new URL("/anon", import.meta.env.PUBLIC_RELAY_URL);
 
 	const embedHtml = `<script type="module">
