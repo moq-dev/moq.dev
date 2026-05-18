@@ -14,6 +14,7 @@
 	},
 	"dependencies": {
 		"@moq/boy": "^0.2.9",
+		"@moq/lite": "^0.2.4",
 		"@moq/publish": "^0.2.7",
 		"@moq/watch": "^0.2.11",
 		"astro": "^5.18.1",
