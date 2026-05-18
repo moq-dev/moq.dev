@@ -36,12 +36,12 @@ upgrade:
 	bun outdated
 
 # Build the packages
-build:
+build mode="live":
 	bun i
-	bun astro build
+	bun astro build --mode {{mode}}
 
 # Deploy the site to Cloudflare Pages
-deploy env="staging": build
+deploy env="staging": (build env)
 	bun wrangler deploy --env {{env}}
 
 dev:
@@ -50,5 +50,5 @@ dev:
 	# Run the web development server
 	bun astro dev --open
 
-prod: build
+prod: (build "live")
 	bun astro preview --open
