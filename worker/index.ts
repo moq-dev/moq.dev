@@ -37,24 +37,31 @@ async function handleSubscribe(request: Request, env: Env): Promise<Response> {
 		return json({ error: "invalid email" }, 400);
 	}
 
-	const res = await fetch("https://api.resend.com/contacts", {
-		method: "POST",
-		headers: {
-			Authorization: `Bearer ${env.RESEND_API_KEY}`,
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			email,
-			unsubscribed: false,
-			segments: [env.RESEND_SEGMENT_ID],
-		}),
-	});
+	let res: Response;
+	try {
+		res = await fetch("https://api.resend.com/contacts", {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${env.RESEND_API_KEY}`,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				email,
+				unsubscribed: false,
+				segments: [env.RESEND_SEGMENT_ID],
+			}),
+		});
+	} catch (err) {
+		console.error(`Resend POST /contacts → fetch threw: ${err}`);
+		return json({ error: "subscribe failed" }, 502);
+	}
 
 	// Treat any non-5xx as success so we don't leak whether an address is
 	// already on the list (Resend returns 4xx for duplicates). Log 4xx for
 	// debugging since a misconfigured segment ID would silently break sends.
+	// Only log status + request id, not the body (which may contain the email).
 	if (!res.ok) {
-		console.error(`Resend POST /contacts → ${res.status}: ${await res.text()}`);
+		console.error(`Resend POST /contacts → ${res.status} (request-id: ${res.headers.get("x-request-id") ?? "n/a"})`);
 	}
 	if (res.status >= 500) {
 		return json({ error: "subscribe failed" }, 502);

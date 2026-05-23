@@ -22,15 +22,17 @@ const paths = newPostsList.split("\n").filter(Boolean);
 console.log(`Found ${paths.length} new post(s): ${paths.join(", ")}`);
 
 for (const path of paths) {
-	const slug = basename(path, ".mdx");
+	const rawSlug = basename(path, ".mdx");
+	const slug = encodeURIComponent(rawSlug);
 	const fm = parseFrontmatter(readFileSync(path, "utf8"));
-	const title = fm.title ?? slug;
+	const title = fm.title ?? rawSlug;
 	const description = fm.description ?? "";
 	const url = `${SITE}/blog/${slug}`;
 
 	console.log(`Creating broadcast for "${title}" → ${url}`);
 
 	const create = await fetch("https://api.resend.com/broadcasts", {
+		signal: AbortSignal.timeout(15000),
 		method: "POST",
 		headers: {
 			Authorization: `Bearer ${apiKey}`,
@@ -52,6 +54,7 @@ for (const path of paths) {
 	const { id } = (await create.json()) as { id: string };
 
 	const send = await fetch(`https://api.resend.com/broadcasts/${id}/send`, {
+		signal: AbortSignal.timeout(15000),
 		method: "POST",
 		headers: { Authorization: `Bearer ${apiKey}` },
 	});
@@ -84,14 +87,15 @@ function parseFrontmatter(source: string): Record<string, string> {
 function renderHtml({ title, description, url }: { title: string; description: string; url: string }): string {
 	const safeTitle = escapeHtml(title);
 	const safeDescription = escapeHtml(description);
+	const safeUrl = escapeHtml(url);
 	return `<!doctype html>
 <html><body style="font-family: -apple-system, system-ui, sans-serif; line-height: 1.5; color: #1f2937;">
   <h1 style="margin: 0 0 16px;">${safeTitle}</h1>
   ${safeDescription ? `<p style="font-size: 16px; color: #4b5563;">${safeDescription}</p>` : ""}
   <p style="margin: 24px 0;">
-    <a href="${url}" style="display: inline-block; background: #2563eb; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 6px;">Read it on moq.dev →</a>
+    <a href="${safeUrl}" style="display: inline-block; background: #2563eb; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 6px;">Read it on moq.dev →</a>
   </p>
-  <p style="font-size: 13px; color: #6b7280;">Or open it directly: <a href="${url}">${url}</a></p>
+  <p style="font-size: 13px; color: #6b7280;">Or open it directly: <a href="${safeUrl}">${safeUrl}</a></p>
 </body></html>`;
 }
 

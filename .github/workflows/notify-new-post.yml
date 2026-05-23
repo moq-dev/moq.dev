@@ -3,7 +3,7 @@ name: notify-new-post
 on:
   push:
     branches: ["main"]
-    paths: ["src/pages/blog/**.mdx"]
+    paths: ["src/pages/blog/**/*.mdx"]
 
 permissions:
   contents: read
@@ -28,7 +28,7 @@ jobs:
           BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.sha }}
         run: |
-          git diff --name-only --diff-filter=A "$BEFORE_SHA" "$AFTER_SHA" -- 'src/pages/blog/*.mdx' > new_posts.txt
+          git diff --name-only --diff-filter=A "$BEFORE_SHA" "$AFTER_SHA" -- 'src/pages/blog/**/*.mdx' > new_posts.txt
           if [ ! -s new_posts.txt ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
