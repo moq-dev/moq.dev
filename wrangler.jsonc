@@ -7,9 +7,12 @@
 	"compatibility_date": "2025-08-13",
 	"account_id": "dd618f5dbd5da77b8296f1613c301f5c",
 
+	"main": "worker/index.ts",
+
 	"assets": {
 		"directory": "./dist",
-		"not_found_handling": "404-page"
+		"not_found_handling": "404-page",
+		"binding": "ASSETS"
 	},
 
 	// Environment-specific configurations
@@ -17,7 +20,7 @@
 		"staging": {
 			"name": "moq-dev-staging",
 			"route": {
-				"pattern": "new.moq.dev",
+				"pattern": "moq.wtf",
 				"custom_domain": true
 			}
 		},
