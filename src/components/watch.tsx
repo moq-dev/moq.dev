@@ -5,9 +5,9 @@ import { Lite } from "@moq/watch";
 
 export default function Watch() {
 	const params = new URLSearchParams(window.location.search);
-	const name = params.get("name") ?? "bbb";
+	const name = params.get("name") ?? "bbb.hang";
 
-	const url = new URL(name === "bbb" ? "/demo" : "/anon", import.meta.env.PUBLIC_RELAY_URL);
+	const url = new URL(name === "bbb.hang" ? "/demo" : "/anon", import.meta.env.PUBLIC_RELAY_URL);
 
 	return (
 		<>

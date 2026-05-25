@@ -2,7 +2,7 @@ import hljs from "@/lib/highlight";
 
 export default function WatchEmbed() {
 	const params = new URLSearchParams(window.location.search);
-	const name = params.get("name") ?? "bbb";
+	const name = params.get("name") ?? "bbb.hang";
 
 	// The relay URL on /watch may include a JWT for BBB; strip query params.
 	const relay = new URL("/anon", import.meta.env.PUBLIC_RELAY_URL);
