@@ -29,6 +29,9 @@ const fullDescription = description
 	? `Media over QUIC: ${description}`
 	: "Media over QUIC is a new live media protocol designed for simplicity and scale. It uses new browser technologies like WebTransport and WebCodecs to deliver media with latency that rivals WebRTC.";
 const ogImage = new URL(frontmatter?.cover ?? "/layout/icon.png", siteUrl).toString();
+
+// pro.moq.wtf for staging builds, pro.moq.dev for live (and local dev).
+const proUrl = import.meta.env.MODE === "staging" ? "https://pro.moq.wtf" : "https://pro.moq.dev";
 ---
 
 <!doctype html>
@@ -70,20 +73,41 @@ const ogImage = new URL(frontmatter?.cover ?? "/layout/icon.png", siteUrl).toStr
 					</a>
 				</div>
 				<div class="flex md:flex-col flex-row flex-wrap items-center justify-center gap-4 md:w-32 w-1/2">
-					<a href="/demo">
-						<img src="/layout/demo.svg" class="w-32" alt="Demo" />
+					<a href="/demo" class="group flex items-center gap-2 w-32">
+						<span class="flex w-9 justify-center shrink-0">
+							<img src="/layout/demo-icon.svg" class="h-9 transition-transform group-hover:-rotate-6" alt="" />
+						</span>
+						<img src="/layout/demo-word.svg" class="h-9 w-auto" alt="Demo" />
 					</a>
-					<a href="/blog">
-						<img src="/layout/blog.svg" class="w-32" alt="Blog" />
+					<a href="/blog" class="group flex items-center gap-2 w-32">
+						<span class="flex w-9 justify-center shrink-0">
+							<img src="/layout/blog-icon.svg" class="h-9 transition-transform group-hover:-rotate-6" alt="" />
+						</span>
+						<img src="/layout/blog-word.svg" class="h-9 w-auto" alt="Blog" />
 					</a>
-					<a href="https://doc.moq.dev">
-						<img src="/layout/docs.svg" class="w-32" alt="Docs" />
+					<a href="https://doc.moq.dev" class="group flex items-center gap-2 w-32">
+						<span class="flex w-9 justify-center shrink-0">
+							<img src="/layout/docs-icon.svg" class="h-9 transition-transform group-hover:-rotate-6" alt="" />
+						</span>
+						<img src="/layout/docs-word.svg" class="h-9 w-auto" alt="Docs" />
 					</a>
-					<a href="https://github.com/moq-dev/moq">
-						<img src="/layout/github.svg" class="w-32" alt="Github" />
+					<a href="https://github.com/moq-dev/moq" class="group flex items-center gap-2 w-32">
+						<span class="flex w-9 justify-center shrink-0">
+							<img src="/layout/github-icon.svg" class="h-9 transition-transform group-hover:-rotate-6" alt="" />
+						</span>
+						<img src="/layout/github-word.svg" class="h-9 w-auto" alt="Github" />
 					</a>
-					<a href="https://discord.gg/FCYF3p99mr">
-						<img src="/layout/discord.svg" class="w-32" alt="Discord" />
+					<a href="https://discord.gg/FCYF3p99mr" class="group flex items-center gap-2 w-32">
+						<span class="flex w-9 justify-center shrink-0">
+							<img src="/layout/discord-icon.svg" class="h-9 transition-transform group-hover:-rotate-6" alt="" />
+						</span>
+						<img src="/layout/discord-word.svg" class="h-9 w-auto" alt="Discord" />
+					</a>
+					<a href={proUrl} class="group flex items-center gap-2 w-32">
+						<span class="flex w-9 justify-center shrink-0">
+							<img src="/layout/rocket.svg" class="h-9 transition-transform group-hover:-rotate-6" alt="" />
+						</span>
+						<img src="/layout/pro.svg" class="h-9 w-auto" alt="Pro" />
 					</a>
 				</div>
 			</nav>
