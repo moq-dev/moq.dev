@@ -1,0 +1,211 @@
+---
+layout: "@/layouts/global.astro"
+title: "MoQ is for the Cars"
+author: kixelated
+description: MoQ is like Lightning McQueen. But it's a live networking protocol, not an anamatronic sports car in a fictional movie produced by Pixar Animation Studios for Walt Disney Pictures.
+cover: "/blog/first-app/demo.png"
+date: 2026-06-08
+---
+
+# MoQ for the Cars
+sup
+
+This is an unexpected collaboration with Fastly.
+They liked the MoQ blog posts and actually sponsored me to make an [hinged version](https://www.fastly.com/blog/moq-in-the-fast-lane) of this post.
+Go read that one instead if my usual cringe is too much.
+
+Roses are red. 🌹
+Sports cars be too. 🚗
+MoQ be fast. 🚀
+Cars 2™ is a 2011 American animated comedy film produced by Pixar Animation Studios for Walt Disney Pictures.
+
+
+## Cars 2: Electric Boogaloo
+Lightning McQueen is racing around the track.
+The spectators in the stands are honking wild.
+**HONK HONK**
+
+But we don't care about the stans in the stands.
+We care about the cars at home.
+The viewers in their living rooms.
+Or is it a garage?
+IDK the Cars lore, just work with me here.
+
+We need some way to transmit the **LOUD CARS DO CIRCLES** race.
+Some way to transmit the **riviting content** over the internet.
+
+The answer for the last decade has been HLS/DASH.
+It's boring but it works.
+These protocols use HTTP to deliver individual chunks of media, usually 2-4s long.
+
+But just like the Mini Cooper, [there are a few short-comings](https://moq.dev/blog/replacing-hls-dash).
+- HLS/DASH flushes in batches, adding seconds of latency.
+- Network congestion causes HoLB which results in the spinny boye, and even more latency.
+
+Being slow is for losers. And I'm Lightning McQueen; not a loser.
+
+
+## MoQ for the Fans
+First, I wanted to address the SUV in the room.
+My previous blog post, [You Don't Need It](https://moq.dev/blog/you-dont-need-it/), mentioned that you don't need MoQ for high-quality content.
+It's true, but *as always*, there are exceptions to my shitty opinions.
+
+But before we disprove one shitty opinion, we need to prove another.
+**Racing is boring**.
+
+The video footage is **so boring** that the only thing separating two laps is a counter.
+Like yes, sometimes the car goes boom, but there's so much dead air.
+I postulate that you're watching to be part of the story **LIVE**, not to see every millisecond of lap 392 in the Toilet Bowl 500.
+
+And might actually a good use-case for MoQ.
+Because instead of buffering/pausing to load boring content, we can instead skip it to keep latency low.
+It keeps you in the action with **sub-second latency**.
+And milliseconds might be the difference between winning and losing.
+
+**FUN FACT**: Sports ~betting~ predication markets are a thing.
+
+But maybe you're an oddball and want to watch the entire race.
+Fine that's like your opinion, man.
+Another benefit of MoQ are **multiple camera feeds**:
+
+-   the main feed
+-   the pit lane
+- the live polymarket odds
+- the other joke here
+
+You don't want the selected stream buffering while the other streams are flawless.
+Main stream good, side streams bad.
+
+**Spoiler**:  MoQ lets you prioritize the main stream.
+
+This works because every camera feed goes through the same QUIC connection.
+It's one big priority queue, which QUIC uses to decide which packet to transmit next.
+We're not subject to TCP head-of-line blocking like HTTP/2.
+
+**FUN FACT**: HTTP/3 [only has 8 priority levels](https://www.rfc-editor.org/rfc/rfc9218.html#name-urgency).
+It's one of the reasons why MoQ uses WebTransport/QUIC directly instead, but you could build something similar to MoQ over HTTP/3.
+
+
+## MoQ for the Cars
+If you're a history buff, you'll know that I made MoQ originally [for the fans](/blog/distribution-at-twitch).
+You guys, you're great, I love you.
+
+But people keep running my code on the cars.
+[Or the boats](/blog/on-a-boat).
+And frankly, this is the better use-case for MoQ.
+
+You might have pieced together that I don't watch racing (**boring**) outside of critically acclaimed movies for children.
+Staring Lightning McQueen and his goofy comrades, the cars go fast vroom vroom.
+But when I do see snippets of F1, the camera feeds from the cars are **awful**.
+
+Me, the uninformed dumbass, has a hunch that it's due to networking.
+See, there's going to be deadzones or interference or whatever around the track.
+I'm a video star, not a radio star, so I just accept it as an unfixable problem.
+
+**Boring protocols** like RTP drop packets during network events, which shows up as **artifacting** or **tearing** or **frozen video**.
+The publisher gives up transmitting a frame after ~100 milliseconds; it's gone forever.
+
+But **the chad protocol** doesn't give up.
+**The chad protocol** lets each subscriber decide how long to wait.
+
+MoQ publishers avoid dropping old data and instead prioritizes the newer stuff (in dependency order).
+The old stuff gets queued in RAM (up to a TTL); it's basically free real-estate.
+When bandwidth recovers, we can backfill old footage instead of losing it forever.
+
+The **live stream** might give up after 1 second while the **instant relay** gives up after 10 seconds.
+All that extra time means more time for old frames to arrive, which means higher production value.
+
+The packets never gave up, just like Lightning McQueen never gives up.
+They eventually make it to the finish line and the crowd goes **HONK HONK**.
+
+
+## MoQ for the Robots
+We're closer to the Cars Cinematic Universe than we want to admit.
+Humans are a dying breed.
+Like a pug on a hot day.
+**RIP us.**
+
+Enter the robots.
+They byte.
+And they need networking for their bleeps and bloops.
+It turns out that MoQ works for more than just media:
+- The speedometer? **A live stream**
+- The steering wheel? **A live stream**
+- The G force sensor as Lightning McQueen crashes into a wall? **A live stream**
+
+Seriously, there's nothing special about media.
+It's just delta encoded data.
+You can delta encode a lot of things.
+Just like I delta encoded your mom last night.
+
+But networks aren't infinite.
+We split up media into tracks/groups/frames/packets so pieces can be dropped when needed.
+The hard part is that we need to put everything back together on the other end.
+
+That's why we use timestamps baybee, they tell us when stuff happened relative to other stuff.
+So do the same thing for metadata.
+Stamp that fellow, using the same clock as media, and send it over the same pipe.
+
+And you can take the red pill and prioritize **EVERYTHING**.
+`controls > audio > metadata > video`
+The QUIC connection is *cooperative* and will take care of the rest.
+
+And yes, this sounds simple but it's something WebRTC completely botches.
+You have to use a separate connection for metadata and timestamps aren't exposed in the browser.
+
+**FUN FACT**: MoQ is already being used remotely to pilot drones over the internet.
+One day we'll be able to remotely drive Lightning McQueen.
+
+
+## MoQ for the Track
+We're not done yet.
+Sit back in your seat.
+Fasten that seatbelt.
+It's the law, and I'm the sheriff from the critically acclaimed movie Cars 2.
+
+If more than one broadcast studio wants footage of Lightning McQueen's tailpipe, we don't want to transmit multiple copies.
+Our satellite truck is expensive and has a limited bandwidth budget.
+
+And what if none of the broadcast studios actually want that hot, smokey, tailpipe footage?
+Do we even want to transmit it, or is it just a waste of bandwidth?
+
+With all of this data flowing around the track, there has to be some way to organize it.
+Enter stage right: **moq-relay**
+
+It's a simple proxy that connects **1 publisher** with **N subscribers** (per broadcast/track).
+When **moq-relay** instances connect to each other, they automatically form a cluster.
+You can host this shit yourself [and/or pay me](https://pro.moq.dev).
+
+It handles discovery, routing, and proxying. For example:
+- **Lightning McQueen** connects to a self-hosted moq-relay at `192.168.420.69`.
+- **moq-relay** is run with `--cluster-connect https://cdn.moq.dev/cars2`.
+- **Studio clients** (or a relay!) connects to `https://cdn.moq.dev/cars2`.
+
+Just like a tinder hookup, there's a match and now you can pub/sub.
+Any tracks published by Lightning McQueen are automatically available to broadcast studio A, proxied though multiple relays.
+
+And only one copy is ever transmitted between each **moq-relay** instance, regardless of the number of downstream subscribers.
+This is known colloquially as "big deal" when flakey venue internet and expensive satellite trucks are involved.
+Your self-hosted relay can funnel everything through a single outbound pipe!
+
+And there's no limit to the number of connections you can establish.
+[moq-lite](https://doc.moq.dev/concept/layer/moq-lite.html) includes the number of hops, so the subscriber uses the connection with the shortest path.
+Go ahead, connect to `cdn.moq.dev` and `cloudflare.mediaoverquic.com` at the same time; they sit idle until someone subscribes.
+Maybe one connection is over ethernet while the other is over satellite; **go wild you honker**.
+
+It's like swiping right on Lightning McQueen multiple times on alt accounts.
+Don't judge.
+
+(image of a satellite truck with car eyeballs)
+
+## Disclaimer
+I hope you've realized by now that I haven't seen the critically acclaimed movie Cars 2.
+That poster of Lightning McQueen on my wall is just part of the gag.
+I stare at it quite often to keep up the ruse.
+
+Thanks again to Fastly for sponsoring this post.
+They just told me to write something about MoQ, do I did.
+No refunds.
+
+Written by [@kixelated](mailto:meself@kixel.me).
+![@kixelated](/blog/avatar.png)
