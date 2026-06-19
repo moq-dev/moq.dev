@@ -11,64 +11,54 @@ date: 2026-06-08
 Hello Fastly fans.
 
 I'm Luke aka [@kixelated](https://github.com/kixelated) aka one of the creators of [Media over QUIC](https://datatracker.ietf.org/group/moq/about/).
-Fastly are fans of my [MoQ blog posts](https://moq.dev/blog) and sponsored me to write some more.
+Fastly likes my [MoQ blog posts](https://moq.dev/blog) and sponsored me to write some more.
 The twist is that there are two copies of this blog post:
 
-1. This more normal post about Formula 1.
+1. This normal post about MoQ and Formula 1.
 2. An unhinged post about [Lightning McQueen](https://moq.dev/blog/cars2).
 
 Pick your poison.
-Either way, we're going to learn about the numerous ways you can use MoQ *in the fast lane*.
+Either way, we're going to learn about the numerous ways you can use MoQ **in the fast lane**.
 
 
 ## The State of Race
 Let's say you're a big fan of F1.
 A MASSIVE fan, but not massive enough to go to every race.
-
 Sooner or later, you're going to want to watch the race from your living room.
-We need a way to live stream the race over the internet to your eyeballs.
 
-The answer for the last decade has been HLS/DASH.
-It's boring but it works.
-These protocols use HTTP to deliver individual chunks of media, usually 2-4s long.
+The powers that be need a way to live stream the race over the internet to your eyeballs.
+The answer for the last decade has been HLS/DASH, which uses HTTP to deliver individual chunks of media, usually 2-4s long.
+It's boring but it works, and Fastly does it well (sponsored shilling btw).
 
-The problem is that we've hit a latency wall with HLS/DASH.
-If you want the content to arrive faster, it has a few limitations:
-- HLS/DASH flushes in batches, adding seconds of latency.
+The problem is that we've hit a latency wall:
+- HLS/DASH flushes in 2-4s batches, adding latency.
 - Network congestion results in buffering, adding even more latency.
 
-I created MoQ while at Twitch to make live streams more interactive (and less boring).
+I created MoQ while at Twitch to reduce latency.
+The idea is to make live streams more interactive (and less boring).
 But how?
 
 
 ## MoQ for the Fans
-First, I want to adress the elephant in the room.
+First, I want to address the elephant in the room.
 I've [stated in the past](https://moq.dev/blog/you-dont-need-it) that you don't *need* MoQ for high-quality content.
 
 And it's true.
 If you want to see **every frame** of a live stream, there's not much to gain from MoQ.
-You're much better off using HLS/DASH with 30s of latency to smooth out network hiccups.
-It's like how a Youtube video downloads minutes in advance; it's a much better user experience.
+You're much better off using HLS/DASH with a large buffer to smooth out network hiccups.
+It's like how YouTube downloads minutes of video in advance; it's a much better user experience.
 
-But some users prefer lower latency.
-Sometimes the thrill of watching a live stream is to be part of the story **LIVE**, not to see every millisecond of lap 392.
-If the audio is flawless but the video occasionally stutters, that might be worth it.
+But the hypothesis that led me to create MoQ in the first place: some users **prefer lower latency** at the **expense of quality**.
 
-Some users just want to be the first.
-Maybe they're betting on the race, or posting on social media, or just want to be the first to know.
+Often the thrill of watching a live stream is to be part of the story **LIVE**, not to see every millisecond of lap 392.
+It's why Twitch exists in the first place, the interactivity is more important than the quality.
+
+Maybe the user is betting on the race, or posting on social media, or justs want to be the first to know.
 **It feels bad being in last place.**
 
-Another benefit of MoQ are **multiple camera feeds**.
-You of course want the main broadcast feed front and center, but it's nice to see the pit lane in the corner of your eye.
-
-In HLS/DASH, these separate feeds are actually fighting for bandwidth.
-The mere existence of side streams hurts the quality of the main stream.
-
-But MoQ fixes this because every camera feed goes through the same QUIC connection.
-It's one big priority queue, which QUIC uses to decide which packet to transmit next.
-
-And the priority of each camera feed is determined *by the viewer*.
-If you click a side stream to focus it, well now it's priority number 1.
+And note that MoQ can totally match the same quality/latency you expect from HLS/DASH.
+This is all configurable on a per-viewer basis; MoQ just lowers the latency floor.
+Connor on the couch can get a different experience than Sally on the streets.
 
 
 ## MoQ for the Cars
@@ -78,28 +68,27 @@ While I originally made MoQ for the fans, there's actually a better use-case for
 One of the challenges of live streaming is getting the content off of the vehicle.
 I don't actually watch F1, but when I do see snippets of it, the camera feeds from the cars are **awful**.
 
-Sometimes its due to vibrations, but more often it's due to networking.
+Maybe it's due to vibrations, but IDK it's probably due to networking.
 There's going to be deadzones or interference or whatever around the track.
-Unless you have a direct laser beam [like Artemis 2](https://news.mit.edu/2026/how-artemis-ii-livestreamed-hi-def-videos-images-from-moon-to-earth-0605), you're going to have to deal periods of high, low, and zero bandwidth.
+A reality of signal transmission is that you're going to have to deal with periods of high, low, and zero bandwidth.
 
-HLS/DASH might be used for viewers, but it's absolutely never used for broadcasting.
-The feed coming from a F1 car is more than likely going to use something like RTP over UDP.
+The feed coming from an F1 car is more than likely going to use something like RTP over UDP.
 When there's network congestion, RTP will opt to drop packets and often ends up as **artifacting** or **tearing** or **frozen video**.
 The publisher gives up transmitting a frame after ~100 milliseconds; it's gone forever.
 
 But MoQ doesn't give up.
 
-MoQ publishers avoid dropping old data and instead prioritize the newer stuff (in dependency order).
-The old stuff gets queued in RAM (up to a TTL).
-When bandwidth recovers, we can backfill old footage instead of losing it forever.
+MoQ publishers instead **prioritize transmitting the newer stuff** (in dependency order).
+The old stuff doesn't get dropped, **it gets queued in RAM** (up to a TTL).
+When bandwidth recovers, we can **backfill old footage** instead of losing it forever.
 
-Each MoQ subscriber independently decides how long to wait for each frame.
-- The **live stream** might give up after 1 second
-- The **instant relay** gives up after 10 seconds
-- The **VOD recording** gives up after 1 minute.
+Each MoQ subscriber independently decides how long to wait for each frame:
+- The **live stream** might skip after 1 second
+- The **instant relay** might skip after 10 seconds
+- The **VOD recording** might skip after 1 minute.
 
 All that extra time means more time for old frames to arrive.
-The quality of the broadcast directly correlates to the latency of the viewer.
+The real-time feed might be swiss cheese, but the VOD is pristine.
 
 
 ## MoQ for the Robots
@@ -114,19 +103,24 @@ It turns out that MoQ works for more than just media:
 
 Seriously, there's nothing special about media.
 It's just delta encoded data.
-You can delta encode a lot of things.
+You can delta encode a lot of things, [even JSON](https://datatracker.ietf.org/doc/html/rfc7386).
 
 But networks aren't infinite.
 We split up media into tracks/groups/frames/packets so pieces can be dropped when needed.
-The hard part is that we need to put everything back together on the other end.
+The reality is that some bytes are just less valuable than others.
 
+The hard part is that we need to put everything back together on the other end.
 That's why we use timestamps, they tell us when stuff happened relative to other stuff.
 So do the same thing for metadata, stamp it with the same clock as media, and send it over the same pipe.
 
 A single pipe means you can prioritize **EVERYTHING**.
 `controls > audio > metadata > video`
-The QUIC connection is *cooperative* and will take care of the rest.
+The QUIC connection is **cooperative** and will make sure the most valuable bytes get transmitted first.
 
+And yes, this sounds simple but it's something WebRTC completely botches.
+You have to use a separate connection for metadata and timestamps aren't exposed in the browser.
+
+**FUN FACT**: MoQ is already being used remotely to pilot drones over Starlink.
 
 ## MoQ for the Track
 It turns out there's a LOT of video cameras around a race track.
@@ -150,15 +144,15 @@ moq-relay handles discovery, routing, and proxying. For example:
 - **moq-relay** is run with `--cluster-connect https://cdn.moq.dev/f1`.
 - **Studio clients** (or a relay!) connects to `https://cdn.moq.dev/f1`.
 
-Magically, all camera feeds are automatically available to the broadcast studio, potentially proxied though multiple relays.
-But even better, only one copy is ever transmitted between each **moq-relay** instance, regardless of the number of downstream subscribers.
+Magically, all camera feeds are automatically available at every relay, automatically proxied if needed.
+And only one copy is ever transmitted between each **moq-relay** instance regardless of the number of downstream subscribers.
 
 This is a huge deal when there's a flakey venue internet and expensive satellite trucks are involved.
-Your self-hosted relay can funnel everything through a single outbound pipe!
+Run a few moq-relay instances at each race track, aggregating all of the feeds automatically, and publish them to a CDN.
+ez pz
 
 And there's no limit to the number of connections you can establish.
-[moq-lite](https://doc.moq.dev/concept/layer/moq-lite.html) includes the number of hops, so the subscriber uses the connection with the shortest path.
-Go ahead, connect to `cdn.moq.dev` and `cloudflare.mediaoverquic.com` at the same time; they sit idle until someone subscribes.
+[moq-lite](https://doc.moq.dev/concept/layer/moq-lite.html) will use the connection with the shortest path if there's a tie.
 Maybe one connection is over ethernet while the other is over satellite; **go wild**.
 
 
@@ -167,8 +161,8 @@ Media over QUIC has a ton of use-cases, even beyond media.
 It's the future of live streaming and you should join the ride.
 
 Thanks again to Fastly for sponsoring this post.
-They just told me to write something about MoQ, do I did.
-I don't even watch F1 lul.
+They just told me to write something about MoQ, so I did.
+I don't even like racing lul.
 
 Written by [@kixelated](mailto:meself@kixel.me).
 ![@kixelated](/blog/avatar.png)
