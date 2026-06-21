@@ -3,41 +3,54 @@ layout: "@/layouts/global.astro"
 title: "MoQ in the Fast Lane"
 author: kixelated
 description: MoQ is fast. Like, really fast.
-cover: "/blog/first-app/demo.png"
+cover: "/blog/cars2/f1.png"
 date: 2026-06-08
 ---
 
 # MoQ in the Fast Lane
 Hello Fastly fans.
 
-I'm Luke aka [@kixelated](https://github.com/kixelated) aka one of the creators of [Media over QUIC](https://datatracker.ietf.org/group/moq/about/).
+I'm Luke aka [@kixelated](https://github.com/kixelated) aka one of the creators of [Media over QUIC](https://www.fastly.com/blog/media-over-quic-can-streaming-finally-have-both-scale-and-low-latency/).
 Fastly likes my [MoQ blog posts](https://moq.dev/blog) and sponsored me to write some more.
+For some reason.
+
 The twist is that there are two copies of this blog post:
 
 1. This normal post about MoQ and Formula 1.
 2. An unhinged post about [Lightning McQueen](https://moq.dev/blog/cars2).
 
 Pick your poison.
-Either way, we're going to learn about the numerous ways you can use MoQ **in the fast lane**.
+We're going to learn about the numerous ways you can use MoQ **in the fast lane**.
+
+<figure>
+	![Fastly Lane](/blog/cars2/f1.png)
+	<figcaption>Either way, you're getting a badly traced picture of a car. At least it's not AI generated.</figcaption>
+</figure>
 
 
 ## The State of Race
 Let's say you're a big fan of F1.
-A MASSIVE fan, but not massive enough to go to every race.
+A **MASSIVE fan**, but this little thing called disposable income prevents you from going to every race.
+
 Sooner or later, you're going to want to watch the race from your living room.
+We need some way to live stream the race over the internet to your eyeballs.
 
-The powers that be need a way to live stream the race over the internet to your eyeballs.
-The answer for the last decade has been HLS/DASH, which uses HTTP to deliver individual chunks of media, usually 2-4s long.
-It's boring but it works, and Fastly does it well (sponsored shilling btw).
+The answer for the last decade has been HLS/DASH.
+Take a media stream, split it into 0.5s to 4s long chunks, and serve them over HTTP.
+**It's boring but it works**, and Fastly does it well (sponsored shilling btw).
 
-The problem is that we've hit a latency wall:
-- HLS/DASH flushes in 2-4s batches, adding latency.
-- Network congestion results in buffering, adding even more latency.
+The problem is that we hit a latency wall:
+- Flushing media in batches **adds latency** (0.5s to 4s).
+- Network congestion causes head-of-line blocking and **buffering**.
+- Every second of buffering means **even more latency**.
 
-I created MoQ while at Twitch to reduce latency.
-The idea is to make live streams more interactive (and less boring).
-But how?
 
+This latency wall is why I created MoQ, while at Twitch.
+The goal was to make live streams more interactive (and less boring).
+**Stream frames, and occasionally drop instead of blocking.**
+
+No amount of `LL-` prefixes or **ULTRA LOW LATENCY** marketing can fix this.
+We need a new protocol to avoid head-of-line blocking, stat.
 
 ## MoQ for the Fans
 First, I want to address the elephant in the room.
@@ -46,49 +59,75 @@ I've [stated in the past](https://moq.dev/blog/you-dont-need-it) that you don't 
 And it's true.
 If you want to see **every frame** of a live stream, there's not much to gain from MoQ.
 You're much better off using HLS/DASH with a large buffer to smooth out network hiccups.
-It's like how YouTube downloads minutes of video in advance; it's a much better user experience.
+Similar to how YouTube downloads minutes of video in advance.
 
-But the hypothesis that led me to create MoQ in the first place: some users **prefer lower latency** at the **expense of quality**.
+Like yeah duh, waiting is always going to result in better picture quality.
+But the hypothesis is that some users **prefer lower latency** at the **expense of quality**.
+
+<figure>
+	![Fastly Lane](/blog/cars2/speed.png)
+	<figcaption>The ability to crank that dial is what makes MoQ, MoQ</figcaption>
+</figure>
 
 Often the thrill of watching a live stream is to be part of the story **LIVE**, not to see every millisecond of lap 392.
 It's why Twitch exists in the first place, the interactivity is more important than the quality.
+That place is a cesspool of low quality content, and I mean that with full admiration.
 
-Maybe the user is betting on the race, or posting on social media, or justs want to be the first to know.
+Maybe the user is betting on the race, or posting on social media, or just want to be the first to know.
 **It feels bad being in last place.**
+Knowing that you're *still* on lap 392 while your neighbor is on lap 393.
 
-And note that MoQ can totally match the same quality/latency you expect from HLS/DASH.
-This is all configurable on a per-viewer basis; MoQ just lowers the latency floor.
-Connor on the couch can get a different experience than Sally on the streets.
+Anyway, this wouldn't be much of a technical blog post if I didn't explain how it works.
+MoQ *can* prioritize newer content over older content (in dependency order).
+So each viewer gets to pick if there's a gap in the middle, or a gap at the end.
+
+There's absolutely a tradeoff here.
+But that's also the beauty of MoQ, it's a configurable latency dial you can crank up or down.
+
+<figure>
+	![Fastly Lane](/blog/cars2/latency.png)
+	<figcaption>**THE DECISION**: You either miss 2 seconds of the action, or spend 2 seconds buffering</figcaption>
+</figure>
+
+**NOTE**: MoQ can match the quality/latency you expect from HLS/DASH.
+We just allow a lower latency floor.
 
 
 ## MoQ for the Cars
-While I originally made MoQ for the fans, there's actually a better use-case for the cars.
+While I originally made MoQ for the fans, companies insisting on running it on the cars.
+Or the drones.
 [Or the boats](https://moq.dev/blog/on-a-boat).
 
-One of the challenges of live streaming is getting the content off of the vehicle.
+One of the challenges of live streaming is getting the content **off of the vehicle**.
+Cellular and satellite networks are a mess.
 I don't actually watch F1, but when I do see snippets of it, the camera feeds from the cars are **awful**.
 
-Maybe it's due to vibrations, but IDK it's probably due to networking.
+I'm a video star, not a radio star, but I'm guessing it's probably due to networking.
 There's going to be deadzones or interference or whatever around the track.
 A reality of signal transmission is that you're going to have to deal with periods of high, low, and zero bandwidth.
 
-The feed coming from an F1 car is more than likely going to use something like RTP over UDP.
-When there's network congestion, RTP will opt to drop packets and often ends up as **artifacting** or **tearing** or **frozen video**.
-The publisher gives up transmitting a frame after ~100 milliseconds; it's gone forever.
+The feed coming from an F1 car is going to use something like RTP over UDP.
+There are many, many different approaches, but typically an RTP publisher gives a frame a ~100ms deadline before it's **dropped forever**.
+So a small blip of signal interference results in artifacting, tearing, or frozen video.
 
 But MoQ doesn't give up.
 
-MoQ publishers instead **prioritize transmitting the newer stuff** (in dependency order).
+Like I said earlier, MoQ instead **prioritizes transmitting the newer stuff** (in dependency order).
 The old stuff doesn't get dropped, **it gets queued in RAM** (up to a TTL).
 When bandwidth recovers, we can **backfill old footage** instead of losing it forever.
 
+<figure>
+	![Fastly Lane](/blog/cars2/backfill2.png)
+	<figcaption>If I ever own a racing team, it's going to be called The Backfill Boys</figcaption>
+</figure>
+
 Each MoQ subscriber independently decides how long to wait for each frame:
-- The **live stream** might skip after 1 second
-- The **instant relay** might skip after 10 seconds
-- The **VOD recording** might skip after 1 minute.
+- The **live stream** might wait for up to 1 second
+- The **instant relay** might wait for up to 10 seconds
+- The **VOD recording** might wait for up to 1 minute.
 
 All that extra time means more time for old frames to arrive.
-The real-time feed might be swiss cheese, but the VOD is pristine.
+The real-time feed might be lossy af, but the VOD is pristine.
 
 
 ## MoQ for the Robots
@@ -105,29 +144,31 @@ Seriously, there's nothing special about media.
 It's just delta encoded data.
 You can delta encode a lot of things, [even JSON](https://datatracker.ietf.org/doc/html/rfc7386).
 
-But networks aren't infinite.
-We split up media into tracks/groups/frames/packets so pieces can be dropped when needed.
+Networks are finite, so we split up media into pieces.
+Each inidividual track, group, frame, packet, *could* be dropped without terminating the media stream.
 The reality is that some bytes are just less valuable than others.
 
-The hard part is that we need to put everything back together on the other end.
-That's why we use timestamps, they tell us when stuff happened relative to other stuff.
-So do the same thing for metadata, stamp it with the same clock as media, and send it over the same pipe.
+The hard part is putting humpty back together.
+That's why use timestamps; they tell us when stuff happened relative to other stuff.
+Even metadata gets stamped so it can be associated with audio/video frames.
 
-A single pipe means you can prioritize **EVERYTHING**.
-`controls > audio > metadata > video`
-The QUIC connection is **cooperative** and will make sure the most valuable bytes get transmitted first.
+You can, and should, take the red pill and use MoQ for **EVERYTHING**.
+A single **cooperative** QUIC connection with: `controls > audio > metadata > video`
+
+**FUN FACT**: MoQ is being used remotely to pilot drones over Starlink.
+Not just for the camera feed, but for the controls too!
 
 And yes, this sounds simple but it's something WebRTC completely botches.
 You have to use a separate connection for metadata and timestamps aren't exposed in the browser.
 
-**FUN FACT**: MoQ is already being used remotely to pilot drones over Starlink.
 
 ## MoQ for the Track
 It turns out there's a LOT of video cameras around a race track.
 And there's a LOT of eyeballs that want to see them.
 
-We don't want viewers directly connecting to each camera of course.
-We want broadcast studios to take those input feeds and combine them into a syndicated feed.
+We don't want viewers directly connecting to each camera, of course.
+There's no way that poor video camera could push 100k copies of the same feed.
+We want broadcast studios to take those input feeds and combine them into a syndicated feed for distribution.
 
 But what if there are multiple broadcast studios that want the same footage?
 Satellite trucks are expensive and have a limited bandwidth budget.
@@ -151,18 +192,26 @@ This is a huge deal when there's a flakey venue internet and expensive satellite
 Run a few moq-relay instances at each race track, aggregating all of the feeds automatically, and publish them to a CDN.
 ez pz
 
+<figure>
+	![Fastly Lane](/blog/cars2/fanout2.png)
+	<figcaption>literally infinite viewers from a single, semi-reliable feed</figcaption>
+</figure>
+
 And there's no limit to the number of connections you can establish.
 [moq-lite](https://doc.moq.dev/concept/layer/moq-lite.html) will use the connection with the shortest path if there's a tie.
 Maybe one connection is over ethernet while the other is over satellite; **go wild**.
 
 
 ## Conclusion
-Media over QUIC has a ton of use-cases, even beyond media.
+
+Media over QUIC has a ton of interesting use-cases, even beyond media.
 It's the future of live streaming and you should join the ride.
+vroom vroom.
 
 Thanks again to Fastly for sponsoring this post.
 They just told me to write something about MoQ, so I did.
-I don't even like racing lul.
+**DISCLAIMER**: I don't even watch F1 lul.
 
-Written by [@kixelated](mailto:meself@kixel.me).
-![@kixelated](/blog/avatar.png)
+
+Written by [@kixelated](https://github.com/kixelated). Feel free to send me [an email](mailto:meself@kixel.me) or check out [moq.dev](https://moq.dev) for more MoQ yum yums.
+![@kixelated](/blog/cars2/kixel.png)
