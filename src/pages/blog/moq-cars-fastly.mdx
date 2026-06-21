@@ -23,7 +23,7 @@ Pick your poison.
 We're going to learn about the numerous ways you can use MoQ **in the fast lane**.
 
 <figure>
-	![Fastly Lane](/blog/cars2/f1.png)
+	![A hand-traced drawing of a black and red Formula 1 car labeled "Zoom Zoom" and "MoQ"](/blog/cars2/f1.png)
 	<figcaption>Either way, you're getting a badly traced picture of a car. At least it's not AI generated.</figcaption>
 </figure>
 
@@ -65,7 +65,7 @@ Like yeah duh, waiting is always going to result in better picture quality.
 But the hypothesis is that some users **prefer lower latency** at the **expense of quality**.
 
 <figure>
-	![Fastly Lane](/blog/cars2/speed.png)
+	![A hand-drawn speedometer with "quality" and "latency" at each end, the needle pushed past a marked "HLS/DASH limit"](/blog/cars2/speed.png)
 	<figcaption>The ability to crank that dial is what makes MoQ, MoQ</figcaption>
 </figure>
 
@@ -85,7 +85,7 @@ There's absolutely a tradeoff here.
 But that's also the beauty of MoQ, it's a configurable latency dial you can crank up or down.
 
 <figure>
-	![Fastly Lane](/blog/cars2/latency.png)
+	![A diagram comparing MoQ, which drops 2 seconds of content in the middle of the stream, with HLS/DASH, which adds 2 seconds of latency at the end](/blog/cars2/latency.png)
 	<figcaption>**THE DECISION**: You either miss 2 seconds of the action, or spend 2 seconds buffering</figcaption>
 </figure>
 
@@ -94,7 +94,7 @@ We just allow a lower latency floor.
 
 
 ## MoQ for the Cars
-While I originally made MoQ for the fans, companies insisting on running it on the cars.
+While I originally made MoQ for the fans, companies insist on running it on the cars.
 Or the drones.
 [Or the boats](https://moq.dev/blog/on-a-boat).
 
@@ -117,7 +117,7 @@ The old stuff doesn't get dropped, **it gets queued in RAM** (up to a TTL).
 When bandwidth recovers, we can **backfill old footage** instead of losing it forever.
 
 <figure>
-	![Fastly Lane](/blog/cars2/backfill2.png)
+	![A drawing contrasting a broken-up, crossed-out "Realtime" F1 car feed with a complete "Backfill" version](/blog/cars2/backfill2.png)
 	<figcaption>If I ever own a racing team, it's going to be called The Backfill Boys</figcaption>
 </figure>
 
@@ -145,11 +145,11 @@ It's just delta encoded data.
 You can delta encode a lot of things, [even JSON](https://datatracker.ietf.org/doc/html/rfc7386).
 
 Networks are finite, so we split up media into pieces.
-Each inidividual track, group, frame, packet, *could* be dropped without terminating the media stream.
+Each individual track, group, frame, packet, *could* be dropped without terminating the media stream.
 The reality is that some bytes are just less valuable than others.
 
 The hard part is putting humpty back together.
-That's why use timestamps; they tell us when stuff happened relative to other stuff.
+That's why we use timestamps; they tell us when stuff happened relative to other stuff.
 Even metadata gets stamped so it can be associated with audio/video frames.
 
 You can, and should, take the red pill and use MoQ for **EVERYTHING**.
@@ -193,7 +193,7 @@ Run a few moq-relay instances at each race track, aggregating all of the feeds a
 ez pz
 
 <figure>
-	![Fastly Lane](/blog/cars2/fanout2.png)
+	![A diagram of an F1 car publishing to a relay that fans out across interconnected relays to many subscribers](/blog/cars2/fanout2.png)
 	<figcaption>literally infinite viewers from a single, semi-reliable feed</figcaption>
 </figure>
 
