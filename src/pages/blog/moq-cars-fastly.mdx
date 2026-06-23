@@ -4,7 +4,7 @@ title: "MoQ in the Fast Lane"
 author: kixelated
 description: MoQ is fast. Like, really fast.
 cover: "/blog/cars2/f1.png"
-date: 2026-06-08
+date: 2026-06-22
 ---
 
 # MoQ in the Fast Lane
@@ -23,7 +23,7 @@ Pick your poison.
 We're going to learn about the numerous ways you can use MoQ **in the fast lane**.
 
 <figure>
-	![A hand-traced drawing of a black and red Formula 1 car labeled "Zoom Zoom" and "MoQ"](/blog/cars2/f1.png)
+	![a Formula 1 car](/blog/cars2/f1.png)
 	<figcaption>Either way, you're getting a badly traced picture of a car. At least it's not AI generated.</figcaption>
 </figure>
 
@@ -65,7 +65,7 @@ Like yeah duh, waiting is always going to result in better picture quality.
 But the hypothesis is that some users **prefer lower latency** at the **expense of quality**.
 
 <figure>
-	![A hand-drawn speedometer with "quality" and "latency" at each end, the needle pushed past a marked "HLS/DASH limit"](/blog/cars2/speed.png)
+	![speedometer with "quality" and "latency" at each en"](/blog/cars2/speed.png)
 	<figcaption>The ability to crank that dial is what makes MoQ, MoQ</figcaption>
 </figure>
 
@@ -85,7 +85,7 @@ There's absolutely a tradeoff here.
 But that's also the beauty of MoQ, it's a configurable latency dial you can crank up or down.
 
 <figure>
-	![A diagram comparing MoQ, which drops 2 seconds of content in the middle of the stream, with HLS/DASH, which adds 2 seconds of latency at the end](/blog/cars2/latency.png)
+	![MoQ vs HLS/DASH](/blog/cars2/latency.png)
 	<figcaption>**THE DECISION**: You either miss 2 seconds of the action, or spend 2 seconds buffering</figcaption>
 </figure>
 
@@ -117,7 +117,7 @@ The old stuff doesn't get dropped, **it gets queued in RAM** (up to a TTL).
 When bandwidth recovers, we can **backfill old footage** instead of losing it forever.
 
 <figure>
-	![A drawing contrasting a broken-up, crossed-out "Realtime" F1 car feed with a complete "Backfill" version](/blog/cars2/backfill2.png)
+	![Realtime vs Backfill](/blog/cars2/backfill2.png)
 	<figcaption>If I ever own a racing team, it's going to be called The Backfill Boys</figcaption>
 </figure>
 
@@ -193,7 +193,7 @@ Run a few moq-relay instances at each race track, aggregating all of the feeds a
 ez pz
 
 <figure>
-	![A diagram of an F1 car publishing to a relay that fans out across interconnected relays to many subscribers](/blog/cars2/fanout2.png)
+	![moq-relay fanout](/blog/cars2/fanout2.png)
 	<figcaption>literally infinite viewers from a single, semi-reliable feed</figcaption>
 </figure>
 
