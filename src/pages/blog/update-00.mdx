@@ -122,6 +122,24 @@ You can download all of the moq binaries (`moq-relay`, `moq-token`, etc) from yo
 Cool I guess?
 
 
+## JSON
+MoQ isn't just for media.
+
+[`@moq/json`](https://github.com/moq-dev/moq/tree/main/js/json) publishes arbitrary JSON over MoQ tracks.
+The first frame in each group is a full snapshot, then subsequent frames are [JSON Merge Patch](https://datatracker.ietf.org/doc/html/rfc7396) deltas.
+A late joiner just grabs the newest group and they're instantly caught up.
+
+And [`@moq/flate`](https://github.com/moq-dev/moq/tree/main/js/flate) layers group-scoped DEFLATE on top.
+Each frame reuses the earlier frames as a compression window, so a stream of similar payloads (like a snapshot followed by deltas) squishes down real nice.
+
+I tested a sample stream of JSON sensor data snapshots:
+- JSON Merge Patch alone: **~50%** less bitrate
+- DEFLATE alone: **~50%** less bitrate
+- Both together: **~90%** less bitrate
+
+stack 'em.
+
+
 ## Backends
 We've used Quinn for the longest time, but now you can use other QUIC backends!
 Why? IDK different features and performance.
