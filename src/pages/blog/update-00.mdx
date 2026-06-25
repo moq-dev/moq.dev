@@ -134,24 +134,21 @@ Each frame reuses the earlier frames as a compression window, so a stream of sim
 
 I ran a [telemetry benchmark](https://github.com/moq-dev/moq/blob/main/rs/moq-json/examples/telemetry.rs) over a stream of JSON sensor snapshots:
 
-| Mode                    | Size     | Reduction |
-| ----------------------- | -------- | --------- |
-| Raw                     | 48816 B  | —         |
-| DEFLATE only            | 29791 B  | 39%       |
-| JSON Merge Patch only   | 20430 B  | 58%       |
-| **Both**                | **4181 B** | **91%** |
+| Mode                  | Bitrate reduction |
+| --------------------- | ----------------- |
+| DEFLATE only          | 39%               |
+| JSON Merge Patch only | 58%               |
+| **Both**              | **91%**           |
 
 Deltas + compression stack into a ~12x reduction on the wire.
 
 The shared compression window pulls its weight too.
 Reusing one sync-flushed DEFLATE window across the snapshot+delta frames beats spinning up a fresh encoder per frame, and it's *faster* to boot:
 
-| Strategy                  | Size     | Encode + decode |
-| ------------------------- | -------- | --------------- |
-| Fresh encoder per frame   | 13829 B  | 5853 µs/run     |
-| **Shared sync-flush window** | **4249 B** | **4333 µs/run** |
-
-~3.25x smaller wire size, no encoder rebuild per frame.
+| Shared sync-flush window vs. fresh-per-frame | Improvement |
+| -------------------------------------------- | ----------- |
+| Wire size                                    | 69% smaller (~3.25x) |
+| Encode + decode                              | ~26% faster |
 
 stack 'em.
 
