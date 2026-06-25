@@ -134,21 +134,16 @@ Each frame reuses the earlier frames as a compression window, so a stream of sim
 
 I ran a [telemetry benchmark](https://github.com/moq-dev/moq/blob/main/rs/moq-json/examples/telemetry.rs) over a stream of JSON sensor snapshots:
 
-| Mode                  | Bitrate reduction |
-| --------------------- | ----------------- |
-| DEFLATE only          | 39%               |
-| JSON Merge Patch only | 58%               |
-| **Both**              | **91%**           |
+| Configuration                            | Bitrate saved |
+| ---------------------------------------- | ------------- |
+| DEFLATE only (no deltas)                 | 39%           |
+| JSON Merge Patch only                    | 58%           |
+| JSON Merge Patch + DEFLATE per frame     | 72%           |
+| **JSON Merge Patch + DEFLATE per group** | **89%**       |
 
-Deltas + compression stack into a ~12x reduction on the wire.
+Deltas + compression stack into a ~9x reduction on the wire.
 
-The shared compression window pulls its weight too.
-Reusing one sync-flushed DEFLATE window across the snapshot+delta frames beats spinning up a fresh encoder per frame, and it's *faster* to boot:
-
-| Shared sync-flush window vs. fresh-per-frame | Improvement |
-| -------------------------------------------- | ----------- |
-| Wire size                                    | 69% smaller (~3.25x) |
-| Encode + decode                              | ~26% faster |
+And the compression *window* matters: sharing one DEFLATE window across a whole group beats compressing each frame on its own (89% vs 72% saved, ~2.7x smaller), since every frame gets to reuse the ones before it.
 
 stack 'em.
 
