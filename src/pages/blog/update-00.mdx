@@ -1,0 +1,217 @@
+---
+layout: "@/layouts/global.astro"
+title: Update 00
+author: kixelated
+description: Update 00 notes
+cover: "/blog/update-00/bbb.png"
+date: 2026-06-25
+---
+
+# Update 00
+
+sup nerds.
+We now doing low-energy progress reports.
+
+Here's a summary of stuff that changed in the last 4? months.
+IDK my brain is so fried from talking to Claude all day.
+
+
+## Hop-based Routing
+Now you can connect relays to each other however you desire.
+They'll gossip available broadcasts to each other and proxy any subscriptions automatically via the shortest path.
+
+For example, I can host a relay in Denver and configure it with:
+```bash
+moq-relay --cluster-connect chicago.moq.dev --cluster-connect seattle.moq.dev ...
+```
+
+Imagine relays are also configured to connect to their nearest neighbors.
+A subscription from a user in Europe, subscribing to a broadcast in Denver, might travel:\
+`Frankfurt -> London -> New York -> Chicago -> Denver`
+
+At each hop, we deduplicate subscriptions.
+Which means at most only one copy of a track will ever be transmitted between two relays.
+
+<figure>
+	![bbb](/blog/update-00/globe.png)
+	<figcaption>**SPOILER**: an upcoming marketing image</figcaption>
+</figure>
+
+For context, the previous architecture was a mesh.
+Every relay would connect to every other relay, which would have resulted in:\
+`Frankfurt -> Denver` (oof)
+
+Oh yeah and
+Your local relay (snug behind a firewall) can proxy all broadcasts to/from a public CDN:
+```bash
+moq-relay --cluster-connect https://cdn.moq.dev ...
+```
+
+It'll work with any MoQ CDN that implements enough of the `moq-transport` spec (*cough* not Cloudflare yet *cough*).
+But you'll need `moq-lite-03+` to establish multiple connections, otherwise a cycle will ruin your day.
+
+## Standards
+Speaking of standards, the IETF keeps marching forward, so I have to "support" every new draft version lul.
+
+**Supported:**
+- moq-transport drafts 14-18.
+- qmux drafts 00-01
+- msf drafts 00-01
+- loc draft 01
+
+It takes forever to litigate every single addition/change in the IETF.
+I'm trying my best [to publish extensions](https://www.ietf.org/archive/id/draft-lcurley-moq-probe-00.html), but it's such a drain on my time.
+
+So instead the moq.dev libraries **prefer to negotiate:**
+- moq-lite drafts 01-04
+- hang drafts 00-01
+
+moq-lite-05 is coming SOON with more stuff.
+
+
+## Muxing
+My philosophy is that we should **not** transmit arbitrary media formats over MoQ.
+It's possible to [transmit TS over MoQ](https://www.ietf.org/archive/id/draft-gregoire-moq-msfts-00.html) verbatim, but then every player/subscriber needs to decode Transport Streams (gross).
+
+Instead, `moq-mux` is our transmuxing layer.
+We can import/export other formats without re-encoding, preserving the intent but not the original structure.
+
+[Here's the codecs we support](https://github.com/moq-dev/moq/tree/main/rs/moq-mux/src/codec):
+- H.264/H.265
+- AV1
+- VP8/VP9
+- Opus
+- AAC
+
+[And the containers we support](https://github.com/moq-dev/moq/tree/main/rs/moq-mux/src/container):
+- fMP4/CMAF
+- FLV/RTMP
+- Matroska/WebM
+- HLS
+- LOC
+- TS
+
+Going back to Transport Streams (gross) as an example.
+When you import a TS stream with `moq-mux` and we'll split A/V into MoQ tracks, but we'll also preserve "unknown" tracks with a special "ts" section.
+If you export the same stream to TS with `moq-mux`, we'll re-assemble the TS stream and reinsert the unknown tracks.
+
+This is a **REALLY BIG DEAL** for broadcast TV.
+Your precious SCTE35 markers are preserved.
+ur welcome
+
+## CLI
+Note that `moq-mux` is available as both a library and a CLI via `moq-cli`.
+
+```bash
+# Publish: pipe in a MPEG-TS file
+ffmpeg -i input.ts -re -f mpegts - | \
+    moq-cli publish --url https://cdn.moq.dev/anon --broadcast my-stream ts
+
+# Subscribe: pull MPEG-TS back out and play it
+moq-cli subscribe --url https://cdn.moq.dev/anon --broadcast my-stream --format ts | \
+  ffplay -
+```
+
+You can download all of the moq binaries (`moq-relay`, `moq-token`, etc) from your favorite package manager:
+- Homebrew
+- .deb/.rpm
+- Docker
+- Nix
+- ???
+
+Cool I guess?
+
+
+## Backends
+We've used Quinn for the longest time, but now you can use other QUIC backends!
+Why? IDK different features and performance.
+
+QUIC Backends (WebTransport + raw QUIC):
+- quinn
+- noq
+- quiche (Cloudflare)
+- iroh (p2p)
+
+You can also use non-QUIC backends with Qmux!
+It emulates a QUIC connection, but over a reliable transport.
+We do suffer more from head-of-line blocking but sometimes it be like that.
+
+Non-QUIC Backends (Qmux):
+- WebSocket
+- TLS
+- TCP
+- Unix domain sockets
+
+For example, I'm using unix domain sockets (or TCP) to run localhost workers without paying the TLS/UDP overhead tax.
+It's still Media over QUIC even if QUIC is not used...
+
+
+## UI Polish
+Claude made the web UI look better.
+tfw an AI has better taste than me.
+
+Clone the repo and run `just dev` to see:
+
+<figure>
+	![bbb](/blog/update-00/bbb.png)
+	<figcaption>he a sniffer</figcaption>
+</figure>
+
+You can use the UI on your own site via the web components:
+```html
+<script type="module">
+    import "https://esm.sh/@moq/watch/element";
+    import "https://esm.sh/@moq/publish/element";
+</script>
+
+<moq-watch-ui>
+	<moq-watch url="https://cdn.moq.dev/demo" name="bbb.hang">
+		<canvas style="max-width: 100%; height: auto; margin: 0 auto; border-radius: 1rem;"></canvas>
+	</moq-watch>
+</moq-watch-ui>
+```
+
+There's also one for `<moq-publish>` which is equally slick.
+
+## Polyglot (Alpha)
+We full monorepo now.
+
+`moq-ffi` uses Uniffi to generate async bindings for various languages.
+It's all the same Rust code under the hood, but IDK now you can use it on iOS/Android/whatever.
+
+[MoQKit](https://fishjam.swmansion.com/blog/moq-boy-escaped-the-browser) uses it.
+neat
+
+Supported:
+- Swift
+- Kotlin
+- Python
+- Go (wip)
+
+I'm still working on more ergonomic bindings for each language, hence the (Alpha) tag.
+
+Oh and don't worry, we still have C support via `libmoq`.
+`moq-ffi` is for the async languages who don't want to deal with callbacks and APIs designed for dinosaurs.
+
+
+## Production Stuff
+I'm almost done spinning up a PAID MoQ CDN.
+It's like a week or two away, **GET HYPED**.
+
+As part of that, I actually have to make sure everything is production-ready, which means focusing on the boring stuff like:
+- `mTLS`: relays can authorize via client certificates
+- `TLS`: cert reloading and custom root CAs
+
+And more of the static configuration is now possible via a REST API.
+- `--auth-api`: authorize a user
+- `--cluster-connect-api`: discover neighboring relay nodes
+
+And finally my favorite one, but it deserves its own blog post later:
+- `.stats`: deliver MoQ metrics over MoQ
+
+## Conclusion
+I hope you enjoyed this low-energy update.
+Super low.
+
+Written by [@kixelated](https://github.com/kixelated).
+![@kixelated](/blog/avatar.png)
