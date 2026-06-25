@@ -133,16 +133,25 @@ And [`@moq/flate`](https://github.com/moq-dev/moq/tree/main/js/flate) layers gro
 Each frame reuses the earlier frames as a compression window, so a stream of similar payloads (like a snapshot followed by deltas) squishes down real nice.
 
 I ran a [telemetry benchmark](https://github.com/moq-dev/moq/blob/main/rs/moq-json/examples/telemetry.rs) over a stream of JSON sensor snapshots:
-- Raw: `48816 B`
-- DEFLATE only: `29791 B` (**39%** smaller)
-- JSON Merge Patch only: `20430 B` (**58%** smaller)
-- Both together: `4181 B` (**91%** smaller)
+
+| Mode                    | Size     | Reduction |
+| ----------------------- | -------- | --------- |
+| Raw                     | 48816 B  | —         |
+| DEFLATE only            | 29791 B  | 39%       |
+| JSON Merge Patch only   | 20430 B  | 58%       |
+| **Both**                | **4181 B** | **91%** |
 
 Deltas + compression stack into a ~12x reduction on the wire.
 
 The shared compression window pulls its weight too.
-Reusing one sync-flushed DEFLATE window across the snapshot+delta frames beats spinning up a fresh encoder per frame: `4249 B` vs `13829 B`, about **3.25x** smaller.
-And it's *faster* (4333 vs 5853 µs/run) since you're not rebuilding the encoder every frame.
+Reusing one sync-flushed DEFLATE window across the snapshot+delta frames beats spinning up a fresh encoder per frame, and it's *faster* to boot:
+
+| Strategy                  | Size     | Encode + decode |
+| ------------------------- | -------- | --------------- |
+| Fresh encoder per frame   | 13829 B  | 5853 µs/run     |
+| **Shared sync-flush window** | **4249 B** | **4333 µs/run** |
+
+~3.25x smaller wire size, no encoder rebuild per frame.
 
 stack 'em.
 
