@@ -2,7 +2,7 @@
 layout: "@/layouts/global.astro"
 title: Update 00
 author: kixelated
-description: Update 00 notes
+description: Multiple months of patch notes extrordinaire for your eyeballs.
 cover: "/blog/update-00/bbb.png"
 date: 2026-06-25
 ---
@@ -17,12 +17,12 @@ IDK my brain is so fried from talking to Claude all day.
 
 
 ## Hop-based Routing
-Now you can [connect relays to each other](https://doc.moq.dev/bin/relay/) however you desire.
+Now you can now arbitrarily connect [moq-relay](https://doc.moq.dev/bin/relay/) instances to each other to form a cluster.
 They'll gossip available broadcasts to each other and proxy any subscriptions automatically via the shortest path.
 
-For example, I can host a relay in Denver and configure it with:
+For example, I can host a relay at `https://denver.moq.dev` and configure it with:
 ```bash
-moq-relay --cluster-connect chicago.moq.dev --cluster-connect seattle.moq.dev ...
+moq-relay --cluster-connect "https://chicago.moq.dev" --cluster-connect "https://seattle.moq.dev" ...
 ```
 
 Imagine relays are also configured to connect to their nearest neighbors.
@@ -44,27 +44,25 @@ Every relay would connect to every other relay, which would have resulted in:\
 Oh yeah and
 Your local relay (snug behind a firewall) can proxy all broadcasts to/from a public CDN:
 ```bash
-moq-relay --cluster-connect https://cdn.moq.dev ...
+moq-relay --cluster-connect "https://cdn.moq.dev" ...
 ```
 
-It'll work with any MoQ CDN that implements enough of the [`moq-transport`](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/) spec (*cough* not Cloudflare yet *cough*).
+It'll work with any other MoQ CDN... once they implement enough of the [`moq-transport`](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/) spec (Cloudflare pls).
 But you'll need `moq-lite-03+` to establish multiple connections, otherwise a cycle will ruin your day.
 
 ## Standards
-Speaking of standards, the IETF keeps marching forward, so I have to "support" every new draft version lul.
-
-**Supported:**
+Speaking of standards, the IETF keeps marching forward, so I have to "support" every new draft version:
 - [moq-transport](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/) drafts 14-18.
-- [qmux](https://datatracker.ietf.org/doc/draft-nandakumar-moq-qmux-moqt/) drafts 00-01
+- [qmux](https://datatracker.ietf.org/doc/draft-ietf-quic-qmux/) drafts 00-01
 - [msf](https://datatracker.ietf.org/doc/draft-ietf-moq-msf/) drafts 00-01
 - [loc](https://datatracker.ietf.org/doc/draft-ietf-moq-loc/) draft 01
 
-It takes forever to litigate every single addition/change in the IETF.
-I'm trying my best [to publish extensions](https://www.ietf.org/archive/id/draft-lcurley-moq-probe-00.html), but it's such a drain on my time.
+We don't support every single feature because some of them are dumb and it takes forever to litigate every single addition/change in the IETF.
+I'm starting [to publish extensions](https://www.ietf.org/archive/id/draft-lcurley-moq-probe-00.html) for stuff we add on top, but it's such a drain on my time.
 
-So instead the moq.dev libraries **prefer to negotiate:**
-- moq-lite drafts 01-04
-- hang drafts 00-01
+Instead the moq.dev libraries **prefer to negotiate**:
+- [moq-lite](https://datatracker.ietf.org/doc/draft-ietf-moq-lite/) drafts 01-04
+- [hang](https://datatracker.ietf.org/doc/draft-ietf-moq-hang/) drafts 00-01
 
 moq-lite-05 is coming SOON with more stuff.
 
@@ -89,14 +87,15 @@ We can import/export other formats without re-encoding, preserving the intent bu
 - Matroska/WebM
 - HLS
 - LOC
-- TS
+- MPEG-TS
 
 Going back to Transport Streams (gross) as an example.
 When you import a TS stream with `moq-mux`, we'll split A/V into MoQ tracks, but we'll also preserve "unknown" tracks with a special "ts" section.
 If you export the same stream to TS with `moq-mux`, we'll re-assemble the TS stream and reinsert the unknown tracks.
 
 This is a **REALLY BIG DEAL** for broadcast TV.
-Your precious SCTE35 markers are preserved.
+Your precious SCTE35 markers are preserved AND you're not wasting 5% of your bandwidth on 188-byte packets.
+
 ur welcome
 
 ## CLI
@@ -114,11 +113,12 @@ moq-cli subscribe --url https://cdn.moq.dev/anon --broadcast my-stream --format 
 
 You can download all of the moq binaries (`moq-relay`, `moq-token`, etc) from your favorite package manager:
 - Homebrew
-- .deb/.rpm
 - Docker
 - Nix
-- ???
+- winget
+- .deb/.rpm
 
+For specific commands, [see the CLI docs](https://doc.moq.dev/bin/cli).
 Cool I guess?
 
 
@@ -136,38 +136,37 @@ Each subsequent frame *within the same group* can reuse the previous frames as a
 Claude ran a benchmark over a synthetic stream of JSON sensor snapshots.
 The type of output you'd expect from a drone.
 
-| Configuration                            | Bitrate saved |
-| ---------------------------------------- | ------------- |
-| DEFLATE per frame  | 39%           |
-| JSON Merge Patch | 58%           |
-| JSON Merge Patch + DEFLATE per frame     | 72%           |
-| DEFLATE per group | 89%           |
-| **JSON Merge Patch + DEFLATE per group** | **91%**       |
+Bitrate savings for different configurations:
+|                  | No DEFLATE | DEFLATE per frame | DEFLATE per group |
+| No deltas        | 0%         | 39%               | 89%               |
+| JSON Merge Patch | 58%        | 72%               | 91%               |
+
 
 I was surprised to see how important `Z_SYNC_FLUSH` is given it's not supported by the [browser implementation](https://developer.mozilla.org/en-US/docs/Web/API/Compression_Streams_API) and [is bugged](https://github.com/101arrowz/fflate/pull/286) in the most popular Javascript implementation.
-Really the main benefit of JSON Merge Patch is to save some CPU cycles.
+At this point, the main benefit of JSON Merge Patch is to save some CPU cycles.
 
 ## Backends
 We've used Quinn for the longest time, but now you can use other QUIC backends!
 Why? IDK different features and performance.
 
-QUIC Backends (WebTransport + raw QUIC):
-- quinn
-- noq
-- quiche (Cloudflare)
-- iroh (p2p)
+QUIC Backends (both WebTransport + raw QUIC):
+- [quinn](https://github.com/quinn-rs/quinn)
+- [noq](https://github.com/n0-computer/noq)
+- [quiche](https://github.com/cloudflare/quiche) (Cloudflare)
+- [iroh](https://github.com/n0-computer/iroh) (peer-to-peer)
+- [WASM](https://github.com/moq-dev/web-transport/tree/main/rs/web-transport-wasm)
 
-You can also use non-QUIC backends with Qmux!
+You can also use non-QUIC backends with [Qmux](https://datatracker.ietf.org/doc/draft-ietf-quic-qmux/)!
 It emulates a QUIC connection, but over a reliable transport.
-We do suffer more from head-of-line blocking but sometimes it be like that.
+We do suffer more from head-of-line blocking so it's worse than QUIC, but sometimes it be like that.
 
 Non-QUIC Backends (Qmux):
-- WebSocket
+- WebSockets
 - TLS
 - TCP
 - Unix domain sockets
 
-For example, I'm using unix domain sockets (or TCP) to run localhost workers without paying the TLS/UDP overhead tax.
+I'm using WebSockets as a TCP fallback (when QUIC is not available) and unix domain sockets to avoid paying the TLS/UDP overhead tax on localhost.
 It's still Media over QUIC even if QUIC is not used...
 
 
@@ -203,8 +202,8 @@ We full [monorepo](https://github.com/moq-dev/moq) now.
 
 `moq-ffi` uses Uniffi to generate async bindings for various languages.
 It's all the same Rust code under the hood, but IDK now you can use it on iOS/Android/whatever.
-
 [MoQKit](https://fishjam.swmansion.com/blog/moq-boy-escaped-the-browser) uses it.
+
 neat
 
 Supported:
@@ -223,13 +222,13 @@ Oh and don't worry, we still have [C support](https://doc.moq.dev/lib/c/) via [`
 I'm almost done spinning up a PAID MoQ CDN.
 It's like a week or two away, **GET HYPED**.
 
-As part of that, I actually have to make sure everything is production-ready, which means focusing on the boring stuff like:
-- `mTLS`: relays can authorize via client certificates
-- `TLS`: cert reloading and custom root CAs
+As part of that, I actually have to make sure everything is production-ready, which means focusing on the boring stuff.
+Stuff like making static configurations... dynamic.
 
-And more of the static configuration is now possible via a REST API.
-- `--auth-api`: authorize a user
-- `--cluster-connect-api`: discover neighboring relay nodes
+- `mTLS`: relays can authorize via client certificates
+- `TLS`: cert reloading
+- `--auth-api`: authorize a user via an API
+- `--cluster-connect-api`: discover neighboring relay nodes via an API
 
 And finally my favorite one, but it deserves its own blog post later:
 - `.stats`: deliver MoQ metrics over MoQ
