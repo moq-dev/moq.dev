@@ -92,7 +92,7 @@ We can import/export other formats without re-encoding, preserving the intent bu
 - TS
 
 Going back to Transport Streams (gross) as an example.
-When you import a TS stream with `moq-mux` and we'll split A/V into MoQ tracks, but we'll also preserve "unknown" tracks with a special "ts" section.
+When you import a TS stream with `moq-mux`, we'll split A/V into MoQ tracks, but we'll also preserve "unknown" tracks with a special "ts" section.
 If you export the same stream to TS with `moq-mux`, we'll re-assemble the TS stream and reinsert the unknown tracks.
 
 This is a **REALLY BIG DEAL** for broadcast TV.
@@ -104,7 +104,7 @@ Note that `moq-mux` is available as both a library and a CLI via [`moq-cli`](htt
 
 ```bash
 # Publish: pipe in a MPEG-TS file
-ffmpeg -i input.ts -re -f mpegts - | \
+ffmpeg -re -i input.ts -f mpegts - | \
     moq-cli publish --url https://cdn.moq.dev/anon --broadcast my-stream ts
 
 # Subscribe: pull MPEG-TS back out and play it
@@ -123,30 +123,29 @@ Cool I guess?
 
 
 ## JSON
-MoQ isn't just for media.
+JSON isn't known for its efficiency.
 
-[`@moq/json`](https://github.com/moq-dev/moq/tree/main/js/json) publishes arbitrary JSON over MoQ tracks.
+[moq-json](https://github.com/moq-dev/moq/tree/main/rs/moq-json) (Rust) and [`@moq/json`](https://github.com/moq-dev/moq/tree/main/js/json) (Typescript) publish arbitrary JSON over MoQ tracks.
 The first frame in each group is a full snapshot, then subsequent frames are [JSON Merge Patch](https://datatracker.ietf.org/doc/html/rfc7396) deltas.
-A late joiner just grabs the newest group and they're instantly caught up.
+We periodically make new groups so late joiners can catch up without having to download the entire stream.
 
-And [`@moq/flate`](https://github.com/moq-dev/moq/tree/main/js/flate) layers group-scoped DEFLATE on top.
-Each frame reuses the earlier frames as a compression window, so a stream of similar payloads (like a snapshot followed by deltas) squishes down real nice.
+We also stack [moq-flate](https://github.com/moq-dev/moq/tree/main/rs/moq-flate) (Rust) and [`@moq/flate`](https://github.com/moq-dev/moq/tree/main/js/flate) (Typescript) to add DEFLATE compression on top.
+Normally you would compress each frame individually, like a gzip file, but it turns out we can do significantly better by using `Z_SYNC_FLUSH`.
+Each subsequent frame *within the same group* can reuse the previous frames as a compression window, instead of starting from scratch.
 
-I ran a [telemetry benchmark](https://github.com/moq-dev/moq/blob/main/rs/moq-json/examples/telemetry.rs) over a stream of JSON sensor snapshots:
+Claude ran a benchmark over a synthetic stream of JSON sensor snapshots.
+The type of output you'd expect from a drone.
 
 | Configuration                            | Bitrate saved |
 | ---------------------------------------- | ------------- |
-| DEFLATE only (no deltas)                 | 39%           |
-| JSON Merge Patch only                    | 58%           |
+| DEFLATE per frame  | 39%           |
+| JSON Merge Patch | 58%           |
 | JSON Merge Patch + DEFLATE per frame     | 72%           |
+| DEFLATE per group | 89%           |
 | **JSON Merge Patch + DEFLATE per group** | **91%**       |
 
-Deltas + compression stack into a ~12x reduction on the wire.
-
-And the compression *window* matters: sharing one DEFLATE window across a whole group beats compressing each frame on its own (91% vs 72% saved, ~3.3x smaller), since every frame gets to reuse the ones before it.
-
-stack 'em.
-
+I was surprised to see how important `Z_SYNC_FLUSH` is given it's not supported by the [browser implementation](https://developer.mozilla.org/en-US/docs/Web/API/Compression_Streams_API) and [is bugged](https://github.com/101arrowz/fflate/pull/286) in the most popular Javascript implementation.
+Really the main benefit of JSON Merge Patch is to save some CPU cycles.
 
 ## Backends
 We've used Quinn for the longest time, but now you can use other QUIC backends!
