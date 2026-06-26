@@ -139,11 +139,11 @@ I ran a [telemetry benchmark](https://github.com/moq-dev/moq/blob/main/rs/moq-js
 | DEFLATE only (no deltas)                 | 39%           |
 | JSON Merge Patch only                    | 58%           |
 | JSON Merge Patch + DEFLATE per frame     | 72%           |
-| **JSON Merge Patch + DEFLATE per group** | **89%**       |
+| **JSON Merge Patch + DEFLATE per group** | **91%**       |
 
-Deltas + compression stack into a ~9x reduction on the wire.
+Deltas + compression stack into a ~12x reduction on the wire.
 
-And the compression *window* matters: sharing one DEFLATE window across a whole group beats compressing each frame on its own (89% vs 72% saved, ~2.7x smaller), since every frame gets to reuse the ones before it.
+And the compression *window* matters: sharing one DEFLATE window across a whole group beats compressing each frame on its own (91% vs 72% saved, ~3.3x smaller), since every frame gets to reuse the ones before it.
 
 stack 'em.
 
