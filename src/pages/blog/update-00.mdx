@@ -17,7 +17,7 @@ IDK my brain is so fried from talking to Claude all day.
 
 
 ## Hop-based Routing
-Now you can connect relays to each other however you desire.
+Now you can [connect relays to each other](https://doc.moq.dev/bin/relay/) however you desire.
 They'll gossip available broadcasts to each other and proxy any subscriptions automatically via the shortest path.
 
 For example, I can host a relay in Denver and configure it with:
@@ -47,17 +47,17 @@ Your local relay (snug behind a firewall) can proxy all broadcasts to/from a pub
 moq-relay --cluster-connect https://cdn.moq.dev ...
 ```
 
-It'll work with any MoQ CDN that implements enough of the `moq-transport` spec (*cough* not Cloudflare yet *cough*).
+It'll work with any MoQ CDN that implements enough of the [`moq-transport`](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/) spec (*cough* not Cloudflare yet *cough*).
 But you'll need `moq-lite-03+` to establish multiple connections, otherwise a cycle will ruin your day.
 
 ## Standards
 Speaking of standards, the IETF keeps marching forward, so I have to "support" every new draft version lul.
 
 **Supported:**
-- moq-transport drafts 14-18.
-- qmux drafts 00-01
-- msf drafts 00-01
-- loc draft 01
+- [moq-transport](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/) drafts 14-18.
+- [qmux](https://datatracker.ietf.org/doc/draft-nandakumar-moq-qmux-moqt/) drafts 00-01
+- [msf](https://datatracker.ietf.org/doc/draft-ietf-moq-msf/) drafts 00-01
+- [loc](https://datatracker.ietf.org/doc/draft-ietf-moq-loc/) draft 01
 
 It takes forever to litigate every single addition/change in the IETF.
 I'm trying my best [to publish extensions](https://www.ietf.org/archive/id/draft-lcurley-moq-probe-00.html), but it's such a drain on my time.
@@ -73,7 +73,7 @@ moq-lite-05 is coming SOON with more stuff.
 My philosophy is that we should **not** transmit arbitrary media formats over MoQ.
 It's possible to [transmit TS over MoQ](https://www.ietf.org/archive/id/draft-gregoire-moq-msfts-00.html) verbatim, but then every player/subscriber needs to decode Transport Streams (gross).
 
-Instead, `moq-mux` is our transmuxing layer.
+Instead, [`moq-mux`](https://doc.moq.dev/lib/rs/crate/moq-mux.html) is our transmuxing layer.
 We can import/export other formats without re-encoding, preserving the intent but not the original structure.
 
 [Here's the codecs we support](https://github.com/moq-dev/moq/tree/main/rs/moq-mux/src/codec):
@@ -100,7 +100,7 @@ Your precious SCTE35 markers are preserved.
 ur welcome
 
 ## CLI
-Note that `moq-mux` is available as both a library and a CLI via `moq-cli`.
+Note that `moq-mux` is available as both a library and a CLI via [`moq-cli`](https://doc.moq.dev/bin/cli.html).
 
 ```bash
 # Publish: pipe in a MPEG-TS file
@@ -120,6 +120,32 @@ You can download all of the moq binaries (`moq-relay`, `moq-token`, etc) from yo
 - ???
 
 Cool I guess?
+
+
+## JSON
+MoQ isn't just for media.
+
+[`@moq/json`](https://github.com/moq-dev/moq/tree/main/js/json) publishes arbitrary JSON over MoQ tracks.
+The first frame in each group is a full snapshot, then subsequent frames are [JSON Merge Patch](https://datatracker.ietf.org/doc/html/rfc7396) deltas.
+A late joiner just grabs the newest group and they're instantly caught up.
+
+And [`@moq/flate`](https://github.com/moq-dev/moq/tree/main/js/flate) layers group-scoped DEFLATE on top.
+Each frame reuses the earlier frames as a compression window, so a stream of similar payloads (like a snapshot followed by deltas) squishes down real nice.
+
+I ran a [telemetry benchmark](https://github.com/moq-dev/moq/blob/main/rs/moq-json/examples/telemetry.rs) over a stream of JSON sensor snapshots:
+
+| Configuration                            | Bitrate saved |
+| ---------------------------------------- | ------------- |
+| DEFLATE only (no deltas)                 | 39%           |
+| JSON Merge Patch only                    | 58%           |
+| JSON Merge Patch + DEFLATE per frame     | 72%           |
+| **JSON Merge Patch + DEFLATE per group** | **91%**       |
+
+Deltas + compression stack into a ~12x reduction on the wire.
+
+And the compression *window* matters: sharing one DEFLATE window across a whole group beats compressing each frame on its own (91% vs 72% saved, ~3.3x smaller), since every frame gets to reuse the ones before it.
+
+stack 'em.
 
 
 ## Backends
@@ -150,14 +176,14 @@ It's still Media over QUIC even if QUIC is not used...
 Claude made the web UI look better.
 tfw an AI has better taste than me.
 
-Clone the repo and run `just dev` to see:
+[Clone the repo](https://doc.moq.dev/setup/) and run `just dev` to see:
 
 <figure>
 	![bbb](/blog/update-00/bbb.png)
 	<figcaption>he a sniffer</figcaption>
 </figure>
 
-You can use the UI on your own site via the web components:
+You can use the UI on your own site via the [web components](https://doc.moq.dev/bin/web.html):
 ```html
 <script type="module">
     import "https://esm.sh/@moq/watch/element";
@@ -174,7 +200,7 @@ You can use the UI on your own site via the web components:
 There's also one for `<moq-publish>` which is equally slick.
 
 ## Polyglot (Alpha)
-We full monorepo now.
+We full [monorepo](https://github.com/moq-dev/moq) now.
 
 `moq-ffi` uses Uniffi to generate async bindings for various languages.
 It's all the same Rust code under the hood, but IDK now you can use it on iOS/Android/whatever.
@@ -183,14 +209,14 @@ It's all the same Rust code under the hood, but IDK now you can use it on iOS/An
 neat
 
 Supported:
-- Swift
-- Kotlin
-- Python
-- Go (wip)
+- [Swift](https://doc.moq.dev/lib/swift/)
+- [Kotlin](https://doc.moq.dev/lib/kt/)
+- [Python](https://doc.moq.dev/lib/py/)
+- [Go](https://doc.moq.dev/lib/go/) (wip)
 
 I'm still working on more ergonomic bindings for each language, hence the (Alpha) tag.
 
-Oh and don't worry, we still have C support via `libmoq`.
+Oh and don't worry, we still have [C support](https://doc.moq.dev/lib/c/) via [`libmoq`](https://doc.moq.dev/lib/rs/crate/libmoq.html).
 `moq-ffi` is for the async languages who don't want to deal with callbacks and APIs designed for dinosaurs.
 
 
