@@ -20,7 +20,7 @@
 		"staging": {
 			"name": "moq-dev-staging",
 			"route": {
-				"pattern": "moq.wtf",
+				"pattern": "new.moq.dev",
 				"custom_domain": true
 			}
 		},
