@@ -7,7 +7,7 @@ This repository contains the code for [moq.dev](https://moq.dev).
 This is a client only.
 You'll either need to run a local server using [moq](https://github.com/moq-dev/moq) or use a public server such as `cdn.moq.dev`.
 
-Join the [Discord](https://discord.gg/FCYF3p99mr) for updates and discussion.
+Join the [Discord](https://discord.moq.dev) for updates and discussion.
 
 ## Setup
 
