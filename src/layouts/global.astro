@@ -30,8 +30,8 @@ const fullDescription = description
 	: "Media over QUIC is a new live media protocol designed for simplicity and scale. It uses new browser technologies like WebTransport and WebCodecs to deliver media with latency that rivals WebRTC.";
 const ogImage = new URL(frontmatter?.cover ?? "/layout/icon.png", siteUrl).toString();
 
-// pro.moq.wtf for staging builds, pro.moq.dev for live (and local dev).
-const proUrl = import.meta.env.MODE === "staging" ? "https://pro.moq.wtf" : "https://pro.moq.dev";
+// moq.wtf for staging builds, moq.pro for live (and local dev).
+const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https://moq.pro";
 ---
 
 <!doctype html>
