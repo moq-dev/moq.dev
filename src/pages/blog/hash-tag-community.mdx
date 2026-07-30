@@ -173,7 +173,7 @@ I hate that I have to type out "cryptography" now thanks to "crypto" bros.
 
 When a user connects to the relay, they pass a token ([JWT](https://datatracker.ietf.org/doc/html/rfc7519)) in the URL.
 Eventually, the token will be in the `Authorization` header, but it's [not yet supported](https://github.com/w3c/webtransport/issues/263) by WebTransport.
-This token is signed by an issuer (ex. `hang.live`) and verified by the relay (ex. `cdn.moq.dev`).
+This token is signed by an issuer (ex. `hang.live`) and verified by the relay (ex. `cdn.moq.pro`).
 
 There's two types of keys you can use to sign/verify the token:
 - Symmetric keys are faster/easier but also allow the relay to sign, not just verify.
