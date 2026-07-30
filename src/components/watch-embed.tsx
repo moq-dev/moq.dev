@@ -25,7 +25,7 @@ export default function WatchEmbed() {
 	const embedJs = `import * as Watch from "@moq/watch";
 
 // A MoQ connection that is automatically re-established on drop.
-const connection = new Watch.Lite.Connection.Reload({
+const connection = new Watch.Net.Connection.Reload({
     url: new URL("${publicUrl}"),
     enabled: true,
 });
@@ -34,7 +34,7 @@ const connection = new Watch.Lite.Connection.Reload({
 const broadcast = new Watch.Broadcast({
     connection: connection.established,
     enabled: true,
-    name: Watch.Lite.Path.from("${name}"),
+    name: Watch.Net.Path.from("${name}"),
 });
 
 // Synchronize audio and video playback.
