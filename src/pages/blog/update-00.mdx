@@ -44,7 +44,7 @@ Every relay would connect to every other relay, which would have resulted in:\
 Oh yeah and
 Your local relay (snug behind a firewall) can proxy all broadcasts to/from a public CDN:
 ```bash
-moq-relay --cluster-connect "https://cdn.moq.dev" ...
+moq-relay --cluster-connect "https://cdn.moq.pro" ...
 ```
 
 It'll work with any other MoQ CDN... once they implement enough of the [`moq-transport`](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/) spec (Cloudflare pls).
@@ -104,10 +104,10 @@ Note that `moq-mux` is available as both a library and a CLI via [`moq-cli`](htt
 ```bash
 # Publish: pipe in a MPEG-TS file
 ffmpeg -re -i input.ts -f mpegts - | \
-    moq-cli publish --url https://cdn.moq.dev/anon --broadcast my-stream ts
+    moq-cli publish --url https://cdn.moq.pro/anon --broadcast my-stream ts
 
 # Subscribe: pull MPEG-TS back out and play it
-moq-cli subscribe --url https://cdn.moq.dev/anon --broadcast my-stream --format ts | \
+moq-cli subscribe --url https://cdn.moq.pro/anon --broadcast my-stream --format ts | \
   ffplay -
 ```
 
@@ -190,7 +190,7 @@ You can use the UI on your own site via the [web components](https://doc.moq.dev
 </script>
 
 <moq-watch-ui>
-	<moq-watch url="https://cdn.moq.dev/demo" name="bbb.hang">
+	<moq-watch url="https://cdn.moq.pro/demo" name="bbb.hang">
 		<canvas style="max-width: 100%; height: auto; margin: 0 auto; border-radius: 1rem;"></canvas>
 	</moq-watch>
 </moq-watch-ui>
