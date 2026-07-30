@@ -1,7 +1,7 @@
 import "@moq/watch/support/element";
 import "@moq/watch/element";
 import "@moq/watch/ui";
-import { Lite } from "@moq/watch";
+import { Net } from "@moq/watch";
 
 export default function Watch() {
 	const params = new URLSearchParams(window.location.search);
@@ -18,7 +18,7 @@ export default function Watch() {
 				</a>
 			</div>
 			<moq-watch-ui>
-				<moq-watch prop:url={url} prop:name={Lite.Path.from(name)} prop:muted={true} prop:reload={true}>
+				<moq-watch prop:url={url} prop:name={Net.Path.from(name)} prop:muted={true} prop:reload={true}>
 					<canvas style={{ "max-width": "100%", height: "auto", margin: "0 auto", "border-radius": "1rem" }} />
 				</moq-watch>
 			</moq-watch-ui>
