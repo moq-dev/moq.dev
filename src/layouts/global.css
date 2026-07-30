@@ -25,6 +25,25 @@ pre code.hljs {
 		@apply prose-img:rounded-lg;
 		@apply prose-figure:object-center prose-figure:text-center prose-img:m-auto;
 		@apply prose-a:font-bold prose-a:text-green-500 prose-a:underline prose-a:decoration-green-500 prose-a:decoration-2 prose-a:underline-offset-4;
+
+		/* Long URLs and inline `code` shouldn't push the page wider than the viewport. */
+		@apply break-words;
+	}
+
+	/* Wide tables scroll on their own instead of widening the page. `display: block`
+	   turns the table into the scroll container; the rows still lay out as a table
+	   inside it. Specificity is .markdown table (0,1,1) so it beats the prose
+	   plugin's .prose :where(table) (0,1,0) regardless of layer ordering. */
+	.markdown table {
+		display: block;
+		width: 100%;
+		max-width: 100%;
+		overflow-x: auto;
+	}
+
+	/* Embeds (YouTube, etc) that declare a fixed pixel width. */
+	.markdown iframe {
+		max-width: 100%;
 	}
 
 	.tagline {

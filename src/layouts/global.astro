@@ -66,7 +66,7 @@ const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https:/
 		<meta name="theme-color" content="#0f172a" />
 	</head>
 	<body class="min-h-screen bg-slate-900 flex justify-center">
-		<div class="flex flex-col md:flex-row gap-0 bg-slate-900 shadow-2xl max-w-6xl w-full p-4">
+		<div class="flex flex-col md:flex-row gap-0 bg-slate-900 shadow-2xl max-w-6xl w-full min-w-0 p-4">
 			<nav class="flex flex-row items-center md:flex-col md:gap-12 gap-4 md:w-64 w-full p-4">
 				<div class="w-1/2 md:w-full flex justify-center">
 					<a href="/">
@@ -112,7 +112,7 @@ const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https:/
 					</a>
 				</div>
 			</nav>
-			<article class="markdown p-4 flex-1">
+			<article class="markdown p-4 flex-1 min-w-0">
 				{
 					frontmatter?.date && (
 						<p class="text-sm text-gray-400 text-right">
