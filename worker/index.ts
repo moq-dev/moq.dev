@@ -48,7 +48,9 @@ async function handleSubscribe(request: Request, env: Env): Promise<Response> {
 			body: JSON.stringify({
 				email,
 				unsubscribed: false,
-				segments: [env.RESEND_SEGMENT_ID],
+				// Objects, not bare ids. A string here is a 422 that used to be reported
+				// to the visitor as success, so every signup was dropped on the floor.
+				segments: [{ id: env.RESEND_SEGMENT_ID }],
 			}),
 		});
 	} catch (err) {
@@ -56,14 +58,13 @@ async function handleSubscribe(request: Request, env: Env): Promise<Response> {
 		return json({ error: "subscribe failed" }, 502);
 	}
 
-	// Treat any non-5xx as success so we don't leak whether an address is
-	// already on the list (Resend returns 4xx for duplicates). Log 4xx for
-	// debugging since a misconfigured segment ID would silently break sends.
+	// Resend upserts contacts: re-subscribing an existing address returns 201 with
+	// the same contact id, so there is no duplicate to hide and no reason to
+	// swallow a 4xx. Anything not ok is a real failure (malformed body, unknown
+	// segment), and calling those success is what silently discarded every signup.
 	// Only log status + request id, not the body (which may contain the email).
 	if (!res.ok) {
 		console.error(`Resend POST /contacts → ${res.status} (request-id: ${res.headers.get("x-request-id") ?? "n/a"})`);
-	}
-	if (res.status >= 500) {
 		return json({ error: "subscribe failed" }, 502);
 	}
 
