@@ -1,0 +1,115 @@
+---
+layout: "@/layouts/global.astro"
+title: Update 01
+author: kixelated
+description: moq-lite-05, legacy format import/export, stats, a big moq-net API break, and five new language bindings.
+cover: "/blog/update-00/globe.png"
+date: 2026-07-31
+---
+
+# Update 01
+
+sup nerds.
+
+I hit the merge button on the `dev` branch: +129k -24k
+
+## moq-lite-05
+[Read the draft](https://www.ietf.org/archive/id/draft-lcurley-moq-lite-05.html)
+
+For those unawares, `moq-lite` is my subset of the *official* `moq-transport` draft.
+It's dramatically simpler and honest about supported functionality.
+You know exactly what the peer will support, unlike the sprawling and perpetually optional `moq-transport` draft.
+
+Anyway, here's the new stuff (partially) cherry-picked from `moq-transport`:
+- **FETCH**: Request a single group from the past. Intended for VOD/DVR, similar to HTTP.
+- **DATAGRAMS**: Unreliable and lossy. I still claim you should [never use datagrams](/blog/never-use-datagrams) but they're now an option.
+- **PATH**: For underlying transports without a path: TLS/TCP/UDS.
+
+But `moq-lite` is also a testing ground, extending `moq-transport` with new functionality:
+- **TIMESTAMPS**: Timestamp/timescale is now part of the transport, so relays know accurate expiration times.
+- **HOPS**: Each announcement includes previous hops (prevents cycles) and soon an explicit cost.
+- **PROBE**: The sender can report/probe the estimated send rate, used for ABR.
+
+I've made IETF extensions for these if anybody cares.
+Knock yourself out lul.
+
+## Export/Import
+I want to help you support your crappy legacy formats.
+So you can get one foot in the MoQ door.
+
+- **moq-rtmp**: Import/export RTMP streams.
+- **moq-rtc**: WebRTC support via [WHIP](https://datatracker.ietf.org/doc/rfc9725/) and [WHEP](https://datatracker.ietf.org/doc/draft-ietf-wish-whep/).
+- **moq-srt**: A gross protocol, please stop using it...
+- **moq-hls**: HLS export to both disk and (soon) a live origin. There's also DASH support I guess.
+
+## Stats
+Each relay (or client) can now publish metrics as a `.stats/node/<node>` broadcast.
+We dog food in this bitch.
+
+We publish cumulative metrics for each broadcast once per second.
+We use JSON Merge Patch and DEFLATE to minimize the size of each update, served as a `.json.z` sibling of each plain track.
+There's a **moq-stats** crate to do all of the heavy lifting.
+
+You can run a worker to discover and aggregate all of these metrics.
+That's how [moq.pro](https://moq.pro) works.
+
+There's also `/metrics` for Prometheus if you want to integrate with other stuff.
+Boring.
+
+
+## moq-net API
+I got the feedback that there were too many breaking API changes.
+That's why I'm making one massive breaking change instead.
+ur welcome.
+
+**Rust + JS Stuff**:
+- Moved into modules: ex. `BroadcastConsumer` -> `broadcast::Consumer`.
+- `track::Consumer::subscribe()` returns a `track::Subscriber`, so fetching doesn't require an active subscription.
+
+**JS Only Stuff**:
+- Signals split into `in` and `out` sections, where `out` is read-only.
+
+**Rust Only Stuff**:
+- Global LRU to maximize cache usage, instead of a 5s hard expiration.
+- Route changes no longer sever the subscription!
+
+The last one is cool, although kind of niche.
+If you establish multiple connections that can both serve broadcast A, any subscriptions will prefer the shortest path but seamlessly switch to the other path if the first one fails (or becomes higher cost).
+
+So like... you could connect to both [moq.pro](https://moq.pro) and Cloudflare.
+If one goes down, the other will take over SEAMLESSLY.
+
+
+## Language Bindings
+Rust and TypeScript are the *official* languages we support, but we're adding more languages to the party.
+It's Rust under the hood of course.
+
+Instead of the gross raw **moq-ffi** bindings, there are some "ergonomic" wrappers that feel more native.
+These APIs are vibe coded (I don't know these languages lul) so please raise a stink if any API is gross.
+
+- **Python**: [`moq-rs`](https://pypi.org/project/moq-rs/) on PyPI ([docs](https://moq-rs.readthedocs.io)).
+- **Go**: [`github.com/moq-dev/moq-go`](https://pkg.go.dev/github.com/moq-dev/moq-go).
+- **Kotlin**: [`dev.moq:moq`](https://central.sonatype.com/artifact/dev.moq/moq) on Maven Central ([docs](https://javadoc.io/doc/dev.moq/moq)).
+- **Swift**: [`moq-swift`](https://swiftpackageindex.com/moq-dev/moq-swift/documentation/moq) via SPM.
+- **C**: [`libmoq`](https://docs.rs/libmoq).
+
+Full docs for each language: [doc.moq.dev/lib](https://doc.moq.dev/lib/).
+
+## Native Media
+I got tired of ffmpeg and figured I'd **REWRITE IT IN RUST**.
+
+**Disclaimer**: this stuff is mostly vibe coded. Don't trust it lul.
+
+- **moq-video**: Capture, encode, decode, and render video. Uses hardware acceleration via OS/GPU-specific APIs. For example: [moq-nvenc](https://crates.io/crates/moq-nvenc) and [moq-vaapi](https://crates.io/crates/moq-vaapi).
+- **moq-audio**: Capture, encode, decode, and render audio. Duh.
+- **moq-transcode**: On-demand transcoding utilizing FETCH.
+
+We're merging in relevant stuff from [iroh-live](https://github.com/n0-computer/iroh-live) so more features are coming soon.
+These crates will keep evolving as they actually turn into products (and get reviewed lul).
+
+
+## FIN
+IDK what else to say.
+
+Written by [@kixelated](https://github.com/kixelated).
+![@kixelated](/blog/avatar.png)
