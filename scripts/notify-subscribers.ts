@@ -53,13 +53,23 @@ if (phase === "snapshot") {
 
 // Record the slugs the live site serves right now, before the deploy replaces it.
 async function snapshot() {
-	// Leave nothing behind for `send` to misread as this deploy's baseline.
-	rmSync(SNAPSHOT, { force: true });
-
 	if (env !== "live") {
+		// Don't touch a pending live snapshot; a staging deploy is unrelated to it.
 		console.log(`[notify] env=${env}, skipping (only live announces).`);
 		return;
 	}
+
+	// A surviving snapshot means the last deploy died partway through announcing.
+	// Its baseline predates those posts going live, so it is the only thing that
+	// still knows they are unannounced. Overwriting it with the current feed,
+	// which now contains them, would bury them permanently.
+	const pending = readSnapshot();
+	if (pending) {
+		console.warn(`[notify] resuming the unfinished snapshot from a previous deploy (${pending.slugs.length} posts).`);
+		return;
+	}
+
+	rmSync(SNAPSHOT, { force: true });
 
 	let slugs: string[];
 	try {
@@ -89,30 +99,28 @@ async function snapshot() {
 async function send() {
 	if (env !== "live") return;
 
-	if (!existsSync(SNAPSHOT)) {
-		console.warn("[notify] no snapshot from this deploy, skipping the announcement.");
-		return;
-	}
-
-	const { at, slugs } = JSON.parse(readFileSync(SNAPSHOT, "utf8")) as { at: number; slugs: string[] };
-
-	// Consume it either way: a snapshot must never outlive the deploy that took it.
-	rmSync(SNAPSHOT, { force: true });
-
-	if (Date.now() - at > SNAPSHOT_MAX_AGE_MS) {
-		console.warn("[notify] snapshot is stale, skipping the announcement.");
+	// The snapshot is this run's to-do list, so it survives anything that leaves
+	// work outstanding and is removed only once there is nothing left to send.
+	const snap = readSnapshot();
+	if (!snap) {
+		// Either nothing was recorded, or what was there is too old to trust:
+		// another deploy may have announced since, and reusing it would send twice.
+		rmSync(SNAPSHOT, { force: true });
+		console.warn("[notify] no usable snapshot from this deploy, skipping the announcement.");
 		return;
 	}
 
 	if (!existsSync(BUILT_FEED)) {
+		// Keep the snapshot: a rerun with a real build can still announce these.
 		console.warn(`[notify] ${BUILT_FEED} is missing, skipping the announcement.`);
 		return;
 	}
 
-	const published = new Set(slugs);
+	const published = new Set(snap.slugs);
 	const added = parseFeed(readFileSync(BUILT_FEED, "utf8")).filter((p) => !published.has(p.slug));
 
 	if (added.length === 0) {
+		rmSync(SNAPSHOT, { force: true });
 		console.log("[notify] no new posts.");
 		return;
 	}
@@ -159,8 +167,35 @@ async function send() {
 			throw new Error(`Resend broadcast send failed (${sent.status}): ${err}`);
 		}
 
+		// Checkpoint before the next one. If a later send dies, the retry sees this
+		// post as already published and mails only the remainder. `at` is carried
+		// over so checkpointing can't extend the staleness window indefinitely.
+		published.add(post.slug);
+		writeFileSync(SNAPSHOT, JSON.stringify({ at: snap.at, slugs: [...published] }));
+
 		console.log(`✓ Sent broadcast ${id} for "${post.title}"`);
 	}
+
+	// Everything landed, so there is nothing for a rerun to pick up.
+	rmSync(SNAPSHOT, { force: true });
+}
+
+// The snapshot, or undefined if there isn't a usable one. Unreadable and expired
+// files both read as absent; the caller decides whether to discard or replace.
+function readSnapshot(): { at: number; slugs: string[] } | undefined {
+	if (!existsSync(SNAPSHOT)) return undefined;
+
+	let snap: { at: number; slugs: string[] };
+	try {
+		snap = JSON.parse(readFileSync(SNAPSHOT, "utf8"));
+	} catch {
+		return undefined;
+	}
+
+	if (typeof snap?.at !== "number" || !Array.isArray(snap.slugs)) return undefined;
+	if (Date.now() - snap.at > SNAPSHOT_MAX_AGE_MS) return undefined;
+
+	return snap;
 }
 
 // Pull the blog items out of an RSS feed. Both the live feed and the built one are
