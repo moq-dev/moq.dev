@@ -41,8 +41,12 @@ build mode="live":
 	bun astro build --mode {{mode}}
 
 # Deploy the site to Cloudflare Pages
+# On `live`, any post that wasn't already on moq.dev gets mailed to subscribers.
 deploy env="staging": (build env)
+	# Record what's live before we replace it, so we can tell what the deploy added.
+	bun scripts/notify-subscribers.ts snapshot --env {{env}}
 	bun wrangler deploy --env {{env}}
+	bun scripts/notify-subscribers.ts send --env {{env}}
 
 dev:
 	bun i
