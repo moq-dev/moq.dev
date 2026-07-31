@@ -43,11 +43,11 @@ So you can get one foot in the MoQ door.
 - **moq-hls**: HLS export to both disk and (soon) a live origin. There's also DASH support I guess.
 
 ## Stats
-Each relay (or client) can now publish metrics as a `.stats/<node>` broadcast.
+Each relay (or client) can now publish metrics as a `.stats/node/<node>` broadcast.
 We dog food in this bitch.
 
 We publish cumulative metrics for each broadcast once per second.
-We use JSON Merge patch and gzip to minimize the size of each update.
+We use JSON Merge Patch and DEFLATE to minimize the size of each update, served as a `.json.z` sibling of each plain track.
 There's a **moq-stats** crate to do all of the heavy lifting.
 
 You can run a worker to discover and aggregate all of these metrics.
@@ -100,7 +100,7 @@ I got tired of ffmpeg and figured I'd **REWRITE IT IN RUST**.
 
 **Disclaimer**: this stuff is mostly vibe coded. Don't trust it lul.
 
-- **moq-video**: Capture, encode, decode, and render video. Uses hardware acceleration via OS/GPU specific APIs. For example: [moq-nvenc](https://crates.io/crates/moq-nvenc) and [moq-vaapi](https://crates.io/crates/moq-vaapi).
+- **moq-video**: Capture, encode, decode, and render video. Uses hardware acceleration via OS/GPU-specific APIs. For example: [moq-nvenc](https://crates.io/crates/moq-nvenc) and [moq-vaapi](https://crates.io/crates/moq-vaapi).
 - **moq-audio**: Capture, encode, decode, and render audio. Duh.
 - **moq-transcode**: On-demand transcoding utilizing FETCH.
 
