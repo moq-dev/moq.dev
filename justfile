@@ -46,7 +46,28 @@ deploy env="staging": (build env)
 	# Record what's live before we replace it, so we can tell what the deploy added.
 	bun scripts/notify-subscribers.ts snapshot --env {{env}}
 	bun wrangler deploy --env {{env}}
-	bun scripts/notify-subscribers.ts send --env {{env}}
+	just _announce {{env}}
+
+# Mail subscribers about anything this deploy published.
+# Credentials come from 1Password (see op.env) so no secret has to live on disk.
+[private]
+_announce env:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	# Staging never announces, so don't make it depend on 1Password.
+	if [ "{{env}}" != "live" ]; then
+		exec bun scripts/notify-subscribers.ts send --env {{env}}
+	fi
+
+	# Fall back to the ambient environment rather than failing outright: the deploy
+	# has already happened by now, and the script reports a missing key itself.
+	if ! command -v op >/dev/null 2>&1; then
+		echo "[notify] 1Password CLI not found, falling back to the ambient environment." >&2
+		exec bun scripts/notify-subscribers.ts send --env {{env}}
+	fi
+
+	exec op run --env-file=op.env -- bun scripts/notify-subscribers.ts send --env {{env}}
 
 dev:
 	bun i
