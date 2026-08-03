@@ -1,0 +1,74 @@
+# Voice AI but for real-this-time
+I flammed [OpenAI for using WebRTC](/blog/webrtc-is-the-problem) and it went [viral on Hacker News](https://news.ycombinator.com/item?id=48051951).
+Thank you for the updoots.
+
+Now it's time for the follow-up.
+Time to right the wrongs and wrong the rights.
+
+## Pipecat
+Before you get bored and click away, [Pipecat now supports MoQ](https://github.com/pipecat-ai/pipecat/pull/4629)!
+A huge thank you to [Vanessa](https://github.com/vipyne) for putting in the work and putting up with my constant "improvements".
+
+Try it out!
+You tell me if it's better than WebRTC.
+\<winky-face\>
+
+Anyway, back to our regularly scheduled programming.
+
+## Reclaiming the Claim
+I'll be honest, I wrote the original blog post about voice AI because I wanted to dump on WebRTC.
+I barely understand how voice AI works, but that didn't stop me from barfing my opinions all over the internet.
+
+Hwoever, I'm really proud of one argument I made and wish I expanded upon it:
+
+Our human brains produce and consume audio close to real-time.
+We can definitely tolerate some bursts, but it's disorienting.
+WebRTC is designed to avoid these bursts, forcing audio to be transmitted/received at a fixed rate and dropping the rest.
+It's a better experience for us humans.
+
+But our robot overlords can produce and consume audio expontentially faster.
+Throw more sillicon at the problem and it go fast.
+But WebRTC prevents robots from going faster; anything sent/received faster than real-time is dropped.
+
+That's the fundamental problem with WebRTC for voice AI.
+It's wired for human latency and the human clock rate.
+
+## Speech-to-Speech
+But the latest development in voice AI is speech-to-speech.
+It's notable because it streams audio in/out closer to real-time.
+AKA the human clock rate.
+
+It's a huge step forward for voice AI.
+No more separate SST+LLM+TTS passes that add latency and causing an "unnatural" user experience.
+I applaud OpenAI for leading the pack on this one.
+
+**DISCLAIMER**: I have zero idea how these models actually work so I'm talking out of my ass (again).
+
+But I don't think you should knee-cap your model by forcing a fixed clock rate.
+- Your silicon is capable of waiting for a more complete prompt, then processing faster than real-time.
+- Your silicon is capable of generating audio faster rate than real-time, when the user is not speaking ofc.
+
+Don't let the transport layer hold you back bro.
+Just because your model supports a tiny buffer doesn't mean it should require it.
+
+## Back to Pipecat
+Anyway, let's get back to why you should use MoQ instead of WebRTC:
+
+**Incoming audio (STT) has a configurable maximum latency.**
+The transcription will usually be streamed real-time, but can be delayed for up to x seconds (during congestion).
+
+**Outgoing audio (TTS) has a configurable minimum AND maximum latency.**
+Generated audio will be transmitted ASAP and buffered locally for up to x seconds (like a Youtube video).
+The player will skip audio if it doesn't arrive in y seconds (during congestion).
+
+And of course, interruptions are handled gracefully.
+Like if we're playing back 15s of TTS and the user interrupts with a different prompt, it will clear the playback buffer.
+
+**This is a significant improvement over WebRTC**.
+You're no longer required to have a ~100ms buffer and drop audio after ~100ms.
+MoQ can certainly do that, but it's dynamically configurable per-subscription.
+
+All of this should just work tm but please test it.
+I don't work for a Voice AI company so it's on you guys to actually validate everything.
+
+## Conclusion
