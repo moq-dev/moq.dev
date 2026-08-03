@@ -2,7 +2,7 @@
 layout: "@/layouts/global.astro"
 title: Update 01
 author: kixelated
-description: moq-lite-05, legacy format import/export, stats, a big moq-net API break, and five new language bindings.
+description: Stuff was added, stuff was removed, stuff was changed for no reason at all.
 cover: "/blog/update-00/globe.png"
 date: 2026-07-31
 ---
@@ -11,7 +11,9 @@ date: 2026-07-31
 
 sup nerds.
 
-I hit the merge button on the `dev` branch: +129k -24k
+I hit the merge button on the `dev` branch: **+129k -24k**
+
+yes it was a pain to test/validate everything.
 
 ## moq-lite-05
 [Read the draft](https://www.ietf.org/archive/id/draft-lcurley-moq-lite-05.html)
@@ -27,7 +29,7 @@ Anyway, here's the new stuff (partially) cherry-picked from `moq-transport`:
 
 But `moq-lite` is also a testing ground, extending `moq-transport` with new functionality:
 - **TIMESTAMPS**: Timestamp/timescale is now part of the transport, so relays know accurate expiration times.
-- **HOPS**: Each announcement includes previous hops (prevents cycles) and soon an explicit cost.
+- **HOPS**: Each announcement includes the previous hops, which identifies the shortest path and prevents cycles.
 - **PROBE**: The sender can report/probe the estimated send rate, used for ABR.
 
 I've made IETF extensions for these if anybody cares.
@@ -40,17 +42,24 @@ So you can get one foot in the MoQ door.
 - **moq-rtmp**: Import/export RTMP streams.
 - **moq-rtc**: WebRTC support via [WHIP](https://datatracker.ietf.org/doc/rfc9725/) and [WHEP](https://datatracker.ietf.org/doc/draft-ietf-wish-whep/).
 - **moq-srt**: A gross protocol, please stop using it...
-- **moq-hls**: HLS export to both disk and (soon) a live origin. There's also DASH support I guess.
+- **moq-hls**: HLS export to disk.
+
+I'm working on supporting HLS as a live origin, so you could ingest to MoQ and serve it via an HTTP CDN.
+But in order to do so, we need a `timeline` track to record old segments.
+
+**I AM WORKING ON IT STAY TUNED**.
 
 ## Stats
-Each relay (or client) can now publish metrics as a `.stats/node/<node>` broadcast.
+Each relay (or client) can now publish metrics, producing a `.stats/node/<node>` broadcast.
+That means you can subscribe to the the (JSON) metrics like any other MoQ track.
+
 We dog food in this bitch.
 
 We publish cumulative metrics for each broadcast once per second.
 We use JSON Merge Patch and DEFLATE to minimize the size of each update, served as a `.json.z` sibling of each plain track.
-There's a **moq-stats** crate to do all of the heavy lifting.
+You don't need to care; there's a **moq-stats** crate to do all of the heavy lifting.
 
-You can run a worker to discover and aggregate all of these metrics.
+You might need some aggregation service, since each node publishes their own metrics independently.
 That's how [moq.pro](https://moq.pro) works.
 
 There's also `/metrics` for Prometheus if you want to integrate with other stuff.
@@ -64,28 +73,32 @@ ur welcome.
 
 **Rust + JS Stuff**:
 - Moved into modules: ex. `BroadcastConsumer` -> `broadcast::Consumer`.
-- `track::Consumer::subscribe()` returns a `track::Subscriber`, so fetching doesn't require an active subscription.
+- `track::Consumer::subscribe()` returns a `track::Subscriber`, so `FETCH` doesn't require an active subscription.
+- And of course you can `.fetch()` old groups now.
 
 **JS Only Stuff**:
 - Signals split into `in` and `out` sections, where `out` is read-only.
 
 **Rust Only Stuff**:
 - Global LRU to maximize cache usage, instead of a 5s hard expiration.
-- Route changes no longer sever the subscription!
+- Seamless subscription resumption during route changes.
 
 The last one is cool, although kind of niche.
 If you establish multiple connections that can both serve broadcast A, any subscriptions will prefer the shortest path but seamlessly switch to the other path if the first one fails (or becomes higher cost).
 
-So like... you could connect to both [moq.pro](https://moq.pro) and Cloudflare.
-If one goes down, the other will take over SEAMLESSLY.
+So like... you could connect to both [moq.pro](https://moq.pro) and any nearby P2P peers.
+The P2P route is shorter so that will be preferred.
+If you get disconnected, the other route (moq.pro) will take over SEAMLESSLY; no need to resubscribe.
 
 
 ## Language Bindings
 Rust and TypeScript are the *official* languages we support, but we're adding more languages to the party.
 It's Rust under the hood of course.
+Zero chance that I would ~vibe code~ write a full implementation in other language.
 
-Instead of the gross raw **moq-ffi** bindings, there are some "ergonomic" wrappers that feel more native.
-These APIs are vibe coded (I don't know these languages lul) so please raise a stink if any API is gross.
+We use [uniffi](https://github.com/mozilla/uniffi-rs) and **moq-ffi** to generate the bindings.
+But the raw APIs are gross, so there are some "ergonomic" wrappers that feel more native.
+These APIs are vibe coded (I don't know best practices in these languages) so please raise a stink if any API is gross.
 
 - **Python**: [`moq-rs`](https://pypi.org/project/moq-rs/) on PyPI ([docs](https://moq-rs.readthedocs.io)).
 - **Go**: [`github.com/moq-dev/moq-go`](https://pkg.go.dev/github.com/moq-dev/moq-go).
@@ -98,18 +111,19 @@ Full docs for each language: [doc.moq.dev/lib](https://doc.moq.dev/lib/).
 ## Native Media
 I got tired of ffmpeg and figured I'd **REWRITE IT IN RUST**.
 
-**Disclaimer**: this stuff is mostly vibe coded. Don't trust it lul.
+**Disclaimer**: this stuff is mostly vibe coded and not battle tested yet. Don't trust it lul.
 
 - **moq-video**: Capture, encode, decode, and render video. Uses hardware acceleration via OS/GPU-specific APIs. For example: [moq-nvenc](https://crates.io/crates/moq-nvenc) and [moq-vaapi](https://crates.io/crates/moq-vaapi).
 - **moq-audio**: Capture, encode, decode, and render audio. Duh.
 - **moq-transcode**: On-demand transcoding utilizing FETCH.
 
 We're merging in relevant stuff from [iroh-live](https://github.com/n0-computer/iroh-live) so more features are coming soon.
-These crates will keep evolving as they actually turn into products (and get reviewed lul).
+These crates will keep evolving as they actually turn into products (and get reviewed...).
 
 
 ## FIN
 IDK what else to say.
+Join the discord u nerd.
 
 Written by [@kixelated](https://github.com/kixelated).
 ![@kixelated](/blog/avatar.png)
