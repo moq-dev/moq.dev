@@ -1,8 +1,7 @@
 # Open For Business
---> [moq.pro](https://moq.pro) \<--
+[moq.pro](https://moq.pro)
 
-I'm launching a company.
-Kixel, Corp.
+I'm launching a company: **Kixel, Corp.**
 We can now exchange goods and services.
 
 ## Why
@@ -14,26 +13,27 @@ The real reason is even more deplorable:
 
 I've been contracting with a few robotics companies already.
 MoQ is being used to pilot boats, drones, trucks, and to fold t-shirts.
+**neato**.
 
-I've learned that the most frequent adoption blocker is infrastructure.
-It's trivial to get MoQ clients running, but actually setting up and scaling out a world-wide CDN is a pain.
-And it gets quite expensive hosting your own thing on a hyperscaler like AWS/GCP.
+I've learned that the most frequent adoption blocker is *infrastructure*.
+It's trivial to vibe-code MoQ clients, but actually scaling out a world-wide CDN is a pain.
+And it gets quite expensive, even just hosting your own thing on a hyperscaler like AWS/GCP.
 
-So here's a managed CDN.
-I designed the Twitch CDN and had a lot of fun incorporating some new ideas, so it should be pretty gud.
+Turns out, I used to scale a baremetal CDN (Twitch) and kind of know how to do this thing.
+So like use my managed MoQ CDN and pay me.
 
-Even if you only use [moq.pro](https://moq.pro) to prototype before self-hosting (or switching to another provider), it's a win for MoQ.
+It's still a win for MoQ even if you only use [moq.pro](https://moq.pro) to prototype before self-hosting (or switching to another provider).
 
 
-## Potential vs Reality
+## FEATURES
 Every blog post I write about MoQ I rave about the potential.
 There's SO MANY COOL THINGS YOU COULD DO WITH MOQ.
 
-But if you actually want to use it *today*, there's so many things you need to implement yourself.
-A world-wide CDN is one of those requirements but there are many more *mundane* things.
+But there's so much *mundane* shit to implement.
+Backwards compatibility, authorization, metrics, etc.
 
 My goal with [moq.pro](https://moq.pro) is to make it easy to start using MoQ **now**.
-Point your clients to a URL and *it just works*.
+I'll do the boring stuff so you can focus on the cool stuff.
 
 With this first release we have:
 - RTMP / WebRTC / SRT import and export.
@@ -46,34 +46,39 @@ All of these tools are open source in the [moq](https://github.com/moq-dev/moq) 
 
 **Fun fact**, here's a few of the ways to watch the same content:
 - [Web](https://doc.moq.dev/lib/js/@moq/watch.html): `https://moq.watch/?project=demo&name=bbb.hang`
-- [CLI](https://doc.moq.dev/bin/cli.html): `moq --client-connect "https://cdn.moq.pro/anon/<broadcast>.hang" export ts | ffplay -`
+- [CLI](https://doc.moq.dev/bin/cli.html): `moq --client-connect "https://cdn.moq.pro/demo/bbb.hang" export ts | ffplay -`
 - [RTMP](https://github.com/moq-dev/moq/tree/main/rs/moq-rtmp): `rtmps://cdn.moq.pro:1935/demo/bbb.hang`
 - [SRT](https://github.com/moq-dev/moq/tree/main/rs/moq-srt): `srt://cdn.moq.pro:877?latency=500&streamid=#!::r=demo/bbb.hang,m=request`
 - [WebRTC](https://github.com/moq-dev/moq/tree/main/rs/moq-rtc): `https://cdn.moq.pro/whep/demo/bbb.hang`
+- [Gstreamer](https://doc.moq.dev/bin/gstreamer.html#gstreamer-plugin): `gst-launch-1.0 -v -e moqsrc name=s url=https://cdn.moq.pro/demo broadcast=bbb.hang`
+- [OBS](https://doc.moq.dev/bin/obs.html#obs-plugin): Create a MoQ source for `https://cdn.moq.pro/demo/bbb.hang`
 
+holy compatibilities batman.
 
 ## Cost
 I'll be honest, I don't like charging money for things.
 I am a bad business person.
+There's a reason why I'm doing open source instead of getting a job like a normal human bean.
 
-I ended up settling on $0.04/GB for all egress traffic, and that's it.
-It's 4-10x cheaper than the public pricing for LiveKit/Daily/Agora's WebRTC offerings.
+It's $0.04/GB for all outbound network traffic with no dumb per-minute fees.
+It's 4-18x cheaper than the public pricing for LiveKit/Daily/Agora's WebRTC offerings, and infinitely cheaper if you have 0 viewers.
 In fact, it's 2x cheaper than hosting a relay on AWS yourself *for just the network traffic*, not even factoring in the cost of the EC2 instances.
 
-Again, the goal is to get you to use MoQ, and price obviously matters.
-Convice your CTO to let you prototype MoQ; you might be able to reduce your WebRTC bill by 10x.
+Again, the goal is to get you to use MoQ, and money obviously matters.
+Convice your CTO to let you prototype MoQ.
+Tell them you can reduce your WebRTC bill by 10x by spinning up a Claude instance and migrating to MoQ.
 
 And for some reason, I'm giving out 500GB a month free.
-Leechers go nuts, IDK.
+Leechers go nuts, i don't care.
 
 
 ## The Standard
-[moq-transport](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/) will be an RFC soon enough.
+[moq-transport](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/) will be an RFC one day.
 There's quite a few companies working on their own CDN offering: [Cloudflare](https://moq.dev/blog/first-cdn/), Akamai, Fastly, AWS, etc.
 But progress is *so slow*; it's embarassing.
 
 Hopefully this gives the group a kick in the butt.
-Stop arguing about how to *best* encode an integer and actually build something.
+Stop arguing about how to encode an integer and actually build something.
 
 All of the [moq.dev](https://moq.dev) clients are fully compatible with the standard, supporting drafts 14-19.
 You should be able to switch out the `https://cdn.moq.pro` URL with a different CDN provider (ex. [Cloudflare](https://blog.cloudflare.com/moq-relays/))
@@ -82,16 +87,16 @@ The [moq.pro](https://moq.pro) relay doesn't support every feature in the IETF s
 But to be fair, there are zero implementations that do, owing to the bloated and fragmented nature of the standard.
 Hit me up if you want to use a 3rd party MoQ client that isn't compatible and we'll figure out a path forward.
 
-## The Roadmanp
+## The Roadmap
 If you need something, [let me know](mailto:hi@moq.pro).
 Or post on the Discord.
 
 Next I'm working on:
-- DVR: Seek backwards during a live stream
-- HLS export: Use MoQ for ingest, HLS for distribution
-- Transcoding: On-demand renditions
-- Transcription: Live generate captions.
-- CDN Sync: Access broadcasts via moq.pro and/or Cloudflare and/or self-hosted.
+- **DVR**: Seek backwards during a live stream
+- **HLS export**: Use MoQ for ingest, HLS for distribution
+- **Transcoding**: On-demand renditions
+- **Transcription**: Live generate captions.
+- **CDN Sync**: Access broadcasts via moq.pro and/or Cloudflare and/or self-hosted.
 
 kewl.
 
