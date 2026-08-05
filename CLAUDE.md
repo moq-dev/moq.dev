@@ -67,17 +67,14 @@ either site refers to the same broadcast — publish at `moq.pub/anon/x.hang` an
 watch it back at `moq.watch/anon/x.hang`.
 
 Anything that *isn't* part of the broadcast's identity stays in the query
-string: `?relay=<url>`, `?jwt=<token>`, and (moq.pub only) `?source=camera` and
-`?viewer=<token>`.
+string: `?relay=<url>`, `?jwt=<token>`, and (moq.pub only) `?source=camera`.
 
-**`jwt` is never copied into the moq.watch link that moq.pub shows.** moq tokens
-are prefix-scoped with separate publish (`put`) and subscribe (`get`) grants, so
-a token being used to publish carries `put` — putting it in a link meant to be
-passed around would hand every recipient the right to publish. `relay` does
-carry over, since a viewer on the wrong relay finds nothing. To share access to
-a private broadcast, pass a subscribe-only token as `?viewer=`; it becomes the
-`?jwt=` on the moq.watch end. With a `jwt` and no `viewer`, the page says so
-rather than showing a link that looks fine and won't connect.
+**moq.pub deliberately doesn't link to moq.watch.** The path symmetry is the
+feature; a link on top of it isn't. It also can't be built honestly: a link has
+to carry `?relay=` to reach the right relay, and the moment it carries `?jwt=`
+too it leaks a publish token, because moq tokens are prefix-scoped with separate
+publish (`put`) and subscribe (`get`) grants. Anyone sharing a broadcast can
+swap the hostname themselves.
 
 `sites/lib` holds the scheme itself, shared by both sites and by both the Worker
 and the Vite dev server so they can't drift:
@@ -128,4 +125,3 @@ Broadcasts cannot be recalled, so the script refuses to guess: an unreachable or
 - The `@moq/publish` and `@moq/watch` packages handle all MoQ protocol implementation
 - For new blog posts, add MDX files to `src/pages/blog/`
 - Component changes in `src/components/` automatically reload with HMR
-- moq.pub links to moq.watch, so `just dev-pub` expects `just dev-watch` on :5173

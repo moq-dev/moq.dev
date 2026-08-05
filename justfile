@@ -87,8 +87,7 @@ dev:
 	# Run the web development server
 	bun astro dev --open
 
-# Run the moq.pub development server on :5174. It links broadcasts to :5173,
-# so run `just dev-watch` alongside it to follow those links.
+# Run the moq.pub development server on :5174.
 dev-pub:
 	bun i
 	bun vite sites/pub --open
