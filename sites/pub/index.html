@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>moq.pub</title>
+		<meta name="description" content="Publish a Media over QUIC broadcast." />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/png" href="/favicon.png" />
+		<style>
+			:root {
+				color-scheme: dark;
+			}
+
+			html,
+			body {
+				margin: 0;
+				height: 100%;
+				background: #0f172a;
+				color: #eee;
+				font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+			}
+
+			body {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			moq-publish-ui {
+				display: block;
+				width: 100%;
+				max-width: 1280px;
+				aspect-ratio: 16 / 9;
+				max-height: 100vh;
+			}
+
+			moq-publish {
+				display: block;
+				width: 100%;
+				height: 100%;
+			}
+
+			moq-publish video {
+				width: 100%;
+				height: 100%;
+				object-fit: contain;
+			}
+		</style>
+	</head>
+	<body>
+		<script type="module" src="/src/main.ts"></script>
+	</body>
+</html>
