@@ -86,7 +86,8 @@ and the Vite dev server so they can't drift:
 - `route.ts` — which requests redirect: a bare `moq.pub/` invents a random name,
   and old `?project=&name=` links move into the path
 - `worker.ts` — the Worker both sites export
-- `dev.ts` — a Vite plugin giving `bun run dev` the same routing
+- `dev.ts` — a Vite plugin giving `just dev-pub` / `just dev-watch` the same
+  routing (`just dev` is the Astro site and doesn't use it)
 
 Two things are easy to break here:
 
