@@ -5,6 +5,8 @@
 	"private": true,
 	"scripts": {
 		"dev": "astro dev --open",
+		"dev:pub": "vite sites/pub",
+		"dev:watch": "vite sites/watch",
 		"build": "astro build --production",
 		"preview": "wrangler pages dev ./dist",
 		"deploy": "wrangler deploy",
@@ -31,6 +33,7 @@
 		"@tailwindcss/typography": "^0.5.20",
 		"@types/node": "^22.19.21",
 		"tailwindcss": "^3.4.19",
+		"vite": "^6.4.1",
 		"vite-plugin-static-copy": "^2.3.2",
 		"wrangler": "^4.100.0"
 	},

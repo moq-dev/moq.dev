@@ -1,0 +1,43 @@
+{
+	// Check the configuration file schema, the main reason why we're not using TOML.
+	"$schema": "../../node_modules/wrangler/config-schema.json",
+
+	// Default configuration for local development
+	"name": "moq-pub-local",
+	"compatibility_date": "2025-08-13",
+	"account_id": "dd618f5dbd5da77b8296f1613c301f5c",
+
+	"main": "src/worker.ts",
+
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS",
+
+		// `/` matches index.html, so without this the asset server answers it and the
+		// Worker never gets to invent a broadcast and redirect. Every other path
+		// misses the assets and falls through to the Worker on its own.
+		"run_worker_first": ["/"]
+	},
+
+	"observability": {
+		"enabled": true
+	},
+
+	// Environment-specific configurations
+	"env": {
+		"staging": {
+			"name": "moq-pub-staging",
+			"route": {
+				"pattern": "new.moq.pub",
+				"custom_domain": true
+			}
+		},
+		"live": {
+			"name": "moq-pub",
+			"route": {
+				"pattern": "moq.pub",
+				"custom_domain": true
+			}
+		}
+	}
+}

@@ -40,9 +40,21 @@ build mode="live":
 	bun i
 	bun astro build --mode {{mode}}
 
-# Deploy the site to Cloudflare Pages
+	# The moq.pub and moq.watch player sites, which share these .env files.
+	bun vite build sites/pub --mode {{mode}}
+	bun vite build sites/watch --mode {{mode}}
+
+# Deploy all three sites to Cloudflare
 # On `live`, any post that wasn't already on moq.dev gets mailed to subscribers.
 deploy env="staging": (build env)
+	# The player sites go first. They're independent of the blog, and the
+	# snapshot/deploy/announce sequence below is a transaction: a failure between
+	# the moq.dev upload and the announcement leaves posts live but unannounced,
+	# and the snapshot expires after an hour, so a later retry sees the new posts
+	# as already-published and stays silent forever.
+	bun wrangler deploy --config sites/pub/wrangler.jsonc --env {{env}}
+	bun wrangler deploy --config sites/watch/wrangler.jsonc --env {{env}}
+
 	# Record what's live before we replace it, so we can tell what the deploy added.
 	bun scripts/notify-subscribers.ts snapshot --env {{env}}
 	bun wrangler deploy --env {{env}}
@@ -74,6 +86,16 @@ dev:
 
 	# Run the web development server
 	bun astro dev --open
+
+# Run the moq.pub development server on :5174.
+dev-pub:
+	bun i
+	bun vite sites/pub --open
+
+# Run the moq.watch development server on :5173.
+dev-watch:
+	bun i
+	bun vite sites/watch --open
 
 prod: (build "live")
 	bun astro preview --open
