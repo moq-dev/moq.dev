@@ -47,11 +47,17 @@ build mode="live":
 # Deploy all three sites to Cloudflare
 # On `live`, any post that wasn't already on moq.dev gets mailed to subscribers.
 deploy env="staging": (build env)
+	# The player sites go first. They're independent of the blog, and the
+	# snapshot/deploy/announce sequence below is a transaction: a failure between
+	# the moq.dev upload and the announcement leaves posts live but unannounced,
+	# and the snapshot expires after an hour, so a later retry sees the new posts
+	# as already-published and stays silent forever.
+	bun wrangler deploy --config sites/pub/wrangler.jsonc --env {{env}}
+	bun wrangler deploy --config sites/watch/wrangler.jsonc --env {{env}}
+
 	# Record what's live before we replace it, so we can tell what the deploy added.
 	bun scripts/notify-subscribers.ts snapshot --env {{env}}
 	bun wrangler deploy --env {{env}}
-	bun wrangler deploy --config sites/pub/wrangler.jsonc --env {{env}}
-	bun wrangler deploy --config sites/watch/wrangler.jsonc --env {{env}}
 	just _announce {{env}}
 
 # Mail subscribers about anything this deploy published.

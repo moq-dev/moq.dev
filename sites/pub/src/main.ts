@@ -6,6 +6,8 @@
 // Everything that isn't part of the broadcast's identity stays in the query:
 //   ?relay=<url>    Relay server URL (default: the relay this site was built for)
 //   ?jwt=<token>    Appended to the relay URL as ?jwt=<token>
+//   ?viewer=<token> A subscribe-only token to put in the moq.watch link. Kept
+//                   separate from ?jwt= on purpose: see Broadcast.watch.
 //   ?source=<kind>  Preselect a capture source: camera, screen, or file
 import "@moq/publish/element";
 import "@moq/publish/ui";
@@ -33,8 +35,20 @@ function mount(broadcast: Broadcast.Broadcast) {
 	share.className = "share";
 	share.target = "_blank";
 	share.rel = "noreferrer";
-	share.href = new URL(Broadcast.path(broadcast), WATCH_URL).toString();
+	share.href = Broadcast.watch(broadcast, params, WATCH_URL).toString();
 	share.textContent = share.href.replace(/^https?:\/\//, "");
+
+	document.body.appendChild(share);
+
+	// Publishing against a token but with no viewer token to hand out: the link
+	// above reaches the right relay but won't authenticate, so say so rather than
+	// let it look like a working share link.
+	if (params.get("jwt") && !params.get("viewer")) {
+		const note = document.createElement("p");
+		note.className = "note";
+		note.textContent = "Viewers need their own token — pass one as ?viewer= to include it here.";
+		document.body.appendChild(note);
+	}
 
 	const publish = document.createElement("moq-publish");
 	publish.setAttribute("url", relay.toString());
@@ -54,5 +68,5 @@ function mount(broadcast: Broadcast.Broadcast) {
 	const ui = document.createElement("moq-publish-ui");
 	ui.appendChild(publish);
 
-	document.body.append(share, ui);
+	document.body.appendChild(ui);
 }

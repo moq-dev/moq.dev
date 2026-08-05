@@ -67,7 +67,17 @@ either site refers to the same broadcast — publish at `moq.pub/anon/x.hang` an
 watch it back at `moq.watch/anon/x.hang`.
 
 Anything that *isn't* part of the broadcast's identity stays in the query
-string: `?relay=<url>`, `?jwt=<token>`, and (moq.pub only) `?source=camera`.
+string: `?relay=<url>`, `?jwt=<token>`, and (moq.pub only) `?source=camera` and
+`?viewer=<token>`.
+
+**`jwt` is never copied into the moq.watch link that moq.pub shows.** moq tokens
+are prefix-scoped with separate publish (`put`) and subscribe (`get`) grants, so
+a token being used to publish carries `put` — putting it in a link meant to be
+passed around would hand every recipient the right to publish. `relay` does
+carry over, since a viewer on the wrong relay finds nothing. To share access to
+a private broadcast, pass a subscribe-only token as `?viewer=`; it becomes the
+`?jwt=` on the moq.watch end. With a `jwt` and no `viewer`, the page says so
+rather than showing a link that looks fine and won't connect.
 
 `sites/lib` holds the scheme itself, shared by both sites and by both the Worker
 and the Vite dev server so they can't drift:
@@ -96,6 +106,12 @@ Two things are easy to break here:
 The player sites read the repo-root `.env.<env>` files that the Astro site uses,
 so `PUBLIC_RELAY_URL` is the single place the relay is configured. Staging is
 `new.moq.dev`, `new.moq.pub`, and `new.moq.watch`.
+
+The player sites deploy *before* moq.dev on purpose. Snapshot → moq.dev upload →
+announce is effectively a transaction: a failure in the middle leaves posts live
+but unannounced, and since the snapshot expires after an hour, a later retry
+reads those posts as already-published and never mails them. Keep anything
+fallible out from between those three steps.
 
 **`just deploy live` mails the subscriber list.** `scripts/notify-subscribers.ts` snapshots the slugs in `https://moq.dev/rss.xml` before the upload, then sends a Resend broadcast for every post in the freshly built `dist/rss.xml` that wasn't in that snapshot. Subject and body come from the feed's `title` and `description`. A deploy that adds no posts sends nothing.
 

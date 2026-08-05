@@ -43,12 +43,21 @@
 				text-decoration: underline;
 			}
 
+			.note {
+				margin: 0;
+				padding: 0 1rem;
+				color: #94a3b8;
+				font-size: 0.8rem;
+				text-align: center;
+			}
+
 			moq-publish-ui {
 				display: block;
 				width: 100%;
 				max-width: 1280px;
 				aspect-ratio: 16 / 9;
-				max-height: calc(100vh - 3rem);
+				/* Leave room for the share link, and the note that can sit under it. */
+				max-height: calc(100vh - 6rem);
 			}
 
 			moq-publish {
