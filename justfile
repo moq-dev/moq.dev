@@ -40,12 +40,18 @@ build mode="live":
 	bun i
 	bun astro build --mode {{mode}}
 
-# Deploy the site to Cloudflare Pages
+	# The moq.pub and moq.watch player sites, which share these .env files.
+	bun vite build sites/pub --mode {{mode}}
+	bun vite build sites/watch --mode {{mode}}
+
+# Deploy all three sites to Cloudflare
 # On `live`, any post that wasn't already on moq.dev gets mailed to subscribers.
 deploy env="staging": (build env)
 	# Record what's live before we replace it, so we can tell what the deploy added.
 	bun scripts/notify-subscribers.ts snapshot --env {{env}}
 	bun wrangler deploy --env {{env}}
+	bun wrangler deploy --config sites/pub/wrangler.jsonc --env {{env}}
+	bun wrangler deploy --config sites/watch/wrangler.jsonc --env {{env}}
 	just _announce {{env}}
 
 # Mail subscribers about anything this deploy published.
@@ -74,6 +80,17 @@ dev:
 
 	# Run the web development server
 	bun astro dev --open
+
+# Run the moq.pub development server on :5174. It links broadcasts to :5173,
+# so run `just dev-watch` alongside it to follow those links.
+dev-pub:
+	bun i
+	bun vite sites/pub --open
+
+# Run the moq.watch development server on :5173.
+dev-watch:
+	bun i
+	bun vite sites/watch --open
 
 prod: (build "live")
 	bun astro preview --open
