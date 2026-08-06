@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 80" role="img" aria-labelledby="title">
-	<title id="title">Film frame</title>
-	<path d="M11 15 C35 12 78 13 101 17 L99 66 C73 70 35 69 12 65 C9 48 10 31 11 15Z" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
-	<path d="M45 29 L73 42 L45 57 C43 47 43 38 45 29Z" fill="none" stroke="#00bf2d" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
-	<path d="M22 19 L22 29 M36 17 L36 27 M76 18 L76 28 M90 19 L90 29 M22 54 L22 64 M36 56 L36 67 M76 55 L76 67 M90 54 L90 64" fill="none" stroke="#00bf2d" stroke-width="4" stroke-linecap="round" />
-</svg>

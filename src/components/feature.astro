@@ -1,5 +1,5 @@
 ---
-type Icon =
+type Feature =
 	| "source"
 	| "web"
 	| "realtime"
@@ -11,90 +11,28 @@ type Icon =
 	| "customize";
 
 interface Props {
-	icon: Icon;
+	icon: Feature;
 }
 
 const { icon } = Astro.props;
+
+// These are Kixel's original hand-drawn icons from moq.pro.
+const artwork: Record<Feature, string> = {
+	source: "box",
+	web: "globe",
+	realtime: "rocket",
+	scale: "stonk",
+	platform: "puzzle",
+	discover: "link",
+	efficient: "battery",
+	compatible: "globe",
+	customize: "puzzle",
+};
 ---
 
 <li class="flex items-start gap-3">
 	<span class="mt-0.5 flex h-9 w-11 shrink-0 items-center justify-center" aria-hidden="true">
-		{
-			icon === "source" && (
-				<svg viewBox="0 0 64 48" class="h-9 w-11 overflow-visible fill-none" role="presentation">
-					<path d="M17 7c-4 1-6 4-5 9l-1 5-5 3 5 3 1 6c-1 5 1 8 6 8" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
-					<path d="M47 7c4 1 6 4 5 9l1 5 5 3-5 3-1 6c1 5-1 8-6 8" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
-					<path d="m29 16-7 8 7 7m6-15 7 8-7 7" stroke="#00bf2d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-				</svg>
-			)
-		}
-		{
-			icon === "web" && (
-				<svg viewBox="0 0 64 48" class="h-9 w-11 overflow-visible fill-none" role="presentation">
-					<path d="M32 5C18 5 8 13 8 24s10 19 24 19 24-8 24-19S46 5 32 5Z" stroke="#fff" stroke-width="3.5" stroke-linecap="round" />
-					<path d="M31 6c-7 6-9 13-9 19 0 7 3 13 9 17m2-36c7 5 10 12 10 18 0 7-3 13-9 18M10 24c13 2 31 2 45-1" stroke="#00bf2d" stroke-width="3.5" stroke-linecap="round" />
-				</svg>
-			)
-		}
-		{
-			icon === "realtime" && (
-				<svg viewBox="0 0 64 48" class="h-9 w-11 overflow-visible fill-none" role="presentation">
-					<path d="M34 4 17 27h13l-2 17 19-26H34V4Z" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
-					<path d="m35 10-11 15h10l-2 11 9-15h-9" stroke="#00bf2d" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
-				</svg>
-			)
-		}
-		{
-			icon === "scale" && (
-				<svg viewBox="0 0 64 48" class="h-9 w-11 overflow-visible fill-none" role="presentation">
-					<path d="M32 13v12M30 25 14 35m20-10 16 10" stroke="#00bf2d" stroke-width="3.5" stroke-linecap="round" />
-					<path d="M25 9c0-5 4-7 8-7 5 0 8 3 7 8 0 4-3 7-8 7-4 0-7-3-7-8ZM5 38c0-5 4-8 9-8 4 0 8 3 8 8s-3 8-8 8-9-3-9-8Zm37 0c0-5 4-8 9-8s8 3 8 8-3 8-8 8-9-3-9-8Z" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
-			</svg>
-			)
-		}
-		{
-			icon === "platform" && (
-				<svg viewBox="0 0 64 48" class="h-9 w-11 overflow-visible fill-none" role="presentation">
-					<path d="M5 7c13-2 31-2 44 0l-1 28c-13 1-29 1-42-1L5 7Zm13 36h19M27 35v8" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
-					<path d="M43 19c5-1 10-1 15 0l1 26c-5 1-11 1-16 0V19Z" fill="#0f172a" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
-					<path d="m22 14 13 7-13 7V14Zm27 26 4-1" stroke="#00bf2d" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
-				</svg>
-			)
-		}
-		{
-			icon === "discover" && (
-				<svg viewBox="0 0 64 48" class="h-9 w-11 overflow-visible fill-none" role="presentation">
-					<path d="M8 20C8 10 15 4 26 4c10 0 17 7 17 17 0 9-7 16-17 16S8 30 8 20Zm31 13 17 12" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
-					<path d="M22 24c3-4 7-4 10-1m-14-5c5-7 13-8 19-2" stroke="#00bf2d" stroke-width="3.5" stroke-linecap="round" />
-					<path d="M27 29h.1" stroke="#00bf2d" stroke-width="5" stroke-linecap="round" />
-				</svg>
-			)
-		}
-		{
-			icon === "efficient" && (
-				<svg viewBox="0 0 64 48" class="h-9 w-11 overflow-visible fill-none" role="presentation">
-					<path d="M8 37C8 20 18 8 32 8s24 12 24 29M7 38c15 3 34 3 50 0" stroke="#fff" stroke-width="3.5" stroke-linecap="round" />
-					<path d="m32 35 12-17" stroke="#00bf2d" stroke-width="4" stroke-linecap="round" />
-					<path d="M29 35c0-2 1-4 4-4 2 0 4 2 4 4s-2 4-4 4c-3 0-4-2-4-4Z" fill="#00bf2d" />
-				</svg>
-			)
-		}
-		{
-			icon === "compatible" && (
-				<svg viewBox="0 0 64 48" class="h-9 w-11 overflow-visible fill-none" role="presentation">
-					<path d="m26 14-4-4c-5-5-11-5-15-1-4 5-3 11 1 15l9 8c5 4 10 4 15 0l4-4m2 6 4 4c5 4 11 4 15 0 4-5 3-11-1-15l-9-8c-5-4-10-4-15 0l-4 4" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
-					<path d="m20 26 8-7m8 10 8-7" stroke="#00bf2d" stroke-width="4" stroke-linecap="round" />
-				</svg>
-			)
-		}
-		{
-			icon === "customize" && (
-				<svg viewBox="0 0 64 48" class="h-9 w-11 overflow-visible fill-none" role="presentation">
-					<path d="M7 10c14 1 35 1 50 0M7 24c14-1 35-1 50 0M7 39c14 1 35 1 50 0" stroke="#fff" stroke-width="3.5" stroke-linecap="round" />
-					<path d="M21 5c4 0 6 2 6 6 0 3-2 6-6 6s-6-3-6-6c0-4 2-6 6-6Zm23 13c4 0 6 2 6 6 0 3-2 6-6 6s-6-3-6-6c0-4 2-6 6-6ZM29 33c4 0 6 2 6 6 0 3-2 6-6 6s-6-3-6-6c0-4 2-6 6-6Z" fill="#0f172a" stroke="#00bf2d" stroke-width="3.5" stroke-linecap="round" />
-				</svg>
-			)
-		}
+		<img src={`https://moq.pro/icons/${artwork[icon]}.svg`} class="h-9 w-11 object-contain" alt="" />
 	</span>
 	<span><slot /></span>
 </li>
