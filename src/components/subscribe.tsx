@@ -45,12 +45,12 @@ export default function Subscribe() {
 						value={email()}
 						onInput={(e) => setEmail(e.currentTarget.value)}
 						disabled={state() === "submitting"}
-						class="flex-1 rounded border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+						class="flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100 placeholder-slate-500 transition-colors focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-60"
 					/>
 					<button
 						type="submit"
 						disabled={state() === "submitting"}
-						class="rounded bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:bg-slate-700"
+						class="rounded-lg bg-green-500 px-5 py-2 font-bold text-slate-950 transition-colors hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
 					>
 						{state() === "submitting" ? "Subscribing…" : "Subscribe"}
 					</button>
