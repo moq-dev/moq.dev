@@ -11,17 +11,17 @@ Everything is open source and broken into two repositories:
 - [moq-dev/moq.dev](https://github.com/moq-dev/moq.dev): This website.
 
 ## Rust
-Native code is written in [Rust](https://github.com/moq-dev/moq/tree/main/rs) and is split into a few notable crates:
+Native code is written in [Rust](https://doc.moq.dev/lib/rs/) and is split into a few notable crates:
 
 |                                                                               crate | description                                                                                                                                           |
 | ----------------------------------------------------------------------------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 |                [moq-lite](https://docs.rs/moq-lite/latest/moq_lite/) | A generic pub/sub transport. This is a minimal reinterpretation of the IETF [MoqTransport draft](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/).  |
-|                [moq-relay](https://github.com/moq-dev/moq/tree/main/rs/moq-relay) | A Moq server that connects publishers to subscribers, caching and deduplicating any subscriptions. Note that MoQ does not support P2P; instead it utilizes relays to scale out to many subscribers.                                                            |
+|                [moq-relay](https://doc.moq.dev/bin/relay/) | A Moq server that connects publishers to subscribers, caching and deduplicating any subscriptions. Note that MoQ does not support P2P; instead it utilizes relays to scale out to many subscribers.                                                            |
 |                [moq-clock](https://github.com/moq-dev/moq/tree/main/rs/moq-clock) | It's a clock! Just to demonstrate that MoQ can be used for more than media.                                                                            |
 |                    [hang](https://docs.rs/hang/latest/hang/) | A media specific library built on top of moq-lite. This provides a JSON "catalog" that describes the media tracks and "container" that literally consists of a timestamp. The actual media decoding/encoding is left to the platform. |
-|                    [hang-cli](https://github.com/moq-dev/moq/tree/main/hang-cli) | A client that integrates with ffmpeg to publish media. This pipes fMP4 over stdin, so it's not the most efficient...                                                                                             |
-|                    [hang-gst](https://github.com/moq-dev/gstreamer) | A GStreamer plugin for publishing and consuming media. Separate repository to avoid GStreamer build dependency. |
-|                    [hang-obs](https://github.com/moq-dev/obs) | An OBS plugin for publishing media. Separate repository to avoid OBS build dependency. |
+|                    [hang-cli](https://doc.moq.dev/bin/cli) | A client that integrates with ffmpeg to publish media. This pipes fMP4 over stdin, so it's not the most efficient...                                                                                             |
+|                    [hang-gst](https://doc.moq.dev/bin/gstreamer) | A GStreamer plugin for publishing and consuming media. Separate repository to avoid GStreamer build dependency. |
+|                    [hang-obs](https://doc.moq.dev/bin/obs) | An OBS plugin for publishing media. Separate repository to avoid OBS build dependency. |
 |                    [hang-wasm](https://github.com/moq-dev/moq/tree/main/hang-wasm) | An MoQ web client utilizing WebAssembly, WebCodecs, and WebTransport. Deprecated in favor of the Typescript implementation; see below for justification. |
 
 
@@ -36,7 +36,7 @@ There are some additional crates in other repositories that might be of interest
 
 
 ## Typescript
-Web code is written in [Typescript](https://github.com/moq-dev/moq/tree/main/js) and is split into a few packages:
+Web code is written in [Typescript](https://doc.moq.dev/lib/js/) and is split into a few packages:
 
 | package | description |
 | ------- | ----------- |
