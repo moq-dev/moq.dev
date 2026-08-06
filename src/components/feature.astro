@@ -4,10 +4,9 @@ type Feature =
 	| "web"
 	| "realtime"
 	| "scale"
-	| "platform"
+	| "native"
 	| "discover"
-	| "efficient"
-	| "support";
+	| "efficient";
 
 interface Props {
 	icon: Feature;
@@ -21,10 +20,9 @@ const artwork: Record<Feature, string> = {
 	web: "globe",
 	realtime: "rocket",
 	scale: "stonk",
-	platform: "puzzle",
+	native: "puzzle",
 	discover: "link",
 	efficient: "battery",
-	support: "globe",
 };
 ---
 
