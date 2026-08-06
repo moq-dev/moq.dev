@@ -1,0 +1,34 @@
+---
+type Feature =
+	| "source"
+	| "web"
+	| "realtime"
+	| "scale"
+	| "native"
+	| "discover"
+	| "efficient";
+
+interface Props {
+	icon: Feature;
+}
+
+const { icon } = Astro.props;
+
+// These are Kixel's original hand-drawn icons from moq.pro.
+const artwork: Record<Feature, string> = {
+	source: "box",
+	web: "globe",
+	realtime: "rocket",
+	scale: "stonk",
+	native: "puzzle",
+	discover: "link",
+	efficient: "battery",
+};
+---
+
+<li class="flex items-start gap-3">
+	<span class="mt-0.5 flex h-9 w-11 shrink-0 items-center justify-center" aria-hidden="true">
+		<img src={`https://moq.pro/icons/${artwork[icon]}.svg`} class="h-9 w-11 object-contain" alt="" />
+	</span>
+	<span><slot /></span>
+</li>
