@@ -65,3 +65,132 @@ Click on any of them. That's what they're here for. Everything is open source!
 	</article>
 </a>
 
+## Build Your Own
+
+Want something you can run from a terminal? These copy-paste examples use the same MoQ stack as the browser demos.
+
+<div class="not-prose grid gap-4 sm:grid-cols-3 my-8">
+	<a href="#cli" class="group rounded-lg border border-slate-700 bg-slate-800/40 p-5 text-white no-underline transition-all hover:-translate-y-1 hover:border-green-500 hover:bg-blue-950">
+		<img src="/demo/terminal.svg" class="mb-3 h-16 transition-transform group-hover:-rotate-3" alt="Hand-drawn terminal" />
+		<div class="mb-2 text-xl font-semibold">MoQ CLI</div>
+		<div class="text-sm font-light text-slate-300">Pull a live broadcast out of MoQ and play it with ffplay.</div>
+	</a>
+
+	<a href="#ffmpeg" class="group rounded-lg border border-slate-700 bg-slate-800/40 p-5 text-white no-underline transition-all hover:-translate-y-1 hover:border-green-500 hover:bg-blue-950">
+		<img src="/demo/ffmpeg.svg" class="mb-3 h-16 transition-transform group-hover:-rotate-3" alt="Hand-drawn film frame" />
+		<div class="mb-2 text-xl font-semibold">FFmpeg</div>
+		<div class="text-sm font-light text-slate-300">Encode a test pattern, webcam, or screen and publish it live.</div>
+	</a>
+
+	<a href="#gstreamer" class="group rounded-lg border border-slate-700 bg-slate-800/40 p-5 text-white no-underline transition-all hover:-translate-y-1 hover:border-green-500 hover:bg-blue-950">
+		<img src="/demo/pipeline.svg" class="mb-3 h-16 transition-transform group-hover:-rotate-3" alt="Hand-drawn media pipeline" />
+		<div class="mb-2 text-xl font-semibold">GStreamer</div>
+		<div class="text-sm font-light text-slate-300">Drop <code>moqsrc</code> and <code>moqsink</code> into a media pipeline.</div>
+	</a>
+</div>
+
+> **Everything under `/anon` is public and ephemeral.** Pick a unique broadcast name, do not publish anything private, and stop the command when you're done.
+
+## CLI
+
+The [`moq` CLI](https://doc.moq.dev/bin/cli) imports and exports common media containers over MoQ.
+Install it with Homebrew or Cargo:
+
+```bash
+# macOS
+brew install moq-dev/tap/moq
+
+# Any platform with Rust
+cargo install moq-cli
+```
+
+Then pull the always-on Big Buck Bunny broadcast out as fragmented MP4 and pipe it directly into `ffplay`:
+
+```bash
+moq --client-connect https://cdn.moq.pro/demo \
+  --broadcast bbb.hang export fmp4 \
+  | ffplay -
+```
+
+That's the whole loop: `moq` handles the live transport and media tracks, while FFmpeg handles decoding and playback.
+
+## FFmpeg
+
+Publish a generated video and audio test pattern. Replace `YOUR_NAME` with something unique so you don't fight another publisher for the same broadcast.
+
+```bash
+ffmpeg -re \
+  -f lavfi -i testsrc=size=1280x720:rate=30 \
+  -f lavfi -i sine=frequency=440 \
+  -c:v libx264 -preset veryfast -tune zerolatency -g 60 \
+  -c:a aac \
+  -f mp4 \
+  -movflags cmaf+separate_moof+delay_moov+skip_trailer+frag_every_frame - \
+  | moq --client-connect https://cdn.moq.pro/anon \
+      --broadcast YOUR_NAME.hang import fmp4
+```
+
+While it is running, open `/watch?name=YOUR_NAME.hang` on this site, or play it in another terminal:
+
+```bash
+moq --client-connect https://cdn.moq.pro/anon \
+  --broadcast YOUR_NAME.hang export fmp4 \
+  | ffplay -
+```
+
+Want a real camera instead? Replace the two generated inputs above with the input for your platform:
+
+```bash
+# macOS: first camera + first microphone
+ffmpeg -f avfoundation -framerate 30 -i "0:0" ...
+
+# Linux: first V4L2 camera + default ALSA input
+ffmpeg -f v4l2 -framerate 30 -i /dev/video0 -f alsa -i default ...
+
+# Windows: replace these names with devices from `ffmpeg -list_devices true -f dshow -i dummy`
+ffmpeg -f dshow -i video="Integrated Camera":audio="Microphone" ...
+```
+
+FFmpeg device names vary, so use its device-list command before assuming the defaults are correct.
+
+## GStreamer
+
+The [`moq-gst` plugin](https://doc.moq.dev/bin/gstreamer) provides two normal GStreamer elements:
+
+- `moqsink` publishes encoded audio and video.
+- `moqsrc` subscribes to a broadcast and exposes one pad per rendition.
+
+The quickest install is Nix, which bundles the plugin with GStreamer and the common codec plugins:
+
+```bash
+nix shell github:moq-dev/moq#moq-gst --command gst-inspect-1.0 moq
+```
+
+Watch the public demo, explicitly connecting both the video and audio pads:
+
+```bash
+nix shell github:moq-dev/moq#moq-gst --command gst-launch-1.0 -v -e \
+  moqsrc name=src url=https://cdn.moq.pro/demo broadcast=bbb.hang \
+  src.video_0 ! queue ! decodebin3 ! videoconvert ! autovideosink \
+  src.audio_0 ! queue ! decodebin3 ! audioconvert ! autoaudiosink
+```
+
+Or publish a live test pattern to your own public broadcast:
+
+```bash
+nix shell github:moq-dev/moq#moq-gst --command gst-launch-1.0 -v -e \
+  videotestsrc is-live=true ! videoconvert \
+    ! x264enc tune=zerolatency ! h264parse ! mux.sink_0 \
+  audiotestsrc is-live=true ! audioconvert \
+    ! avenc_aac ! aacparse ! mux.sink_1 \
+  moqsink name=mux url=https://cdn.moq.pro/anon broadcast=YOUR_NAME.hang
+```
+
+Open `/watch?name=YOUR_NAME.hang` while the pipeline is running. For a webcam or screen share, swap `videotestsrc` for your platform's source element such as `avfvideosrc`, `v4l2src`, `ximagesrc`, or `d3d11screencapturesrc`.
+
+### Next Steps
+
+- Embed the [publisher](/publish) or [player](/watch) in a web app.
+- Try the full [CLI](https://doc.moq.dev/bin/cli) and [GStreamer](https://doc.moq.dev/bin/gstreamer) docs.
+- [Run your own relay](https://doc.moq.dev/bin/relay/) instead of using the public namespace.
+- Browse the [source code](https://github.com/moq-dev/moq) or ask questions in [Discord](https://discord.moq.dev).

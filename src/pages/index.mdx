@@ -2,6 +2,8 @@
 layout: "@/layouts/global.astro"
 ---
 
+import Feature from "@/components/feature.astro";
+
 <center>
 	<img src="/home/logo.svg" className="h-32" alt="Media over QUIC Logo" />
 </center>
@@ -15,17 +17,19 @@ It replaces [WebRTC](./blog/replacing-webrtc), [HLS/DASH](./blog/replacing-hls-d
 
 But seriously, <a href="/demo">try the demos already</a>. There's even a gameboy emulator. Don't pretend like you're not excited.
 
-### ✨ Features
+### Features
 
-- 🔓 **Open Source**: Production-ready [Rust and TypeScript libraries](/source).
-- 🌐 **100% Web**: Utilizes [WebTransport](https://developer.mozilla.org/en-US/docs/Web/API/WebTransport), [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API), [WebAudio](https://developer.mozilla.org/en-US/docs/Web/API/WebAudio_API), WebEtc.
-- ⚡ **Real-time**: Minimal latency by skipping less important media during congestion.
-- 🚀 **Massive Scale**: Host your own CDN with [moq-relay](https://github.com/moq-dev/moq/tree/main/rs/moq-relay) or use [Cloudflare](/blog/first-cdn).
-- 🎬 **Multi-Platform**: [Web](https://github.com/moq-dev/moq/tree/main/js/hang), [FFmpeg](https://github.com/moq-dev/moq/tree/main/rs/hang-cli), [GStreamer](https://github.com/moq-dev/gstreamer), [OBS](https://github.com/moq-dev/obs), and [native](/source) clients available.
-- 🔍 **Discoverable**: Live notifications when broadcasts are published or finish.
-- 💪 **Efficient**: No encoding or bandwidth usage until a viewer needs it.
-- 🌍 **Compatible**: TCP fallback via [WebSocket](https://github.com/moq-dev/web-transport/tree/main/web-transport-ws), Safari fallback via [libav.js](https://github.com/Yahweasel/libav.js/).
-- 🔧 **Customizable**: Hardware accelerated encoding, the rest is in your control.
+<ul class="list-none pl-0">
+	<Feature icon="source">**Open Source**: Production-ready [Rust and TypeScript libraries](/source).</Feature>
+	<Feature icon="web">**100% Web**: Utilizes [WebTransport](https://developer.mozilla.org/en-US/docs/Web/API/WebTransport), [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API), [WebAudio](https://developer.mozilla.org/en-US/docs/Web/API/WebAudio_API), WebEtc.</Feature>
+	<Feature icon="realtime">**Real-time**: Minimal latency by skipping less important media during congestion.</Feature>
+	<Feature icon="scale">**Massive Scale**: Host your own CDN with [moq-relay](https://github.com/moq-dev/moq/tree/main/rs/moq-relay) or use [Cloudflare](/blog/first-cdn).</Feature>
+	<Feature icon="platform">**Multi-Platform**: [Web](https://github.com/moq-dev/moq/tree/main/js/hang), [FFmpeg](https://github.com/moq-dev/moq/tree/main/rs/hang-cli), [GStreamer](https://github.com/moq-dev/gstreamer), [OBS](https://github.com/moq-dev/obs), and [native](/source) clients available.</Feature>
+	<Feature icon="discover">**Discoverable**: Live notifications when broadcasts are published or finish.</Feature>
+	<Feature icon="efficient">**Efficient**: No encoding or bandwidth usage until a viewer needs it.</Feature>
+	<Feature icon="compatible">**Compatible**: TCP fallback via [WebSocket](https://github.com/moq-dev/web-transport/tree/main/web-transport-ws), Safari fallback via [libav.js](https://github.com/Yahweasel/libav.js/).</Feature>
+	<Feature icon="customize">**Customizable**: Hardware accelerated encoding, the rest is in your control.</Feature>
+</ul>
 
 ### *Standards
 This website uses [moq-lite](https://doc.moq.dev/concept/layer/moq-lite), a subset of the *official* [moq-transport](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/) draft.
