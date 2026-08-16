@@ -12,7 +12,12 @@
 	"assets": {
 		"directory": "./dist",
 		"not_found_handling": "404-page",
-		"binding": "ASSETS"
+		"binding": "ASSETS",
+
+		// Static assets are normally served before the Worker ever runs, which
+		// would skip the de.moq.dev -> /de rewrite for "/". Route just the root
+		// through the Worker; everything else still short-circuits to assets.
+		"run_worker_first": ["/"]
 	},
 
 	// Environment-specific configurations
@@ -26,10 +31,17 @@
 		},
 		"live": {
 			"name": "moq-dev",
-			"route": {
-				"pattern": "moq.dev",
-				"custom_domain": true
-			}
+			"routes": [
+				{
+					"pattern": "moq.dev",
+					"custom_domain": true
+				},
+				// DEMOQED, served from /de by worker/index.ts.
+				{
+					"pattern": "de.moq.dev",
+					"custom_domain": true
+				}
+			]
 		}
 	}
 }
