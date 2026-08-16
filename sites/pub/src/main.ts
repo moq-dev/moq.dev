@@ -4,9 +4,10 @@
 // the URL doesn't carry one, so this page always loads on the shareable URL.
 //
 // Everything that isn't part of the broadcast's identity stays in the query:
-//   ?relay=<url>    Relay server URL (default: the relay this site was built for)
-//   ?jwt=<token>    Appended to the relay URL as ?jwt=<token>
-//   ?source=<kind>  Preselect a capture source: camera, screen, or file
+//   ?relay=<url>          Relay server URL (default: the relay this site was built for)
+//   ?cloudflare=<label>  Shorthand for <label>.cloudflare.mediaoverquic.com
+//   ?jwt=<token>          Appended to the relay URL as ?jwt=<token>
+//   ?source=<kind>        Preselect a capture source: camera, screen, or file
 import "@moq/publish/element";
 import "@moq/publish/ui";
 
@@ -26,6 +27,10 @@ if (broadcast) {
 function mount(broadcast: Broadcast.Broadcast) {
 	const params = new URLSearchParams(location.search);
 	const relay = Broadcast.relay(broadcast, params, DEFAULT_RELAY);
+	if (!relay) {
+		document.body.textContent = "Invalid relay configuration.";
+		return;
+	}
 
 	const publish = document.createElement("moq-publish");
 	publish.setAttribute("url", relay.toString());
