@@ -15,6 +15,9 @@ export interface Broadcast {
 	name: string;
 }
 
+const CLOUDFLARE_RELAY_DOMAIN = "cloudflare.mediaoverquic.com";
+const DNS_LABEL = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
+
 /** Parse `/<project>/<name>`, or undefined when the path isn't a broadcast. */
 export function parse(pathname: string): Broadcast | undefined {
 	const raw = pathname.split("/").filter((part) => part !== "");
@@ -44,10 +47,30 @@ export function path({ project, name }: Broadcast): string {
 
 /**
  * The relay URL to connect to: `<relay>/<project>`, carrying `?jwt=` when the
- * page was given a token.
+ * page was given a token. `?cloudflare=<label>` is shorthand for Cloudflare's
+ * relay hostname and cannot be combined with `?relay=`.
  */
-export function relay(broadcast: Broadcast, params: URLSearchParams, fallback: string): URL {
-	const url = new URL(override(params.get("relay")) ?? fallback);
+export function relay(broadcast: Broadcast, params: URLSearchParams, fallback: string): URL | undefined {
+	const relay = params.get("relay");
+	const cloudflare = params.get("cloudflare");
+	if (relay !== null && cloudflare !== null) {
+		console.warn("rejecting conflicting ?relay= and ?cloudflare= parameters");
+		return undefined;
+	}
+
+	let base: string;
+	if (cloudflare !== null) {
+		if (!DNS_LABEL.test(cloudflare)) {
+			console.warn(`rejecting ?cloudflare=${cloudflare}: expected one lowercase DNS label`);
+			return undefined;
+		}
+		base = `https://${cloudflare}.${CLOUDFLARE_RELAY_DOMAIN}`;
+	} else {
+		const custom = override(relay);
+		base = custom ?? fallback;
+	}
+
+	const url = new URL(base);
 	url.pathname = `${url.pathname.replace(/\/+$/, "")}/${broadcast.project}`;
 
 	const jwt = params.get("jwt");

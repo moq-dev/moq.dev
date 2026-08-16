@@ -67,7 +67,11 @@ either site refers to the same broadcast — publish at `moq.pub/anon/x.hang` an
 watch it back at `moq.watch/anon/x.hang`.
 
 Anything that *isn't* part of the broadcast's identity stays in the query
-string: `?relay=<url>`, `?jwt=<token>`, and (moq.pub only) `?source=camera`.
+string: `?relay=<url>`, `?cloudflare=<subdomain>`, `?jwt=<token>`, and
+(moq.pub only) `?source=camera`. `?cloudflare=draft-16` is shorthand for
+`https://draft-16.cloudflare.mediaoverquic.com`; the project path segment still
+carries Cloudflare's relay token. `cloudflare` and `relay` are mutually
+exclusive.
 
 **moq.pub deliberately doesn't link to moq.watch.** The path symmetry is the
 feature; a link on top of it isn't. It also can't be built honestly: a link has

@@ -13,6 +13,10 @@ The player sites use the path to name a broadcast: publish at
 `moq.watch/anon/lazy-otter-4f21.hang`. Visiting [moq.pub](https://moq.pub) with
 no path picks a random name for you.
 
+Use `?cloudflare=draft-16` to connect either player to
+`https://draft-16.cloudflare.mediaoverquic.com` without spelling out the full
+`?relay=` value. The first path segment remains the Cloudflare relay token.
+
 These are clients only.
 You'll either need to run a local server using [moq](https://github.com/moq-dev/moq) or use a public server such as `cdn.moq.pro`.
 
