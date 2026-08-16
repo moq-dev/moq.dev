@@ -20,6 +20,14 @@ export default {
 			return handleSubscribe(request, env);
 		}
 
+		// de.moq.dev is the DEMOQED page, which lives at /de in the static build.
+		const alreadyRewritten = url.pathname === "/de" || url.pathname.startsWith("/de/");
+		if (url.hostname.split(".")[0] === "de" && !alreadyRewritten) {
+			const rewritten = new URL(url);
+			rewritten.pathname = `/de${url.pathname}`;
+			return env.ASSETS.fetch(new Request(rewritten, request));
+		}
+
 		return env.ASSETS.fetch(request);
 	},
 };
