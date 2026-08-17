@@ -15,9 +15,6 @@ The first good is [moq.pro](https://moq.pro), a managed MoQ CDN.
 
 <figure>
 	![moq.pro](/blog/open-for-business/logo-full-dark.png)
-	<figcaption>
-		I'm too lazy to fix the dot at the end of the underline. PROFESSIONALISM is DEAD.
-	</figcaption>
 </figure>
 
 ## Why?
@@ -31,8 +28,8 @@ I've been contracting with a few robotics companies already.
 MoQ is being used in production to [pilot boats](https://www.wsj.com/tech/what-to-know-about-drone-boat-maker-behind-iran-helicopter-crew-rescue-aa55d445), drones, trucks, and to fold t-shirts.
 Even over degraded Starlink connections, it just works™.
 
-From my experience, the most frequent adoption blocker is **infrastructure**.
-It's trivial to ~vibe~ code using the [moq.dev](https://moq.dev) libraries, but scaling out a world-wide presence is a pain.
+In my humble (and handsome) experience, the most frequent adoption blocker is **infrastructure**.
+It's easy to ~vibe~ code using the [moq.dev](https://moq.dev) libraries, but horizontally scaling across the planet is hard.
 A lot of companies settle for a single `moq-relay` instance and leave a `# TODO SCALE` comment.
 
 **HEY GUESS WHAT?**
@@ -100,8 +97,6 @@ I am a bad business person.
 There's a reason why I quit my job to work on open source.
 A normal human bean has a job and a salary.
 
-(bean image)
-
 [moq.pro](https://moq.pro) is **$0.04/GB** for all outbound network traffic.
 Inbound is free so if nobody is watching your broadcast, you pay nothing.
 We charge based on usage and not vibes.
@@ -114,23 +109,26 @@ That'll be $5.74 *per day* for the broadcaster **and** each viewer.
 <figure>
 	![scaling](/blog/open-for-business/hell.png)
 	<figcaption>
-		Dante got it wrong.
+		Dante got it wrong, there's an extra level.
 	</figcaption>
 </figure>
 
 
-**Use MoQ instead**. Your security camera costs $0 when nobody is watching.
-Each additional viewer/recording is $0.65 per day.
-If you're using one of those providers, convice your CFO to let you prototype MoQ for that sweet 18x savings.
+**Use MoQ instead**.
+Your security camera costs $0 when nobody is watching, nor will it transmit anything.
+If you're using a cloud WebRTC provider, convice your CFO to let you prototype MoQ for that sweet capex savings.
 The only upfront cost is a few Claude sessions.
 
 **You will always be able to self-host.**
 Lock-in is the antithesis of a standard.
-Compatibile competition drives prices down
-**My goal is to get you to use MoQ** by making it easy, and by making it cheap.
+Compatibile competition drives prices down.
+Blah blah blah.
+**My goal is to get you to use MoQ**.
+And I think the best way to do that is by making it cheap **AND** easy.
 
 But before you self-host, just remember that AWS charges $0.09/GB (public pricing) for EC2 outbound network traffic.
 Plus you have to pay for those EC2 instances.
+Bandwidth is expensive yo.
 **IMO you should pay me instead.**
 
 
@@ -142,18 +140,24 @@ But progress is *so slow*; it's embarassing.
 Hopefully this gives the group a kick in the butt.
 Stop arguing about how to encode an integer.
 We don't need more tech demos.
+Start charging customers for your services.
 
 All of the [moq.dev](https://moq.dev) clients are fully compatible with the standard, supporting drafts 14-19+.
-You can switch out the `https://cdn.moq.pro` URL with a different CDN provider (ex. [Cloudflare](https://blog.cloudflare.com/moq-relays/)) and it will *mostly* just work™.
+You can switch out the `https://cdn.moq.pro` URL with a different CDN provideex and *should* just work™.
 
-The *mostly* is there because the standard is bloated and *optional*.
+The *should* is there because the `moq-transport` standard is bloated and even worse: **optional**.
 There's a lot of cruft that I don't implement in the [moq.dev](https://moq.dev) libraries, and to be fair, zero implementations fully implement the standard.
 
-Even if you only use [moq.pro](https://moq.pro) to prototype, it's a win for MoQ.
+Anyway, even if you only use [moq.pro](https://moq.pro) to prototype before switching to a big boye CDN, it's still a win for MoQ.
 The entire point of a **standard** is that you can switch out cloud providers without eating dirt.
-And the entire point of **open-source** is so those cloud providers can pretend like they didn't just yoink my code.
+And the entire point of **open-source** is so cloud providers don't have to write any code themselves.
 
-(i wrote this meme)
+<figure>
+	![i made this](/blog/open-for-business/imadethis.png)
+	<figcaption>
+		also me when I trace memes
+	</figcaption>
+</figure>
 
 
 ## The Roadmap
@@ -163,12 +167,19 @@ Or post on the Discord.
 Next I'm working on:
 - **DVR**: Seek backwards during a live stream
 - **HLS export**: Use MoQ for ingest, HLS for distribution
-- **Transcoding**: On-demand renditions
-- **Transcription**: Live generate captions.
-- **CDN Sync**: Access broadcasts via moq.pro and/or Cloudflare and/or self-hosted.
+- **Transcoding**: On-demand renditions (ex. 240p, 360p, 720p).
+- **Voice AI**: Generate captions, talk to agents, etc.
+- **CDN Sync**: Use moq.pro and/or Cloudflare and/or self-host.
 - **Performance**: Sans IO core + iouring runtime.
 
 kewl.
+
+<figure>
+	![i wrote this reality](/blog/open-for-business/reality.png)
+	<figcaption>
+		Reality is a bubble.
+	</figcaption>
+</figure>
 
 ## Try it!
 **Fun fact:** here's a *few* of the ways to watch MoQ broadcasts via [moq.pro](https://moq.pro):
@@ -187,7 +198,7 @@ There are Rust-based bindings for [C](https://doc.moq.dev/lib/rs/), [Python](htt
 ## The Company
 Hit me up if you want to throw money at this endeavor.
 Or you (or someone you know) wants to leave your cushy job.
-Especially if you speak the business language.
+Especially if you speak the language of business.
 
 <figure>
 	![bless you for your business](/blog/open-for-business/ena.png)
@@ -199,7 +210,8 @@ Especially if you speak the business language.
 </figure>
 
 
-Email me: `hillo@moq.pro`
+- Email me: `hillo@moq.pro`
+- Meet me: [https://meet.kixel.me](https://meet.kixel.me)
 
 Written by [@kixelated](https://github.com/kixelated).
 ![@kixelated](/blog/avatar.png)
