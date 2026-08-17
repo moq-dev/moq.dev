@@ -2,9 +2,9 @@
 layout: "@/layouts/global.astro"
 title: "Open For Business"
 author: kixelated
-description: Capitalist scum.
-cover: "/blog/open-for-business/ena.png"
-date: 2026-08-05
+description: I have officially achived the rank of "Capitalist Scum".
+cover: "/blog/open-for-business/viewers-1000.svg"
+date: 2026-08-17
 ---
 
 # Open For Business
@@ -28,19 +28,19 @@ The real reason is even more deplorable:
 **I want you to use MoQ.**
 
 I've been contracting with a few robotics companies already.
-MoQ is being used to pilot boats, drones, trucks, and to fold t-shirts.
-[Like these guys use my MoQ libraries](https://www.wsj.com/tech/what-to-know-about-drone-boat-maker-behind-iran-helicopter-crew-rescue-aa55d445).
+MoQ is being used in production to [pilot boats](https://www.wsj.com/tech/what-to-know-about-drone-boat-maker-behind-iran-helicopter-crew-rescue-aa55d445), drones, trucks, and to fold t-shirts.
+Even over degraded Starlink connections, it just works™.
 
-It's proof that MoQ works, even for tough environments like real-time over Starlink.
-**neato**.
-
-But I've learned that the most frequent adoption blocker is **infrastructure**.
-It's trivial to ~vibe~ code MoQ support using the [moq.dev](https://moq.dev) libraries, but actually scaling out a world-wide CDN is a pain.
+From my experience, the most frequent adoption blocker is **infrastructure**.
+It's trivial to ~vibe~ code using the [moq.dev](https://moq.dev) libraries, but scaling out a world-wide presence is a pain.
 A lot of companies settle for a single `moq-relay` instance and leave a `# TODO SCALE` comment.
 
 **HEY GUESS WHAT?**
-I've designed a baremetal CDN (Twitch) and kind of know how to do this thing.
-So here's a business proposition for you: **pay me to scale**.
+I've designed and operated a baremetal CDN (Twitch).
+I've also done it for real-time (Discord).
+I kind of know how to do this thing.
+
+So here's a business proposition for you: **pay me and I'll host the infrastructure**.
 
 ## SCALING
 <figure>
@@ -60,14 +60,14 @@ So here's a business proposition for you: **pay me to scale**.
 <figure>
 	![scaling](/blog/open-for-business/viewers-100.svg)
 	<figcaption>
-		Clients subscribe to tracks within a broadcast. **Duplicate** subscriptions are merged within the CDN.
+		Clients subscribe to tracks within a broadcast. **Duplicate** subscriptions are merged within the CDN and routed to the broadcaster.
 	</figcaption>
 </figure>
 
 <figure>
 	![scaling](/blog/open-for-business/viewers-1000.svg)
 	<figcaption>
-		Every subscriber has a diminishing cost! We **SCALE SCALE SCALE**.
+		Every additional subscriber has a diminishing cost! We **SCALE SCALE SCALE**.
 	</figcaption>
 </figure>
 
@@ -79,21 +79,20 @@ There are **SO MANY COOL THINGS YOU COULD DO WITH MOQ**.
 But first there's a lot of *mundane* shit to implement.
 Backwards compatibility, authorization, metrics, etc.
 The type of stuff that makes you want to stay in bed.
-**Scale is not your problem *yet*.**
+The unfortunate reality is that scale is not the problem until everything else just works™.
 
 My goal with [moq.pro](https://moq.pro) is to make it easy to start using MoQ **now**.
 I'll do the boring stuff so you can focus on the cool stuff.
 
 With this first release we have:
-- **RTMP / WebRTC / SRT**: import and export (ex. WHIP/WHEP).
-- **HLS recordings**: your bucket or managed (S3 compatible).
-- **Live stats**: Your bill is literally updated every second.
-- **Scoped Authorization**: Generate keys/tokens scoped to prefixes.
+- **RTMP / WebRTC / SRT support**: So you don't need to migrate everything over night.
+- **HLS recordings**: Dump prior broadcasts so you can watch them later.
+- **Real-time stats**: Literally updated every second; never hit F5.
+- **Scoped Authorization**: Use keys/tokens to control access to your broadcasts.
 
-Note that all of these tools are [open source](https://github.com/moq-dev/moq).
+All of this functionality is open source via [moq.dev](https://github.com/moq-dev/moq).
+[moq.pro](https://moq.pro) is the hosted glue that makes stuff easier to use.
 
-**You will always be able to self-host.**
-I'm just providing the infrastructure glue.
 
 ## Cost
 I'll be honest, I don't like charging money for things.
@@ -107,9 +106,9 @@ A normal human bean has a job and a salary.
 Inbound is free so if nobody is watching your broadcast, you pay nothing.
 We charge based on usage and not vibes.
 
-Meanwhile, WebRTC providers charge based on time.
-Want to stream a security camera on Agora/Daily (public pricing)?
-That'll be $5.74 *per day* for the broadcaster *and every viewer*.
+Meanwhile, most WebRTC providers charge based on time.
+Want to stream a low resolution security camera on Agora/Daily (public pricing)?
+That'll be $5.74 *per day* for the broadcaster **and** each viewer.
 **wtf**
 
 <figure>
@@ -120,41 +119,42 @@ That'll be $5.74 *per day* for the broadcaster *and every viewer*.
 </figure>
 
 
-Use MoQ instead; your security camera
+**Use MoQ instead**. Your security camera costs $0 when nobody is watching.
+Each additional viewer/recording is $0.65 per day.
+If you're using one of those providers, convice your CFO to let you prototype MoQ for that sweet 18x savings.
+The only upfront cost is a few Claude sessions.
 
-And if you do go the self-hosting route, just remember that AWS charges $0.09/GB for all EC2 outbound network traffic.
-Plus you have to pay for the EC2 instances.
-**Just let me deal with the infrastructure.**
+**You will always be able to self-host.**
+Lock-in is the antithesis of a standard.
+Compatibile competition drives prices down
+**My goal is to get you to use MoQ** by making it easy, and by making it cheap.
 
-Again, **the goal is to get you to use MoQ**, and cost obviously matters.
-Convice your CTO to let you prototype MoQ.
-Tell them you can reduce your WebRTC bill by 10x with a Claude session.
+But before you self-host, just remember that AWS charges $0.09/GB (public pricing) for EC2 outbound network traffic.
+Plus you have to pay for those EC2 instances.
+**IMO you should pay me instead.**
 
-And for some reason, I'm giving away 500GB a month free.
-Leechers go nuts, i don't care, just try out MoQ.
-My accountant (me) will figure out how to make a profit.
+
+## The Standard
+Speaking of standards, [moq-transport](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/) will be an RFC one day.
+There's quite a few companies working on their own CDN offering: [Cloudflare](https://moq.dev/blog/first-cdn/), Akamai, Fastly, AWS, etc.
+But progress is *so slow*; it's embarassing.
+
+Hopefully this gives the group a kick in the butt.
+Stop arguing about how to encode an integer.
+We don't need more tech demos.
+
+All of the [moq.dev](https://moq.dev) clients are fully compatible with the standard, supporting drafts 14-19+.
+You can switch out the `https://cdn.moq.pro` URL with a different CDN provider (ex. [Cloudflare](https://blog.cloudflare.com/moq-relays/)) and it will *mostly* just work™.
+
+The *mostly* is there because the standard is bloated and *optional*.
+There's a lot of cruft that I don't implement in the [moq.dev](https://moq.dev) libraries, and to be fair, zero implementations fully implement the standard.
 
 Even if you only use [moq.pro](https://moq.pro) to prototype, it's a win for MoQ.
 The entire point of a **standard** is that you can switch out cloud providers without eating dirt.
 And the entire point of **open-source** is so those cloud providers can pretend like they didn't just yoink my code.
 
+(i wrote this meme)
 
-
-## The Standard
-[moq-transport](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/) will be an RFC one day.
-There's quite a few companies working on their own CDN offering: [Cloudflare](https://moq.dev/blog/first-cdn/), Akamai, Fastly, AWS, etc.
-But progress is *so slow*; it's embarassing.
-
-Hopefully this gives the group a kick in the butt.
-Stop arguing about how to encode an integer and actually charge for something.
-We don't need more tech demos.
-
-All of the [moq.dev](https://moq.dev) clients are fully compatible with the standard, supporting drafts 14-19.
-You should be able to switch out the `https://cdn.moq.pro` URL with a different CDN provider (ex. [Cloudflare](https://blog.cloudflare.com/moq-relays/))
-
-The [moq.pro](https://moq.pro) relay doesn't support every feature in the IETF standard.
-To be fair, zero relays fully support the standard, owing to how bloated and *optional* it is.
-Hit me up if you want to use a 3rd party MoQ client that isn't compatible and we'll figure out a path forward.
 
 ## The Roadmap
 If you need something, [let me know](mailto:hi@moq.pro).
@@ -166,21 +166,23 @@ Next I'm working on:
 - **Transcoding**: On-demand renditions
 - **Transcription**: Live generate captions.
 - **CDN Sync**: Access broadcasts via moq.pro and/or Cloudflare and/or self-hosted.
+- **Performance**: Sans IO core + iouring runtime.
 
 kewl.
 
 ## Try it!
-**Fun fact:** here's a *few* of the ways to watch MoQ broadcasts:
+**Fun fact:** here's a *few* of the ways to watch MoQ broadcasts via [moq.pro](https://moq.pro):
 
 - [Web](https://doc.moq.dev/lib/js/@moq/watch.html): https://moq.watch/demo/bbb.hang
-- [CLI](https://doc.moq.dev/bin/cli.html): `moq --client-connect "https://cdn.moq.pro/demo/bbb.hang" export ts | ffplay -`
+- [ffmpeg](https://doc.moq.dev/bin/cli.html): `moq --client-connect "https://cdn.moq.pro/demo/bbb.hang" export ts | ffplay -`
 - [RTMP](https://github.com/moq-dev/moq/tree/main/rs/moq-rtmp): `rtmps://cdn.moq.pro:1935/demo/bbb.hang`
 - [SRT](https://github.com/moq-dev/moq/tree/main/rs/moq-srt): `srt://cdn.moq.pro:877?latency=500&streamid=#!::r=demo/bbb.hang,m=request`
 - [WebRTC](https://github.com/moq-dev/moq/tree/main/rs/moq-rtc): `https://cdn.moq.pro/whep/demo/bbb.hang`
 - [Gstreamer](https://doc.moq.dev/bin/gstreamer.html#gstreamer-plugin): `gst-launch-1.0 -v -e moqsrc name=s url=https://cdn.moq.pro/demo broadcast=bbb.hang`
 - [OBS](https://doc.moq.dev/bin/obs.html#obs-plugin): Create a MoQ source for `https://cdn.moq.pro/demo/bbb.hang`
 
-And just a reminder that there are libraries for [Rust](https://doc.moq.dev/lib/rs/), [Typescript](https://doc.moq.dev/lib/js/), [C](https://doc.moq.dev/lib/rs/), [Python](https://doc.moq.dev/lib/py/), [Go](https://doc.moq.dev/lib/go/), [Swift](https://doc.moq.dev/lib/swift/), and [Kotlin](https://doc.moq.dev/lib/kt/).
+And of course there are libraries for [Rust](https://doc.moq.dev/lib/rs/) (native) and [Typescript](https://doc.moq.dev/lib/js/) (web).
+There are Rust-based bindings for [C](https://doc.moq.dev/lib/rs/), [Python](https://doc.moq.dev/lib/py/), [Go](https://doc.moq.dev/lib/go/), [Swift](https://doc.moq.dev/lib/swift/), and [Kotlin](https://doc.moq.dev/lib/kt/).
 
 ## The Company
 Hit me up if you want to throw money at this endeavor.
@@ -191,7 +193,8 @@ Especially if you speak the business language.
 	![bless you for your business](/blog/open-for-business/ena.png)
 	<figcaption>
 		[\> Me when MoQ](https://www.youtube.com/watch?v=U8Gle8WzB3o) \
-		[\> Me when WebRTC](https://www.youtube.com/watch?v=ZfWLo2zeuy0)
+		[\> Me when WebRTC](https://www.youtube.com/watch?v=ZfWLo2zeuy0) \
+		Go play [ENA Dream BBQ](https://store.steampowered.com/app/2134320/ENA_Dream_BBQ/)
 	</figcaption>
 </figure>
 
