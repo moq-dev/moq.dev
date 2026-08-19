@@ -2,258 +2,91 @@
 layout: "@/layouts/global.astro"
 title: "Paradox: More Hops, Lower Latency"
 author: kixelated
-description: Add servers to the middle of the internet and it gets faster. Also, I still hate FEC.
+description: I'm the world's biggest FEC hater.
 cover: "/blog/first-cdn/global.png"
 date: 2026-08-19
 ---
 
 # Paradox: More Hops, Lower Latency
-Here's a networking riddle that breaks people's brains.
+I want to shit on [FEC](/blog/forward-error-correction) some more.
+Some robotics teleop companies are peddling it.
 
-You have a link with a 100ms round-trip time.
-You want lower latency.
-So you... **add two more machines to the middle of it**.
+This is also a (partial) explanation for why P2P is lower quality, or higher latency, take your pick.
 
-That's not a typo and I'm not trolling.
-More hops, lower latency.
-It's the single most important fact about live media infrastructure and it's the reason I keep dunking on [FEC](/blog/forward-error-correction).
+## More Hops
+The argument is that you want proxy nodes to split a lossy RTT into smaller and smaller segments.
 
-## The Math
-Packets get lost.
-Not a lot of them, but enough that "just ignore it" isn't a strategy when the payload is a P-frame.
+If there's packet loss over a 100ms RTT link, it takes at least 100ms to detect the loss and ~50ms for the retransmission to arrive.
+So you need a jitter buffer size of 150ms.
 
-So you retransmit.
-On a 100ms RTT link, that costs you:
+But if you split the link into two 50ms hops, now it's 75ms.
+And then you subdivide further.
 
-- ~100ms to notice the packet is gone (you're waiting on an ACK that never comes)
-- ~50ms for the retransmission to actually show up
+## Why?
+The reason is that IP/UDP has no retransmission mechanism or way to signal loss.
+By putting a TCP/QUIC proxy in the middle, you can now retransmit.
 
-Congratulations, your jitter buffer is now 150ms.
-Every viewer eats that delay on *every* frame, forever, so that the occasional lost packet can be papered over.
+It might add 1ms of latency because we have to hand each packet off from the router (L2) into the app (L3/L7).
+It's also going to be more expensive too, hardware routers versus software proxies.
 
-Now cut the link in half with a proxy.
-Two hops, 50ms RTT each.
-Loss on either hop is detected and repaired *locally*, by the two boxes on either end of that hop:
+## The Counterargument
+A counterargument is FEC.
+Instead of retransmitting lost packets on demand, you retransmit them opportunistically (parity bits).
+If a packet is randomly dropped, you can probably reconstruct it, if not fall back to a retransmit.
 
-- ~50ms to notice
-- ~25ms for the retransmission
+Problems:
 
-75ms.
-Cut it again: 37.5ms.
-Again: 18.75ms.
+1. Packet loss over the internet generally isn't random.
+   It occurs in bursts, so your FEC packets have to be time offset (ex. parity sent 50ms later).
+2. Bursty packet loss is often due to bufferbloat (IP queues full), so sending more packets can aggravate the situation.
 
-The recovery cost isn't a property of the path, it's a property of the **longest hop**.
-Subdividing the path subdivides the pain.
+## Bufferbloat
+[Bufferbloat](https://en.wikipedia.org/wiki/Bufferbloat) is the cause of latency you should be worried about.
+Routers queuing packets for an indeterminate amount of time, dropping them when the queue is full (and latency is maximized).
 
-## Why This Works At All
-IP is a beautiful, hostile abstraction.
-A router in the middle of your path has no idea that a packet was lost, no way to tell anybody, and no copy of it to send again even if it wanted to.
-It made room in the queue and moved on with its life. 🐷
+You need to send fewer bytes to drain these queues to the baseline latency, not transmit 50% more as parity.
+And keep in mind that you end up paying real money for this redundant egress at scale.
 
-The only two machines in the entire path that know a packet went missing are the two endpoints.
-So the only place loss can be repaired is end-to-end, across the whole 100ms.
+## When FEC is Good
+FEC is a good idea when packet loss is truly random and not due to capacity (ex. signal interference).
+The lower level protocols (ex. WiFi, 5G) do this for you based on the signal characteristics of the interface.
 
-Put a QUIC (or TCP) proxy in the middle and you've changed the topology of *knowledge*.
-Now there's a box halfway along that terminates a connection, holds a send buffer, gets ACKs, and can retransmit on its own.
-The path went from one lossy hop to two short reliable ones.
+FEC is also a good idea when you can't put proxies in the middle, aka in space.
+If you can't daisy chain but latency is important, then slap on a bunch of parity packets.
+Same deal with P2P; there's no middle, so there's nothing to subdivide.
 
-This isn't free:
+And finally, FEC can work when your payload is small and tolerates loss, aka audio packets.
+But it's a terrible fit for video with our current codecs that take delta encoding to the extreme.
 
-- **Latency**: ~1ms per hop to drag each packet out of the NIC, up the stack, into userspace, and back down again.
-- **Money**: hardware routers forward packets for approximately zero dollars. Software proxies have CPUs, RAM, and a monthly bill.
+## A Quiz
+Why do CDNs have edge nodes in every metro?
 
-You are trading 1ms of certain, boring latency for tens of milliseconds of jitter buffer.
-Take that trade every single time.
-
-## But FEC Though
-Here's where somebody in the back raises their hand.
-
-*"Why retransmit on demand when you can retransmit in advance?"*
-
-That's FEC.
-Instead of waiting a full RTT to discover a packet is missing, you send parity data alongside your media.
-Lose a packet, reconstruct it from the parity, never take the round trip.
-Fall back to a retransmit for the ones you can't recover.
-
-On paper it's *gorgeous*.
-It converts a latency problem into a bandwidth problem, and bandwidth is cheap, and I'm an idiot for not seeing it.
-
-I have been hearing this pitch for a decade.
-Lately it's the robotics teleop crowd, who have discovered live video, discovered packet loss, and are now discovering the same cul-de-sac the video conferencing industry has been parked in since 2003.
-
-I remain the world's biggest FEC hater.
-Here's why.
-
-## Problem 1: Loss Isn't Random
-Packet loss on the internet does not arrive as a polite, uniformly distributed 1%.
-It arrives in **bursts**.
-A queue fills, and then it doesn't drop one packet, it drops the next *twelve*.
-
-Parity only helps if the loss is spread across the block.
-So to survive a burst, your parity has to be **time-offset** from the data it protects.
-Send the parity 50ms later and you can recover a 50ms outage.
-
-Read that again.
-The parity now arrives 50ms after the data.
-**You reinvented the jitter buffer.**
-
-That's the FEC latency tax and it's inescapable: the bigger the burst you want to survive, the further away in time your parity has to sit, and the longer the receiver has to wait before declaring a packet unrecoverable.
-Tuned for real bursts, FEC costs about as much latency as the retransmission you were trying to avoid.
-Tuned for the random loss in your simulation, it costs nothing and also does nothing.
-
-And please, [never show me a graph based on simulated random packet loss](/blog/forward-error-correction).
-
-## Problem 2: You're Making It Worse
-Where do bursts come from?
-
-**Congestion.**
-An interface upstream of you is oversubscribed, its queue filled up, latency spiked to whatever the queue depth allows, and then the tail of the queue got dropped on the floor.
-This is [bufferbloat](https://en.wikipedia.org/wiki/Bufferbloat), and it is the actual latency villain in your system.
-
-Note what the packet loss *is* in this story: it's the network's only way of telling you to send less.
-It's not noise on the line.
-It's a bill.
-
-So you respond by sending 50% more bytes.
-
-The queue gets deeper.
-The latency gets worse.
-More packets get dropped.
-Your FEC recovers some of them, the recovered stream keeps the sender from backing off, and now you're the reason the queue never drains.
-Somewhere in there a congestion controller is quietly weeping.
-
-The fix for a full queue is to **send fewer bytes**, not more.
-Every millisecond of bufferbloat you eliminate is a millisecond off of every single frame, not just the lost ones.
-Recovering a lost packet at the cost of a permanently deeper queue is the worst trade in networking.
-
-Also — and I say this as somebody who now has to look at an infrastructure bill — that parity is real egress.
-50% more bytes is 50% more money, multiplied by every viewer, forever, whether or not a single packet was lost.
-FEC is a subscription service you pay to a problem you could have solved with a server.
-
-## Pop Quiz
-Why does every CDN have edge nodes in every metro?
-
-The boring answer is caching, and the boring answer is only half right.
-
-The real answer is this whole blog post: **to make the lossy first and last hop as short as possible**.
-Your packet loss lives in the last mile — the WiFi, the cable modem, the congested ISP peering point.
-An edge node 5ms away turns that into a 5ms recovery instead of an 80ms one.
-The backbone hop from the edge to the origin is long, but it's a hop between two machines that *both* run real congestion control on a network that's provisioned not to drop.
-
-The caching is the bonus round, and it's a good one: every L7 hop can deduplicate.
-Identical HTTP requests collapse into one origin fetch.
-Identical [MoQ](https://moq.dev) subscriptions collapse into one copy of the broadcast per data center.
-That's how my favorite protocols scale — a million viewers, one copy of each frame crossing each expensive link.
-
-But even for 1:1 traffic with nothing to dedup, you still want the edge.
-Either the CDN daisy-chains relays the way I described up top, or it overprovisions the backbone so the long hops are congestion-free.
-Usually both.
-
-## Oh Right, P2P
-This is also, partially, why peer-to-peer video looks worse than you expect.
-
-P2P is the topology with the fewest hops.
-That sounds like a virtue and it's the whole marketing pitch: *no server in the middle!*
-But no server in the middle means **no place to repair loss**.
-
-You get one long hop, end to end, from somebody's uplink to somebody else's downlink, with all the loss of both last miles concentrated into a single recovery interval.
-Every retransmission pays the full path RTT.
-There's nothing to dedup, so a second viewer costs the sender a second copy on the worst link in the entire path — their own upload.
-
-So P2P protocols reach for FEC, because it's the only tool left when you've deleted the middle of the network.
-And then they eat the latency tax and the bandwidth tax anyway.
-It's not that P2P engineers are dumb, it's that they're playing with a bad hand and FEC is the least-bad card in it.
-
-If you *can* put a box in the middle, the box wins.
-
-## In Defense of Parity
-I'm a hater, not a liar.
-Sometimes you really are stuck with the bad hand, and there are real cases:
-
-**1. Loss that's genuinely random.**
-Signal interference is not congestion.
-A noisy radio drops bits for physics reasons and no amount of backing off will help.
-But notice that the layer which *knows* the signal characteristics — WiFi, 5G, DOCSIS, your fiber's FEC — is already doing this for you, adaptively, based on measurements you can't see.
-It's [hop-by-hop, not end-to-end](/blog/forward-error-correction), and the hop already handled it.
-
-**2. When you can't put a proxy in the middle.**
-This whole post is an argument for subdividing hops.
-Some hops can't be subdivided.
-In space, there is no metro to put an edge node in.
-If you're bouncing off a satellite, or crossing an ocean on a link you don't control, and latency matters more than money: slap on the parity packets.
-That's the trade FEC is *for*.
-
-**3. Small payloads that degrade gracefully.**
-An audio frame fits in one packet, so one lost packet is 20ms of audio and nothing else breaks.
-Duplicating it (or [RED](https://webrtchacks.com/red-improving-audio-quality-with-redundancy/), which is just FEC for people in a hurry) costs a rounding error of bandwidth because audio is like 5% of your bitrate.
-Fine. Go nuts.
-
-Video is the exact opposite of all three properties.
-Modern codecs take delta encoding to a psychotic extreme; a frame is a diff against a diff against a diff.
-Losing one packet doesn't cost you one packet, it corrupts every frame downstream until the next keyframe.
-And the parity for a 500KB keyframe is not a rounding error, it's another 250KB shoved into the exact queue that just overflowed.
-
-FEC for video is expensive when it works and catastrophic when it doesn't.
-
-## The Tell
-Notice what QUIC supports: retransmissions, congestion control, streams, migration, 0-RTT.
-Notice what it doesn't support: FEC.
-Neither does TCP, after 40 years of the smartest networking people alive trying to make it faster.
-
-There's [a proposal](https://www.ietf.org/archive/id/draft-michel-quic-fec-01.html), because there's always a proposal.
-Nobody ships it.
-
-The companies that obsess over these protocols — the ones with actual telemetry from actual billions of connections — spend their optimization budget on *moving the servers closer to the users*.
-Not on parity.
-That's the entire strategy.
-When your RTT to the edge is 20ms, retransmission beats FEC and it isn't close.
-
-So here's my heuristic, offered in the spirit of unearned confidence this blog is known for:
-
-**It's a red flag when a live protocol advertises FEC as a headline feature.**
-
-Either they don't understand networking the way I do — entirely possible that I'm the wrong one, [tell me on Discord](https://discord.moq.dev) — or, more likely, they're compensating for infrastructure they don't have.
-FEC is what you reach for when the first hop is 90ms and you can't do anything about it.
-
-Easy test: `traceroute` whatever IP their SDK connects to.
-If the first response isn't under 20ms, alarm bells.
-They're not selling you a better protocol, they're selling you a longer wire with parity bolted onto it.
+Duh, it's to make the lossy first/last hop as short as possible to minimize latency.
 
 <figure>
 	![A global CDN](/blog/first-cdn/global.png)
-	<figcaption>The actual FEC replacement, according to me, an American.</figcaption>
+	<figcaption>A "global" CDN according to me, an American.</figcaption>
 </figure>
 
-## The Pitch
-Which brings me to the part where I ask for money.
+Each L7 hop can deduplicate identical HTTP requests or MoQ subscriptions.
+This is how my favorite protocols scale; only one copy of the content makes it to each data center that needs it.
 
-The correct answer to packet loss is servers near your users.
-The annoying thing about servers near your users is that there have to be a lot of them, in a lot of metros, on good transit, in perpetuity, and unless you're a big boye that is not economically viable for one company's traffic.
+But even for 1:1 traffic, you still want edge nodes.
+The CDN can either daisy chain like mentioned above, or it can overprovision the backbone so the relatively long hops are congestion free.
 
-So pool your money with everybody else's.
-That's what a CDN *is*, and it's what [moq.pro](https://moq.pro) is: a fraction of a global presence, priced for people who are not Google.
+## Hater
+I'm the world's biggest FEC hater.
+I'm in good company because QUIC doesn't support FEC, nor does TCP.
+The cloud companies hyper optimizing these protocols do it by moving the cloud closer to the users.
 
-You could also just... [run your own relays](https://doc.moq.dev/bin/relay.html).
-`moq-relay` is [open source](https://github.com/moq-dev/moq) and daisy-chaining it is the entire point of the design.
-But at some point you're going to want a node in São Paulo and you're going to want somebody else to be paged about it.
+It's a red flag if a live protocol advertises FEC.
+Either they don't understand networking the same way I do, or they're running the wrong infrastructure.
+`traceroute` the connect IP address and if it's not \<20ms, alarm bells.
 
-## Conclusion
-There is no conclusion, this is a rant, you know the drill.
-
-- Packet loss recovery costs one RTT of the **worst hop**, so make the hops shorter.
-- FEC doesn't delete that cost, it prepays it in bandwidth and time-offset parity.
-- Bursty loss is congestion, and answering congestion with more bytes is arson.
-- The industry's actual answer, for 25 years, has been **more hops**.
-
-More hops, lower latency.
-It's not a paradox, it's just the internet being weird about queues.
-
-Previously on hating things:
-[Never\* use Datagrams](/blog/never-use-datagrams),
-[Forward? Error? Correction?](/blog/forward-error-correction),
-and [OpenAI's WebRTC Problem](/blog/webrtc-is-the-problem).
-
-Come tell me how wrong I am in the [Discord](https://discord.moq.dev).
+## btw
+btw pay for [MoQ.pro](https://moq.pro).
+Unless you're a big boye, it's not economically viable to run your own edges world wide.
+Pool your money with other customers so you can share a fraction of a global presence.
 
 Written by [@kixelated](https://github.com/kixelated).
 
