@@ -10,28 +10,34 @@ import Feature from "@/components/feature.astro";
 
 **Media over QUIC** is a live media protocol powered by [QUIC](https://quicwg.org/):
 a super-charged TCP/UDP replacement that powers [HTTP/3](https://en.wikipedia.org/wiki/HTTP/3).
-It's being developed by the [IETF](https://www.ietf.org/) and your _favorite_ big tech companies such as Google, Cisco, Akamai, etc.
+It's being standardized by the [IETF](https://www.ietf.org/) and your _favorite_ big tech companies such as Google, Cloudflare, Cisco, Meta, Akamai, etc (and me ofc).
 
-MoQ supports **real-time latency**, scales via **generic CDNs**, and **works in browsers**.
-It replaces [WebRTC](./blog/replacing-webrtc), [HLS/DASH](./blog/replacing-hls-dash), and [RTMP/SRT](./blog/on-a-boat) with one extensible protocol for **contribution**, mass **distribution**, dynamic **latency targets**, and **generic** live tracks.
-
-Holy, that's a lot of keywords, Batman. But seriously, <a href="/demo">try the demos already</a>. There's even a gameboy emulator. Don't pretend like you're not excited.
+Our goal is to replace [WebRTC](./blog/replacing-webrtc), [HLS/DASH](./blog/replacing-hls-dash), and [RTMP/SRT](./blog/on-a-boat) with one generic/extensible protocol.
+Supports any **latency**, any **scale**, and any **content** (not just media!).
 
 ### Features
 
 <ul class="list-none pl-0">
-	<Feature icon="source">**Open Source**: Production-ready [Rust and TypeScript libraries](/source).</Feature>
-	<Feature icon="realtime">**Real-time**: Minimal latency by skipping less important media during congestion.</Feature>
-	<Feature icon="scale">**Massive Scale**: Host your own CDN with [moq-relay](https://doc.moq.dev/bin/relay/) or use [moq.pro](https://moq.pro).</Feature>
-	<Feature icon="discover">**Discovery**: Live broadcast and peer discovery without a central authority.</Feature>
-	<Feature icon="efficient">**Efficient**: No encoding or bandwidth usage until a viewer needs it.</Feature>
-	<Feature icon="web">**Web**: Utilizes [WebTransport](https://caniuse.com/webtransport), [WebCodecs](https://caniuse.com/webcodecs), and [WebAudio](https://caniuse.com/audio-api) in [Typescript](https://doc.moq.dev/lib/js/).</Feature>
-	<Feature icon="native">**Native**: [Rust](https://doc.moq.dev/lib/rs/) → [C](https://doc.moq.dev/lib/c/), [Python](https://doc.moq.dev/lib/py/), [Kotlin](https://doc.moq.dev/lib/kt/), [Swift](https://doc.moq.dev/lib/swift/), and [Go](https://doc.moq.dev/lib/go/), plus [GStreamer](https://doc.moq.dev/bin/gstreamer), [OBS](https://doc.moq.dev/bin/obs), and [FFmpeg](https://doc.moq.dev/bin/cli) integrations.</Feature>
+	<Feature icon="realtime">**Real-time Latency**: Stay **live** by skipping less important data during congestion.</Feature>
+	<Feature icon="scale">**Massive Scale**: Fan out via a managed [CDN](https://moq.pro) and/or self-hosted [moq-relay](https://doc.moq.dev/bin/relay/).</Feature>
+	<Feature icon="discover">**Live Discovery**: Gossips broadcasts and the shortest route without a central authority.</Feature>
+	<Feature icon="efficient">**Cheap and Lazy**: Nothing is transmitted (or encoded!) until a viewer requests it.</Feature>
+	<Feature icon="web">**Web Support**: [Typescript](https://doc.moq.dev/lib/js/) utilizing [WebTransport](https://caniuse.com/webtransport), [WebCodecs](https://caniuse.com/webcodecs), and [WebAudio](https://caniuse.com/audio-api).</Feature>
+	<Feature icon="native">**Native Support**: [Rust](https://doc.moq.dev/lib/rs/), plus [C](https://doc.moq.dev/lib/c/), [Python](https://doc.moq.dev/lib/py/), [Kotlin](https://doc.moq.dev/lib/kt/), [Swift](https://doc.moq.dev/lib/swift/), and [Go](https://doc.moq.dev/lib/go/) bindings.</Feature>
+	<Feature icon="source">**Integrations**: [GStreamer](https://doc.moq.dev/bin/gstreamer), [OBS](https://doc.moq.dev/bin/obs), [FFmpeg](https://doc.moq.dev/bin/cli), [CLI](https://doc.moq.dev/bin/cli), and more!</Feature>
 </ul>
+
+### Use Cases
+- [Distribution](/blog/replacing-hls-dash): Scalable and on-demand, plus [HLS compatibility](https://github.com/moq-dev/moq/tree/main/rs/moq-hls). Think HTTP but live.
+- **Contribution**: Dynamic origins and failover, plus [TS/SRT compatibility](https://github.com/moq-dev/moq/tree/main/rs/moq-srt).
+- [Robotics](/blog/on-a-boat): Real-time teleoperation with custom telemetry, plus [WebRTC compatibility](https://github.com/moq-dev/moq/tree/main/rs/moq-rtc).
+- [Conferencing](/blog/first-app): Web support and dynamic peer discovery. [P2P](https://www.iroh.computer/) for native apps.
+
+Enough pondering, <a href="/demo">try the demos already</a>. There's even a gameboy emulator. Don't pretend like you're not excited.
 
 ### *Standards
 This website uses [moq-lite](https://doc.moq.dev/concept/layer/moq-lite), a subset of the *official* [moq-transport](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/) draft.
-moq-lite is forwards compatible with moq-transport (draft-14+) and works with any MoQ CDN (ex. [moq.pro](https://moq.pro)).
+moq-lite is forwards compatible with moq-transport (draft-14+) and will work with any MoQ CDN.
 The principles behind MoQ are fantastic, but standards are **SLOW** and involve too much arguing/bloat.
 My goal is to get MoQ in __production now__, even if it's not a standard yet.
 
@@ -41,12 +47,10 @@ My goal is to get MoQ in __production now__, even if it's not a standard yet.
 - The [docs](https://doc.moq.dev) and [Github](https://github.com/moq-dev/moq) if you're a nerd.
 - The [discord](https://discord.moq.dev) if you want to chat with me or other unhinged developers.
 - The [demos](/demo) if you seriously got this far without clicking on a link.
-- The [Pro](https://moq.pro) offering if you don't want to self-host.
+- The [pro offering](https://moq.pro) if you want to pay me for hosting lul.
 
 Contributions are welcome, of course.
 But also feel free to just yoink the code, fork it, and make it your own.
-If you're using some flavor of MoQ in the wild, or would like some help/advice, I'd love to hear about it
-
-Feel free to mail me! `me@kixel.me`
+If you're using some flavor of MoQ in the wild, or would like some help/advice, I'd love to hear about it: `me@kixel.me`
 
 ![@kixelated](/blog/avatar.png)
