@@ -130,35 +130,6 @@ Also — and I say this as somebody who now has to look at an infrastructure bil
 50% more bytes is 50% more money, multiplied by every viewer, forever, whether or not a single packet was lost.
 FEC is a subscription service you pay to a problem you could have solved with a server.
 
-## When FEC Is Actually Right
-I'm a hater, not a liar.
-There are real cases:
-
-**1. Loss that's genuinely random.**
-Signal interference is not congestion.
-A noisy radio drops bits for physics reasons and no amount of backing off will help.
-But notice that the layer which *knows* the signal characteristics — WiFi, 5G, DOCSIS, your fiber's FEC — is already doing this for you, adaptively, based on measurements you can't see.
-It's [hop-by-hop, not end-to-end](/blog/forward-error-correction), and the hop already handled it.
-
-**2. When you can't put a proxy in the middle.**
-This whole post is an argument for subdividing hops.
-Some hops can't be subdivided.
-In space, there is no metro to put an edge node in.
-If you're bouncing off a satellite, or crossing an ocean on a link you don't control, and latency matters more than money: slap on the parity packets.
-That's the trade FEC is *for*.
-
-**3. Small payloads that degrade gracefully.**
-An audio frame fits in one packet, so one lost packet is 20ms of audio and nothing else breaks.
-Duplicating it (or [RED](https://webrtchacks.com/red-improving-audio-quality-with-redundancy/), which is just FEC for people in a hurry) costs a rounding error of bandwidth because audio is like 5% of your bitrate.
-Fine. Go nuts.
-
-Video is the exact opposite of all three properties.
-Modern codecs take delta encoding to a psychotic extreme; a frame is a diff against a diff against a diff.
-Losing one packet doesn't cost you one packet, it corrupts every frame downstream until the next keyframe.
-And the parity for a 500KB keyframe is not a rounding error, it's another 250KB shoved into the exact queue that just overflowed.
-
-FEC for video is expensive when it works and catastrophic when it doesn't.
-
 ## Pop Quiz
 Why does every CDN have edge nodes in every metro?
 
@@ -194,6 +165,35 @@ And then they eat the latency tax and the bandwidth tax anyway.
 It's not that P2P engineers are dumb, it's that they're playing with a bad hand and FEC is the least-bad card in it.
 
 If you *can* put a box in the middle, the box wins.
+
+## In Defense of Parity
+I'm a hater, not a liar.
+Sometimes you really are stuck with the bad hand, and there are real cases:
+
+**1. Loss that's genuinely random.**
+Signal interference is not congestion.
+A noisy radio drops bits for physics reasons and no amount of backing off will help.
+But notice that the layer which *knows* the signal characteristics — WiFi, 5G, DOCSIS, your fiber's FEC — is already doing this for you, adaptively, based on measurements you can't see.
+It's [hop-by-hop, not end-to-end](/blog/forward-error-correction), and the hop already handled it.
+
+**2. When you can't put a proxy in the middle.**
+This whole post is an argument for subdividing hops.
+Some hops can't be subdivided.
+In space, there is no metro to put an edge node in.
+If you're bouncing off a satellite, or crossing an ocean on a link you don't control, and latency matters more than money: slap on the parity packets.
+That's the trade FEC is *for*.
+
+**3. Small payloads that degrade gracefully.**
+An audio frame fits in one packet, so one lost packet is 20ms of audio and nothing else breaks.
+Duplicating it (or [RED](https://webrtchacks.com/red-improving-audio-quality-with-redundancy/), which is just FEC for people in a hurry) costs a rounding error of bandwidth because audio is like 5% of your bitrate.
+Fine. Go nuts.
+
+Video is the exact opposite of all three properties.
+Modern codecs take delta encoding to a psychotic extreme; a frame is a diff against a diff against a diff.
+Losing one packet doesn't cost you one packet, it corrupts every frame downstream until the next keyframe.
+And the parity for a 500KB keyframe is not a rounding error, it's another 250KB shoved into the exact queue that just overflowed.
+
+FEC for video is expensive when it works and catastrophic when it doesn't.
 
 ## The Tell
 Notice what QUIC supports: retransmissions, congestion control, streams, migration, 0-RTT.
