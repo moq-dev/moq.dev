@@ -1,6 +1,10 @@
 // Cloudflare Worker entry. Static asset requests fall through to the ASSETS
 // binding (Workers-with-Static-Assets). Only /api/*, the de.moq.dev rewrite,
 // and the Go vanity import paths are handled here.
+//
+// Note that the Worker only sees a request if wrangler.jsonc says so: an asset
+// miss is answered with the 404 page rather than falling through, so every path
+// below has to be listed in `run_worker_first`.
 
 import { vanity } from "./vanity";
 
@@ -23,11 +27,6 @@ export default {
 			return handleSubscribe(request, env);
 		}
 
-		// `go get moq.dev/moq` and friends, which are served from a mirror repo
-		// rather than by this site.
-		const module = vanity(url);
-		if (module) return module;
-
 		// de.moq.dev is the DEMOQED page, which lives at /de in the static build.
 		const alreadyRewritten = url.pathname === "/de" || url.pathname.startsWith("/de/");
 		if (url.hostname.split(".")[0] === "de" && !alreadyRewritten) {
@@ -35,6 +34,12 @@ export default {
 			rewritten.pathname = `/de${url.pathname}`;
 			return env.ASSETS.fetch(new Request(rewritten, request));
 		}
+
+		// `go get moq.dev/moq` and friends, served from a mirror repo rather than
+		// by this site. After the rewrite above, so it only ever answers for the
+		// host the import paths are published under.
+		const module = vanity(url);
+		if (module) return module;
 
 		return env.ASSETS.fetch(request);
 	},
