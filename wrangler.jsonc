@@ -15,9 +15,10 @@
 		"binding": "ASSETS",
 
 		// Static assets are normally served before the Worker ever runs, which
-		// would skip the de.moq.dev -> /de rewrite for "/". Route just the root
-		// through the Worker; everything else still short-circuits to assets.
-		"run_worker_first": ["/"]
+		// would skip the de.moq.dev -> /de rewrite for "/" and swallow POSTs to
+		// /api/* with a bare 405. Route those through the Worker; everything else
+		// still short-circuits to assets.
+		"run_worker_first": ["/", "/api/*"]
 	},
 
 	// Environment-specific configurations
