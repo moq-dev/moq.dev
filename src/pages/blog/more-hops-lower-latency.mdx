@@ -1,17 +1,48 @@
 ---
 layout: "@/layouts/global.astro"
-title: "Paradox: More Hops, Lower Latency"
+title: "5 Hops at Kixel's"
 author: kixelated
-description: I'm the world's biggest FEC hater.
+description: It me.
 cover: "/blog/first-cdn/global.png"
 date: 2026-08-19
 ---
 
-# Paradox: More Hops, Lower Latency
-I want to shit on [FEC](/blog/forward-error-correction) some more.
-Some robotics teleop companies are peddling it.
+# 5 Hops at Kixel's
+I want to shit on [datagrams](/blog/never-use-datagrams) and [FEC](/blog/forward-error-correction).
+Stop putting `FEC == Lower Latency` on your marketing website and I'll stop writing blog posts.
 
-This is also a (partial) explanation for why P2P is lower quality, or higher latency, take your pick.
+deal?
+
+## The Problem
+We purchased a failing pizza parlor on the cheap.
+Sometimes the animatrionics get a bit aggressive and we need a human in the loop.
+
+So we hired a security guard in Bangladesh.
+The sooner we can deliver the video feed, the sooner we can avoid a kid getting stuffed into an exoskeleton.
+
+Unfortunately, the internet is a series of tubes.
+The tubes get full.
+Packets get dropped.
+Our video feed glitches out.
+Kids get stuffed.
+
+Oh no.
+
+## Enter Retransmission
+This little know protocol called **TCP** retransmits lost packets on demand.
+
+
+## Enter FEC
+
+Instead of retransmitting lost packets on demand, you retransmit them opportunistically (parity bits).
+If a packet is randomly dropped, you can probably reconstruct it, if not fall back to a retransmit.
+
+Problems:
+
+1. Packet loss over the internet generally isn't random.
+   It occurs in bursts, so your FEC packets have to be time offset (ex. parity sent 50ms later).
+2. Bursty packet loss is often due to bufferbloat (IP queues full), so sending more packets can aggravate the situation.
+
 
 ## More Hops
 The argument is that you want proxy nodes to split a lossy RTT into smaller and smaller segments.
