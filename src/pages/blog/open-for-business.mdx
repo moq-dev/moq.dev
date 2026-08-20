@@ -149,8 +149,8 @@ The *should* is there because the `moq-transport` standard is bloated and even w
 There's a lot of cruft that I don't implement in the [moq.dev](https://moq.dev) libraries, and to be fair, zero implementations fully implement the standard.
 
 Anyway, even if you only use [moq.pro](https://moq.pro) to prototype before switching to a big boye CDN, it's still a win for MoQ.
-The entire point of a **standard** is that you can switch out cloud providers without eating dirt.
-And the entire point of **open-source** is so cloud providers don't have to write any code themselves.
+The entire point of a **standard** is so you can switch out cloud providers without eating dirt.
+And the entire point of **open-source** is so cloud providers can sell something they didn't make.
 
 <figure>
 	![i made this](/blog/open-for-business/imadethis.png)
@@ -159,6 +159,31 @@ And the entire point of **open-source** is so cloud providers don't have to writ
 	</figcaption>
 </figure>
 
+## Try it!
+**Fun fact:** here's a *few* of the ways to watch MoQ broadcasts via [moq.pro](https://moq.pro):
+
+- [Web](https://doc.moq.dev/lib/js/@moq/watch.html): https://moq.watch/demo/bbb.hang
+- [ffmpeg](https://doc.moq.dev/bin/cli.html): `moq --client-connect "https://cdn.moq.pro/demo/bbb.hang" export ts | ffplay -`
+- [Gstreamer](https://doc.moq.dev/bin/gstreamer.html#gstreamer-plugin): `gst-launch-1.0 -v -e moqsrc name=s url=https://cdn.moq.pro/demo broadcast=bbb.hang`
+- [OBS](https://doc.moq.dev/bin/obs.html#obs-plugin): Create a MoQ source for `https://cdn.moq.pro/demo/bbb.hang`
+- [RTMP](https://github.com/moq-dev/moq/tree/main/rs/moq-rtmp): `rtmps://cdn.moq.pro:1935/demo/bbb.hang`
+- [SRT](https://github.com/moq-dev/moq/tree/main/rs/moq-srt): `srt://cdn.moq.pro:877?latency=500&streamid=#!::r=demo/bbb.hang,m=request`
+- [WebRTC](https://github.com/moq-dev/moq/tree/main/rs/moq-rtc): `https://cdn.moq.pro/whep/demo/bbb.hang`
+
+Of course there are libraries for [Rust](https://doc.moq.dev/lib/rs/) (native) and [Typescript](https://doc.moq.dev/lib/js/) (web).
+There are Rust-based bindings for [C](https://doc.moq.dev/lib/c/), [Python](https://doc.moq.dev/lib/py/), [Go](https://doc.moq.dev/lib/go/), [Swift](https://doc.moq.dev/lib/swift/), and [Kotlin](https://doc.moq.dev/lib/kt/).
+
+Many of these are written by Mr. Claude.
+I'm a fraud, I know, I don't actually know Kotlin/Swift and most definitely don't want to work on the SRT integration.
+Yell if you run into issues and better yet, point Mr. Claude towards the [repo](https://github.com/moq-dev/moq) to
+donate some tokens.
+
+<figure>
+	![i wrote this reality](/blog/open-for-business/reality.png)
+	<figcaption>
+		Reality is a bubble.
+	</figcaption>
+</figure>
 
 ## The Roadmap
 If you need something, [let me know](mailto:hi@moq.pro).
@@ -175,32 +200,6 @@ Next I'm working on:
 kewl.
 
 <figure>
-	![i wrote this reality](/blog/open-for-business/reality.png)
-	<figcaption>
-		Reality is a bubble.
-	</figcaption>
-</figure>
-
-## Try it!
-**Fun fact:** here's a *few* of the ways to watch MoQ broadcasts via [moq.pro](https://moq.pro):
-
-- [Web](https://doc.moq.dev/lib/js/@moq/watch.html): https://moq.watch/demo/bbb.hang
-- [ffmpeg](https://doc.moq.dev/bin/cli.html): `moq --client-connect "https://cdn.moq.pro/demo/bbb.hang" export ts | ffplay -`
-- [RTMP](https://github.com/moq-dev/moq/tree/main/rs/moq-rtmp): `rtmps://cdn.moq.pro:1935/demo/bbb.hang`
-- [SRT](https://github.com/moq-dev/moq/tree/main/rs/moq-srt): `srt://cdn.moq.pro:877?latency=500&streamid=#!::r=demo/bbb.hang,m=request`
-- [WebRTC](https://github.com/moq-dev/moq/tree/main/rs/moq-rtc): `https://cdn.moq.pro/whep/demo/bbb.hang`
-- [Gstreamer](https://doc.moq.dev/bin/gstreamer.html#gstreamer-plugin): `gst-launch-1.0 -v -e moqsrc name=s url=https://cdn.moq.pro/demo broadcast=bbb.hang`
-- [OBS](https://doc.moq.dev/bin/obs.html#obs-plugin): Create a MoQ source for `https://cdn.moq.pro/demo/bbb.hang`
-
-And of course there are libraries for [Rust](https://doc.moq.dev/lib/rs/) (native) and [Typescript](https://doc.moq.dev/lib/js/) (web).
-There are Rust-based bindings for [C](https://doc.moq.dev/lib/c/), [Python](https://doc.moq.dev/lib/py/), [Go](https://doc.moq.dev/lib/go/), [Swift](https://doc.moq.dev/lib/swift/), and [Kotlin](https://doc.moq.dev/lib/kt/).
-
-## The Company
-Hit me up if you want to throw money at this endeavor.
-Or you (or someone you know) wants to leave your cushy job.
-Especially if you speak the language of business.
-
-<figure>
 	![bless you for your business](/blog/open-for-business/ena.png)
 	<figcaption>
 		[\> Me when MoQ](https://www.youtube.com/watch?v=U8Gle8WzB3o) \
@@ -210,8 +209,14 @@ Especially if you speak the language of business.
 </figure>
 
 
+## The Company
+Hit me up if you want to throw money at this endeavor.
+Or you (or someone you know) wants to leave your cushy job.
+Especially if you speak the language of business.
+
 - Email me: `hillo@moq.pro`
 - Meet me: [https://meet.kixel.me](https://meet.kixel.me)
+
 
 Written by [@kixelated](https://github.com/kixelated).
 ![@kixelated](/blog/avatar.png)
