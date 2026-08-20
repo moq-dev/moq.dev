@@ -1,5 +1,8 @@
 // Cloudflare Worker entry. Static asset requests fall through to the ASSETS
-// binding (Workers-with-Static-Assets). Only /api/* is handled here.
+// binding (Workers-with-Static-Assets). Only /api/*, the de.moq.dev rewrite,
+// and the Go vanity import paths are handled here.
+
+import { vanity } from "./vanity";
 
 interface Env {
 	ASSETS: { fetch: (request: Request) => Promise<Response> };
@@ -19,6 +22,11 @@ export default {
 			}
 			return handleSubscribe(request, env);
 		}
+
+		// `go get moq.dev/moq` and friends, which are served from a mirror repo
+		// rather than by this site.
+		const module = vanity(url);
+		if (module) return module;
 
 		// de.moq.dev is the DEMOQED page, which lives at /de in the static build.
 		const alreadyRewritten = url.pathname === "/de" || url.pathname.startsWith("/de/");
