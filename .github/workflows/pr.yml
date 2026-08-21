@@ -17,3 +17,9 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run check
       - run: bun test
+
+      # Social cards are assembled in the layout from post frontmatter, so the
+      # built HTML is the only place a broken one shows up. Neither biome nor
+      # tsc nor the build itself can tell that a cover is an unrenderable format.
+      - run: bun astro build --mode live
+      - run: bun scripts/check-og.ts

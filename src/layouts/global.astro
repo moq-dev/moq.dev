@@ -62,9 +62,12 @@ const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https:/
 		<meta property="og:description" content={fullDescription} />
 		<meta property="og:url" content={pageUrl} />
 		<meta property="og:site_name" content="Media over QUIC" />
+		<!-- No og:image:width/height: covers live in public/ at whatever size they
+		were drawn, so any hardcoded pair is a lie for most pages. Scrapers measure
+		the image themselves when the dimensions are absent; when they're present and
+		wrong they're believed, and a card claiming to be smaller than Twitter's
+		300x157 minimum gets downgraded to a thumbnail. -->
 		<meta property="og:image" content={ogImage} />
-		<meta property="og:image:width" content="163" />
-		<meta property="og:image:height" content="150" />
 
 		<!-- Twitter Card -->
 		<meta name="twitter:card" content="summary_large_image" />
