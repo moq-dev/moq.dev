@@ -55,33 +55,72 @@ function metas(html: string): Map<string, string> {
 }
 
 /**
- * The pixel dimensions of a PNG or JPEG, or undefined for formats we don't
- * parse. Only the size matters here, so this reads headers rather than pulling
- * in an image library for a check that runs on a handful of files.
+ * The pixel dimensions of an image, or undefined when its bytes don't match the
+ * extension. Only the size matters here, so this validates headers rather than
+ * pulling in an image library for a check that runs on a handful of files.
  */
-function dimensions(path: string): { width: number; height: number } | undefined {
+export function dimensions(path: string, ext: string): { width: number; height: number } | undefined {
 	const buf = readFileSync(path);
 
 	// PNG: a fixed IHDR chunk, width and height as big-endian u32 at byte 16.
-	if (buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) {
+	if (
+		ext === ".png" &&
+		buf.length >= 24 &&
+		buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) &&
+		buf.toString("ascii", 12, 16) === "IHDR"
+	) {
 		return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
 	}
 
 	// JPEG: walk the segment chain to a start-of-frame marker, which carries the
 	// dimensions. Segments are 0xFF, a marker byte, then a big-endian length.
-	if (buf[0] === 0xff && buf[1] === 0xd8) {
+	if ((ext === ".jpg" || ext === ".jpeg") && buf[0] === 0xff && buf[1] === 0xd8) {
 		let at = 2;
-		while (at + 9 < buf.length) {
-			if (buf[at] !== 0xff) break;
-			const marker = buf[at + 1];
-			const length = buf.readUInt16BE(at + 2);
+		while (at < buf.length) {
+			while (buf[at] === 0xff) at++;
+			const marker = buf[at++];
+			if (marker === undefined || marker === 0xd9 || marker === 0xda) break;
+			if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) continue;
+			if (at + 2 > buf.length) break;
+
+			const length = buf.readUInt16BE(at);
+			if (length < 2 || at + length > buf.length) break;
 
 			// SOF0-SOF15, excluding the DHT/JPG/DAC markers interleaved among them.
 			if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
-				return { height: buf.readUInt16BE(at + 5), width: buf.readUInt16BE(at + 7) };
+				if (length < 7) break;
+				return { height: buf.readUInt16BE(at + 3), width: buf.readUInt16BE(at + 5) };
 			}
 
-			at += 2 + length;
+			at += length;
+		}
+	}
+
+	// GIF: the logical screen width and height follow the GIF87a/GIF89a header.
+	if (ext === ".gif" && buf.length >= 10 && ["GIF87a", "GIF89a"].includes(buf.toString("ascii", 0, 6))) {
+		return { width: buf.readUInt16LE(6), height: buf.readUInt16LE(8) };
+	}
+
+	// WebP: validate the RIFF container and read dimensions from the payload used
+	// by its lossy, lossless, or extended encoding.
+	if (
+		ext === ".webp" &&
+		buf.length >= 20 &&
+		buf.toString("ascii", 0, 4) === "RIFF" &&
+		buf.toString("ascii", 8, 12) === "WEBP"
+	) {
+		const chunk = buf.toString("ascii", 12, 16);
+		if (chunk === "VP8 " && buf.length >= 30 && buf.subarray(23, 26).equals(Buffer.from([0x9d, 0x01, 0x2a]))) {
+			return { width: buf.readUInt16LE(26) & 0x3fff, height: buf.readUInt16LE(28) & 0x3fff };
+		}
+		if (chunk === "VP8L" && buf.length >= 25 && buf[20] === 0x2f) {
+			return {
+				width: 1 + buf[21] + ((buf[22] & 0x3f) << 8),
+				height: 1 + ((buf[22] & 0xc0) >> 6) + (buf[23] << 2) + ((buf[24] & 0x0f) << 10),
+			};
+		}
+		if (chunk === "VP8X" && buf.length >= 30) {
+			return { width: 1 + buf.readUIntLE(24, 3), height: 1 + buf.readUIntLE(27, 3) };
 		}
 	}
 
@@ -123,8 +162,12 @@ function checkImage(key: string, value: string): { errors: string[]; warnings: s
 		return { ...none, errors: [`${key} has no file at ${path}: ${value}`] };
 	}
 
-	const size = dimensions(path);
-	if (size && (size.width < MIN_WIDTH || size.height < MIN_HEIGHT)) {
+	const size = dimensions(path, ext);
+	if (!size || size.width === 0 || size.height === 0) {
+		return { ...none, errors: [`${key} is not a valid ${ext.slice(1).toUpperCase()} file: ${value}`] };
+	}
+
+	if (size.width < MIN_WIDTH || size.height < MIN_HEIGHT) {
 		return {
 			...none,
 			warnings: [
@@ -136,49 +179,54 @@ function checkImage(key: string, value: string): { errors: string[]; warnings: s
 	return none;
 }
 
-if (!existsSync(DIST)) {
-	console.error(`no ${DIST}/ -- run \`astro build\` first`);
-	process.exit(1);
-}
-
-const broken: string[] = [];
-const degraded: string[] = [];
-const files = pages(DIST);
-
-for (const file of files) {
-	const found = metas(readFileSync(file, "utf8"));
-	const errors: string[] = [];
-	const warnings: string[] = [];
-
-	for (const key of REQUIRED) {
-		if (!found.get(key)) errors.push(`missing ${key}`);
+function main(): number {
+	if (!existsSync(DIST)) {
+		console.error(`no ${DIST}/ -- run \`astro build\` first`);
+		return 1;
 	}
 
-	// twitter:image is optional -- without it a card falls back to og:image, which
-	// is fine. It just has to be valid when a page does set it.
-	for (const key of ["og:image", "twitter:image"]) {
-		const value = found.get(key);
-		if (!value) continue;
+	const broken: string[] = [];
+	const degraded: string[] = [];
+	const files = pages(DIST);
 
-		const result = checkImage(key, value);
-		errors.push(...result.errors);
-		warnings.push(...result.warnings);
+	for (const file of files) {
+		const found = metas(readFileSync(file, "utf8"));
+		const errors: string[] = [];
+		const warnings: string[] = [];
+
+		for (const key of REQUIRED) {
+			if (!found.get(key)) errors.push(`missing ${key}`);
+		}
+
+		// twitter:image is optional -- without it a card falls back to og:image, which
+		// is fine. It just has to be valid when a page does set it.
+		for (const key of ["og:image", "twitter:image"]) {
+			const value = found.get(key);
+			if (!value) continue;
+
+			const result = checkImage(key, value);
+			errors.push(...result.errors);
+			warnings.push(...result.warnings);
+		}
+
+		const list = (problems: string[]) => `${file}\n${problems.map((p) => `  ${p}`).join("\n")}`;
+		if (errors.length) broken.push(list(errors));
+		if (warnings.length) degraded.push(list(warnings));
 	}
 
-	const list = (problems: string[]) => `${file}\n${problems.map((p) => `  ${p}`).join("\n")}`;
-	if (errors.length) broken.push(list(errors));
-	if (warnings.length) degraded.push(list(warnings));
+	if (degraded.length) {
+		console.warn(`Social cards that render smaller than they could, in ${degraded.length} of ${files.length} pages:\n`);
+		console.warn(`${degraded.join("\n\n")}\n`);
+	}
+
+	if (broken.length) {
+		console.error(`Broken social cards in ${broken.length} of ${files.length} pages:\n`);
+		console.error(`${broken.join("\n\n")}\n`);
+		return 1;
+	}
+
+	console.log(`Social cards OK across ${files.length} pages.`);
+	return 0;
 }
 
-if (degraded.length) {
-	console.warn(`Social cards that render smaller than they could, in ${degraded.length} of ${files.length} pages:\n`);
-	console.warn(`${degraded.join("\n\n")}\n`);
-}
-
-if (broken.length) {
-	console.error(`Broken social cards in ${broken.length} of ${files.length} pages:\n`);
-	console.error(`${broken.join("\n\n")}\n`);
-	process.exit(1);
-}
-
-console.log(`Social cards OK across ${files.length} pages.`);
+if (import.meta.main) process.exit(main());
