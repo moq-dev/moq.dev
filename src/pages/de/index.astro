@@ -3,7 +3,7 @@
 // Deliberately standalone: no global layout, no nav, no Tailwind. Just a very
 // tall stack of DE MOQ ED where the MOQ column walks the color wheel on the
 // way down.
-const ROWS = 64;
+const ROWS = 20;
 
 // Start on the moq.dev green and make exactly one lap so the bottom row lands
 // back where the top row started.
@@ -14,19 +14,45 @@ const rows = Array.from({ length: ROWS }, (_, i) => ({
 	hue: (HUE_START + (HUE_SWEEP * i) / ROWS) % 360,
 }));
 
-// Slotted between rows at these indices (drawn *after* row N).
-const asides = new Map([
-	[3, "demuxed is canceled this year."],
-	[14, "so we're throwing our own thing."],
-	// Non-breaking space so a narrow window never splits the city name.
-	[25, "thursday, october 8 · san\u00a0francisco"],
-	[36, "talk about moq stuff i guess."],
-	[47, "venue, tickets: tbd"],
-	[58, "see you in october."],
-]);
+const agenda = [
+	["12:30", "doors open · coffee"],
+	["1:00", "welcome from the MoQ Alliance"],
+	["1:10", "talk 01"],
+	["1:40", "talk 02"],
+	["2:10", "talk 03"],
+	["2:40", "break"],
+	["3:00", "talk 04"],
+	["3:30", "talk 05"],
+	["4:00", "talk 06"],
+	["4:30", "demos + lightning talks"],
+	["5:00", "talks wrap"],
+	["6:00", "happy hour"],
+	["8:00", "last call"],
+];
+
+const members = [
+	["Akamai", "https://www.akamai.com", "akamai.svg"],
+	["AWS", "https://aws.amazon.com", "aws.png"],
+	["Bitmovin", "https://bitmovin.com", "bitmovin.png"],
+	["Cisco", "https://cisco.com", "cisco.svg"],
+	["Cloudflare", "https://cloudflare.com", "cloudflare.svg"],
+	["Datum", "https://www.datum.net", "datum.svg"],
+	["Demuxed", "https://demuxed.com", "demuxed.png"],
+	["Fastly", "https://fastly.com", "fastly.svg"],
+	["Iroh", "https://iroh.computer", "iroh.png"],
+	["moq.dev", "https://moq.dev", "moq-dev.svg"],
+	["MOQtail", "https://github.com/moqtail", "moqtail.png"],
+	["Mux", "https://mux.com", "mux.svg"],
+	["Norsk", "https://norsk.video", "norsk.png"],
+	["OpenMOQ", "https://openmoq.org", "openmoq.svg"],
+	["Qualabs", "https://qualabs.com", "qualabs.svg"],
+	["Red5", "https://www.red5.net", "red5.png"],
+	["Software Mansion", "https://swmansion.com", "software-mansion.png"],
+];
 
 const title = "DEMOQED";
-const description = "Demuxed is canceled, so we're doing our own thing. October 8, San Francisco.";
+const description =
+	"DEMOQED is a single-track conference for people building on Media over QUIC. October 8, 2026 in San Francisco.";
 ---
 
 <!doctype html>
@@ -235,22 +261,202 @@ const description = "Demuxed is canceled, so we're doing our own thing. October 
 			}
 
 			.aside {
-				padding: clamp(2rem, 6vh, 5rem) var(--gutter);
-				text-align: center;
-				font-size: clamp(0.85rem, 2vw, 1.35rem);
+				position: relative;
+				isolation: isolate;
+				width: min(calc(100% - 2 * var(--gutter)), 68rem);
+				margin: clamp(3rem, 10vh, 8rem) auto;
+				padding: clamp(2rem, 6vw, 5rem);
+				background: rgb(239 233 221 / 96%);
+				color: var(--ink);
+				box-shadow:
+					0 0 0 1px hsl(var(--accent-h) 92% 58% / 45%),
+					0 0 80px hsl(var(--accent-h) 100% 50% / 18%);
+			}
+
+			.aside::before {
+				content: "";
+				position: absolute;
+				inset: 0 0 auto;
+				height: 0.45rem;
+				background: linear-gradient(
+					90deg,
+					hsl(var(--accent-h) 92% 48%),
+					hsl(calc(var(--accent-h) + 55) 100% 52%)
+				);
+			}
+
+			.kicker {
+				margin: 0 0 1.5rem;
+				font-size: 0.72rem;
+				font-weight: 500;
 				letter-spacing: 0.24em;
 				text-transform: uppercase;
-				color: var(--paper);
-				/* Roomy enough that the rule under a wrapped line can't collide
-				   with the line below it. */
-				line-height: 2.4;
+				color: hsl(var(--accent-h) 70% 30%);
+			}
+
+			.aside h2 {
+				max-width: 13ch;
+				margin: 0;
+				font-family: "Anton", "Arial Narrow", sans-serif;
+				font-size: clamp(2.4rem, 6.5vw, 5.25rem);
+				font-weight: 400;
+				line-height: 0.92;
+				letter-spacing: -0.015em;
+				text-transform: uppercase;
 				text-wrap: balance;
 			}
 
-			.aside span {
-				border-bottom: 2px solid currentColor;
-				padding-bottom: 0.4em;
-				box-decoration-break: clone;
+			.aside .lede {
+				max-width: 44rem;
+				margin: clamp(2rem, 5vw, 3.5rem) 0 0;
+				font-size: clamp(0.95rem, 1.8vw, 1.2rem);
+				line-height: 1.65;
+			}
+
+			.aside .lede + .lede {
+				margin-top: 1rem;
+			}
+
+			.aside a {
+				color: inherit;
+				text-underline-offset: 0.25em;
+				text-decoration-thickness: 2px;
+				text-decoration-color: hsl(var(--accent-h) 92% 42%);
+			}
+
+			.split {
+				display: grid;
+				grid-template-columns: minmax(0, 1.1fr) minmax(16rem, 0.9fr);
+				gap: clamp(2rem, 7vw, 6rem);
+				align-items: end;
+			}
+
+			.split .lede {
+				margin-top: 0;
+			}
+
+			.member-wall {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr));
+				gap: 0.5rem;
+				margin-top: clamp(2.5rem, 6vw, 4rem);
+				padding: 0;
+				list-style: none;
+			}
+
+			.member-wall li {
+				display: flex;
+			}
+
+			.aside a.member {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				min-height: 4.5rem;
+				width: 100%;
+				padding: 0.8rem;
+				background: #fff;
+				border: 1px solid rgb(8 7 10 / 18%);
+				text-decoration: none;
+				transition: transform 120ms ease;
+			}
+
+			.member img {
+				display: block;
+				max-width: 100%;
+				max-height: 2.5rem;
+				object-fit: contain;
+			}
+
+			.member:hover {
+				transform: translateY(-2px);
+			}
+
+			.agenda {
+				list-style: none;
+				margin: clamp(2.5rem, 6vw, 4rem) 0 0;
+				padding: 0;
+				border-top: 2px solid var(--ink);
+			}
+
+			.agenda li {
+				display: grid;
+				grid-template-columns: 5rem 1fr;
+				gap: 1.25rem;
+				padding: 0.85rem 0;
+				border-bottom: 1px solid rgb(8 7 10 / 24%);
+				font-size: clamp(0.8rem, 1.8vw, 1rem);
+				text-transform: uppercase;
+			}
+
+			.agenda time {
+				color: hsl(var(--accent-h) 70% 30%);
+				font-weight: 500;
+			}
+
+			.actions {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.75rem;
+				margin-top: clamp(2rem, 5vw, 3.5rem);
+			}
+
+			.button {
+				display: inline-block;
+				padding: 1rem 1.4rem;
+				border: 2px solid var(--ink);
+				font-family: "Anton", "Arial Narrow", sans-serif;
+				font-size: 1.05rem;
+				letter-spacing: 0.06em;
+				line-height: 1;
+				text-decoration: none;
+				text-transform: uppercase;
+			}
+
+			.button-primary {
+				background: hsl(var(--accent-h) 92% 55%);
+				color: var(--ink);
+			}
+
+			.button-secondary {
+				background: transparent;
+			}
+
+			.price {
+				margin: 0;
+				font-family: "Anton", "Arial Narrow", sans-serif;
+				font-size: clamp(5rem, 13vw, 9rem);
+				line-height: 0.8;
+				letter-spacing: -0.02em;
+			}
+
+			.note {
+				margin: 1.5rem 0 0;
+				font-size: 0.78rem;
+				line-height: 1.7;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: #55515a;
+			}
+
+			.aside-fin {
+				text-align: center;
+			}
+
+			.aside-fin h2 {
+				margin: 0 auto;
+			}
+
+			.sr-only {
+				position: absolute;
+				width: 1px;
+				height: 1px;
+				padding: 0;
+				margin: -1px;
+				overflow: hidden;
+				clip: rect(0, 0, 0, 0);
+				white-space: nowrap;
+				border: 0;
 			}
 
 			.scrollhint {
@@ -286,11 +492,33 @@ const description = "Demuxed is canceled, so we're doing our own thing. October 
 				}
 				.row .moq,
 				.scrollhint span,
-				.progress {
+				.progress,
+				.member {
 					animation: none;
+					transition: none;
 				}
 				.progress {
 					display: none;
+				}
+			}
+
+			@media (max-width: 720px) {
+				.aside {
+					padding: 2.5rem 1.25rem;
+				}
+
+				.split {
+					grid-template-columns: 1fr;
+				}
+
+				.agenda li {
+					grid-template-columns: 4rem 1fr;
+					gap: 0.75rem;
+				}
+
+				.button {
+					flex: 1 1 12rem;
+					text-align: center;
 				}
 			}
 		</style>
@@ -308,6 +536,7 @@ const description = "Demuxed is canceled, so we're doing our own thing. October 
 		<div class="scrollhint"><span>scroll ↓</span></div>
 
 		<main class="stack" aria-label="DEMOQED">
+			<h1 class="sr-only">DEMOQED — the MoQ Alliance conference</h1>
 			{
 				rows.map(({ hue }, i) => (
 					<>
@@ -318,10 +547,111 @@ const description = "Demuxed is canceled, so we're doing our own thing. October 
 							</span>
 							<span class="fixed">ED</span>
 						</div>
-						{asides.has(i) && (
-							<p class="aside">
-								<span>{asides.get(i)}</span>
-							</p>
+						{i === 3 && (
+							<section class="aside" style="--accent-h:165">
+								<p class="kicker">demuxed is canceled this year</p>
+								<h2>Let's talk about MoQ instead</h2>
+								<p class="lede">
+									DEMOQED is an afternoon for people building Media over QUIC.
+									Talks, demos, and time to compare notes.
+								</p>
+								<p class="lede">
+									Thursday, October 8 during <a href="https://www.tech-week.com/"
+										>SF Tech Week</a
+									> at <a
+										href="https://share.google/DPkfeck6IG5HjEPpf"
+										>Alamo Drafthouse</a
+									> in San Francisco. 150–200 people.
+								</p>
+							</section>
+						)}
+
+						{i === 7 && (
+							<section class="aside" style="--accent-h:265">
+								<div class="split">
+									<div>
+										<p class="kicker">organized by</p>
+										<h2>MoQ Alliance</h2>
+									</div>
+									<div>
+										<p class="lede">
+											We're a collection of companies and open-source projects
+											implementing MoQ. We want it to succeed, so we're getting
+											everybody in one room.
+										</p>
+										<p class="lede">
+											Protocol work happens at the <a
+												href="https://datatracker.ietf.org/wg/moq/about/"
+												>IETF</a
+											>. <a href="https://moqalliance.org">The MoQ Alliance</a> is
+											for applications, deployments, demos, and bugs.
+										</p>
+									</div>
+								</div>
+				<ul class="member-wall" aria-label="MoQ Alliance members">
+					{members.map(([name, url, logo]) => (
+						<li>
+							<a class="member" href={url} title={name}>
+								<img
+									src={`https://moqalliance.org/logos/${logo}`}
+									alt={name}
+									loading="lazy"
+								/>
+							</a>
+						</li>
+					))}
+				</ul>
+							</section>
+						)}
+
+						{i === 11 && (
+							<section class="aside" style="--accent-h:325">
+								<p class="kicker">agenda · program in progress</p>
+								<h2>Schedule</h2>
+								<ol class="agenda">
+									{agenda.map(([time, item]) => (
+										<li>
+											<time>{time}</time>
+											<span>{item}</span>
+										</li>
+									))}
+								</ol>
+							</section>
+						)}
+
+						{i === 15 && (
+							<section class="aside" style="--accent-h:35">
+								<div class="split">
+									<div>
+										<p class="kicker">tickets</p>
+										<p class="price">$99</p>
+									</div>
+									<div>
+										<p class="lede">
+											October 8 · Alamo Drafthouse · San Francisco.
+										</p>
+										<div class="actions">
+											<a
+												class="button button-primary"
+												href="https://ti.to/moq-alliance/demoqed-2026"
+												>register ↗</a
+											>
+											<a
+												class="button button-secondary"
+												href="mailto:hello@moqalliance.org?subject=DEMOQED%202026%20talk%20submission"
+												>submit a talk</a
+											>
+										</div>
+										<p class="note">Want to sponsor? Buy tickets for people instead.</p>
+									</div>
+								</div>
+							</section>
+						)}
+
+						{i === 19 && (
+							<section class="aside aside-fin" style="--accent-h:142">
+								<h2>FIN</h2>
+							</section>
 						)}
 					</>
 				))

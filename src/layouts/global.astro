@@ -19,6 +19,7 @@ interface Props {
 		date: string;
 		description: string;
 		cover?: string;
+		redirect?: string;
 		subscribe?: boolean;
 	};
 }
@@ -34,6 +35,8 @@ const showSubscribe = subscribe ?? frontmatter?.subscribe ?? Boolean(frontmatter
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "https://moq.dev";
 const pageUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const redirectUrl = frontmatter?.redirect ? new URL(frontmatter.redirect, siteUrl).toString() : undefined;
+const canonicalUrl = redirectUrl ?? pageUrl;
 const fullTitle = title ? `${title} - Media over QUIC` : "Media over QUIC";
 const fullDescription = description
 	? `Media over QUIC: ${description}`
@@ -55,12 +58,14 @@ const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https:/
 		<link rel="alternate" type="application/rss+xml" title="moq.dev RSS Feed" href={new URL("rss.xml", Astro.site)} />
 		<meta name="generator" content={Astro.generator} />
 		<title>{fullTitle}</title>
+		<link rel="canonical" href={canonicalUrl} />
+		{redirectUrl && <meta http-equiv="refresh" content={`0;url=${redirectUrl}`} />}
 
 		<!-- Open Graph -->
 		<meta property="og:type" content={frontmatter?.date ? "article" : "website"} />
 		<meta property="og:title" content={fullTitle} />
 		<meta property="og:description" content={fullDescription} />
-		<meta property="og:url" content={pageUrl} />
+		<meta property="og:url" content={canonicalUrl} />
 		<meta property="og:site_name" content="Media over QUIC" />
 		<meta property="og:image" content={ogImage} />
 		<meta property="og:image:width" content="163" />
