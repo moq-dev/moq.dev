@@ -53,6 +53,9 @@ const members = [
 const title = "DEMOQED";
 const description =
 	"DEMOQED is an afternoon about Media over QUIC. October 8, 2026 in San Francisco.";
+const siteUrl = import.meta.env.MODE === "staging" ? "https://new.moq.dev" : "https://de.moq.dev";
+const pageUrl = import.meta.env.MODE === "staging" ? `${siteUrl}/de/` : `${siteUrl}/`;
+const socialImage = `${siteUrl}/de/social.png`;
 ---
 
 <!doctype html>
@@ -67,16 +70,16 @@ const description =
 		<meta property="og:type" content="website" />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
-		<meta property="og:url" content="https://de.moq.dev" />
+		<meta property="og:url" content={pageUrl} />
 		<meta property="og:site_name" content="DEMOQED" />
-		<meta property="og:image" content="https://de.moq.dev/de/social.png" />
+		<meta property="og:image" content={socialImage} />
 		<meta property="og:image:width" content="1200" />
 		<meta property="og:image:height" content="630" />
 		<meta property="og:image:alt" content="DEMOQED — October 8, 2026 in San Francisco" />
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />
-		<meta name="twitter:image" content="https://de.moq.dev/de/social.png" />
+		<meta name="twitter:image" content={socialImage} />
 		<meta name="twitter:image:alt" content="DEMOQED — October 8, 2026 in San Francisco" />
 
 		<meta name="theme-color" content="#08070a" />
