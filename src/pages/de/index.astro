@@ -3,7 +3,7 @@
 // Deliberately standalone: no global layout, no nav, no Tailwind. Just a very
 // tall stack of DE MOQ ED where the MOQ column walks the color wheel on the
 // way down.
-const ROWS = 20;
+const ROWS = 16;
 
 // Start on the moq.dev green and make exactly one lap so the bottom row lands
 // back where the top row started.
@@ -40,7 +40,7 @@ const members = [
 	["Demuxed", "https://demuxed.com", "demuxed.png"],
 	["Fastly", "https://fastly.com", "fastly.svg"],
 	["Iroh", "https://iroh.computer", "iroh.png"],
-	["moq.dev", "https://moq.dev", "moq-dev.svg"],
+	["moq.pro", "https://moq.pro", "/layout/pro-icon.svg"],
 	["MOQtail", "https://github.com/moqtail", "moqtail.png"],
 	["Mux", "https://mux.com", "mux.svg"],
 	["Norsk", "https://norsk.video", "norsk.png"],
@@ -52,7 +52,7 @@ const members = [
 
 const title = "DEMOQED";
 const description =
-	"DEMOQED is a single-track conference for people building on Media over QUIC. October 8, 2026 in San Francisco.";
+	"DEMOQED is an afternoon about Media over QUIC. October 8, 2026 in San Francisco.";
 ---
 
 <!doctype html>
@@ -62,18 +62,22 @@ const description =
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>DEMOQED — October 8 · San Francisco</title>
 		<meta name="description" content={description} />
-		<link rel="icon" type="image/svg+xml" href="/layout/favicon.svg" />
-		<link rel="icon" type="image/png" href="/layout/favicon.png" />
+		<link rel="icon" type="image/svg+xml" href="/de/favicon.svg" />
 
 		<meta property="og:type" content="website" />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		<meta property="og:url" content="https://de.moq.dev" />
 		<meta property="og:site_name" content="DEMOQED" />
-		<meta property="og:image" content="https://moq.dev/layout/icon.png" />
-		<meta name="twitter:card" content="summary" />
+		<meta property="og:image" content="https://de.moq.dev/de/social.png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content="DEMOQED — October 8, 2026 in San Francisco" />
+		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content="https://de.moq.dev/de/social.png" />
+		<meta name="twitter:image:alt" content="DEMOQED — October 8, 2026 in San Francisco" />
 
 		<meta name="theme-color" content="#08070a" />
 
@@ -317,6 +321,51 @@ const description =
 				margin-top: 1rem;
 			}
 
+			.event-facts {
+				display: grid;
+				grid-template-columns: minmax(14rem, 0.7fr) minmax(24rem, 1.3fr);
+				gap: clamp(2rem, 7vw, 6rem);
+				max-width: 60rem;
+				margin: clamp(2rem, 5vw, 3.5rem) 0 0;
+			}
+
+			.event-facts div {
+				min-width: 0;
+			}
+
+			.event-facts dt {
+				font-size: 0.72rem;
+				font-weight: 500;
+				letter-spacing: 0.24em;
+				text-transform: uppercase;
+				color: hsl(var(--accent-h) 70% 30%);
+			}
+
+			.event-facts dd {
+				margin: 0.65rem 0 0;
+				font-family: "Anton", "Arial Narrow", sans-serif;
+				font-size: clamp(2.8rem, 6vw, 5rem);
+				line-height: 0.92;
+				text-transform: uppercase;
+				white-space: nowrap;
+			}
+
+			.event-facts .venue {
+				font-size: clamp(2.4rem, 5vw, 4.25rem);
+			}
+
+			.event-facts .venue-detail {
+				display: block;
+				margin-top: 0.65rem;
+				font-family: "DM Mono", ui-monospace, monospace;
+				font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+				font-weight: 500;
+				letter-spacing: 0.16em;
+				line-height: 1.2;
+				text-transform: uppercase;
+				color: #55515a;
+			}
+
 			.aside a {
 				color: inherit;
 				text-underline-offset: 0.25em;
@@ -349,6 +398,7 @@ const description =
 			}
 
 			.aside a.member {
+				position: relative;
 				display: flex;
 				align-items: center;
 				justify-content: center;
@@ -357,7 +407,25 @@ const description =
 				padding: 0.8rem;
 				background: #fff;
 				border: 1px solid rgb(8 7 10 / 18%);
+				overflow: hidden;
 				text-decoration: none;
+				transition: transform 120ms ease;
+			}
+
+			.aside a.member::after {
+				content: attr(data-name);
+				position: absolute;
+				inset: auto 0 0;
+				padding: 0.25rem 0.4rem;
+				background: rgb(8 7 10 / 90%);
+				color: var(--paper);
+				font-size: 0.55rem;
+				font-weight: 500;
+				letter-spacing: 0.08em;
+				line-height: 1.2;
+				text-align: center;
+				text-transform: uppercase;
+				transform: translateY(100%);
 				transition: transform 120ms ease;
 			}
 
@@ -368,8 +436,29 @@ const description =
 				object-fit: contain;
 			}
 
+			.member img.member-logo-large {
+				width: 3rem;
+				height: 3rem;
+				max-width: none;
+				max-height: none;
+			}
+
 			.member:hover {
 				transform: translateY(-2px);
+			}
+
+			.member:hover::after,
+			.member:focus-visible::after {
+				transform: translateY(0);
+			}
+
+			.join {
+				margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+				font-size: 0.78rem;
+				font-weight: 500;
+				letter-spacing: 0.12em;
+				text-align: center;
+				text-transform: uppercase;
 			}
 
 			.agenda {
@@ -399,6 +488,32 @@ const description =
 				flex-wrap: wrap;
 				gap: 0.75rem;
 				margin-top: clamp(2rem, 5vw, 3.5rem);
+			}
+
+			.schedule-head {
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) auto;
+				gap: clamp(2rem, 8vw, 7rem);
+				align-items: start;
+			}
+
+			.ticket-summary {
+				min-width: clamp(11rem, 20vw, 16rem);
+				text-align: right;
+			}
+
+			.ticket-summary .kicker {
+				margin-bottom: 0.75rem;
+			}
+
+			.schedule-cta {
+				width: min(100%, 40rem);
+				margin: clamp(1.5rem, 4vw, 3rem) 0 0 auto;
+			}
+
+			.schedule-cta .actions {
+				justify-content: flex-end;
+				margin-top: 0;
 			}
 
 			.button {
@@ -439,12 +554,33 @@ const description =
 				color: #55515a;
 			}
 
-			.aside-fin {
+			.schedule-note {
+				margin-top: clamp(1.5rem, 4vw, 2.5rem);
 				text-align: center;
 			}
 
-			.aside-fin h2 {
-				margin: 0 auto;
+			.fin {
+				position: relative;
+				padding: clamp(3rem, 8vw, 7rem) var(--gutter);
+				background: var(--paper);
+				color: var(--ink);
+				text-align: center;
+			}
+
+			.fin::before {
+				content: "";
+				position: absolute;
+				inset: 0 0 auto;
+				height: 0.5rem;
+				background: linear-gradient(90deg, hsl(142 92% 48%), hsl(197 100% 52%));
+			}
+
+			.fin span {
+				display: block;
+				font-family: "Anton", "Arial Narrow", sans-serif;
+				font-size: clamp(5rem, 18vw, 14rem);
+				line-height: 0.8;
+				letter-spacing: -0.015em;
 			}
 
 			.sr-only {
@@ -457,6 +593,10 @@ const description =
 				clip: rect(0, 0, 0, 0);
 				white-space: nowrap;
 				border: 0;
+			}
+
+			.nowrap {
+				white-space: nowrap;
 			}
 
 			.scrollhint {
@@ -493,12 +633,20 @@ const description =
 				.row .moq,
 				.scrollhint span,
 				.progress,
-				.member {
+				.member,
+				.member::after {
 					animation: none;
 					transition: none;
 				}
 				.progress {
 					display: none;
+				}
+			}
+
+			@media (max-width: 900px) {
+				.event-facts {
+					grid-template-columns: 1fr;
+					gap: 2rem;
 				}
 			}
 
@@ -509,6 +657,23 @@ const description =
 
 				.split {
 					grid-template-columns: 1fr;
+				}
+
+				.schedule-head {
+					grid-template-columns: 1fr;
+					gap: 2rem;
+				}
+
+				.ticket-summary {
+					text-align: left;
+				}
+
+				.schedule-cta {
+					margin-left: 0;
+				}
+
+				.schedule-cta .actions {
+					justify-content: flex-start;
 				}
 
 				.agenda li {
@@ -549,19 +714,31 @@ const description =
 						</div>
 						{i === 3 && (
 							<section class="aside" style="--accent-h:165">
-								<p class="kicker">demuxed is canceled this year</p>
+								<p class="kicker">Demuxed is taking a break in 2026</p>
 								<h2>Let's talk about MoQ instead</h2>
 								<p class="lede">
 									DEMOQED is an afternoon for people building Media over QUIC.
-									Talks, demos, and time to compare notes.
+									Talks, demos, and drinks.
 								</p>
+								<dl class="event-facts">
+									<div>
+										<dt>when</dt>
+										<dd>October 8</dd>
+									</div>
+									<div>
+										<dt>where</dt>
+										<dd class="venue">
+											San Francisco
+											<a class="venue-detail" href="https://share.google/DPkfeck6IG5HjEPpf"
+												>Alamo Drafthouse</a
+											>
+										</dd>
+									</div>
+								</dl>
 								<p class="lede">
-									Thursday, October 8 during <a href="https://www.tech-week.com/"
+									Thursday during <a href="https://www.tech-week.com/"
 										>SF Tech Week</a
-									> at <a
-										href="https://share.google/DPkfeck6IG5HjEPpf"
-										>Alamo Drafthouse</a
-									> in San Francisco. 150–200 people.
+									>. <span class="nowrap">150–200 nerds.</span>
 								</p>
 							</section>
 						)}
@@ -583,80 +760,81 @@ const description =
 											Protocol work happens at the <a
 												href="https://datatracker.ietf.org/wg/moq/about/"
 												>IETF</a
-											>. <a href="https://moqalliance.org">The MoQ Alliance</a> is
-											for applications, deployments, demos, and bugs.
+											>. <a href="https://moqalliance.org">MoQ Alliance</a> is for
+											applications, deployments, demos, and bugs.
 										</p>
 									</div>
 								</div>
-				<ul class="member-wall" aria-label="MoQ Alliance members">
-					{members.map(([name, url, logo]) => (
-						<li>
-							<a class="member" href={url} title={name}>
-								<img
-									src={`https://moqalliance.org/logos/${logo}`}
-									alt={name}
-									loading="lazy"
-								/>
-							</a>
-						</li>
-					))}
-				</ul>
+								<ul class="member-wall" aria-label="MoQ Alliance members">
+									{members.map(([name, url, logo]) => (
+										<li>
+											<a
+												class="member"
+												href={url}
+												data-name={name}
+												rel="noreferrer"
+												referrerpolicy="no-referrer"
+											>
+												<img
+													class:list={{ "member-logo-large": name === "Mux" || name === "Red5" }}
+													src={logo.startsWith("/") ? logo : `https://moqalliance.org/logos/${logo}`}
+													alt={name}
+													loading="lazy"
+												/>
+											</a>
+										</li>
+									))}
+								</ul>
+								<p class="join">
+									<a href="mailto:hello@moqalliance.org?subject=Joining%20the%20MoQ%20Alliance"
+										>Email if you want to join</a
+									>
+								</p>
 							</section>
 						)}
 
 						{i === 11 && (
 							<section class="aside" style="--accent-h:325">
-								<p class="kicker">agenda · program in progress</p>
-								<h2>Schedule</h2>
-								<ol class="agenda">
+								<div class="schedule-head">
+									<div>
+										<p class="kicker">agenda · program in progress</p>
+										<h2>Schedule</h2>
+									</div>
+									<div class="ticket-summary">
+										<p class="kicker">tickets</p>
+										<p class="price">$99</p>
+									</div>
+								</div>
+								<div class="schedule-cta">
+									<div class="actions">
+										<a
+											class="button button-primary"
+											href="https://ti.to/moq-alliance/demoqed-2026"
+											>register ↗</a
+										>
+										<a
+											class="button button-secondary"
+											href="mailto:hello@moqalliance.org?subject=DEMOQED%202026%20talk%20submission"
+											>submit a talk</a
+										>
+									</div>
+				</div>
+				<ol class="agenda">
 									{agenda.map(([time, item]) => (
 										<li>
 											<time>{time}</time>
 											<span>{item}</span>
 										</li>
-									))}
-								</ol>
-							</section>
-						)}
-
-						{i === 15 && (
-							<section class="aside" style="--accent-h:35">
-								<div class="split">
-									<div>
-										<p class="kicker">tickets</p>
-										<p class="price">$99</p>
-									</div>
-									<div>
-										<p class="lede">
-											October 8 · Alamo Drafthouse · San Francisco.
-										</p>
-										<div class="actions">
-											<a
-												class="button button-primary"
-												href="https://ti.to/moq-alliance/demoqed-2026"
-												>register ↗</a
-											>
-											<a
-												class="button button-secondary"
-												href="mailto:hello@moqalliance.org?subject=DEMOQED%202026%20talk%20submission"
-												>submit a talk</a
-											>
-										</div>
-										<p class="note">Want to sponsor? Buy tickets for people instead.</p>
-									</div>
-								</div>
-							</section>
-						)}
-
-						{i === 19 && (
-							<section class="aside aside-fin" style="--accent-h:142">
-								<h2>FIN</h2>
-							</section>
+					))}
+				</ol>
+				<p class="note schedule-note">Want to sponsor? Buy tickets for people instead.</p>
+			</section>
 						)}
 					</>
 				))
 			}
 		</main>
 
+		<footer class="fin"><span>FIN</span></footer>
 	</body>
 </html>

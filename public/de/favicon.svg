@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+	<defs>
+		<linearGradient id="neon" x1="17" y1="15" x2="50" y2="52" gradientUnits="userSpaceOnUse">
+			<stop stop-color="#20d9a2" />
+			<stop offset=".52" stop-color="#087cff" />
+			<stop offset="1" stop-color="#ff168f" />
+		</linearGradient>
+	</defs>
+	<rect width="64" height="64" rx="9" fill="#08070a" />
+	<path
+		fill="#efe9dd"
+		fill-rule="evenodd"
+		d="M5 10h9c8 0 12 7 12 22S22 54 14 54H5V10Zm8 8v28h1c3 0 5-4 5-14s-2-14-5-14h-1Z"
+	/>
+	<path fill="#efe9dd" d="M48 10h12v8h-5v10h5v8h-5v10h5v8H48V10Z" />
+	<circle cx="33" cy="31" r="12" fill="#08070a" stroke="url(#neon)" stroke-width="7" />
+	<path d="m40 39 8 9" fill="none" stroke="url(#neon)" stroke-linecap="square" stroke-width="7" />
+</svg>
