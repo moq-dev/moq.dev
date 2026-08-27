@@ -17,7 +17,7 @@ export async function GET(context) {
 			description: post.frontmatter.description,
 			author: post.frontmatter.author,
 			pubDate: new Date(post.frontmatter.date),
-			link: post.frontmatter.redirect ?? post.url,
+			link: post.url,
 		}));
 
 	return rss({

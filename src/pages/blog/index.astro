@@ -8,7 +8,6 @@ interface Frontmatter {
 	description: string;
 	author: string;
 	date: string;
-	redirect?: string;
 }
 
 const posts = Object.values(
@@ -43,11 +42,11 @@ posts.sort((a, b) => {
 		{
 			posts.map((post) => (
 				<article class="p-4 rounded-lg grid grid-cols-3 gap-3 hover:bg-blue-950 hover:scale-110 hover:translate-x-2 transition-all ease-in-out">
-					<a href={post.frontmatter.redirect ?? post.url} class="rounded-2xl">
+					<a href={post.url} class="rounded-2xl">
 						<img class="object-cover h-24 w-48 rounded-2xl" src={post.frontmatter.cover} alt="blog cover" />
 					</a>
 					<div class="grid grid-cols-1 col-span-2 gap-2 text-2xl place-content-center flex-grow">
-						<a href={post.frontmatter.redirect ?? post.url} class="text-white">
+						<a href={post.url} class="text-white">
 							{post.frontmatter.title}
 						</a>
 						<div class="text-sm font-light">{post.frontmatter.description}</div>
