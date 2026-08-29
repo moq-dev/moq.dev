@@ -25,7 +25,7 @@ just dev-watch     # moq.watch on :5173
 # Build & Deploy
 just build         # Production build of all three sites
 just deploy        # Deploy all three to Cloudflare (staging by default)
-just deploy live   # Deploy to production, and email subscribers about new posts
+just deploy live   # Deploy to production
 just prod          # Build and preview production locally
 
 # Code Quality
@@ -109,19 +109,7 @@ The player sites read the repo-root `.env.<env>` files that the Astro site uses,
 so `PUBLIC_RELAY_URL` is the single place the relay is configured. Staging is
 `new.moq.dev`, `new.moq.pub`, and `new.moq.watch`.
 
-The player sites deploy *before* moq.dev on purpose. Snapshot → moq.dev upload →
-announce is effectively a transaction: a failure in the middle leaves posts live
-but unannounced, and since the snapshot expires after an hour, a later retry
-reads those posts as already-published and never mails them. Keep anything
-fallible out from between those three steps.
-
-**`just deploy live` mails the subscriber list.** `scripts/notify-subscribers.ts` snapshots the slugs in `https://moq.dev/rss.xml` before the upload, then sends a Resend broadcast for every post in the freshly built `dist/rss.xml` that wasn't in that snapshot. Subject and body come from the feed's `title` and `description`. A deploy that adds no posts sends nothing.
-
-Credentials come from 1Password, so no secret has to sit on disk. `op.env` maps `RESEND_API_KEY` to `op://Corp/Resend/credential` and `op run` resolves it for the duration of the command. That file is committed on purpose: it holds references, not values. Install and sign in once with `brew install 1password-cli && op signin`.
-
-Without the 1Password CLI the recipe falls back to `RESEND_API_KEY` and `RESEND_SEGMENT_ID` from the ambient environment, and if those are missing too the deploy still succeeds while the script exits non-zero to say the announcement did not go out. `just deploy staging` never announces and never touches 1Password.
-
-Broadcasts cannot be recalled, so the script refuses to guess: an unreachable or empty live feed, a missing snapshot, or a missing build all skip sending rather than risk mailing the back catalogue. Any local `.mdx` under `src/pages/blog/` ships on the next `just deploy live` and gets announced, drafts included.
+The player sites deploy before moq.dev.
 
 ## Development Tips
 

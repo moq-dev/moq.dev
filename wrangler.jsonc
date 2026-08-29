@@ -15,12 +15,12 @@
 		"binding": "ASSETS",
 
 		// Static assets are normally served before the Worker ever runs, which
-		// would skip the de.moq.dev -> /de rewrite for "/", swallow POSTs to
-		// /api/* with a bare 405, and answer the Go vanity paths (worker/vanity.ts)
+		// would skip the de.moq.dev -> /de rewrite for "/" and answer the Go
+		// vanity paths (worker/vanity.ts)
 		// with the 404 page, since a miss lands there rather than falling through.
 		// The /moq* wildcard covers every module, so adding one to that table
 		// doesn't mean editing this list. Everything else short-circuits to assets.
-		"run_worker_first": ["/", "/api/*", "/moq*"]
+		"run_worker_first": ["/", "/moq*"]
 	},
 
 	// Environment-specific configurations
