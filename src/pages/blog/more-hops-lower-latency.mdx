@@ -1,0 +1,124 @@
+---
+layout: "@/layouts/global.astro"
+title: "5 Hops at Kixel's"
+author: kixelated
+description: It me.
+cover: "/blog/first-cdn/global.png"
+date: 2026-08-19
+---
+
+# 5 Hops at Kixel's
+I want to shit on [datagrams](/blog/never-use-datagrams) and [FEC](/blog/forward-error-correction).
+Stop putting `FEC == Lower Latency` on your marketing website and I'll stop writing blog posts.
+
+deal?
+
+## The Problem
+We purchased a failing pizza parlor on the cheap.
+Sometimes the animatrionics get a bit aggressive and we need a human in the loop.
+
+So we hired a security guard in Bangladesh.
+The sooner we can deliver the video feed, the sooner we can avoid a kid getting stuffed into an exoskeleton.
+
+Unfortunately, the internet is a series of tubes.
+The tubes get full.
+Packets get dropped.
+Our video feed glitches out.
+Kids get stuffed.
+
+Oh no.
+
+## Enter Retransmission
+This little know protocol called **TCP** retransmits lost packets on demand.
+
+
+## Enter FEC
+
+Instead of retransmitting lost packets on demand, you retransmit them opportunistically (parity bits).
+If a packet is randomly dropped, you can probably reconstruct it, if not fall back to a retransmit.
+
+Problems:
+
+1. Packet loss over the internet generally isn't random.
+   It occurs in bursts, so your FEC packets have to be time offset (ex. parity sent 50ms later).
+2. Bursty packet loss is often due to bufferbloat (IP queues full), so sending more packets can aggravate the situation.
+
+
+## More Hops
+The argument is that you want proxy nodes to split a lossy RTT into smaller and smaller segments.
+
+If there's packet loss over a 100ms RTT link, it takes at least 100ms to detect the loss and ~50ms for the retransmission to arrive.
+So you need a jitter buffer size of 150ms.
+
+But if you split the link into two 50ms hops, now it's 75ms.
+And then you subdivide further.
+
+## Why?
+The reason is that IP/UDP has no retransmission mechanism or way to signal loss.
+By putting a TCP/QUIC proxy in the middle, you can now retransmit.
+
+It might add 1ms of latency because we have to hand each packet off from the router (L2) into the app (L3/L7).
+It's also going to be more expensive too, hardware routers versus software proxies.
+
+## The Counterargument
+A counterargument is FEC.
+Instead of retransmitting lost packets on demand, you retransmit them opportunistically (parity bits).
+If a packet is randomly dropped, you can probably reconstruct it, if not fall back to a retransmit.
+
+Problems:
+
+1. Packet loss over the internet generally isn't random.
+   It occurs in bursts, so your FEC packets have to be time offset (ex. parity sent 50ms later).
+2. Bursty packet loss is often due to bufferbloat (IP queues full), so sending more packets can aggravate the situation.
+
+## Bufferbloat
+[Bufferbloat](https://en.wikipedia.org/wiki/Bufferbloat) is the cause of latency you should be worried about.
+Routers queuing packets for an indeterminate amount of time, dropping them when the queue is full (and latency is maximized).
+
+You need to send fewer bytes to drain these queues to the baseline latency, not transmit 50% more as parity.
+And keep in mind that you end up paying real money for this redundant egress at scale.
+
+## When FEC is Good
+FEC is a good idea when packet loss is truly random and not due to capacity (ex. signal interference).
+The lower level protocols (ex. WiFi, 5G) do this for you based on the signal characteristics of the interface.
+
+FEC is also a good idea when you can't put proxies in the middle, aka in space.
+If you can't daisy chain but latency is important, then slap on a bunch of parity packets.
+Same deal with P2P; there's no middle, so there's nothing to subdivide.
+
+And finally, FEC can work when your payload is small and tolerates loss, aka audio packets.
+But it's a terrible fit for video with our current codecs that take delta encoding to the extreme.
+
+## A Quiz
+Why do CDNs have edge nodes in every metro?
+
+Duh, it's to make the lossy first/last hop as short as possible to minimize latency.
+
+<figure>
+	![A global CDN](/blog/first-cdn/global.png)
+	<figcaption>A "global" CDN according to me, an American.</figcaption>
+</figure>
+
+Each L7 hop can deduplicate identical HTTP requests or MoQ subscriptions.
+This is how my favorite protocols scale; only one copy of the content makes it to each data center that needs it.
+
+But even for 1:1 traffic, you still want edge nodes.
+The CDN can either daisy chain like mentioned above, or it can overprovision the backbone so the relatively long hops are congestion free.
+
+## Hater
+I'm the world's biggest FEC hater.
+I'm in good company because QUIC doesn't support FEC, nor does TCP.
+The cloud companies hyper optimizing these protocols do it by moving the cloud closer to the users.
+
+It's a red flag if a live protocol advertises FEC.
+Either they don't understand networking the same way I do, or they're running the wrong infrastructure.
+`traceroute` the connect IP address and if it's not \<20ms, alarm bells.
+
+## btw
+btw pay for [MoQ.pro](https://moq.pro).
+Unless you're a big boye, it's not economically viable to run your own edges world wide.
+Pool your money with other customers so you can share a fraction of a global presence.
+
+Written by [@kixelated](https://github.com/kixelated).
+
+![@kixelated](/blog/avatar.png)
