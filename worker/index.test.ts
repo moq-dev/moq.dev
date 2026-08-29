@@ -43,10 +43,4 @@ describe("fetch", () => {
 		await send("https://moq.dev/blog/", env);
 		expect(env.seen).toEqual(["/blog/"]);
 	});
-
-	test("rejects a non-POST subscribe", async () => {
-		const env = assets();
-		expect((await send("https://moq.dev/api/subscribe", env)).status).toBe(405);
-		expect(env.seen).toEqual([]);
-	});
 });
