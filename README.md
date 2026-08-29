@@ -43,8 +43,7 @@ just dev-watch   # moq.watch, on :5173
 ## Deploy
 
 `just deploy` builds and uploads all three sites to Cloudflare, staging by
-default; `just deploy live` goes to production and mails subscribers about any
-new blog posts.
+default; `just deploy live` goes to production.
 
 ## License
 
