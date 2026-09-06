@@ -29,7 +29,7 @@ If your AI ever replies with:
 **You fucked up**. 
 You picked WebRTC for voice AI.
 
-Then why is OpenAI (and others) using WebRTC for voice AI?
+Then why is OpenAI using WebRTC for voice AI?
 
 WebRTC is designed for conference calls, aka real humans use real voices.
 It's available in the browser via `libwebrtc`, which is basically **the Google Meet client**.
@@ -51,23 +51,23 @@ We shoved electricity into a rock and now it can read a library of audio books i
 What a time to be alive.
 
 Voice agents can **process and generate** audio faster than real-time.
-The agent sits there patiently waiting for us to finish our prompt (TTS).
-After it decides what to say, it mimics our vocal cords to create a voice response (STT).
+The agent sits there patiently waiting for us to finish our prompt (STT).
+After it decides what to say, it mimics our vocal cords to create a voice response (TTS).
 But the response has to be played back slowwwwly to not overwhelm our itty bitty brain.
 
-Alas, WebRTC **cannot receive or transmit** faster than real-time.
-A packet must be sent once at the *exact* moment it is meant to be heard.
+Alas, WebRTC **cannot go faster than real-time**.
+A packet must be sent once at the **exact** moment it is meant to be heard.
 And if a packet is lost on the network, oh well, better luck next time.
 
 That's why your hyper deluxe voice AI model, after billions invested, decided to say "can you repeat that?"
-It's because **humans don't want old audio**, so WebRTC has decided its pointless to support.
+It's because **humans don't want old audio**, so WebRTC doesn't support it.
 
 ## A Better Transport
 I could dump of WebRTC for days, but I want to be positive for a change.
 Go read the previous [blog post](/blog/webrtc-is-the-problem) if you want more slander.
-And if you somehow still yearn for WebRTC, I have some **free advice** on how to fix it at the end.
 
-In my humble and handsome opinion, **it's time to invest in a better transport**.
+If you still yearn for WebRTC, I have some **free advice** on how to fix it further down.
+Until then, in my humble and handsome opinion, **it's time to invest in a better transport**.
 
 A voice agent should **never ask the user** to retransmit a prompt.\
 A voice agent should **instead ask the transport** to retransmit a prompt.
@@ -83,11 +83,11 @@ However you want to prononce it.
 
 It's that better transport btw.
 
-Every MoQ subscription indcates a **maximum delay** on the wire.
-The publisher uses this signal to avoid (re)transmitting frames that are too old.
+Every MoQ subscription indcates a **maximum delay**, sent on the wire.
+Both the subscriber and publisher uses this signal to skip frames that are too old.
 
-But how long should a subscriber wait for old data?
-It's a product decision!
+But how long until a frame is "too old".
+**It's a product decision!**
 Gotta give the PMs something to do.
 
 For example, a company all-hands presentation:
@@ -211,17 +211,22 @@ I'll spare you the full WebSocket vs WebRTC vs MoQ comparison because I'm alread
 
 Spoiler: **MoQ is a significant improvement for voice AI**.
 
+## Context is Delta-Encoded
+TODO Dropping "What is" is useless.
+We need that context to understand the user's request.
+
+
 ## More Free Ideas
 Hey, Anthropic.
 I'm sorry that I called you the orange butthole company.
 We may have gotten off on the wrong foot.
 
 Hey, OpenAI.
-I'm sorry I singled you out just because you're the industry leader.
+I'm sorry for this blog post.
 We may have gotten off on the wrong foot.
 
 I'll make it up to both of you.
-Here's some free ideas you could prototype with unlimited Fable/Sol access.
+Here's some free ideas you could prototype with unlimited Fable/Astro access.
 Just please tell me if any of them are worth it.
 
 ### Aggressive Speech-to-Speech, Conservative STT->LLM->TTS
