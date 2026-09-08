@@ -1,0 +1,32 @@
+---
+// The sign-off at the bottom of every post: avatar plus wherever you can find me.
+// The icons in public/social/ are placeholders waiting on hand-drawn versions,
+// same as the ones in public/layout/.
+const socials = [
+	{ name: "Email", icon: "email", href: "mailto:me@kixel.me" },
+	{ name: "X", icon: "x", href: "https://x.com/kixelated" },
+	{ name: "Bluesky", icon: "bluesky", href: "https://bsky.app/profile/kixel.me" },
+	{ name: "LinkedIn", icon: "linkedin", href: "https://www.linkedin.com/in/luke-curley-635a457/" },
+	{ name: "Discord", icon: "discord", href: "https://discord.moq.dev" },
+];
+---
+
+<aside class="not-prose mt-12 flex items-center gap-4">
+	<img src="/blog/avatar.png" class="h-16 w-16 shrink-0 rounded-full" alt="@kixelated" />
+	<div class="flex flex-col gap-2">
+		<span class="font-bold text-slate-100">@kixelated</span>
+		<div class="flex flex-wrap items-center gap-3">
+			{
+				socials.map((social) => (
+					<a href={social.href} title={social.name} rel="me">
+						<img
+							src={`/social/${social.icon}.svg`}
+							class="h-6 w-6 transition-transform hover:-rotate-6"
+							alt={social.name}
+						/>
+					</a>
+				))
+			}
+		</div>
+	</div>
+</aside>
