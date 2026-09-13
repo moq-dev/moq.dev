@@ -42,7 +42,11 @@ function writeCache(stats: Stats) {
 
 async function fetchNumber(url: string, key: string): Promise<number | undefined> {
 	try {
-		const res = await fetch(url);
+		// Discord echoes the requesting origin in Access-Control-Allow-Origin but
+		// marks the response cacheable without `Vary: Origin`, so a response cached
+		// for moq.dev fails the CORS check on doc.moq.dev. Skip the HTTP cache;
+		// localStorage above is the cache.
+		const res = await fetch(url, { cache: "no-store" });
 		if (!res.ok) return;
 		const json = await res.json();
 		const value = json[key];
