@@ -1,0 +1,22 @@
+---
+// One entry in the sidebar: a hand-drawn icon that wiggles on hover, the
+// matching hand-drawn word, and optionally a line of small print underneath.
+// Both images live in public/layout/ as <icon>-icon.svg and <icon>-word.svg.
+interface Props {
+	href: string;
+	icon: string;
+	word: string;
+}
+
+const { href, icon, word } = Astro.props;
+---
+
+<a href={href} class="group flex items-center gap-2 w-32">
+	<span class="flex w-9 justify-center shrink-0">
+		<img src={`/layout/${icon}-icon.svg`} class="h-9 transition-transform group-hover:-rotate-6" alt="" />
+	</span>
+	<span class="flex flex-col items-start">
+		<img src={`/layout/${icon}-word.svg`} class="h-9 w-auto" alt={word} />
+		<slot />
+	</span>
+</a>
