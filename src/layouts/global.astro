@@ -3,6 +3,8 @@ import "./global.css";
 // Imported after global.css so the theme's .hljs-* color rules land later in
 // the cascade and beat the prose plugin's .markdown :where(pre code) { color: inherit }.
 import "highlight.js/styles/atom-one-dark.css";
+import NavLink from "@/components/nav-link.astro";
+import { socials } from "@/socials";
 
 // NOTE: This is magically used as the type for Astro.props
 interface Props {
@@ -76,42 +78,35 @@ const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https:/
 					</a>
 				</div>
 				<div class="flex md:flex-col flex-row flex-wrap items-center justify-center gap-4 md:w-32 w-1/2">
-					<a href="/demo" class="group flex items-center gap-2 w-32">
-						<span class="flex w-9 justify-center shrink-0">
-							<img src="/layout/demo-icon.svg" class="h-9 transition-transform group-hover:-rotate-6" alt="" />
-						</span>
-						<img src="/layout/demo-word.svg" class="h-9 w-auto" alt="Demo" />
-					</a>
-					<a href="/blog" class="group flex items-center gap-2 w-32">
-						<span class="flex w-9 justify-center shrink-0">
-							<img src="/layout/blog-icon.svg" class="h-9 transition-transform group-hover:-rotate-6" alt="" />
-						</span>
-						<img src="/layout/blog-word.svg" class="h-9 w-auto" alt="Blog" />
-					</a>
-					<a href="https://doc.moq.dev" class="group flex items-center gap-2 w-32">
-						<span class="flex w-9 justify-center shrink-0">
-							<img src="/layout/docs-icon.svg" class="h-9 transition-transform group-hover:-rotate-6" alt="" />
-						</span>
-						<img src="/layout/docs-word.svg" class="h-9 w-auto" alt="Docs" />
-					</a>
-					<a href="https://github.com/moq-dev/moq" class="group flex items-center gap-2 w-32">
-						<span class="flex w-9 justify-center shrink-0">
-							<img src="/layout/github-icon.svg" class="h-9 transition-transform group-hover:-rotate-6" alt="" />
-						</span>
-						<img src="/layout/github-word.svg" class="h-9 w-auto" alt="GitHub" />
-					</a>
-					<a href="https://discord.moq.dev" class="group flex items-center gap-2 w-32">
-						<span class="flex w-9 justify-center shrink-0">
-							<img src="/layout/discord-icon.svg" class="h-9 transition-transform group-hover:-rotate-6" alt="" />
-						</span>
-						<img src="/layout/discord-word.svg" class="h-9 w-auto" alt="Discord" />
-					</a>
-					<a href={proUrl} class="group flex items-center gap-2 w-32">
-						<span class="flex w-9 justify-center shrink-0">
-							<img src="/layout/pro-icon.svg" class="h-9 transition-transform group-hover:-rotate-6" alt="" />
-						</span>
-						<img src="/layout/pro.svg" class="h-9 w-auto" alt="Pro" />
-					</a>
+					<NavLink href="/demo" icon="demo" word="Demo" />
+					<NavLink href="/blog" icon="blog" word="Blog" />
+					<NavLink href="https://doc.moq.dev" icon="docs" word="Docs" />
+					<NavLink href={proUrl} icon="pro" word="Pro" />
+
+					<hr class="hidden md:block w-32 border-t-2 border-slate-600" />
+
+					<NavLink href="https://github.com/moq-dev/moq" icon="github" word="GitHub">
+						<span data-stat="stars" class="text-xs font-bold text-green-500 -mt-1 whitespace-nowrap"></span>
+					</NavLink>
+					<NavLink href="https://discord.moq.dev" icon="discord" word="Discord">
+						<span data-stat="chatters" class="text-xs font-bold text-green-500 -mt-1 whitespace-nowrap"></span>
+					</NavLink>
+					<div class="flex w-32 items-center justify-center gap-3">
+						{
+							// Discord already has its own entry above.
+							socials
+								.filter((social) => social.icon !== "discord")
+								.map((social) => (
+									<a href={social.href} title={social.name} rel="me">
+										<img
+											src={`/social/${social.icon}.svg`}
+											class="h-6 w-6 transition-transform hover:-rotate-6"
+											alt={social.name}
+										/>
+									</a>
+								))
+						}
+					</div>
 				</div>
 			</nav>
 			<article class="markdown p-4 flex-1 min-w-0">
@@ -127,3 +122,9 @@ const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https:/
 		</div>
 	</body>
 </html>
+
+<script>
+	import { renderStats } from "@/stats";
+
+	renderStats();
+</script>
