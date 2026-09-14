@@ -21,7 +21,6 @@ export default defineConfig({
 		build: {
 			target: "esnext",
 		},
-		base: "./",
 		server: {
 			fs: {
 				allow: [
