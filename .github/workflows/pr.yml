@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Read the Bun version from package.json.
       - uses: oven-sh/setup-bun@v2
         with:
@@ -30,7 +30,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7 # v31
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
       # Evaluating the shell checks the Nix, package.json, and Docker Bun pins.
       - run: nix eval --raw .#devShells.x86_64-linux.default.drvPath
