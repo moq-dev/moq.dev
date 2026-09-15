@@ -1,16 +1,16 @@
 ---
 layout: "@/layouts/global.astro"
-title: "OpenAI's WebRTC Problem: Part 2"
+title: "OpenAI still has a WebRTC Problem"
 author: kixelated
 description: Stuff was added, stuff was removed, stuff was changed for no reason at all.
 cover: "/blog/update-00/globe.png"
 date: 2026-07-31
 ---
 
-# OpenAI's WebRTC Problem: Part 2
+# OpenAI still has a WebRTC Problem
 On a previous episode, I [flammed OpenAI for using WebRTC](/blog/webrtc-is-the-problem) and it went [viral on Hacker News](https://news.ycombinator.com/item?id=48051951).
 
-neat
+**thx**
 
 A huge shoutout to Sean DuBois and Justin Uberti (WebRTC **experts** at OpenAI) for reaching out after my unhinged rant.
 You could have just said `@kixelated ur dumb` but you didn't.
@@ -20,8 +20,8 @@ I yearn for a **follow-up**.
 
 ## Hot Take Alert
 Let's say you're a professional prompter working on a voice AI product.\
-Let's say you're making an obscene amount of cash.\
-Let's say one of your users verbalizes: `what is le capital of France?`
+Let's say you're both making and burning an obscene amount of cash.\
+Let's say one of your users vocalizes: `what is le capital of France?`
 
 If your AI ever replies with:
 > I'm sorry, you broke up, can you repeat that?
@@ -29,137 +29,160 @@ If your AI ever replies with:
 **You fucked up**. 
 You picked WebRTC for voice AI.
 
-## Enter the Antagonist
-Then why is [OpenAI using WebRTC](https://openai.com/index/delivering-low-latency-voice-ai-at-scale/)?
+## I Require Context
+Let's philosophize for a bit.
+Pretend like we still have independent thought.
 
-WebRTC is designed for conference calls, aka real humans use real voices.
-It's available in every browser via [libwebrtc](https://webrtc.googlesource.com/src), a C++ monolith maintained by Google.
-It's basically the **Google Meet client** available to everyone via a [horrific API](https://webrtchacks.com/sdp-anatomy/).
-Yes, it's built on VoIP standards [from the 90s](https://datatracker.ietf.org/doc/html/rfc2327).
+You boot up your favorite application: Codex™. You click on the microphone and grunt:
+> What is le capital of France?
 
-The standard is **so complicated** that over a decade later, Firefox/Safari still use Chrome's implementation verbatim.
-The best (and most complex) parts of WebRTC aren't even standardized: NetEQ, AEC, GCC, etc.
-It doesn't matter what the 30+ RFCs say, **the standard is what Google has decided to implement**.
+**OH NO**, suddenly a surprise **kraken attacken**!
+It nibbles on some underwater cable.
+Some of your packets are lost.
+All too common I'm afraid.
 
-Google tailors WebRTC to whatever their product needs.
-Meanwhile, literally every other conferencing app encourages a native client rather than be **forced to use WebRTC** in a browser.
+Fortunately, **we don't need all of the context**.
+Our brains are designed to work wth incomplete audio and fill in the blanks:
 
-quite the anti-competitve ruse
+`What ... capital ... France?` is understandable.\
+`.... ... capital ... France?` is decipherable. \
+`What ... ....... ... France?` is **not enough context**.
 
-How do they get away with it?
-Frankly, Google has done an amazing job.
-WebRTC is the state of the art when it comes to real-time conversational audio, and it's not even close.
+(what is France?)
 
-It seems like a no-brainer for voice AI.  ...right?
+WebRTC is designed for conference calls, aka real humans and real voices.
+It takes advantage of this principle and will not retransmit audio packets.
+Just like Leonardo Dicaprio, anything above 30ms is too old.
 
-The problem is that Google Meet, and thus `libwebrtc`, and thus WebRTC, is **hard-wired for human latency**.
+To understand why, we must first understand **TIME ITSELF**.
 
 ## Clocks and Rates
 We flesh bags consume/produce audio in "real-time", aka a **human clock rate**.
 Our neurons can only fire so fast.
-Native speakers might be able to handle Youtube at 2x speed, but eventually it turns into gibberish.
+We need an IP drip of audio.
 
-That's why WebRTC doesn't bother sending an audio packet twice.
-Our brains need a constant stream of audio to process, not content from 5 seconds ago at 20x the speed.
+WebRTC caters to the flesh.
+It drips out packets at a steady rate.
+It drops our packets at a steady rate.
 
 But **wake up old man**, it's not 2020 any longer.
 The internet is no longer for our flabby lips.
 
 Our robot overlords produce/consume audio based on a **silicon clock rate**.
-We shoved electricity into a rock and now it can read a library of audio books in minutes.
+We shoved electricity into a rock and now it can read and narrate a library of audio books in minutes.
 What a time to be alive.
 
-Voice agents can **process and generate** audio faster than real-time.
-The agent sits there patiently waiting for us to finish our prompt (STT).
-It thunks (LLM).
-Then it mimics our vocal cords to create a voice response (TTS).
-But the response has to be played back slowwwwly to not overwhelm our itty bitty brain.
+Voice agents can **hear and speak** audio faster than real-time.
+Hearing from 5 seconds ago at 20x the speed? No problem.\
+Speaking 30 seconds in advance at 20x the speed? No problem.
 
-Alas, WebRTC **cannot go faster than real-time**.
-A packet is sent exactly once at the **exact** moment it is meant to be heard.
-And if a packet is lost on the network, **that sucks**, better luck next RTT.
+**Humans are the problem.**\
+We speak too slowly, so **speech-to-text** has to wait for us.\
+We hear too slowly, so **text-to-speech** has to wait for us.
 
-## I Require Context
-It gets worse, because a prompt is not the same as a conversation.
+Those poor robots.
 
-Let's say you utter: `What is le capital of France?`.
+
+## Gotta Go Fast
+Back to grunting: `What is le capital of France?`
 It takes 4 seconds for you to utter *those fateful words*.
-You expect a correct response from either the AI or human on the other end.
 
-Humans and AI models need enough context to answer the prompt.
-Not *everything* needs to be there; just enough to read between the lines.
+**BUT OH NO** another **kraken attacken**!
+The first 1 second of packets are lost.
+Like we established earlier, WebRTC will just give up.
+Your `What`, and thus your context, is lost to the emptiness of the void.
 
-`What ... capital ... France?` is good enough.\
-`.... ... capital ... France?` is might be okay? \
-`What ... ....... ... France?` is not enough context.
+I'm sorry for your ,̶'̶,̶|̶'̶,̶'̶_̶
 
-caveman speak, ai hear.\
-words missing, result be bad.\
-no want bad.
+**But why give up?**
 
-## I Drop Context
-Let's say there's a 1 second blip of network congestion at the start.
-Every packet during that period is lost forever within the dark abyss.
+- We have **3 seconds** until the word `Paris` is uttered.
+- We have **3 seconds** to **repair the context** before it is useful.
+- We have **3 seconds** to retransmit literally **6 IP packets**. (Opus @ 64Kb/s)
 
-WebRTC doesn't attempt to retransmit, so the word `What` is lost.
-It's reasonable for humans; our brains prefer reconstructing context rather than a delay+burst.
+If we manage to accomplish this **herculean feat**, mr voice AI can process faster than real-time.
+The user will notice zero impact to the latency or quality of the response.
 
-However, we're at the start of the sentence, so there are still **4 seconds** until the word `Paris` is uttered.
-Voice AI still has **4 seconds** to retransmit the context **and still be on time**.
+## Enter the Antagonist
+Then why is [OpenAI using WebRTC](https://openai.com/index/delivering-low-latency-voice-ai-at-scale/)?
 
-**4 seconds** is a lifetime in computing.
-We literally have **4 seconds** to retransmit **6 UDP packets** (1 second @ 64Kb/s).
+It seems like a no-brainer.
+WebRTC is the state of the art for real-time, conversational audio.
+And its available in every browser via [libwebrtc](https://webrtc.googlesource.com/src), a C++ monolith maintained by Google.
 
-And if we manage to accomplish that *herculean feat*, our voice AI can process it faster than real-time.
-The user will notice zero impact to the latency or quality of the AI response.
+**WebRTC is the Google Meet client**.
+It is designed specifically for their conferencing product, not their voice AI product, and certainly not your product.
+While there is a [disgusting WebRTC standard](https://webrtchacks.com/sdp-anatomy/), it's kind of irrelevant.
+If you want browser support, the only thing that matters is what **Google has decided to implement**.
+
+And if you don't want browser support, make your own protocol over UDP.
+**Fun Fact**: This is why every other conferencing app recommends a native client.
+Otherwise, they can only reach parity with Google Meet *at best*.
+
+The problem is that Google Meet, and thus `libwebrtc`, and thus WebRTC, is **hard-wired for human latency**.
+It's a fixable problem, but not by you.
 
 ## A Better Transport
-Anyway, that's your hyper deluxe OpenAI voice AI model, after billions invested, has the audacity to ask: 
+So that's your hyper deluxe OpenAI voice AI model, after billions invested, has the audacity to ask: 
 **can you repeat that?**
 
 I could dump on WebRTC for days, but I want to be positive for a change.
 Go read the previous [blog post](/blog/webrtc-is-the-problem) if you want more slander.
 
 In my humble and handsome opinion, **it's time to invest in a better transport**.
-Advanced models can try to fill in the gaps caused by packet loss, *but they shouldn't have to*.
+Advanced models can try to fill in the gaps caused by packet loss, **but they shouldn't have to**.
 
 A voice agent should **never** ask the **user** to retransmit a prompt.\
 A voice agent should **instead** ask the **transport** to retransmit a prompt.
 
 
 ## Enter The Protagonist
-Let's take a quick break from theory-crafting.
+Oh hey, I created this thing called [Media over QUIC](https://moq.dev).\
+Also known as `em oh queue` or `mock`.
+However you want to prononce it.
+
+It's that better transport btw.
 
 [Pipecat now supports MoQ](https://github.com/pipecat-ai/pipecat/pull/4629)!
 A huge thank you to [Vanessa](https://github.com/vipyne) for putting in the work and putting up with my constant "improvements".
-
-It's still very rough around the edges.
-It's been 3 months since the last Voice AI blog post... and I've only spent like 3 hours of ~work~ prompting since then.
-You gotta acquihire [Kixel, Corp.](https://kixel.us) if you want me to focus on Voice AI.
 
 Here's a crude demo with my credit card deets attached. 
 please don't milk me dry.
 
 DEMO
 
-Back to our regularly scheduled mono-logging.
-I need to explain *how* MoQ is better than bread.
+Note that I've only spent like a day of ~work~ prompting on this.
+It took me significantly longer to write this damn blog post.
+You gotta acquihire [Kixel, Corp.](https://kixel.us) if you want me to focus on Voice AI.
 
 ## Latency Budgets
+MoQ is designed to support mass fanout with different user experiences.
+Not Voice AI.
+What gives?
 
-Every subscription includes a **maximum latency** before a frame is skipped.
-The intent is to support multiple different latency budgets:
+The idea is to give each subscription a **maximum latency** knob:
 
 - A pilot might want 0.1s of latency
 - A spectator might want 2s of latency
 - An archive worker might want 30s of latency
 - etc
 
-But it works for voice AI too!
-The key is that **maximum** word, because the minimum latency is always 0.
-We transmit new frames ASAP while old frames might take up to the **maximum latency**.
+Basically, a user can wait for up to **maximum latency** for old frames to be retransmitted.
 
-But it gets better.
+That there **maximum** word is lard-bearing. 
+MoQ will always try to transmit the newest frames immediately (like WebRTC).
+
+
+
+
+It's still very rough around the edges.
+It's been 3 months since the last Voice AI blog post... and I've only spent like 3 hours of ~work~ prompting since then.
+You gotta acquihire [Kixel, Corp.](https://kixel.us) if you want me to focus on Voice AI.
+
+
+Back to our regularly scheduled mono-logging.
+I need to explain *how* MoQ is better than bread.
+
 
 ## Text-to-Speech
 
