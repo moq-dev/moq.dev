@@ -68,8 +68,9 @@ async function fetchStats(): Promise<Stats> {
 // attribute, e.g. "1,515 stars". Elements stay empty if a fetch fails; the
 // links around them still work.
 export async function renderStats() {
-	const stats = readCache() ?? (await fetchStats());
-	if (stats.stars !== undefined || stats.chatters !== undefined) writeCache(stats);
+	const cached = readCache();
+	const stats = cached ?? (await fetchStats());
+	if (!cached && (stats.stars !== undefined || stats.chatters !== undefined)) writeCache(stats);
 
 	for (const el of document.querySelectorAll<HTMLElement>("[data-stat]")) {
 		const key = el.dataset.stat as keyof Stats;
