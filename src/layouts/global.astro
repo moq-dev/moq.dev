@@ -4,7 +4,6 @@ import "./global.css";
 // the cascade and beat the prose plugin's .markdown :where(pre code) { color: inherit }.
 import "highlight.js/styles/atom-one-dark.css";
 import NavLink from "@/components/nav-link.astro";
-import { socials } from "@/socials";
 
 // NOTE: This is magically used as the type for Astro.props
 interface Props {
@@ -83,7 +82,7 @@ const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https:/
 					<NavLink href="https://doc.moq.dev" icon="docs" word="Docs" />
 					<NavLink href={proUrl} icon="pro" word="Pro" />
 
-					<hr class="hidden md:block w-32 border-t-2 border-slate-600" />
+					<img src="/layout/underline.svg" class="hidden md:block w-32" alt="" />
 
 					<NavLink href="https://github.com/moq-dev/moq" icon="github" word="GitHub">
 						<span data-stat="stars" class="text-xs font-bold text-green-500 -mt-1 whitespace-nowrap"></span>
@@ -91,22 +90,6 @@ const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https:/
 					<NavLink href="https://discord.moq.dev" icon="discord" word="Discord">
 						<span data-stat="chatters" class="text-xs font-bold text-green-500 -mt-1 whitespace-nowrap"></span>
 					</NavLink>
-					<div class="flex w-32 items-center justify-center gap-3">
-						{
-							// Discord already has its own entry above.
-							socials
-								.filter((social) => social.icon !== "discord")
-								.map((social) => (
-									<a href={social.href} title={social.name} rel="me">
-										<img
-											src={`/social/${social.icon}.svg`}
-											class="h-6 w-6 transition-transform hover:-rotate-6"
-											alt={social.name}
-										/>
-									</a>
-								))
-						}
-					</div>
 				</div>
 			</nav>
 			<article class="markdown p-4 flex-1 min-w-0">
