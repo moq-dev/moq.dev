@@ -20,13 +20,20 @@ interface Cached extends Stats {
 	at: number;
 }
 
+function asCount(value: unknown): number | undefined {
+	return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
 function readCache(): Stats | undefined {
 	try {
 		const raw = localStorage.getItem(CACHE_KEY);
 		if (!raw) return;
 		const cached = JSON.parse(raw) as Cached;
-		if (Date.now() - cached.at > CACHE_TTL) return;
-		return cached;
+		if (typeof cached.at !== "number" || Date.now() - cached.at > CACHE_TTL) return;
+		const stars = asCount(cached.stars);
+		const chatters = asCount(cached.chatters);
+		if (stars === undefined && chatters === undefined) return;
+		return { stars, chatters };
 	} catch {
 		return;
 	}
@@ -75,6 +82,6 @@ export async function renderStats() {
 	for (const el of document.querySelectorAll<HTMLElement>("[data-stat]")) {
 		const key = el.dataset.stat as keyof Stats;
 		const value = stats[key];
-		if (value !== undefined) el.textContent = `${value.toLocaleString()} ${key}`;
+		if (typeof value === "number") el.textContent = `${value.toLocaleString()} ${key}`;
 	}
 }
