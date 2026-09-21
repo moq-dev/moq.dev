@@ -6,7 +6,11 @@ type Feature =
 	| "scale"
 	| "native"
 	| "discover"
-	| "efficient";
+	| "efficient"
+	| "distribution"
+	| "contribution"
+	| "robotics"
+	| "conferencing";
 
 interface Props {
 	icon: Feature;
@@ -14,21 +18,27 @@ interface Props {
 
 const { icon } = Astro.props;
 
-// These are Kixel's original hand-drawn icons from moq.pro.
+// The first set are Kixel's original hand-drawn icons from moq.pro. The
+// use-case icons in public/home/use-case/ are placeholders waiting on
+// hand-drawn versions, same as public/social/.
 const artwork: Record<Feature, string> = {
-	source: "box",
-	web: "globe",
-	realtime: "rocket",
-	scale: "stonk",
-	native: "puzzle",
-	discover: "link",
-	efficient: "battery",
+	source: "https://moq.pro/icons/box.svg",
+	web: "https://moq.pro/icons/globe.svg",
+	realtime: "https://moq.pro/icons/rocket.svg",
+	scale: "https://moq.pro/icons/stonk.svg",
+	native: "https://moq.pro/icons/puzzle.svg",
+	discover: "https://moq.pro/icons/link.svg",
+	efficient: "https://moq.pro/icons/battery.svg",
+	distribution: "/home/use-case/distribution.svg",
+	contribution: "/home/use-case/contribution.svg",
+	robotics: "/home/use-case/robotics.svg",
+	conferencing: "/home/use-case/conferencing.svg",
 };
 ---
 
 <li class="flex items-start gap-3">
 	<span class="mt-0.5 flex h-9 w-11 shrink-0 items-center justify-center" aria-hidden="true">
-		<img src={`https://moq.pro/icons/${artwork[icon]}.svg`} class="h-9 w-11 object-contain" alt="" />
+		<img src={artwork[icon]} class="h-9 w-11 object-contain" alt="" />
 	</span>
 	<span><slot /></span>
 </li>
