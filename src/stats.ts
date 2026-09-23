@@ -71,9 +71,13 @@ async function fetchStats(): Promise<Stats> {
 	return { stars, chatters };
 }
 
+const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
+const round = (n: number) => compact.format(n).toLowerCase();
+const TITLES: Record<keyof Stats, string> = { stars: "GitHub stars", chatters: "Discord members" };
+
 // Fills every element with a `data-stat="stars"` / `data-stat="chatters"`
-// attribute, e.g. "1,515 stars". Elements stay empty if a fetch fails; the
-// links around them still work.
+// attribute, e.g. "1.5k stars", and titles the surrounding link with the exact
+// count. Elements stay empty if a fetch fails; the links still work.
 export async function renderStats() {
 	const cached = readCache();
 	const stats = cached ?? (await fetchStats());
@@ -82,6 +86,9 @@ export async function renderStats() {
 	for (const el of document.querySelectorAll<HTMLElement>("[data-stat]")) {
 		const key = el.dataset.stat as keyof Stats;
 		const value = stats[key];
-		if (typeof value === "number") el.textContent = `${value.toLocaleString()} ${key}`;
+		if (typeof value !== "number") continue;
+		el.textContent = `${round(value)} ${key}`;
+		const link = el.closest("a");
+		if (link) link.title = `${value.toLocaleString()} ${TITLES[key]}`;
 	}
 }
