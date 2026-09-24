@@ -1,0 +1,111 @@
+---
+layout: "@/layouts/global.astro"
+title: AI Influencer
+author: kixelated
+description: Two things that actually made agents useful on this repo. Skills vs context, and quests.
+cover: "/blog/be-the-outlier/narwhal.png"
+date: 2026-09-05
+---
+
+{/*
+	OUTLINE ONLY. Bullets are notes to myself, not prose.
+	TODO: draw a real cover, currently borrowing the narwhal from be-the-outlier.
+*/}
+
+# AI Influencer
+
+{/* Hook: disclaim the genre, then earn the right to post in it. */}
+
+- I am not an AI influencer. There is no course. There is no newsletter.
+- But I have been running agents against [this repo](https://github.com/moq-dev/moq) for a while now, and two things stuck.
+- Everything else I tried got deleted. That is the filter: what survived contact with a real codebase.
+- Callback to [Be The Outlier](/blog/be-the-outlier): the agent writes the boring code, so my job is deciding what it works on and what I accept back.
+
+## Skills vs Context
+
+{/* The whole post could be this one rule. */}
+
+- The rule I settled on:
+  - **Skills** are for stuff you repeatedly type at the **start or end** of a session.
+  - **`CLAUDE.md`** is for stuff you repeatedly type **while reviewing** a session.
+- Why the split works: a skill is *invoked*, context is *always loaded*.
+  - A skill costs nothing until you ask for it, so it can be long and opinionated.
+  - Context is paid on every single turn, so every line is rent.
+  - Explain that this is a budget question, not a taste question.
+
+### Start and end of a session is a skill
+
+- These are the things I typed *before* the agent had written anything, and the things I typed to close it out.
+- Examples from this repo:
+  - `/plan-quest` - the interview I ran by hand every time I wanted to scope work. Now it grills me instead.
+  - `/start-quest` - "find something unblocked and start it", which was five commands and a branch naming convention.
+  - `/spawn-quest` - triage a milestone, fan out.
+- Tell: if it is a *procedure* with steps and an order, it is a skill.
+- Anti-pattern: cramming the procedure into `CLAUDE.md` so it is "always available". Now you pay for it on every turn of every unrelated task, and the agent still does not follow it, because it is buried on line 300.
+
+### Reviewing a session is context
+
+- These are the things I typed *after* the agent handed me a diff. Every one of them is now a rule in `CLAUDE.md`.
+  - "no em dashes" (I typed this a lot)
+  - "don't retry around the bug, find the actual mechanism" -> Root Cause First
+  - "you added a fourth argument, make it a struct" -> Refactor As You Go
+  - "don't bump versions" (I typed this a lot too)
+  - "you changed the wire format, update the draft" -> the Cross-Package Sync table
+- Tell: if it is a *correction* you keep making, it is context.
+- The move is mechanical. Every time you catch yourself typing the same review comment twice, that is a diff to `CLAUDE.md`. The second time, not the fifth.
+- Corollary: a rule that never fires is a rule to delete. Context files rot upward.
+
+### The test
+
+- Ask: did I type this **before** the agent started, or **after** it handed me a diff?
+- Before -> skill. After -> context.
+- Both failure modes are the same mistake in different directions:
+  - Procedures in context: expensive, ignored, bloats every turn.
+  - Corrections in a skill: never triggers, so you review the same mistake forever.
+- Third bucket worth naming: stuff that is neither, and belongs in the *code* instead. A lint rule beats a `CLAUDE.md` sentence, because the agent gets told by the compiler rather than by me. Sneak in the general point: make misuse unrepresentable, same as [API design](https://github.com/moq-dev/moq/blob/main/CLAUDE.md).
+
+## Quests
+
+{/* The part I actually think is novel. */}
+
+- Setup: the problem is that a session ends and takes the plan with it.
+  - The plan lived in chat scrollback, which nobody can read and nothing can link to.
+  - GitHub issues are where plans go to die. Nobody grooms them, they have no ordering, and they cannot express "this is blocked on that".
+  - Agents are *very* good at starting work and *very* bad at remembering why the last one stopped.
+- What a quest is, in one line: a GitHub issue checked into the repository.
+  - A Markdown file under `quest/`. `Goal`, `Plan`, `Required`, `Closes`.
+  - A questline is a directory of them, ordered by priority.
+  - Milestones at the root: `m0` is broken stuff, `m1` is the `dev` line, `m2` is features, `m3` is prototypes.
+  - Sized in the title, `[XS]` through `[XL]`.
+  - Link to [`quest/AGENTS.md`](https://github.com/moq-dev/moq/blob/main/quest/AGENTS.md).
+
+### Why this beats an issue tracker
+
+- **It is reviewed.** A quest lands in a PR, so the *plan* gets a review before the code does. That is the cheapest possible place to catch a bad plan.
+- **It is versioned.** The plan sits next to the code it describes and moves with it. A refactor that invalidates a quest shows up as a conflict instead of as a stale issue nobody reopened.
+- **Dependencies are real edges.** `## Required` is a link, and `quest check` enforces it: links resolve, the index matches the tree, the graph stays acyclic. `just check` runs it. A dependency you can grep is a dependency an agent can follow.
+- **"What should I work on" has a mechanical answer.** No `## Required` section means ready. That is one `rg` invocation, which is why `/start-quest` is a skill and not a vibe.
+- **It is deleted when it is done.** Finished quests are removed in the PR that completes them. Git history keeps them. So the tree is always *pending work only*, which is the thing an issue tracker can never manage.
+- **Deleting reveals the unblock.** Grep the path you are removing and you find every quest that just became ready. The graph maintains itself.
+- **Agents can hold the whole thing.** A directory of short Markdown files is the format an agent is best at. The tree fits in context in a way a tracker's API never will.
+- **The branch name is the path.** `quest/m0/group-charge.md` becomes `quest/m0/group-charge`, and pushing an empty commit immediately is the claim that stops two agents doing the same work.
+
+### What it looks like in practice
+
+- Walk through one real quest end to end. Pick something small out of `m0`.
+- `/plan-quest` to scope it, `/start-quest` to pick it up, PR closes the issue and deletes the file.
+- Screenshot or paste the actual quest file, it is short enough to fit.
+
+### The honest downsides
+
+- Merge conflicts are constant. That is by design (you resolve them by aligning plans), but it is still friction.
+- It needs grooming passes, and grooming is not fun. I did a big one in 2026-08 turning every surviving GitHub issue into a quest.
+- Issues do not go away. They are still the public front door for people outside the repo.
+- Priority ordering is a lie you maintain by hand. Nothing enforces that `m0` is actually more urgent than `m2`.
+
+## Wrap
+
+- Both of these are the same idea: stop typing the same thing twice.
+- Skills capture the procedure, context captures the correction, quests capture the plan.
+- None of it is about the model getting smarter. It is about not making the model re-derive things I already decided.
+- Sign off. Refuse to start a newsletter.
