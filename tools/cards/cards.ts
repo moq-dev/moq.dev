@@ -132,10 +132,7 @@ export const CARDS: Card[] = [
 		eyebrow: "moq-video + moq-audio",
 		title: "Native media, **no ffmpeg**.",
 		sub: "`getUserMedia` and WebCodecs for Rust. Camera, screen, and mic capture. Hardware codecs on VideoToolbox, Media Foundation, NVENC, VAAPI, V4L2, and MediaCodec. wgpu rendering and echo cancellation.",
-		code: [
-			"$ cargo add moq-video --features capture,render",
-			"$ cargo add moq-audio --features capture,playback",
-		].join("\n"),
+		code: "$ cargo add moq-video --features capture,render\n$ cargo add moq-audio --features capture,playback",
 		note: "no system codecs to install",
 	},
 	{
