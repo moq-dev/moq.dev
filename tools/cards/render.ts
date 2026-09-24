@@ -16,6 +16,7 @@ import hljs from "highlight.js/lib/core";
 import bash from "highlight.js/lib/languages/bash";
 import ini from "highlight.js/lib/languages/ini";
 import rust from "highlight.js/lib/languages/rust";
+import typescript from "highlight.js/lib/languages/typescript";
 import { CARDS, type Card, type Lang } from "./cards.ts";
 
 // X renders summary_large_image at 1200x675; every other network is happy with
@@ -50,7 +51,8 @@ const UNDERLINE = readFileSync(join(HERE, "underline.svg"), "utf8")
 hljs.registerLanguage("bash", bash);
 hljs.registerLanguage("ini", ini);
 hljs.registerLanguage("rust", rust);
-const GRAMMAR: Record<Lang, string> = { shell: "bash", rust: "rust", toml: "ini" };
+hljs.registerLanguage("typescript", typescript);
+const GRAMMAR: Record<Lang, string> = { shell: "bash", rust: "rust", toml: "ini", ts: "typescript" };
 
 function escapeHtml(text: string): string {
 	return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
