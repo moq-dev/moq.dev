@@ -107,7 +107,7 @@ cargo install moq-cli
 Then pull the always-on Big Buck Bunny broadcast out as fragmented MP4 and pipe it directly into `ffplay`:
 
 ```bash
-moq --client-connect https://cdn.moq.pro/demo \
+moq --connect https://cdn.moq.pro/demo \
   --broadcast bbb.hang export fmp4 \
   | ffplay -
 ```
@@ -125,15 +125,15 @@ ffmpeg -re \
   -c:v libx264 -preset veryfast -tune zerolatency -g 60 \
   -c:a aac \
   -f mp4 \
-  -movflags cmaf+separate_moof+delay_moov+skip_trailer+frag_every_frame - \
-  | moq --client-connect https://cdn.moq.pro/anon \
+  -movflags cmaf+separate_moof+delay_moov+skip_trailer -frag_duration 1000 - \
+  | moq --connect https://cdn.moq.pro/anon \
       --broadcast YOUR_NAME.hang import fmp4
 ```
 
 While it is running, open `/watch?project=anon&name=YOUR_NAME.hang` on this site, or play it in another terminal:
 
 ```bash
-moq --client-connect https://cdn.moq.pro/anon \
+moq --connect https://cdn.moq.pro/anon \
   --broadcast YOUR_NAME.hang export fmp4 \
   | ffplay -
 ```
