@@ -67,10 +67,10 @@ Nix update changes Bun, update the other two pins in the same PR.
 ### The moq.pub / moq.watch URL scheme
 
 A broadcast is identified by its path: `/<project>/<name>`, e.g.
-`moq.pub/anon/lazy-otter-4f21.hang`. The project is the relay tenant and the
+`moq.pub/try/h2z15dgmdh.hang`. The project is the relay tenant and the
 name is everything after it, so names may contain slashes. The same path on
-either site refers to the same broadcast — publish at `moq.pub/anon/x.hang` and
-watch it back at `moq.watch/anon/x.hang`.
+either site refers to the same broadcast — publish at `moq.pub/try/x.hang` and
+watch it back at `moq.watch/try/x.hang`.
 
 Anything that *isn't* part of the broadcast's identity stays in the query
 string: `?relay=<url>`, `?cloudflare=<subdomain>`, `?jwt=<token>`, and
@@ -79,19 +79,20 @@ string: `?relay=<url>`, `?cloudflare=<subdomain>`, `?jwt=<token>`, and
 carries Cloudflare's relay token. `cloudflare` and `relay` are mutually
 exclusive.
 
-**moq.pub deliberately doesn't link to moq.watch.** The path symmetry is the
-feature; a link on top of it isn't. It also can't be built honestly: a link has
-to carry `?relay=` to reach the right relay, and the moment it carries `?jwt=`
-too it leaks a publish token, because moq tokens are prefix-scoped with separate
-publish (`put`) and subscribe (`get`) grants. Anyone sharing a broadcast can
-swap the hostname themselves.
+A bare `moq.pub/` mints a private broadcast in the `try` project from
+`POST ${PUBLIC_API_URL}/try/token` and keeps the publish token in its own URL.
+**A watch link never carries `?jwt=`**: moq tokens are prefix-scoped with
+separate publish (`put`) and subscribe (`get`) grants, so a shared publish token
+lets anyone publish. moq.pub links to moq.watch only for `try` on the default
+relay, and moq.watch mints its own subscribe token from `/try/watch` for a
+tokenless `try` path. Other projects get no link; swap the hostname.
 
 `sites/lib` holds the scheme itself, shared by both sites and by both the Worker
 and the Vite dev server so they can't drift:
 
 - `broadcast.ts` — parse and build `/<project>/<name>`, and the relay URL
-- `route.ts` — which requests redirect: a bare `moq.pub/` invents a random name,
-  and old `?project=&name=` links move into the path
+- `route.ts` — old `?project=&name=` links redirect into the path
+- `try.ts` — mint `try` credentials from the API
 - `worker.ts` — the Worker both sites export
 - `dev.ts` — a Vite plugin giving `just dev-pub` / `just dev-watch` the same
   routing (`just dev` is the Astro site and doesn't use it)
@@ -100,7 +101,7 @@ Two things are easy to break here:
 
 - `assets.run_worker_first: ["/"]` in each `wrangler.jsonc` is load-bearing. `/`
   matches `index.html`, so without it Cloudflare's asset server answers first and
-  the Worker never runs — no redirect, no invented name.
+  the Worker never runs and old `?project=&name=` links don't redirect.
 - The Worker can't decide "asset vs. page" by looking for a dot, because names
   end in `.hang`. It asks the asset store and falls back to the page on a 404.
 
