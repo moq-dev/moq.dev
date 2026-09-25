@@ -3,22 +3,24 @@ import "./global.css";
 // Imported after global.css so the theme's .hljs-* color rules land later in
 // the cascade and beat the prose plugin's .markdown :where(pre code) { color: inherit }.
 import "highlight.js/styles/atom-one-dark.css";
-import NavLink from "@/components/nav-link.astro";
 
 // NOTE: This is magically used as the type for Astro.props
 interface Props {
 	title: string;
 	description: string;
+	// The page draws its own layout instead of sitting in the reading column.
+	bare?: boolean;
 
 	frontmatter?: {
 		title: string;
 		date: string;
 		description: string;
+		author?: string;
 		cover?: string;
 	};
 }
 
-let { title, frontmatter, description } = Astro.props;
+let { title, frontmatter, description, bare } = Astro.props;
 if (frontmatter?.title) title = frontmatter.title;
 if (frontmatter?.description) description = frontmatter.description;
 
@@ -32,10 +34,20 @@ const ogImage = new URL(frontmatter?.cover ?? "/layout/icon.png", siteUrl).toStr
 
 // moq.wtf for staging builds, moq.pro for live (and local dev).
 const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https://moq.pro";
+
+const path = Astro.url.pathname;
+const nav = [
+	{ href: "/demo", word: "Demo" },
+	{ href: "/blog", word: "Blog" },
+	{ href: "https://doc.moq.dev", word: "Docs" },
+];
+const date = frontmatter?.date
+	? new Date(frontmatter.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })
+	: undefined;
 ---
 
 <!doctype html>
-<html lang="en" class="text-slate-100 sl-theme-dark">
+<html lang="en" class="sl-theme-dark">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content={fullDescription} />
@@ -46,6 +58,9 @@ const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https:/
 		<meta name="generator" content={Astro.generator} />
 		<title>{fullTitle}</title>
 
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 		<!-- Open Graph -->
 		<meta property="og:type" content={frontmatter?.date ? "article" : "website"} />
 		<meta property="og:title" content={fullTitle} />
@@ -68,41 +83,91 @@ const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https:/
 		<!-- Theme color -->
 		<meta name="theme-color" content="#0f172a" />
 	</head>
-	<body class="min-h-screen bg-slate-900 flex justify-center">
-		<div class="flex flex-col md:flex-row gap-0 bg-slate-900 shadow-2xl max-w-6xl w-full min-w-0 p-4">
-			<nav class="flex flex-row items-center md:flex-col md:gap-12 gap-4 md:w-64 w-full p-4">
-				<div class="w-1/2 md:w-full flex justify-center">
-					<a href="/">
-						<img src="/layout/logo.svg" class="w-52" alt="Media over QUIC" />
+	<body class="min-h-screen flex flex-col">
+		<header class="sticky top-0 z-20 border-b border-slate-800 bg-slate-900/85 backdrop-blur">
+			<div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-6 sm:px-5 md:px-8">
+				<a href="/" class="shrink-0" aria-label="Media over QUIC home">
+					<img src="/home/logo.svg" class="-mb-1 h-7 w-auto sm:h-9 md:h-11" alt="Media over QUIC" />
+				</a>
+				<nav class="ml-auto flex items-center text-[0.95rem] font-medium text-slate-300 sm:gap-1">
+					{
+						nav.map(({ href, word }) => (
+							<a
+								href={href}
+								class:list={[
+									"px-2 py-1.5 transition-colors hover:text-white sm:px-3",
+									word !== "Demo" && "hidden sm:block",
+									path.startsWith(href) && "text-white underline decoration-green-500 decoration-2 underline-offset-[6px]",
+								]}
+							>
+								{word}
+							</a>
+						))
+					}
+					<a href="https://github.com/moq-dev/moq" class="hidden items-center gap-2 px-3 py-1.5 transition-colors hover:text-white md:flex">
+						GitHub
+						<span data-stat="stars" data-short class="font-mono text-[0.7rem] text-green-500"></span>
 					</a>
-				</div>
-				<div class="flex md:flex-col flex-row flex-wrap items-center justify-center gap-4 md:w-32 w-1/2">
-					<NavLink href="/demo" icon="demo" word="Demo" />
-					<NavLink href="/blog" icon="blog" word="Blog" />
-					<NavLink href="https://doc.moq.dev" icon="docs" word="Docs" />
-					<NavLink href={proUrl} icon="pro" word="Pro" />
+					<a href="https://discord.moq.dev" class="hidden items-center gap-2 px-3 py-1.5 transition-colors hover:text-white md:flex">
+						Discord
+						<span data-stat="chatters" data-short class="font-mono text-[0.7rem] text-green-500"></span>
+					</a>
+					<a href={proUrl} class="btn-green ml-1 whitespace-nowrap !px-4 !py-2 !text-[0.9rem] sm:ml-3">
+						<img src="/layout/pro-icon.svg" class="-my-1 -ml-2 h-6" alt="" />
+						moq.pro <span class="hidden sm:inline" aria-hidden="true">→</span>
+					</a>
+				</nav>
+			</div>
+		</header>
 
-					<img src="/layout/underline.svg" class="hidden md:block w-32" alt="" />
+		<main class="flex-1">
+			{
+				bare ? (
+					<slot />
+				) : (
+					<article class="markdown mx-auto max-w-[44rem] px-5 pb-24 pt-14 md:px-0">
+						{date && (
+							<p class="label !mb-3">
+								{date}
+								{frontmatter?.author && <> · {frontmatter.author}</>}
+							</p>
+						)}
+						<slot />
+					</article>
+				)
+			}
+		</main>
 
-					<NavLink href="https://github.com/moq-dev/moq" icon="github" word="GitHub">
-						<span data-stat="stars" class="text-xs font-bold text-green-500 -mt-1 whitespace-nowrap"></span>
-					</NavLink>
-					<NavLink href="https://discord.moq.dev" icon="discord" word="Discord">
-						<span data-stat="chatters" class="text-xs font-bold text-green-500 -mt-1 whitespace-nowrap"></span>
-					</NavLink>
+		<footer class="border-t border-slate-800">
+			<div class="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.4fr_1fr_1fr_1fr] md:px-8">
+				<div class="flex flex-col gap-4">
+					<img src="/home/logo.svg" class="h-8 w-auto self-start" alt="Media over QUIC" />
+					<p class="max-w-xs text-[0.9rem] leading-relaxed text-slate-400">
+						Fork it, yoink it, make it your own. Just tell us what you build.
+					</p>
 				</div>
-			</nav>
-			<article class="markdown p-4 flex-1 min-w-0">
-				{
-					frontmatter?.date && (
-						<p class="text-sm text-gray-400 text-right">
-							published {new Date(frontmatter.date).toLocaleDateString()}
-						</p>
-					)
-				}
-				<slot />
-			</article>
-		</div>
+				<div class="flex flex-col gap-2 text-[0.9rem] text-slate-300">
+					<span class="label mb-1">Project</span>
+					<a href="/demo" class="hover:text-white">Demos</a>
+					<a href="https://doc.moq.dev" class="hover:text-white">Documentation</a>
+					<a href="https://github.com/moq-dev/moq" class="hover:text-white">Source code</a>
+					<a href="https://datatracker.ietf.org/wg/moq/about/" class="hover:text-white">IETF working group</a>
+				</div>
+				<div class="flex flex-col gap-2 text-[0.9rem] text-slate-300">
+					<span class="label mb-1">Community</span>
+					<a href="/blog" class="hover:text-white">Blog</a>
+					<a href="/rss.xml" class="hover:text-white">RSS</a>
+					<a href="https://discord.moq.dev" class="hover:text-white">Discord</a>
+					<a href="https://x.com/kixelated" class="hover:text-white">X / Bluesky</a>
+				</div>
+				<div class="flex flex-col gap-2 text-[0.9rem] text-slate-300">
+					<span class="label mb-1">Production</span>
+					<a href={proUrl} class="hover:text-white">moq.pro (managed CDN)</a>
+					<a href="https://doc.moq.dev/bin/relay/" class="hover:text-white">Self-host moq-relay</a>
+					<a href="mailto:me@kixel.me" class="hover:text-white">me@kixel.me</a>
+				</div>
+			</div>
+		</footer>
 	</body>
 </html>
 
