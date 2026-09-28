@@ -278,7 +278,9 @@ function PanelView(props: ViewProps & { panel: Panel }) {
 				{p.result.text}
 			</text>
 
-			<Show when={props.art.overlay}>{(href) => <image href={href()} width={W} height={PANEL_H} />}</Show>
+			<Show when={props.art.overlay}>
+				{(href) => <image href={href()} width={W} height={PANEL_H} pointer-events="none" />}
+			</Show>
 		</>
 	);
 }
