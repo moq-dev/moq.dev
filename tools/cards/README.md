@@ -9,8 +9,8 @@ tool, which shares the look.
 | --- | --- |
 | `cards.ts` | The cards. Add one entry per post; the comment at the top documents the fields and the inline markup. |
 | `render.ts` | Renders each card to `out/<slug>.png` with the devshell's Playwright Chromium. Fails on a card whose content overflows rather than cropping it. |
-| `icons/` | Tile icons, one `<name>.svg` per `icon` in `cards.ts`. The brand logos are placeholders from simple-icons, to be traced and hand-drawn; a `currentColor` fill takes the text color. |
-| `stroke.svg`, `jetbrains-mono-latin.woff2` | The hand-drawn underline (moq.dev's homepage stroke) and the code font (from moq.pro's splash page). The wordmark is `public/home/logo.svg`. |
+| `icons/` | Placeholder tile icons to trace: brand logos from simple-icons, the rest from Lucide. A hand-drawn `public/drawn/icon-<name>.svg` takes over its placeholder. |
+| `jetbrains-mono-latin.woff2` | The code font, from moq.pro's splash page. The wordmark (`public/home/logo.svg`), underline stroke, and drawn icons come from the site. |
 
 ```sh
 just cards            # every card

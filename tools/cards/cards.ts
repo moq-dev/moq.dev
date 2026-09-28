@@ -19,7 +19,7 @@
 export type Lang = "shell" | "rust" | "toml" | "ts";
 
 export type Tile = {
-	// An `icons/<name>.svg` (or several), or an emoji placeholder until one is drawn.
+	// `public/drawn/icon-<name>.svg`, else the placeholder `icons/<name>.svg` (or several).
 	icon?: string | string[];
 	name: string;
 	detail?: string;
@@ -43,10 +43,10 @@ export const CARDS: Card[] = [
 		title: "End-to-end **encrypted** media.",
 		sub: "Your CDN can't spy on you. Relays route what they can't read: not the media, and not even the names. The keys stay in your app, so neither moq.pro nor anyone else in the middle sees what you're streaming.",
 		tiles: [
-			{ icon: "🔒", name: "Payloads", detail: "AES-128-GCM, every frame and datagram" },
-			{ icon: "🏷️", name: "Broadcast names", detail: "an opaque 22-character path" },
-			{ icon: "🙈", name: "Track names", detail: "opaque too, derived per track" },
-			{ icon: "🔑", name: "Keys", detail: "never reach the relay" },
+			{ icon: "lock", name: "Payloads", detail: "AES-128-GCM, every frame and datagram" },
+			{ icon: "tag", name: "Broadcast names", detail: "an opaque 22-character path" },
+			{ icon: "hidden", name: "Track names", detail: "opaque too, derived per track" },
+			{ icon: "key", name: "Keys", detail: "never reach the relay" },
 		],
 		note: "draft-lcurley-moq-e2ee",
 	},
@@ -83,10 +83,14 @@ export const CARDS: Card[] = [
 		title: "JSON tracks, **91% smaller**.",
 		sub: "Updates go out as RFC 7396 merge-patch deltas, and DEFLATE keeps one window per group, so a change costs a few bytes instead of the whole document.",
 		tiles: [
-			{ icon: "📸", name: "Snapshot", detail: "The latest value. Late joiners get the full document, then deltas." },
-			{ icon: "📜", name: "Stream", detail: "A lossless append-log. Every record, in order." },
 			{
-				icon: "🪟",
+				icon: "snapshot",
+				name: "Snapshot",
+				detail: "The latest value. Late joiners get the full document, then deltas.",
+			},
+			{ icon: "log", name: "Stream", detail: "A lossless append-log. Every record, in order." },
+			{
+				icon: "window",
 				name: "Window **new**",
 				detail: "The last N records. Join at any point, then follow pushes and pops.",
 			},
@@ -100,12 +104,12 @@ export const CARDS: Card[] = [
 		sub: "Opaque payloads over MoQ, with the same per-group DEFLATE as `moq-json`.",
 		tiles: [
 			{
-				icon: "📸",
+				icon: "snapshot",
 				name: "Snapshot",
 				detail: "Lossy. One value over time; whoever joins late gets the latest. A poster, a config, a game state.",
 			},
 			{
-				icon: "📜",
+				icon: "log",
 				name: "Stream",
 				detail: "Lossless. An ordered append-log where nothing is superseded. Events, chat, logs.",
 			},
@@ -141,13 +145,10 @@ export const CARDS: Card[] = [
 		slug: "lan",
 		eyebrow: "moq-cli 0.12",
 		title: "Mesh the LAN with **zero config**.",
-		sub: "`--cluster-lan` finds every MoQ process on the network over mDNS and meshes with it. No relay, no internet, no certificates. Relays join the same mesh with `[cluster.lan]`, and `--cluster-lan-secret` keeps strangers out.",
+		sub: "`--cluster-lan` meshes every MoQ process on the network over mDNS: no relay, no internet, no certificates. `--cluster-lan-secret` keeps strangers out.",
 		code: [
-			"# on the camera box",
-			"$ moq --cluster-lan --broadcast cam.hang import capture",
-			"",
-			"# anywhere else on the network",
-			"$ moq --cluster-lan --broadcast cam.hang play",
+			"$ moq --cluster-lan --broadcast cam.hang import capture  # on the camera box",
+			"$ moq --cluster-lan --broadcast cam.hang play            # anywhere on the LAN",
 		].join("\n"),
 		note: "add --connect cdn.moq.pro for everyone off the LAN",
 	},
@@ -155,23 +156,23 @@ export const CARDS: Card[] = [
 		slug: "media",
 		eyebrow: "moq-video + moq-audio",
 		title: "Native media, **no ffmpeg**.",
-		sub: "`getUserMedia` and WebCodecs for Rust: capture, hardware encode and decode, and rendering. No system codecs to install.",
+		sub: "`getUserMedia` and WebCodecs for Rust, with no system codecs to install.",
 		tiles: [
-			{ icon: "⚡", name: "Zero-copy", detail: "frames stay on the GPU, into wgpu" },
-			{ icon: "apple", name: "macOS", detail: "VideoToolbox, ScreenCaptureKit" },
-			{ icon: "windows", name: "Windows", detail: "Media Foundation, DXGI capture" },
-			{ icon: "nvidia", name: "NVIDIA", detail: "NVENC + NVDEC, CUDA end to end" },
+			{ icon: "rocket", name: "Zero-copy", detail: "GPU in, GPU out" },
+			{ icon: "apple", name: "macOS", detail: "VideoToolbox" },
+			{ icon: "windows", name: "Windows", detail: "Media Foundation" },
+			{ icon: "nvidia", name: "NVIDIA", detail: "NVENC + NVDEC" },
 			{ icon: ["amd", "intel"], name: "AMD + Intel", detail: "VAAPI" },
-			{ icon: "linux", name: "Linux", detail: "V4L2, PipeWire, libcamera" },
+			{ icon: "linux", name: "Linux", detail: "V4L2, PipeWire" },
 			{ icon: "android", name: "Android", detail: "MediaCodec" },
-			{ icon: "🎙️", name: "Audio", detail: "Opus, echo cancellation" },
+			{ icon: "mic", name: "Audio", detail: "echo cancellation" },
 		],
 	},
 	{
 		slug: "languages",
 		eyebrow: "8 languages, 1 wire",
 		title: "MoQ in **your language**.",
-		sub: "Rust and TypeScript implementations, plus six bindings over the same Rust core. A publisher in Python plays in Swift.",
+		sub: "Rust and TypeScript, plus six bindings over the same core. Python publishes, Swift plays.",
 		tiles: [
 			{ icon: "rust", name: "Rust", detail: "`moq-net`" },
 			{ icon: "typescript", name: "TypeScript", detail: "`@moq/net`" },
@@ -189,14 +190,14 @@ export const CARDS: Card[] = [
 		title: "Bridge **every protocol**.",
 		sub: "`moq import` and `moq export`, as the server or the client. Plus FLV, WebM, and Annex-B over pipes.",
 		tiles: [
-			{ icon: "📡", name: "RTMP", detail: "in + out" },
-			{ icon: "🛰️", name: "SRT", detail: "in + out" },
+			{ icon: "rtmp", name: "RTMP", detail: "in + out" },
+			{ icon: "srt", name: "SRT", detail: "in + out" },
 			{ icon: "webrtc", name: "WHIP", detail: "in + out" },
 			{ icon: "webrtc", name: "WHEP", detail: "in + out" },
-			{ icon: "📺", name: "HLS / LL-HLS", detail: "pull in, serve out" },
-			{ icon: "📺", name: "DASH", detail: "serve out" },
-			{ icon: "🎞️", name: "fMP4 / CMAF", detail: "in + out" },
-			{ icon: "📼", name: "MPEG-TS", detail: "in + out" },
+			{ icon: "hls", name: "HLS / LL-HLS", detail: "pull in, serve out" },
+			{ icon: "hls", name: "DASH", detail: "serve out" },
+			{ icon: "fmp4", name: "fMP4 / CMAF", detail: "in + out" },
+			{ icon: "mpegts", name: "MPEG-TS", detail: "in + out" },
 		],
 	},
 	{

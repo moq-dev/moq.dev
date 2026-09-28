@@ -37,7 +37,7 @@ function dataUrl(path: string, type: string): string {
 
 const LOGO = dataUrl(join(ROOT, "public/home/logo.svg"), "image/svg+xml");
 const FONT = dataUrl(join(HERE, "jetbrains-mono-latin.woff2"), "font/woff2");
-const STROKE = dataUrl(join(HERE, "stroke.svg"), "image/svg+xml");
+const STROKE = dataUrl(join(ROOT, "public/drawn/stroke-1.svg"), "image/svg+xml");
 
 // `shell` highlights the command as bash and draws the `$ ` prompt itself: the
 // shell grammar reads a `# ` line as a root prompt, not a comment. highlight.js
@@ -67,17 +67,24 @@ function title(text: string): string {
 	);
 }
 
-// A tile icon is either `icons/<name>.svg`, inlined so a `currentColor` fill
-// follows the text, or an emoji placeholder until one is drawn.
+// A tile icon is the site's hand-drawn `public/drawn/icon-<name>.svg` when
+// there is one, else a placeholder in `icons/<name>.svg` waiting to be traced.
+// Inlined so a placeholder's `currentColor` follows the text. The drawn icons
+// carry only a width and height, so the viewBox is made from those; without
+// one the drawing would crop instead of scaling down.
 function icon(name: string): string {
-	if (!/^[a-z0-9-]+$/.test(name)) return `<span class="icon">${escapeHtml(name)}</span>`;
-	const path = join(HERE, "icons", `${name}.svg`);
-	if (!existsSync(path)) throw new Error(`no icon ${name}; add tools/cards/icons/${name}.svg`);
+	const path = [join(ROOT, "public/drawn", `icon-${name}.svg`), join(HERE, "icons", `${name}.svg`)].find(existsSync);
+	if (!path)
+		throw new Error(`no icon ${name}; draw public/drawn/icon-${name}.svg or add tools/cards/icons/${name}.svg`);
 	const svg = readFileSync(path, "utf8")
-		.trim()
 		.replace(/^[\s\S]*?<svg/, "<svg")
-		.replace(/<title>[\s\S]*?<\/title>/, "");
-	return svg.replace("<svg", '<svg class="icon" aria-hidden="true"');
+		.replace(/<title>[\s\S]*?<\/title>/, "")
+		.trim();
+	const root = svg.slice(0, svg.indexOf(">"));
+	const width = root.match(/\swidth="([\d.]+)/)?.[1];
+	const height = root.match(/\sheight="([\d.]+)/)?.[1];
+	const viewBox = /viewBox=/.test(root) || !width || !height ? "" : ` viewBox="0 0 ${width} ${height}"`;
+	return svg.replace("<svg", `<svg class="icon" aria-hidden="true"${viewBox}`);
 }
 
 // Four across at most; six and nine fill three columns evenly.
@@ -329,10 +336,15 @@ async function main() {
 			// layout bug (a title that wrapped into the code block, a nowrap
 			// eyebrow or note wider than the card, a code line wider than the
 			// block), not a crop. Both axes: the nowrap runs overflow sideways.
+			// A body that's too tall squeezes the footer into the bottom padding
+			// before it leaves the page, so that counts too.
 			const overflow = await page.evaluate(() => {
 				const over = (el: Element) => el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight;
 				const pre = document.querySelector("pre");
-				return over(document.body) || (pre !== null && over(pre));
+				const card = document.querySelector(".card") as HTMLElement;
+				const foot = document.querySelector(".foot") as HTMLElement;
+				const floor = card.getBoundingClientRect().bottom - Number.parseFloat(getComputedStyle(card).paddingBottom);
+				return over(document.body) || (pre !== null && over(pre)) || foot.getBoundingClientRect().bottom > floor + 0.5;
 			});
 			if (overflow) throw new Error(`${card.slug}: content overflows the ${WIDTH}x${HEIGHT} card; shorten it`);
 			const path = join(OUT, `${card.slug}.png`);
