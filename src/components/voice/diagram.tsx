@@ -49,6 +49,7 @@ export interface Props {
 
 const HOLD = 2.5; // seconds to linger on the final frame before looping
 const SPEED = 0.5; // half speed, so the packets are easy to follow
+const STEP = 0.1; // seconds per arrow key
 
 const W = 600;
 const GUTTER = 44;
@@ -108,45 +109,72 @@ export function Diagram(props: Props) {
 
 	const x = (ts: number) => GUTTER + (ts / props.axis) * TRACK_W;
 
+	// The keyboard path for seeking: arrows step, Home/End jump. Clicking a track is the mouse path.
+	const key = (e: KeyboardEvent) => {
+		const target = {
+			ArrowLeft: now() - STEP,
+			ArrowDown: now() - STEP,
+			ArrowRight: now() + STEP,
+			ArrowUp: now() + STEP,
+			Home: 0,
+			End: props.end,
+		}[e.key];
+		if (target === undefined) return;
+		e.preventDefault();
+		setPlaying(false);
+		setT(Math.max(0, Math.min(props.end, target)));
+	};
+
 	return (
 		<div ref={root} class="not-prose my-8 select-none">
-			<svg
-				viewBox={`0 0 ${W} ${PANEL_H * props.panels.length}`}
-				class="w-full"
-				font-size="12"
-				font-family={props.art?.font}
-				role="img"
+			<div
+				class="rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-green-500"
+				role="slider"
+				tabIndex={0}
 				aria-label={props.label}
+				aria-valuemin={0}
+				aria-valuemax={props.end}
+				aria-valuenow={Math.round(now() * 10) / 10}
+				aria-valuetext={`${now().toFixed(1)} seconds`}
+				onKeyDown={key}
 			>
-				<defs>
-					<pattern id={`${id}-lost`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-						<rect width="6" height="6" fill="rgba(239, 68, 68, 0.25)" />
-						<rect width="2" height="6" fill={COLOR.lost} />
-					</pattern>
-					<filter id={`${id}-wobble`}>
-						<feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="3" />
-						<feDisplacementMap in="SourceGraphic" scale="3" xChannelSelector="R" yChannelSelector="G" />
-					</filter>
-				</defs>
-				<For each={props.panels}>
-					{(panel, i) => (
-						<g transform={`translate(0 ${i() * PANEL_H})`}>
-							<PanelView
-								panel={panel}
-								t={now}
-								x={x}
-								seek={(frac, segments) => {
-									const at = reach(segments, frac * props.axis);
-									if (at !== undefined) setT(at);
-								}}
-								art={props.art ?? {}}
-								hatch={`url(#${id}-lost)`}
-								wobble={props.art?.wobble ? `url(#${id}-wobble)` : undefined}
-							/>
-						</g>
-					)}
-				</For>
-			</svg>
+				<svg
+					viewBox={`0 0 ${W} ${PANEL_H * props.panels.length}`}
+					class="block w-full"
+					font-size="12"
+					font-family={props.art?.font}
+					aria-hidden="true"
+				>
+					<defs>
+						<pattern id={`${id}-lost`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+							<rect width="6" height="6" fill="rgba(239, 68, 68, 0.25)" />
+							<rect width="2" height="6" fill={COLOR.lost} />
+						</pattern>
+						<filter id={`${id}-wobble`}>
+							<feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="3" />
+							<feDisplacementMap in="SourceGraphic" scale="3" xChannelSelector="R" yChannelSelector="G" />
+						</filter>
+					</defs>
+					<For each={props.panels}>
+						{(panel, i) => (
+							<g transform={`translate(0 ${i() * PANEL_H})`}>
+								<PanelView
+									panel={panel}
+									t={now}
+									x={x}
+									seek={(frac, segments) => {
+										const at = reach(segments, frac * props.axis);
+										if (at !== undefined) setT(at);
+									}}
+									art={props.art ?? {}}
+									hatch={`url(#${id}-lost)`}
+									wobble={props.art?.wobble ? `url(#${id}-wobble)` : undefined}
+								/>
+							</g>
+						)}
+					</For>
+				</svg>
+			</div>
 
 			<div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
 				<button
@@ -294,7 +322,7 @@ function TrackView(props: ViewProps & { track: Track; y: number; notes: "above" 
 				/>
 			</Show>
 			{/* Click a track to jump to when it reaches that point. */}
-			{/* biome-ignore lint/a11y/noStaticElementInteractions: a mouse shortcut; the animation plays on its own and has a pause button. */}
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: the mouse path; the <svg> slider handles the keyboard. */}
 			<rect
 				x={GUTTER}
 				y={props.y}
