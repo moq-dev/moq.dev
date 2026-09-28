@@ -7,10 +7,10 @@
 //   just cards --html     # also keep the HTML, to tweak in a browser
 //
 // The look is moq.pro's splash page, shared with moq.pro's copy of this tool:
-// slate grid wash, bold system-font headline with the hand-drawn green
-// underline, JetBrains Mono for code.
+// slate grid wash, bold system-font headline with moq.dev's hand-drawn
+// green stroke, JetBrains Mono for code.
 
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import hljs from "highlight.js/lib/core";
 import bash from "highlight.js/lib/languages/bash";
@@ -37,13 +37,7 @@ function dataUrl(path: string, type: string): string {
 
 const LOGO = dataUrl(join(ROOT, "public/home/logo.svg"), "image/svg+xml");
 const FONT = dataUrl(join(HERE, "jetbrains-mono-latin.woff2"), "font/woff2");
-// Inlined rather than an <img> so it can stretch: the drawing is scaled to the
-// underlined phrase's width and a fixed height, which an image's aspect ratio
-// would refuse.
-const UNDERLINE = readFileSync(join(HERE, "underline.svg"), "utf8")
-	.trim()
-	.replace(/^[\s\S]*?<svg/, "<svg")
-	.replace("<svg", '<svg class="mark" preserveAspectRatio="none"');
+const STROKE = dataUrl(join(HERE, "stroke.svg"), "image/svg+xml");
 
 // `shell` highlights the command as bash and draws the `$ ` prompt itself: the
 // shell grammar reads a `# ` line as a root prompt, not a comment. highlight.js
@@ -67,7 +61,40 @@ function inline(text: string, strong: string): string {
 }
 
 function title(text: string): string {
-	return inline(text, "em").replace(/<em>(.*?)<\/em>/g, `<span class="emph">$1${UNDERLINE}</span>`);
+	return inline(text, "em").replace(
+		/<em>(.*?)<\/em>/g,
+		`<span class="emph">$1<img class="stroke" src="${STROKE}" alt=""></span>`,
+	);
+}
+
+// A tile icon is either `icons/<name>.svg`, inlined so a `currentColor` fill
+// follows the text, or an emoji placeholder until one is drawn.
+function icon(name: string): string {
+	if (!/^[a-z0-9-]+$/.test(name)) return `<span class="icon">${escapeHtml(name)}</span>`;
+	const path = join(HERE, "icons", `${name}.svg`);
+	if (!existsSync(path)) throw new Error(`no icon ${name}; add tools/cards/icons/${name}.svg`);
+	const svg = readFileSync(path, "utf8")
+		.trim()
+		.replace(/^[\s\S]*?<svg/, "<svg")
+		.replace(/<title>[\s\S]*?<\/title>/, "");
+	return svg.replace("<svg", '<svg class="icon" aria-hidden="true"');
+}
+
+// Four across at most; six and nine fill three columns evenly.
+function columns(count: number): number {
+	if (count <= 4) return count;
+	return count % 3 === 0 && count <= 9 ? 3 : 4;
+}
+
+function tiles(card: Card): string {
+	if (!card.tiles?.length) return "";
+	const items = card.tiles.map(
+		(t) =>
+			`<div class="tile"><div class="name">${[t.icon ?? []].flat().map(icon).join("")}<span>${inline(t.name, "strong")}</span></div>${
+				t.detail ? `<div class="detail">${inline(t.detail, "strong")}</div>` : ""
+			}</div>`,
+	);
+	return `<div class="tiles" style="grid-template-columns: repeat(${columns(items.length)}, 1fr)">${items.join("")}</div>`;
 }
 
 function codeLine(line: string, lang: Lang): string {
@@ -137,7 +164,7 @@ body {
 	align-items: center;
 	justify-content: space-between;
 }
-.logo { height: 60px; width: auto; display: block; }
+.logo { height: 92px; width: auto; display: block; }
 .eyebrow, .note, .url {
 	font-family: var(--font-mono);
 	font-size: 17px;
@@ -154,16 +181,17 @@ h1 {
 	line-height: 1.04;
 	max-width: 1000px;
 }
-.emph { position: relative; white-space: nowrap; }
-.mark {
+/* The hand-drawn stroke under "massive scale" on moq.dev's homepage, at the
+   same proportions: 104% of the phrase, hanging just below the baseline. */
+/* isolate + z-index -1 paints the stroke behind the phrase, not over it. */
+.emph { position: relative; display: inline-block; white-space: nowrap; isolation: isolate; }
+.stroke {
 	position: absolute;
-	left: 50%;
-	bottom: -0.12em;
-	/* Wider and thicker than the splash's: a headline needs a heavier stroke,
-	   and a fixed overhang past the phrase reads as a marker, not a rule. */
-	width: calc(100% + 0.4em);
-	height: 0.45em;
-	transform: translateX(-50%);
+	left: -2%;
+	bottom: -0.14em;
+	width: 104%;
+	height: 0.23em;
+	z-index: -1;
 	pointer-events: none;
 }
 .sub {
@@ -192,6 +220,46 @@ pre {
 	white-space: pre;
 	overflow: hidden;
 }
+.tiles {
+	margin-top: 30px;
+	display: grid;
+	gap: 14px;
+}
+.tile {
+	padding: 18px 22px;
+	background: var(--card);
+	border: 1px solid var(--hair);
+	border-radius: 14px;
+}
+.tile .name {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 24px;
+	font-weight: 700;
+	letter-spacing: -0.01em;
+}
+.tile .icon {
+	flex: none;
+	width: 28px;
+	height: 28px;
+	font-size: 24px;
+	line-height: 28px;
+	text-align: center;
+}
+.tile .detail {
+	margin-top: 6px;
+	font-size: 17px;
+	line-height: 1.45;
+	color: var(--ink-soft);
+}
+.tile code, .tile strong {
+	font-family: var(--font-mono);
+	font-size: 0.92em;
+	color: var(--ink-faint);
+}
+.tile strong { color: var(--green); }
+.tile .name code { font-size: 1em; color: var(--ink); }
 pre .prompt { color: var(--green); font-weight: 700; }
 /* Token colors: atom-one-dark. */
 .hljs-comment, .hljs-quote { color: #5c6370; font-style: italic; }
@@ -221,6 +289,7 @@ pre .prompt { color: var(--green); font-weight: 700; }
 	<div class="body">
 		<h1>${title(card.title)}</h1>
 		${card.sub ? `<p class="sub">${inline(card.sub, "strong")}</p>` : ""}
+		${tiles(card)}
 		${codeLines.length ? `<pre>${codeLines.map((l) => codeLine(l, card.lang ?? "shell")).join("\n")}</pre>` : ""}
 	</div>
 	<div class="foot">

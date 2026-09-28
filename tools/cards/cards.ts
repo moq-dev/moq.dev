@@ -3,10 +3,14 @@
 // X/Bluesky/Discord (the format Bun uses for its "in the next version" posts).
 // CDN announcements live in moq.pro's copy of this tool. Copy conventions:
 //
-// - `title` is the headline. `**word**` gets the hand-drawn green underline
-//   from the splash, so save it for the one phrase the post is about.
-// - `sub` accepts `` `mono` `` and `**green**`. `code` is syntax-highlighted as
-//   `lang` (shell by default), where a line starting with `$ ` is a prompt.
+// - `title` is the headline. `**word**` gets moq.dev's hand-drawn green stroke, so
+//   save it for the one phrase the post is about.
+// - `sub` accepts `` `mono` `` and `**green**`, as do tile names and details.
+// - Below the sub, a card shows at most one of: `tiles`, a grid of short
+//   facts (a feature, a protocol, a package), or `code`, syntax-highlighted as
+//   `lang` (shell by default) where a line starting with `$ ` is a prompt. Only
+//   reach for code when the snippet itself is the news; most cards don't need
+//   either. A tile's `icon` sits before its name.
 // - `eyebrow` (top right) names the release: a crate + version. `note` (bottom right) is the one-line kicker, if any.
 //
 // Keep cards factual: a version, a rate, a measured number. Retire a card once
@@ -14,11 +18,19 @@
 
 export type Lang = "shell" | "rust" | "toml" | "ts";
 
+export type Tile = {
+	// An `icons/<name>.svg` (or several), or an emoji placeholder until one is drawn.
+	icon?: string | string[];
+	name: string;
+	detail?: string;
+};
+
 export type Card = {
 	slug: string;
 	eyebrow?: string;
 	title: string;
 	sub?: string;
+	tiles?: Tile[];
 	code?: string;
 	lang?: Lang;
 	note?: string;
@@ -29,9 +41,14 @@ export const CARDS: Card[] = [
 		slug: "e2ee",
 		eyebrow: "new crate: moq-e2ee 0.0.1",
 		title: "End-to-end **encrypted** media.",
-		sub: "Relays forward ciphertext. Content keys never enter `moq-net`. AES-128-GCM inline: about 1.3 µs per 1 KiB frame, 440 ns per Opus datagram.",
-		code: "$ cargo add moq-e2ee",
-		note: "draft-lcurley-moq-e2ee, profile moq-e2ee-01",
+		sub: "Your CDN can't spy on you. Relays route what they can't read: not the media, and not even the names. The keys stay in your app, so neither moq.pro nor anyone else in the middle sees what you're streaming.",
+		tiles: [
+			{ icon: "🔒", name: "Payloads", detail: "AES-128-GCM, every frame and datagram" },
+			{ icon: "🏷️", name: "Broadcast names", detail: "an opaque 22-character path" },
+			{ icon: "🙈", name: "Track names", detail: "opaque too, derived per track" },
+			{ icon: "🔑", name: "Keys", detail: "never reach the relay" },
+		],
+		note: "draft-lcurley-moq-e2ee",
 	},
 	{
 		slug: "uring",
@@ -61,63 +78,70 @@ export const CARDS: Card[] = [
 		lang: "toml",
 	},
 	{
+		slug: "json",
+		eyebrow: "moq-json + @moq/json",
+		title: "JSON tracks, **91% smaller**.",
+		sub: "Updates go out as RFC 7396 merge-patch deltas, and DEFLATE keeps one window per group, so a change costs a few bytes instead of the whole document.",
+		tiles: [
+			{ icon: "📸", name: "Snapshot", detail: "The latest value. Late joiners get the full document, then deltas." },
+			{ icon: "📜", name: "Stream", detail: "A lossless append-log. Every record, in order." },
+			{
+				icon: "🪟",
+				name: "Window **new**",
+				detail: "The last N records. Join at any point, then follow pushes and pops.",
+			},
+		],
+		note: "examples/telemetry.rs: snapshot + delta + deflate",
+	},
+	{
 		slug: "binary",
 		eyebrow: "new crate: moq-binary 0.1.0",
 		title: "Binary tracks: **snapshot** or **stream**.",
-		sub: "`snapshot` is lossy: one value over time, consumers get the latest. `stream` is lossless: an ordered append-log, nothing superseded. Same DEFLATE framing as `moq-json`, so the two agree on the wire.",
-		code: [
-			"// a poster image: whoever joins late gets the current one",
-			"let poster = snapshot::Producer::new(track, snapshot::ProducerConfig::default());",
-			"",
-			"// an event log: every payload, in order",
-			"let events = stream::Producer::new(track, stream::ProducerConfig::default());",
-		].join("\n"),
-		lang: "rust",
+		sub: "Opaque payloads over MoQ, with the same per-group DEFLATE as `moq-json`.",
+		tiles: [
+			{
+				icon: "📸",
+				name: "Snapshot",
+				detail: "Lossy. One value over time; whoever joins late gets the latest. A poster, a config, a game state.",
+			},
+			{
+				icon: "📜",
+				name: "Stream",
+				detail: "Lossless. An ordered append-log where nothing is superseded. Events, chat, logs.",
+			},
+		],
 	},
 	{
 		slug: "auth",
 		eyebrow: "new crate: moq-auth 0.1.0",
-		title: "One **auth contract** for every relay.",
-		sub: "The request a relay sends per session, the grant an auth server answers with, the lease a session holds, and the JWT a client presents. Paths are patterns: `foo` is one broadcast, `foo/**` a subtree.",
-		code: [
-			"$ moq auth generate --out key.jwk",
-			"$ moq auth sign --key key.jwk --root demo --publish 'bbb/**' > token.jwt",
-			"$ moq auth verify --key key.jwk < token.jwt",
-		].join("\n"),
+		title: "Auth with **wildcards**.",
+		sub: "Point the relay at `--auth-url` and it asks your server about every session. Answer with the paths it may publish and subscribe to. It's re-checked while the session lives, so access can be revoked mid-stream.",
+		tiles: [
+			{ name: "`bbb`", detail: "exactly one broadcast" },
+			{ name: "`room/*`", detail: "any one level down" },
+			{ name: "`alice/**`", detail: "a whole subtree" },
+			{ name: "`room/*/chat`", detail: "wildcards mid-path" },
+		],
+		note: "or sign JWTs with moq auth sign",
 	},
 	{
 		slug: "room",
 		eyebrow: "@moq/room 0.2",
 		title: "A video call is **a path prefix**.",
 		sub: "Members are discovered from announcements. Camera, mic, and screenshare built in. No room server: joining is a token for the prefix. Native twin: `moq-room`.",
-		code: [
-			'const url = new URL("https://relay.example.com/meet/demo?jwt=...");',
-			"const connection = new Connection({ url });",
-			'const identity = Path.from("alice");',
-			"",
-			"new Local({ connection, identity }).cameraEnabled.set(true);",
-			"const room = new Room({ connection, identity });",
-		].join("\n"),
-		lang: "ts",
 	},
 	{
 		slug: "play",
 		eyebrow: "moq-cli 0.12",
 		title: "Watch without **a browser**.",
 		sub: "`moq play` decodes H.264, H.265, AV1, Opus, and AAC with the platform's hardware decoder, into a native window synced to the speaker.",
-		code: [
-			"$ cargo install moq-cli --features play",
-			"$ moq --connect https://relay.example.com/anon --broadcast my-stream.hang play",
-			"",
-			"# trade latency for a jittery link",
-			"$ moq ... play --delay 500ms",
-		].join("\n"),
+		code: "$ moq --connect https://relay.example.com/anon --broadcast my-stream.hang play",
 	},
 	{
 		slug: "lan",
 		eyebrow: "moq-cli 0.12",
 		title: "Mesh the LAN with **zero config**.",
-		sub: "`--cluster-lan` finds every MoQ process on the network over mDNS and meshes with it. No relay, no internet, no certificates. Relays join the same mesh with `[cluster.lan]`.",
+		sub: "`--cluster-lan` finds every MoQ process on the network over mDNS and meshes with it. No relay, no internet, no certificates. Relays join the same mesh with `[cluster.lan]`, and `--cluster-lan-secret` keeps strangers out.",
 		code: [
 			"# on the camera box",
 			"$ moq --cluster-lan --broadcast cam.hang import capture",
@@ -125,40 +149,55 @@ export const CARDS: Card[] = [
 			"# anywhere else on the network",
 			"$ moq --cluster-lan --broadcast cam.hang play",
 		].join("\n"),
-		note: "--cluster-lan-secret to keep strangers out",
+		note: "add --connect cdn.moq.pro for everyone off the LAN",
 	},
 	{
 		slug: "media",
 		eyebrow: "moq-video + moq-audio",
 		title: "Native media, **no ffmpeg**.",
-		sub: "`getUserMedia` and WebCodecs for Rust. Camera, screen, and mic capture. Hardware codecs on VideoToolbox, Media Foundation, NVENC, VAAPI, V4L2, and MediaCodec. wgpu rendering and echo cancellation.",
-		code: "$ cargo add moq-video --features capture,render\n$ cargo add moq-audio --features capture,playback",
-		note: "no system codecs to install",
+		sub: "`getUserMedia` and WebCodecs for Rust: capture, hardware encode and decode, and rendering. No system codecs to install.",
+		tiles: [
+			{ icon: "⚡", name: "Zero-copy", detail: "frames stay on the GPU, into wgpu" },
+			{ icon: "apple", name: "macOS", detail: "VideoToolbox, ScreenCaptureKit" },
+			{ icon: "windows", name: "Windows", detail: "Media Foundation, DXGI capture" },
+			{ icon: "nvidia", name: "NVIDIA", detail: "NVENC + NVDEC, CUDA end to end" },
+			{ icon: ["amd", "intel"], name: "AMD + Intel", detail: "VAAPI" },
+			{ icon: "linux", name: "Linux", detail: "V4L2, PipeWire, libcamera" },
+			{ icon: "android", name: "Android", detail: "MediaCodec" },
+			{ icon: "🎙️", name: "Audio", detail: "Opus, echo cancellation" },
+		],
 	},
 	{
 		slug: "languages",
 		eyebrow: "8 languages, 1 wire",
 		title: "MoQ in **your language**.",
-		sub: "Rust and TypeScript implementations, plus Python, Kotlin, Swift, Go, Dart, and C over the same Rust core. A publisher in Python plays in Swift.",
-		code: [
-			"$ cargo add moq-net",
-			"$ bun add @moq/net",
-			"$ pip install moq-rs",
-			"$ go get moq.dev/moq",
-			"$ dart pub add moq",
-			"# Kotlin: dev.moq:moq   Swift: moq-dev/moq-swift   C: libmoq",
-		].join("\n"),
+		sub: "Rust and TypeScript implementations, plus six bindings over the same Rust core. A publisher in Python plays in Swift.",
+		tiles: [
+			{ icon: "rust", name: "Rust", detail: "`moq-net`" },
+			{ icon: "typescript", name: "TypeScript", detail: "`@moq/net`" },
+			{ icon: "python", name: "Python", detail: "`moq-rs`" },
+			{ icon: "kotlin", name: "Kotlin", detail: "`dev.moq:moq`" },
+			{ icon: "swift", name: "Swift", detail: "`moq-dev/moq-swift`" },
+			{ icon: "go", name: "Go", detail: "`moq.dev/moq`" },
+			{ icon: "dart", name: "Dart", detail: "`moq`" },
+			{ icon: "c", name: "C", detail: "`libmoq`" },
+		],
 	},
 	{
 		slug: "gateway",
 		eyebrow: "moq-cli 0.12",
 		title: "Bridge **every protocol**.",
-		sub: "RTMP, SRT, WebRTC (WHIP/WHEP), and HLS in and out of MoQ, as either the server or the client. Chain stages over one connection.",
-		code: [
-			"$ moq --connect https://relay.example.com/anon \\",
-			"    import --broadcast event.hang srt --listen 0.0.0.0:9000 \\",
-			"    -- export --broadcast event.hang hls --listen 0.0.0.0:8080",
-		].join("\n"),
+		sub: "`moq import` and `moq export`, as the server or the client. Plus FLV, WebM, and Annex-B over pipes.",
+		tiles: [
+			{ icon: "📡", name: "RTMP", detail: "in + out" },
+			{ icon: "🛰️", name: "SRT", detail: "in + out" },
+			{ icon: "webrtc", name: "WHIP", detail: "in + out" },
+			{ icon: "webrtc", name: "WHEP", detail: "in + out" },
+			{ icon: "📺", name: "HLS / LL-HLS", detail: "pull in, serve out" },
+			{ icon: "📺", name: "DASH", detail: "serve out" },
+			{ icon: "🎞️", name: "fMP4 / CMAF", detail: "in + out" },
+			{ icon: "📼", name: "MPEG-TS", detail: "in + out" },
+		],
 	},
 	{
 		slug: "transcode",
