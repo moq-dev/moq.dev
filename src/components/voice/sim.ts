@@ -1,5 +1,5 @@
 // A tiny deterministic network model for the voice AI diagrams.
-// Everything is a pure function of wall-clock time `t` so the animation can be scrubbed.
+// Everything is a pure function of wall-clock time `t` so the animation is deterministic.
 
 // Seconds of audio per packet. Opus uses 20ms; 100ms keeps the dots countable.
 export const FRAME = 0.1;
@@ -77,6 +77,14 @@ export function head(segments: Segment[], t: number): number {
 		if (f > 0) pos = Math.max(pos, s.ts + FRAME * f);
 	}
 	return pos;
+}
+
+// When consumption reaches media timestamp `ts`, the inverse of head().
+export function reach(segments: Segment[], ts: number): number | undefined {
+	const s = segments.find((s) => ts < s.ts + FRAME);
+	if (s?.lost !== undefined) return s.lost;
+	if (s?.start === undefined || s.done === undefined) return undefined;
+	return s.start + ((s.done - s.start) * Math.max(0, ts - s.ts)) / FRAME;
 }
 
 function round(n: number): number {

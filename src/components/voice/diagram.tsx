@@ -1,9 +1,9 @@
 import { type Accessor, createSignal, createUniqueId, For, onCleanup, onMount, Show } from "solid-js";
-import { FLIGHT, FRAME, fill, has, head, type Loss, type Packet, type Segment, type Word } from "./sim";
+import { FLIGHT, FRAME, fill, has, head, type Loss, type Packet, reach, type Segment, type Word } from "./sim";
 
 // Every drawn element can be swapped for a hand-drawn image (PNG/SVG under /public).
 // Sizes are in viewBox units, where the diagram is 600 wide; draw at 4x for crisp output.
-// An array of images cycles at FPS, like hand-drawn animation. Frames follow the clock, so scrubbing works.
+// An array of images cycles at FPS, like hand-drawn animation. Frames follow the clock.
 export type Sprite = string | string[];
 
 export interface Art {
@@ -48,7 +48,7 @@ export interface Props {
 }
 
 const HOLD = 2.5; // seconds to linger on the final frame before looping
-const SPEEDS = [0.5, 1, 0.25];
+const SPEED = 0.5; // half speed, so the packets are easy to follow
 
 const W = 600;
 const GUTTER = 44;
@@ -72,7 +72,6 @@ const COLOR = {
 export function Diagram(props: Props) {
 	const [t, setT] = createSignal(0);
 	const [playing, setPlaying] = createSignal(false);
-	const [speed, setSpeed] = createSignal(SPEEDS[0]);
 	const now = () => Math.min(t(), props.end);
 	const id = createUniqueId();
 
@@ -90,7 +89,7 @@ export function Diagram(props: Props) {
 			const dt = (time - last) / 1000;
 			last = time;
 			if (playing()) {
-				const next = t() + dt * speed();
+				const next = t() + dt * SPEED;
 				setT(next > props.end + HOLD ? 0 : next);
 			}
 			frame = requestAnimationFrame(tick);
@@ -136,6 +135,10 @@ export function Diagram(props: Props) {
 								panel={panel}
 								t={now}
 								x={x}
+								seek={(frac, segments) => {
+									const at = reach(segments, frac * props.axis);
+									if (at !== undefined) setT(at);
+								}}
 								art={props.art ?? {}}
 								hatch={`url(#${id}-lost)`}
 								wobble={props.art?.wobble ? `url(#${id}-wobble)` : undefined}
@@ -145,10 +148,10 @@ export function Diagram(props: Props) {
 				</For>
 			</svg>
 
-			<div class="mt-2 flex items-center gap-3 text-sm text-slate-400">
+			<div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
 				<button
 					type="button"
-					class="w-8 rounded bg-slate-800 py-1 text-slate-200 hover:bg-slate-700"
+					class="w-7 rounded bg-slate-800 py-0.5 text-slate-200 hover:bg-slate-700"
 					onClick={() => {
 						if (t() >= props.end) setT(0);
 						setPlaying(!playing());
@@ -157,31 +160,6 @@ export function Diagram(props: Props) {
 				>
 					{playing() ? "❚❚" : "▶"}
 				</button>
-				<input
-					type="range"
-					class="flex-1 accent-green-500"
-					min="0"
-					max={props.end}
-					step="0.01"
-					value={now()}
-					onInput={(e) => {
-						setPlaying(false);
-						setT(e.currentTarget.valueAsNumber);
-					}}
-					aria-label="Time"
-				/>
-				<button
-					type="button"
-					class="w-12 rounded bg-slate-800 py-1 tabular-nums text-slate-200 hover:bg-slate-700"
-					onClick={() => setSpeed(SPEEDS[(SPEEDS.indexOf(speed()) + 1) % SPEEDS.length])}
-					aria-label="Playback speed"
-				>
-					{speed()}×
-				</button>
-				<span class="w-10 text-right tabular-nums">{now().toFixed(1)}s</span>
-			</div>
-
-			<div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
 				<Swatch fill={COLOR.done}>{props.legend.done}</Swatch>
 				<Swatch fill={COLOR.have}>{props.legend.have}</Swatch>
 				<Swatch stroke={COLOR.missing}>waiting for retransmit</Swatch>
@@ -214,6 +192,7 @@ function Swatch(props: { fill?: string; stroke?: string; children: string }) {
 interface ViewProps {
 	t: Accessor<number>;
 	x: (ts: number) => number;
+	seek: (frac: number, segments: Segment[]) => void; // jump to when a track reaches `frac` of the way along
 	art: Art;
 	hatch: string;
 	wobble?: string;
@@ -314,6 +293,20 @@ function TrackView(props: ViewProps & { track: Track; y: number; notes: "above" 
 					stroke-width="2"
 				/>
 			</Show>
+			{/* Click a track to jump to when it reaches that point. */}
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: a mouse shortcut; the animation plays on its own and has a pause button. */}
+			<rect
+				x={GUTTER}
+				y={props.y}
+				width={TRACK_W}
+				height={TRACK_H}
+				fill="transparent"
+				class="cursor-pointer"
+				onClick={(e) => {
+					const r = e.currentTarget.getBoundingClientRect();
+					props.seek((e.clientX - r.left) / r.width, props.track.segments);
+				}}
+			/>
 			<Show when={note()}>
 				<text
 					x={props.x(pos()) + 6}
