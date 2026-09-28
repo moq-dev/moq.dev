@@ -192,8 +192,8 @@ export const CARDS: Card[] = [
 		tiles: [
 			{ icon: "rtmp", name: "RTMP", detail: "in + out" },
 			{ icon: "srt", name: "SRT", detail: "in + out" },
-			{ icon: "webrtc", name: "WHIP", detail: "in + out" },
-			{ icon: "webrtc", name: "WHEP", detail: "in + out" },
+			{ icon: "webrtc", name: "WHIP", detail: "serve in, push out" },
+			{ icon: "webrtc", name: "WHEP", detail: "serve out, pull in" },
 			{ icon: "hls", name: "HLS / LL-HLS", detail: "pull in, serve out" },
 			{ icon: "hls", name: "DASH", detail: "serve out" },
 			{ icon: "fmp4", name: "fMP4 / CMAF", detail: "in + out" },
