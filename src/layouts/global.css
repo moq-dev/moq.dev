@@ -2,6 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+	html {
+		@apply bg-slate-900 text-slate-200;
+		color-scheme: dark;
+		font-size: 17px;
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
+	}
+
+	/* Plain system sans on purpose: the handwriting is the personality. */
+	body {
+		@apply font-sans;
+		font-optical-sizing: auto;
+	}
+
+	::selection {
+		background: rgb(34 197 94 / 30%);
+	}
+
+	:focus-visible {
+		outline: 2px solid #22c55e;
+		outline-offset: 3px;
+	}
+}
+
 /* highlight.js's atom-one-dark theme paints its own background on code.hljs,
    which double-stacks with the prose plugin's pre background. Strip it. */
 code.hljs,
@@ -11,23 +36,76 @@ pre code.hljs {
 }
 
 @layer components {
+	.display {
+		@apply font-sans font-bold tracking-[-0.025em] text-white;
+		line-height: 1.05;
+	}
+
+	/* Small technical labels. Used sparingly so mono still means "this is code". */
+	.label {
+		@apply font-mono text-[0.72rem] uppercase tracking-[0.08em] text-slate-400;
+	}
+
+	.green-link {
+		@apply text-green-500 underline decoration-green-500/40 decoration-2 underline-offset-4 transition-colors hover:decoration-green-500;
+	}
+
+	.btn {
+		@apply inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-[0.95rem] font-semibold leading-none transition-colors;
+	}
+	.btn-green {
+		@apply btn bg-green-500 text-slate-900 hover:bg-green-400;
+	}
+	.btn-line {
+		@apply btn border border-slate-700 text-slate-100 hover:border-slate-500 hover:bg-slate-800;
+	}
+
+	/* A hand-drawn strike-through: crossed out by a person, not by CSS. */
+	.struck {
+		@apply relative inline-block text-slate-400;
+	}
+	.struck::after {
+		content: "";
+		position: absolute;
+		left: -6%;
+		right: -6%;
+		top: 40%;
+		height: 0.28em;
+		background: url("/drawn/stroke-3.svg") no-repeat;
+		background-size: 100% 100%;
+		transform: rotate(-3deg);
+	}
+	/* Different strokes and angles so a row of them doesn't look copy-pasted. */
+	.struck:nth-of-type(3n + 2)::after {
+		background-image: url("/drawn/stroke-1.svg");
+		transform: scaleX(-1) rotate(-2deg);
+	}
+	.struck:nth-of-type(3n + 3)::after {
+		background-image: url("/drawn/stroke-5.svg");
+		transform: rotate(-1deg);
+	}
+
 	/* see https://tailwindcss.com/docs/typography-plugin */
 	.markdown {
-		@apply prose prose-lg lg:prose-xl max-w-none;
-		@apply prose-moq;
-		@apply prose-headings:underline prose-headings:decoration-green-500 prose-headings:decoration-4 prose-headings:underline-offset-4;
-		@apply prose-h3:text-2xl;
-		@apply prose-th:no-underline;
-		@apply prose-h1:mb-8 prose-h1:mt-12 prose-h1:decoration-8;
-		@apply prose-h2:decoration-4;
-		@apply prose-h3:decoration-2;
+		@apply prose prose-lg max-w-none prose-moq;
+		@apply prose-headings:font-bold prose-headings:tracking-[-0.02em];
+		@apply prose-h1:text-[2.6rem] md:prose-h1:text-[3.2rem] prose-h1:leading-[1.05] prose-h1:mb-10 prose-h1:mt-4;
+		@apply prose-h2:text-[1.7rem] prose-h2:mt-14;
+		@apply prose-h3:text-[1.3rem];
+		@apply prose-p:leading-[1.7];
 		@apply prose-li:my-1;
-		@apply prose-img:rounded-lg;
+		@apply prose-img:rounded-xl;
 		@apply prose-figure:object-center prose-figure:text-center prose-img:m-auto;
-		@apply prose-a:font-bold prose-a:text-green-500 prose-a:underline prose-a:decoration-green-500 prose-a:decoration-2 prose-a:underline-offset-4;
+		@apply prose-a:font-semibold prose-a:text-green-500 prose-a:underline prose-a:decoration-green-500/40 prose-a:decoration-2 prose-a:underline-offset-4 hover:prose-a:decoration-green-500;
+		@apply prose-code:font-mono prose-code:text-[0.82em] prose-code:font-normal prose-code:before:content-none prose-code:after:content-none;
+		@apply prose-pre:rounded-xl prose-pre:border prose-pre:border-slate-800 prose-pre:text-[0.82rem];
 
 		/* Long URLs and inline `code` shouldn't push the page wider than the viewport. */
 		@apply break-words;
+	}
+
+	.markdown :where(code):not(:where(pre *)) {
+		@apply rounded bg-slate-800 px-1.5 py-0.5;
 	}
 
 	/* Wide tables scroll on their own instead of widening the page. `display: block`
@@ -47,7 +125,7 @@ pre code.hljs {
 	}
 
 	.tagline {
-		@apply my-12 text-center text-2xl font-bold text-white underline decoration-green-500 decoration-4 underline-offset-4 md:text-3xl;
+		@apply my-12 text-center text-2xl font-bold text-white md:text-3xl;
 	}
 
 	table td:first-child {

@@ -76,7 +76,7 @@ const round = (n: number) => compact.format(n).toLowerCase();
 const TITLES: Record<keyof Stats, string> = { stars: "GitHub stars", chatters: "Discord members" };
 
 // Fills every element with a `data-stat="stars"` / `data-stat="chatters"`
-// attribute, e.g. "1.5k stars", and titles the surrounding link with the exact
+// attribute, e.g. "1.5k stars" (or just "1.5k" with `data-short`), and titles the surrounding link with the exact
 // count. Elements stay empty if a fetch fails; the links still work.
 export async function renderStats() {
 	const cached = readCache();
@@ -87,7 +87,7 @@ export async function renderStats() {
 		const key = el.dataset.stat as keyof Stats;
 		const value = stats[key];
 		if (typeof value !== "number") continue;
-		el.textContent = `${round(value)} ${key}`;
+		el.textContent = "short" in el.dataset ? round(value) : `${round(value)} ${key}`;
 		const link = el.closest("a");
 		if (link) link.title = `${value.toLocaleString()} ${TITLES[key]}`;
 	}
