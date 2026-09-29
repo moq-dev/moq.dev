@@ -12,7 +12,7 @@ const WORDS = [
 ];
 
 const AXIS = 3.4;
-const LOSS = { start: 1.3, end: 2.1 };
+const LOSS = { start: 1.3, end: 2.4 };
 
 // How much faster than real-time the model can chew through buffered audio.
 // Real models are much faster; 4x keeps the catch-up visible.

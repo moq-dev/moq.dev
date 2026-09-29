@@ -14,7 +14,8 @@ const WORDS = [
 ];
 
 const AXIS = 4.3;
-const LOSS = { start: 1.0, end: 1.8 };
+// The same stretch of audio is lost on both transports, by media timestamp, so they lose the same words.
+const LOST = { start: 0.7, end: 2.5 };
 
 const GENERATE = 10; // the model speaks 10x faster than real-time
 const THROUGHPUT = 3; // MoQ sends as fast as the (congested) network allows
@@ -26,7 +27,9 @@ const generated = (ts: number) => (ts + FRAME) / GENERATE;
 function panel(moq: boolean): Panel {
 	// WebRTC is a real-time transport: audio goes out at human speed, no matter how fast it was made.
 	const send = moq ? (ts: number) => Math.max(generated(ts), ts / THROUGHPUT) : (ts: number) => ts + FRAME;
-	const packets = transmit(TS, send, LOSS, moq);
+	// Sending is monotonic, so the outage is the wall-clock window those timestamps went out in.
+	const loss = { start: send(LOST.start), end: send(LOST.end) };
+	const packets = transmit(TS, send, loss, moq);
 	const pace = moq ? FRAME / THROUGHPUT : FRAME;
 
 	const spoken: Segment[] = packets.map((p) => ({
@@ -70,7 +73,7 @@ function panel(moq: boolean): Panel {
 		top: { who: "ai", words: WORDS, segments: spoken, note: moq ? undefined : queued },
 		bottom: { who: "you", words: WORDS, segments: heard, note: buffered },
 		packets,
-		loss: LOSS,
+		loss,
 		result: moq
 			? { at: finished + 0.2, text: "🧑 “Rude, but fair.”", good: true }
 			: { at: finished + 0.2, text: "🧑 “Sorry, you broke up. Can you repeat that?”", good: false },
