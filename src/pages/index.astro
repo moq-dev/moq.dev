@@ -26,8 +26,19 @@ const features = [
 	{ icon: "back", title: "Plays well with others", body: "Ingest from OBS, FFmpeg, GStreamer, RTMP, and SRT. Serve HLS and WebRTC to the players you already have." },
 ];
 
-// `icon` is the hand-drawn art in public/home/use-case/. The ones without it
-// render an empty slot until they're drawn.
+const languages = [
+	{ name: "Rust", icon: "rust", href: "https://doc.moq.dev/lib/rs/" },
+	{ name: "TypeScript", icon: "typescript", href: "https://doc.moq.dev/lib/js/" },
+	{ name: "Swift", icon: "swift", href: "https://doc.moq.dev/lib/swift/" },
+	{ name: "Kotlin", icon: "kotlin", href: "https://doc.moq.dev/lib/kt/" },
+	{ name: "Python", icon: "python", href: "https://doc.moq.dev/lib/py/" },
+	{ name: "Go", icon: "go", href: "https://doc.moq.dev/lib/go/" },
+	{ name: "Dart", icon: "dart", href: "https://doc.moq.dev/lib/dart/" },
+	{ name: "C", icon: "c", href: "https://doc.moq.dev/lib/c/" },
+];
+
+// `icon` is hand-drawn art in public/icons/use-case/. The ones without it render
+// an empty slot until they're drawn.
 const useCases = [
 	{ title: "Distribution", icon: "distribution", body: "Fan out to millions of viewers on demand, and keep legacy players on HLS.", href: "/blog/replacing-hls-dash" },
 	{ title: "Contribution", icon: "contribution", body: "Ingest from OBS, FFmpeg, or SRT with dynamic origins and failover.", href: "https://doc.moq.dev/bin/obs" },
@@ -114,6 +125,17 @@ const useCases = [
 				))
 			}
 		</div>
+		<div class="mt-8 flex flex-wrap items-center gap-3">
+			<span class="mr-2 text-sm font-medium text-slate-400">Build with</span>
+			{
+				languages.map((language) => (
+					<a href={language.href} class="flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-200 transition-colors hover:border-green-500 hover:text-white">
+						<img src={`/icons/cards/${language.icon}.svg`} class="h-7 w-7 object-contain" alt="" />
+						{language.name}
+					</a>
+				))
+			}
+		</div>
 	</section>
 
 	<!-- Use cases -->
@@ -127,7 +149,7 @@ const useCases = [
 						class="group flex gap-5 rounded-2xl border border-slate-800 p-6 transition-colors hover:border-slate-600 hover:bg-slate-800/40"
 					>
 						{useCase.icon ? (
-							<img src={`/home/use-case/${useCase.icon}.svg`} class="h-14 w-14 shrink-0 object-contain" alt="" />
+							<img src={`/icons/use-case/${useCase.icon}.svg`} class="h-14 w-14 shrink-0 object-contain" alt="" />
 						) : (
 							<span class="h-14 w-14 shrink-0 rounded-xl border-2 border-dashed border-slate-700" aria-hidden="true" />
 						)}

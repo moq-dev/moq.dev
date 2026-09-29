@@ -68,14 +68,15 @@ function title(text: string): string {
 }
 
 // A tile icon is the site's hand-drawn `public/drawn/icon-<name>.svg` when
-// there is one, else a placeholder in `icons/<name>.svg` waiting to be traced.
-// Inlined so a placeholder's `currentColor` follows the text. The drawn icons
-// carry only a width and height, so the viewBox is made from those; without
+// there is one, else its traced drawing in `public/icons/cards/<name>.svg`.
+// The drawn icons carry only a width and height, so the viewBox is made from those; without
 // one the drawing would crop instead of scaling down.
 function icon(name: string): string {
-	const path = [join(ROOT, "public/drawn", `icon-${name}.svg`), join(HERE, "icons", `${name}.svg`)].find(existsSync);
+	const path = [join(ROOT, "public/drawn", `icon-${name}.svg`), join(ROOT, "public/icons/cards", `${name}.svg`)].find(
+		existsSync,
+	);
 	if (!path)
-		throw new Error(`no icon ${name}; draw public/drawn/icon-${name}.svg or add tools/cards/icons/${name}.svg`);
+		throw new Error(`no icon ${name}; draw public/drawn/icon-${name}.svg or add public/icons/cards/${name}.svg`);
 	const svg = readFileSync(path, "utf8")
 		.replace(/^[\s\S]*?<svg/, "<svg")
 		.replace(/<title>[\s\S]*?<\/title>/, "")
