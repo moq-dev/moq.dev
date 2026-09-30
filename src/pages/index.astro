@@ -16,11 +16,11 @@ const formatDate = (date: string) =>
 const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https://moq.pro";
 
 const features = [
-	{ icon: "rocket", title: "Adaptive latency", body: "Keep viewers live through changing network conditions." },
-	{ icon: "stonk", title: "Massive scale", body: "Fan out through cached relays, from one viewer to millions." },
-	{ icon: "link", title: "Live discovery", body: "Route viewers to broadcasts without a central controller." },
+	{ icon: "rocket", title: "Adaptive latency", body: "Keep viewers live through the shittiest network conditions." },
+	{ icon: "stonk", title: "Massive scale", body: "Fan out horizontally through CDNs, from one user to millions." },
+	{ icon: "link", title: "Live discovery", body: "Dynamic announcements, connecting arbitrary publishers to subscribers." },
 	{ icon: "battery", title: "On-demand delivery", body: "Encode and send only when someone is watching." },
-	{ icon: "globe", title: "Modern web", body: "Publish and play directly in the browser." },
+	{ icon: "globe", title: "Modern web", body: "Publish and play directly in the browser. No need for WebRTC!" },
 	{ icon: "puzzle", title: "Every platform", body: "Build with Rust, TypeScript, and native bindings." },
 	{ icon: "lock", title: "Secure", body: "Use TLS, JWTs, and optional end-to-end encryption." },
 	{ icon: "back", title: "Works with your tools", body: "Ingest with OBS or FFmpeg; serve HLS and WebRTC players." },
@@ -39,12 +39,12 @@ const languages = [
 
 // `icon` is hand-drawn art in public/icons/use-case/.
 const useCases = [
-	{ title: "Distribution", icon: "distribution", body: "Fan out to millions of viewers on demand, and keep legacy players on HLS.", href: "/blog/replacing-hls-dash" },
-	{ title: "Contribution", icon: "contribution", body: "Ingest from OBS, FFmpeg, or SRT with dynamic origins and failover.", href: "https://doc.moq.dev/bin/obs" },
-	{ title: "Conferencing", icon: "conferencing", body: "Browser publish and watch with a live roster, plus WebRTC for WHIP and WHEP clients.", href: "/blog/first-app" },
 	{ title: "Robotics", icon: "robotics", body: "Real-time teleoperation, with telemetry and control on the same relays as the video.", href: "/blog/on-a-boat" },
 	{ title: "Voice and video AI", icon: "voice-video-ai", body: "Server-side media in Rust or Python, played back faster than real time in the browser.", href: "https://doc.moq.dev/concept/use-case/ai" },
 	{ title: "Interactive", icon: "interactive", body: "Media down, input up. MoQ Boy is a Game Boy played by everyone watching at once.", href: "/boy" },
+	{ title: "Conferencing", icon: "conferencing", body: "Browser publish and watch with a live roster, plus WebRTC for WHIP and WHEP clients.", href: "/blog/first-app" },
+	{ title: "Distribution", icon: "distribution", body: "Fan out to millions of viewers on demand, and keep legacy players on HLS.", href: "/blog/replacing-hls-dash" },
+	{ title: "Contribution", icon: "contribution", body: "Ingest from OBS, FFmpeg, or SRT with dynamic origins and failover.", href: "https://doc.moq.dev/bin/obs" },
 ];
 ---
 
@@ -73,14 +73,8 @@ const useCases = [
 		</h1>
 
 		<p class="mt-8 max-w-3xl text-[1.2rem] leading-relaxed text-slate-300 md:text-[1.35rem]">
-			Stream live video, audio, and data with one stack that stays responsive as your audience grows. Relays route and
-			cache streams on demand for browsers and native apps.
+			An open standard for streaming live video, audio, and <em>whatever you want</em>.
 		</p>
-
-		<div class="mt-8 flex flex-wrap items-center gap-3">
-			<a href="/demo" class="btn-green">Try the live demos <span aria-hidden="true">→</span></a>
-			<a href="https://doc.moq.dev" class="btn-line">Read the docs</a>
-		</div>
 
 		<div class="mt-16">
 			<h2 class="sr-only">What you get</h2>
@@ -99,7 +93,7 @@ const useCases = [
 				}
 			</div>
 			<div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-				<span class="shrink-0 text-sm font-medium text-slate-400">Build with</span>
+				<span class="shrink-0 text-sm font-medium text-slate-400">Libraries for</span>
 				<div class="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
 					{
 						languages.map((language) => (
@@ -110,6 +104,10 @@ const useCases = [
 						))
 					}
 				</div>
+			</div>
+			<div class="mt-10 flex flex-wrap items-center gap-3">
+				<a href="/demo" class="btn-green">Try the live demos <span aria-hidden="true">→</span></a>
+				<a href="https://doc.moq.dev" class="btn-line">Read the docs</a>
 			</div>
 		</div>
 	</section>
@@ -134,7 +132,7 @@ const useCases = [
 
 	<!-- Use cases -->
 	<section class="mx-auto max-w-6xl px-5 py-20 md:px-8">
-		<h2 class="display mb-10 text-[2.3rem] md:text-[3rem]">Built for more than video.</h2>
+		<h2 class="display mb-10 text-[2.3rem] md:text-[3rem]">More than Media</h2>
 		<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 			{
 				useCases.map((useCase) => (
