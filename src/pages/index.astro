@@ -16,34 +16,44 @@ const formatDate = (date: string) =>
 const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https://moq.pro";
 
 const features = [
-	{ icon: "rocket", title: "Adaptive latency", body: "Real-time, interactive, or lean-back from one stack. Less important data is skipped during congestion so viewers stay live." },
-	{ icon: "stonk", title: "Massive scale", body: "Everything can be cached and fanned out by a CDN, from a single self-hosted relay to millions of viewers." },
-	{ icon: "link", title: "Live discovery", body: "Relays gossip broadcasts and the shortest route between them. No central authority, no rooms to configure." },
-	{ icon: "battery", title: "Cheap and lazy", body: "Nothing is transmitted, or even encoded, until a viewer asks for it." },
-	{ icon: "globe", title: "Modern web", body: "WebTransport, WebCodecs, and WebAudio in the browser. No plugins, no hacks." },
-	{ icon: "puzzle", title: "Every platform", body: "Rust for native, TypeScript for the web, with bindings for C, Python, Kotlin, Swift, and Go." },
-	{ icon: "lock", title: "Secure", body: "Encrypted with TLS and authenticated with JWT. Self-host a private CDN or encrypt end to end." },
-	{ icon: "back", title: "Plays well with others", body: "Ingest from OBS, FFmpeg, GStreamer, RTMP, and SRT. Serve HLS and WebRTC to the players you already have." },
+	{ icon: "rocket", title: "Adaptive latency", body: "Keep viewers live through the shittiest network conditions." },
+	{ icon: "stonk", title: "Massive scale", body: "Fan out horizontally through CDNs, from one user to millions." },
+	{ icon: "link", title: "Live discovery", body: "Dynamic announcements, connecting arbitrary publishers to subscribers." },
+	{ icon: "battery", title: "On-demand delivery", body: "Encode and send only when someone is watching." },
+	{ icon: "globe", title: "Modern web", body: "Publish and play directly in the browser. No need for WebRTC!" },
+	{ icon: "puzzle", title: "Every platform", body: "Build with Rust, TypeScript, and native bindings." },
+	{ icon: "lock", title: "Secure", body: "Use TLS, JWTs, and optional end-to-end encryption." },
+	{ icon: "back", title: "Works with your tools", body: "Ingest with OBS or FFmpeg; serve HLS and WebRTC players." },
 ];
 
-// `icon` is the hand-drawn art in public/home/use-case/. The ones without it
-// render an empty slot until they're drawn.
+const languages = [
+	{ name: "Rust", icon: "rust", href: "https://doc.moq.dev/lib/rs/" },
+	{ name: "TypeScript", icon: "typescript", href: "https://doc.moq.dev/lib/js/" },
+	{ name: "Swift", icon: "swift", href: "https://doc.moq.dev/lib/swift/" },
+	{ name: "Kotlin", icon: "kotlin", href: "https://doc.moq.dev/lib/kt/" },
+	{ name: "Python", icon: "python", href: "https://doc.moq.dev/lib/py/" },
+	{ name: "Go", icon: "go", href: "https://doc.moq.dev/lib/go/" },
+	{ name: "Dart", icon: "dart", href: "https://doc.moq.dev/lib/dart/" },
+	{ name: "C", icon: "c", href: "https://doc.moq.dev/lib/c/" },
+];
+
+// `icon` is hand-drawn art in public/icons/use-case/.
 const useCases = [
+	{ title: "Robotics", icon: "robotics", body: "Real-time teleoperation, with telemetry and control on the same relays as the video.", href: "/blog/on-a-boat" },
+	{ title: "Voice and video AI", icon: "voice-video-ai", body: "Server-side media in Rust or Python, played back faster than real time in the browser.", href: "https://doc.moq.dev/concept/use-case/ai" },
+	{ title: "Interactive", icon: "interactive", body: "Media down, input up. MoQ Boy is a Game Boy played by everyone watching at once.", href: "/boy" },
+	{ title: "Conferencing", icon: "conferencing", body: "Browser publish and watch with a live roster, plus WebRTC for WHIP and WHEP clients.", href: "/blog/first-app" },
 	{ title: "Distribution", icon: "distribution", body: "Fan out to millions of viewers on demand, and keep legacy players on HLS.", href: "/blog/replacing-hls-dash" },
 	{ title: "Contribution", icon: "contribution", body: "Ingest from OBS, FFmpeg, or SRT with dynamic origins and failover.", href: "https://doc.moq.dev/bin/obs" },
-	{ title: "Conferencing", icon: "conferencing", body: "Browser publish and watch with a live roster, plus WebRTC for WHIP and WHEP clients.", href: "/blog/first-app" },
-	{ title: "Robotics", icon: "robotics", body: "Real-time teleoperation, with telemetry and control on the same relays as the video.", href: "/blog/on-a-boat" },
-	{ title: "Voice and video AI", body: "Server-side media in Rust or Python, played back faster than real time in the browser.", href: "https://doc.moq.dev/concept/use-case/ai" },
-	{ title: "Interactive", body: "Media down, input up. MoQ Boy is a Game Boy played by everyone watching at once.", href: "/boy" },
 ];
 ---
 
 <Layout title="" description="" bare>
 	<!-- Hero -->
-	<section class="mx-auto max-w-6xl px-5 pb-20 pt-14 md:px-8 md:pb-28 md:pt-20">
+	<section class="mx-auto max-w-6xl px-5 pb-20 pt-16 md:px-8">
 		<a
 			href="https://moqalliance.org/demoqed-2026/"
-			class="group mb-10 inline-flex items-center gap-3 rounded-full border border-slate-700 bg-slate-800/60 py-1.5 pl-1.5 pr-4 text-[0.85rem] text-slate-300 transition-colors hover:border-slate-500"
+			class="group mb-8 inline-flex items-center gap-3 rounded-full border border-slate-700 bg-slate-800/60 py-1.5 pl-1.5 pr-4 text-[0.85rem] text-slate-300 transition-colors hover:border-slate-500"
 		>
 			<span class="shrink-0 whitespace-nowrap rounded-full bg-green-500 px-2.5 py-0.5 font-mono text-[0.68rem] font-medium uppercase tracking-wider text-slate-900">Oct 8</span>
 			<span>DEMOQED, the first MoQ conference, in San Francisco</span>
@@ -53,29 +63,52 @@ const useCases = [
 		<h1 class="display max-w-5xl text-[3.1rem] md:text-[5.4rem]">
 			Real-time media and
 			<span class="relative inline-block whitespace-nowrap">
-				massive scale
+				massive scale.
 				<img
 					src="/drawn/stroke-1.svg"
 					class="pointer-events-none absolute -bottom-2 -left-[2%] h-3 w-[104%] md:-bottom-3 md:h-5"
 					alt=""
 				/>
-			</span>.
+			</span>
 		</h1>
 
-		<p class="mt-12 text-[1.35rem] font-medium leading-snug text-slate-100 md:text-[1.6rem]">
-			One open protocol to replace <span class="struck">WebRTC</span>, <span class="struck">HLS/DASH</span>, and
-			<span class="struck">RTMP/SRT</span>.
+		<p class="mt-8 max-w-3xl text-[1.2rem] leading-relaxed text-slate-300 md:text-[1.35rem]">
+			An open standard for streaming live video, audio, and <em>whatever you want</em>.
 		</p>
 
-		<p class="mt-8 max-w-2xl text-[1.1rem] leading-relaxed text-slate-400">
-			Media over QUIC is a live media protocol built on QUIC, the transport behind HTTP/3. It's being standardized at the
-			IETF, and this is the open source implementation: Rust for native, TypeScript for the browser.
-		</p>
-
-		<div class="relative mt-12 flex flex-wrap items-center gap-3">
-			<a href="/demo" class="btn-green">Try the live demos <span aria-hidden="true">→</span></a>
-			<a href="https://doc.moq.dev" class="btn-line">Read the docs</a>
-			<img src="/drawn/how.svg" class="pointer-events-none absolute -bottom-10 left-8 w-24 rotate-[-4deg]" alt="it works" />
+		<div class="mt-16">
+			<h2 class="sr-only">What you get</h2>
+			<img src="/drawn/what.svg" class="mb-4 w-32 rotate-[-3deg]" alt="" />
+			<div class="grid gap-px overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 sm:grid-cols-2 lg:grid-cols-4">
+				{
+					features.map((feature) => (
+						<div class="flex gap-3 bg-slate-900 p-5">
+							<img src={`/drawn/icon-${feature.icon}.svg`} class="h-8 w-8 shrink-0 object-contain" alt="" />
+							<div>
+								<h3 class="font-semibold text-white">{feature.title}</h3>
+								<p class="mt-1 text-[0.85rem] leading-relaxed text-slate-400">{feature.body}</p>
+							</div>
+						</div>
+					))
+				}
+			</div>
+			<div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+				<span class="shrink-0 text-sm font-medium text-slate-400">Libraries for</span>
+				<div class="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
+					{
+						languages.map((language) => (
+							<a href={language.href} class="flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-200 transition-colors hover:border-green-500 hover:text-white">
+								<img src={`/icons/cards/${language.icon}.svg`} class="h-7 w-7 object-contain" alt="" />
+								{language.name}
+							</a>
+						))
+					}
+				</div>
+			</div>
+			<div class="mt-10 flex flex-wrap items-center gap-3">
+				<a href="/demo" class="btn-green">Try the live demos <span aria-hidden="true">→</span></a>
+				<a href="https://doc.moq.dev" class="btn-line">Read the docs</a>
+			</div>
 		</div>
 	</section>
 
@@ -97,28 +130,9 @@ const useCases = [
 		</div>
 	</section>
 
-	<!-- Features -->
-	<section class="mx-auto max-w-6xl px-5 py-24 md:px-8">
-		<div class="mb-14 max-w-2xl">
-			<img src="/drawn/what.svg" class="mb-3 w-40 rotate-[-3deg]" alt="what you get" />
-			<h2 class="display text-[2.3rem] md:text-[3rem]">The latency of WebRTC with the scale of HLS.</h2>
-		</div>
-		<div class="grid gap-px overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 sm:grid-cols-2 lg:grid-cols-4">
-			{
-				features.map((feature) => (
-					<div class="flex flex-col gap-3 bg-slate-900 p-7">
-						<img src={`/drawn/icon-${feature.icon}.svg`} class="h-10 w-10 object-contain" alt="" />
-						<h3 class="text-[1.1rem] font-semibold text-white">{feature.title}</h3>
-						<p class="text-[0.92rem] leading-relaxed text-slate-400">{feature.body}</p>
-					</div>
-				))
-			}
-		</div>
-	</section>
-
 	<!-- Use cases -->
-	<section class="mx-auto max-w-6xl px-5 pb-24 md:px-8">
-		<h2 class="display mb-12 text-[2.3rem] md:text-[3rem]">Built for more than video.</h2>
+	<section class="mx-auto max-w-6xl px-5 py-20 md:px-8">
+		<h2 class="display mb-10 text-[2.3rem] md:text-[3rem]">More than Media</h2>
 		<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 			{
 				useCases.map((useCase) => (
@@ -126,11 +140,7 @@ const useCases = [
 						href={useCase.href}
 						class="group flex gap-5 rounded-2xl border border-slate-800 p-6 transition-colors hover:border-slate-600 hover:bg-slate-800/40"
 					>
-						{useCase.icon ? (
-							<img src={`/home/use-case/${useCase.icon}.svg`} class="h-14 w-14 shrink-0 object-contain" alt="" />
-						) : (
-							<span class="h-14 w-14 shrink-0 rounded-xl border-2 border-dashed border-slate-700" aria-hidden="true" />
-						)}
+						<img src={`/icons/use-case/${useCase.icon}.svg`} class="h-14 w-14 shrink-0 object-contain" alt="" />
 						<span class="flex flex-col gap-1.5">
 							<span class="text-[1.15rem] font-semibold text-white group-hover:text-green-500">{useCase.title}</span>
 							<span class="text-[0.92rem] leading-relaxed text-slate-400">{useCase.body}</span>
@@ -143,8 +153,8 @@ const useCases = [
 
 	<!-- Production -->
 	<section class="border-t border-slate-800 bg-slate-800/30">
-		<div class="mx-auto max-w-6xl px-5 py-24 md:px-8">
-			<div class="relative mb-12 max-w-2xl">
+		<div class="mx-auto max-w-6xl px-5 py-20 md:px-8">
+			<div class="relative mb-10 max-w-2xl">
 				<h2 class="display text-[2.3rem] md:text-[3rem]">Ready for production.</h2>
 				<p class="mt-4 text-[1.1rem] leading-relaxed text-slate-400">
 					Every piece is open source under MIT or Apache 2.0. Run it yourself, or let us run it for you.
@@ -195,7 +205,7 @@ const useCases = [
 
 	<!-- Blog -->
 	<section class="border-t border-slate-800">
-		<div class="mx-auto max-w-6xl px-5 py-24 md:px-8">
+		<div class="mx-auto max-w-6xl px-5 py-20 md:px-8">
 			<div class="mb-10 flex items-baseline justify-between gap-6">
 				<h2 class="display text-[2.3rem] md:text-[3rem]">From the blog.</h2>
 				<a href="/blog" class="green-link shrink-0 font-medium">All posts</a>

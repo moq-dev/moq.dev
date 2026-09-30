@@ -19,7 +19,7 @@
 export type Lang = "shell" | "rust" | "toml" | "ts";
 
 export type Tile = {
-	// `public/drawn/icon-<name>.svg`, else the placeholder `icons/<name>.svg` (or several).
+	// `public/drawn/icon-<name>.svg`, else the traced `public/icons/cards/<name>.svg` (or several).
 	icon?: string | string[];
 	name: string;
 	detail?: string;

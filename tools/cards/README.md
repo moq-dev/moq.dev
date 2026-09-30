@@ -9,7 +9,7 @@ tool, which shares the look.
 | --- | --- |
 | `cards.ts` | The cards. Add one entry per post; the comment at the top documents the fields and the inline markup. |
 | `render.ts` | Renders each card to `out/<slug>.png` with the devshell's Playwright Chromium. Fails on a card whose content overflows rather than cropping it. |
-| `icons/` | Placeholder tile icons to trace: brand logos from simple-icons, the rest from Lucide. A hand-drawn `public/drawn/icon-<name>.svg` takes over its placeholder. |
+| `public/icons/cards/` | Traced tile icons. A hand-drawn `public/drawn/icon-<name>.svg` takes precedence when present. |
 | `jetbrains-mono-latin.woff2` | The code font, from moq.pro's splash page. The wordmark (`public/home/logo.svg`), underline stroke, and drawn icons come from the site. |
 
 ```sh
