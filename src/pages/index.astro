@@ -37,15 +37,14 @@ const languages = [
 	{ name: "C", icon: "c", href: "https://doc.moq.dev/lib/c/" },
 ];
 
-// `icon` is hand-drawn art in public/icons/use-case/. The ones without it render
-// an empty slot until they're drawn.
+// `icon` is hand-drawn art in public/icons/use-case/.
 const useCases = [
 	{ title: "Distribution", icon: "distribution", body: "Fan out to millions of viewers on demand, and keep legacy players on HLS.", href: "/blog/replacing-hls-dash" },
 	{ title: "Contribution", icon: "contribution", body: "Ingest from OBS, FFmpeg, or SRT with dynamic origins and failover.", href: "https://doc.moq.dev/bin/obs" },
 	{ title: "Conferencing", icon: "conferencing", body: "Browser publish and watch with a live roster, plus WebRTC for WHIP and WHEP clients.", href: "/blog/first-app" },
 	{ title: "Robotics", icon: "robotics", body: "Real-time teleoperation, with telemetry and control on the same relays as the video.", href: "/blog/on-a-boat" },
-	{ title: "Voice and video AI", body: "Server-side media in Rust or Python, played back faster than real time in the browser.", href: "https://doc.moq.dev/concept/use-case/ai" },
-	{ title: "Interactive", body: "Media down, input up. MoQ Boy is a Game Boy played by everyone watching at once.", href: "/boy" },
+	{ title: "Voice and video AI", icon: "voice-video-ai", body: "Server-side media in Rust or Python, played back faster than real time in the browser.", href: "https://doc.moq.dev/concept/use-case/ai" },
+	{ title: "Interactive", icon: "interactive", body: "Media down, input up. MoQ Boy is a Game Boy played by everyone watching at once.", href: "/boy" },
 ];
 ---
 
@@ -148,11 +147,7 @@ const useCases = [
 						href={useCase.href}
 						class="group flex gap-5 rounded-2xl border border-slate-800 p-6 transition-colors hover:border-slate-600 hover:bg-slate-800/40"
 					>
-						{useCase.icon ? (
-							<img src={`/icons/use-case/${useCase.icon}.svg`} class="h-14 w-14 shrink-0 object-contain" alt="" />
-						) : (
-							<span class="h-14 w-14 shrink-0 rounded-xl border-2 border-dashed border-slate-700" aria-hidden="true" />
-						)}
+						<img src={`/icons/use-case/${useCase.icon}.svg`} class="h-14 w-14 shrink-0 object-contain" alt="" />
 						<span class="flex flex-col gap-1.5">
 							<span class="text-[1.15rem] font-semibold text-white group-hover:text-green-500">{useCase.title}</span>
 							<span class="text-[0.92rem] leading-relaxed text-slate-400">{useCase.body}</span>

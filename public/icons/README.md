@@ -10,7 +10,7 @@ This directory holds the traced SVGs used by moq.dev:
 
 The homepage also uses eight language drawings from `cards/` in its library links. The `moq` documentation keeps copies of those eight files in `doc/public/icons/languages/` for its library table. Copying these small static assets keeps each site's build independent; a shared package is unnecessary for two consumers.
 
-The homepage still needs original artwork for **Voice and video AI** and **Interactive**. Those cards currently render an empty icon slot.
+The **Voice and video AI** and **Interactive** use-case icons were traced from the hand-drawn `~/art/icons3/camera.PNG` and `~/art/icons3/gameboy.PNG`.
 
 The Rust card's Ferris drawing is based on the [CC0 original by Karen Rustad Tölva](https://rustacean.net/).
 
