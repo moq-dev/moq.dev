@@ -16,14 +16,14 @@ const formatDate = (date: string) =>
 const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https://moq.pro";
 
 const features = [
-	{ icon: "rocket", title: "Adaptive latency", body: "Real-time, interactive, or lean-back from one stack. Less important data is skipped during congestion so viewers stay live." },
-	{ icon: "stonk", title: "Massive scale", body: "Everything can be cached and fanned out by a CDN, from a single self-hosted relay to millions of viewers." },
-	{ icon: "link", title: "Live discovery", body: "Relays gossip broadcasts and the shortest route between them. No central authority, no rooms to configure." },
-	{ icon: "battery", title: "Cheap and lazy", body: "Nothing is transmitted, or even encoded, until a viewer asks for it." },
-	{ icon: "globe", title: "Modern web", body: "WebTransport, WebCodecs, and WebAudio in the browser. No plugins, no hacks." },
-	{ icon: "puzzle", title: "Every platform", body: "Rust for native, TypeScript for the web, with bindings for C, Python, Kotlin, Swift, and Go." },
-	{ icon: "lock", title: "Secure", body: "Encrypted with TLS and authenticated with JWT. Self-host a private CDN or encrypt end to end." },
-	{ icon: "back", title: "Plays well with others", body: "Ingest from OBS, FFmpeg, GStreamer, RTMP, and SRT. Serve HLS and WebRTC to the players you already have." },
+	{ icon: "rocket", title: "Adaptive latency", body: "Keep viewers live through changing network conditions." },
+	{ icon: "stonk", title: "Massive scale", body: "Fan out through cached relays, from one viewer to millions." },
+	{ icon: "link", title: "Live discovery", body: "Route viewers to broadcasts without a central controller." },
+	{ icon: "battery", title: "On-demand delivery", body: "Encode and send only when someone is watching." },
+	{ icon: "globe", title: "Modern web", body: "Publish and play directly in the browser." },
+	{ icon: "puzzle", title: "Every platform", body: "Build with Rust, TypeScript, and native bindings." },
+	{ icon: "lock", title: "Secure", body: "Use TLS, JWTs, and optional end-to-end encryption." },
+	{ icon: "back", title: "Works with your tools", body: "Ingest with OBS or FFmpeg; serve HLS and WebRTC players." },
 ];
 
 const languages = [
@@ -50,10 +50,10 @@ const useCases = [
 
 <Layout title="" description="" bare>
 	<!-- Hero -->
-	<section class="mx-auto max-w-6xl px-5 pb-20 pt-14 md:px-8 md:pb-28 md:pt-20">
+	<section class="mx-auto max-w-6xl px-5 pb-20 pt-14 md:px-8 md:pb-24">
 		<a
 			href="https://moqalliance.org/demoqed-2026/"
-			class="group mb-10 inline-flex items-center gap-3 rounded-full border border-slate-700 bg-slate-800/60 py-1.5 pl-1.5 pr-4 text-[0.85rem] text-slate-300 transition-colors hover:border-slate-500"
+			class="group mb-7 inline-flex items-center gap-3 rounded-full border border-slate-700 bg-slate-800/60 py-1.5 pl-1.5 pr-4 text-[0.85rem] text-slate-300 transition-colors hover:border-slate-500"
 		>
 			<span class="shrink-0 whitespace-nowrap rounded-full bg-green-500 px-2.5 py-0.5 font-mono text-[0.68rem] font-medium uppercase tracking-wider text-slate-900">Oct 8</span>
 			<span>DEMOQED, the first MoQ conference, in San Francisco</span>
@@ -63,29 +63,53 @@ const useCases = [
 		<h1 class="display max-w-5xl text-[3.1rem] md:text-[5.4rem]">
 			Real-time media and
 			<span class="relative inline-block whitespace-nowrap">
-				massive scale
+				massive scale.
 				<img
 					src="/drawn/stroke-1.svg"
 					class="pointer-events-none absolute -bottom-2 -left-[2%] h-3 w-[104%] md:-bottom-3 md:h-5"
 					alt=""
 				/>
-			</span>.
+			</span>
 		</h1>
 
-		<p class="mt-12 text-[1.35rem] font-medium leading-snug text-slate-100 md:text-[1.6rem]">
-			One open protocol to replace <span class="struck">WebRTC</span>, <span class="struck">HLS/DASH</span>, and
-			<span class="struck">RTMP/SRT</span>.
+		<p class="mt-8 max-w-3xl text-[1.2rem] leading-relaxed text-slate-300 md:text-[1.35rem]">
+			Stream live video, audio, and data with one stack that stays responsive as your audience grows. Relays route and
+			cache streams on demand for browsers and native apps.
 		</p>
 
-		<p class="mt-8 max-w-2xl text-[1.1rem] leading-relaxed text-slate-400">
-			Media over QUIC is a live media protocol built on QUIC, the transport behind HTTP/3. It's being standardized at the
-			IETF, and this is the open source implementation: Rust for native, TypeScript for the browser.
-		</p>
-
-		<div class="relative mt-12 flex flex-wrap items-center gap-3">
+		<div class="relative mt-8 flex flex-wrap items-center gap-3">
 			<a href="/demo" class="btn-green">Try the live demos <span aria-hidden="true">→</span></a>
 			<a href="https://doc.moq.dev" class="btn-line">Read the docs</a>
 			<img src="/drawn/how.svg" class="pointer-events-none absolute -bottom-10 left-8 w-24 rotate-[-4deg]" alt="it works" />
+		</div>
+
+		<div class="mt-14 md:mt-16">
+			<h2 class="sr-only">What you get</h2>
+			<img src="/drawn/what.svg" class="mb-5 w-32 rotate-[-3deg]" alt="" />
+			<div class="grid gap-px overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 sm:grid-cols-2 lg:grid-cols-4">
+				{
+					features.map((feature) => (
+						<div class="flex gap-3 bg-slate-900 p-5">
+							<img src={`/drawn/icon-${feature.icon}.svg`} class="h-8 w-8 shrink-0 object-contain" alt="" />
+							<div>
+								<h3 class="font-semibold text-white">{feature.title}</h3>
+								<p class="mt-1 text-[0.85rem] leading-relaxed text-slate-400">{feature.body}</p>
+							</div>
+						</div>
+					))
+				}
+			</div>
+			<div class="mt-8 flex flex-wrap items-center gap-3">
+				<span class="mr-2 text-sm font-medium text-slate-400">Build with</span>
+				{
+					languages.map((language) => (
+						<a href={language.href} class="flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-200 transition-colors hover:border-green-500 hover:text-white">
+							<img src={`/icons/cards/${language.icon}.svg`} class="h-7 w-7 object-contain" alt="" />
+							{language.name}
+						</a>
+					))
+				}
+			</div>
 		</div>
 	</section>
 
@@ -104,36 +128,6 @@ const useCases = [
 				subset of <a class="green-link" href="https://datatracker.ietf.org/doc/draft-ietf-moq-transport/">moq-transport</a>
 				that works with any MoQ CDN.
 			</p>
-		</div>
-	</section>
-
-	<!-- Features -->
-	<section class="mx-auto max-w-6xl px-5 py-24 md:px-8">
-		<div class="mb-14 max-w-2xl">
-			<img src="/drawn/what.svg" class="mb-3 w-40 rotate-[-3deg]" alt="what you get" />
-			<h2 class="display text-[2.3rem] md:text-[3rem]">The latency of WebRTC with the scale of HLS.</h2>
-		</div>
-		<div class="grid gap-px overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 sm:grid-cols-2 lg:grid-cols-4">
-			{
-				features.map((feature) => (
-					<div class="flex flex-col gap-3 bg-slate-900 p-7">
-						<img src={`/drawn/icon-${feature.icon}.svg`} class="h-10 w-10 object-contain" alt="" />
-						<h3 class="text-[1.1rem] font-semibold text-white">{feature.title}</h3>
-						<p class="text-[0.92rem] leading-relaxed text-slate-400">{feature.body}</p>
-					</div>
-				))
-			}
-		</div>
-		<div class="mt-8 flex flex-wrap items-center gap-3">
-			<span class="mr-2 text-sm font-medium text-slate-400">Build with</span>
-			{
-				languages.map((language) => (
-					<a href={language.href} class="flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-200 transition-colors hover:border-green-500 hover:text-white">
-						<img src={`/icons/cards/${language.icon}.svg`} class="h-7 w-7 object-contain" alt="" />
-						{language.name}
-					</a>
-				))
-			}
 		</div>
 	</section>
 
