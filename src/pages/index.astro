@@ -1,0 +1,234 @@
+---
+import Layout from "@/layouts/global.astro";
+
+interface Post {
+	frontmatter: { title: string; description: string; date: string; cover: string };
+	url: string;
+}
+
+const posts = Object.values(import.meta.glob<Post>("./blog/*.mdx", { eager: true }))
+	.sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date))
+	.slice(0, 3);
+
+const formatDate = (date: string) =>
+	new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
+
+const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https://moq.pro";
+
+const features = [
+	{ icon: "rocket", title: "Adaptive latency", body: "Keep viewers live through the shittiest network conditions." },
+	{ icon: "stonk", title: "Massive scale", body: "Fan out horizontally through CDNs, from one user to millions." },
+	{ icon: "link", title: "Live discovery", body: "Dynamic announcements, connecting arbitrary publishers to subscribers." },
+	{ icon: "battery", title: "On-demand delivery", body: "Encode and send only when someone is watching." },
+	{ icon: "globe", title: "Modern web", body: "Publish and play directly in the browser. No need for WebRTC!" },
+	{ icon: "puzzle", title: "Every platform", body: "Build with Rust, TypeScript, and native bindings." },
+	{ icon: "lock", title: "Secure", body: "Use TLS, JWTs, and optional end-to-end encryption." },
+	{ icon: "back", title: "Works with your tools", body: "Ingest with OBS or FFmpeg; serve HLS and WebRTC players." },
+];
+
+const languages = [
+	{ name: "Rust", icon: "rust", href: "https://doc.moq.dev/lib/rs/" },
+	{ name: "TypeScript", icon: "typescript", href: "https://doc.moq.dev/lib/js/" },
+	{ name: "Swift", icon: "swift", href: "https://doc.moq.dev/lib/swift/" },
+	{ name: "Kotlin", icon: "kotlin", href: "https://doc.moq.dev/lib/kt/" },
+	{ name: "Python", icon: "python", href: "https://doc.moq.dev/lib/py/" },
+	{ name: "Go", icon: "go", href: "https://doc.moq.dev/lib/go/" },
+	{ name: "Dart", icon: "dart", href: "https://doc.moq.dev/lib/dart/" },
+	{ name: "C", icon: "c", href: "https://doc.moq.dev/lib/c/" },
+];
+
+// `icon` is hand-drawn art in public/icons/use-case/.
+const useCases = [
+	{ title: "Robotics", icon: "robotics", body: "Real-time teleoperation, with telemetry and control on the same relays as the video.", href: "/blog/on-a-boat" },
+	{ title: "Voice and video AI", icon: "voice-video-ai", body: "Server-side media in Rust or Python, played back faster than real time in the browser.", href: "https://doc.moq.dev/concept/use-case/ai" },
+	{ title: "Interactive", icon: "interactive", body: "Media down, input up. MoQ Boy is a Game Boy played by everyone watching at once.", href: "/boy" },
+	{ title: "Conferencing", icon: "conferencing", body: "Browser publish and watch with a live roster, plus WebRTC for WHIP and WHEP clients.", href: "/blog/first-app" },
+	{ title: "Distribution", icon: "distribution", body: "Fan out to millions of viewers on demand, and keep legacy players on HLS.", href: "/blog/replacing-hls-dash" },
+	{ title: "Contribution", icon: "contribution", body: "Ingest from OBS, FFmpeg, or SRT with dynamic origins and failover.", href: "https://doc.moq.dev/bin/obs" },
+];
+---
+
+<Layout title="" description="" bare>
+	<!-- Hero -->
+	<section class="mx-auto max-w-6xl px-5 pb-20 pt-16 md:px-8">
+		<a
+			href="https://moqalliance.org/demoqed-2026/"
+			class="group mb-8 inline-flex items-center gap-3 rounded-full border border-slate-700 bg-slate-800/60 py-1.5 pl-1.5 pr-4 text-[0.85rem] text-slate-300 transition-colors hover:border-slate-500"
+		>
+			<span class="shrink-0 whitespace-nowrap rounded-full bg-green-500 px-2.5 py-0.5 font-mono text-[0.68rem] font-medium uppercase tracking-wider text-slate-900">Oct 8</span>
+			<span>DEMOQED, the first MoQ conference, in San Francisco</span>
+			<span class="text-slate-500 transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+		</a>
+
+		<h1 class="display max-w-5xl text-[3.1rem] md:text-[5.4rem]">
+			Real-time media and
+			<span class="relative inline-block whitespace-nowrap">
+				massive scale.
+				<img
+					src="/drawn/stroke-1.svg"
+					class="pointer-events-none absolute -bottom-2 -left-[2%] h-3 w-[104%] md:-bottom-3 md:h-5"
+					alt=""
+				/>
+			</span>
+		</h1>
+
+		<p class="mt-8 max-w-3xl text-[1.2rem] leading-relaxed text-slate-300 md:text-[1.35rem]">
+			An open standard for streaming live video, audio, and <em>whatever you want</em>.
+		</p>
+
+		<div class="mt-16">
+			<h2 class="sr-only">What you get</h2>
+			<img src="/drawn/what.svg" class="mb-4 w-32 rotate-[-3deg]" alt="" />
+			<div class="grid gap-px overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 sm:grid-cols-2 lg:grid-cols-4">
+				{
+					features.map((feature) => (
+						<div class="flex gap-3 bg-slate-900 p-5">
+							<img src={`/drawn/icon-${feature.icon}.svg`} class="h-8 w-8 shrink-0 object-contain" alt="" />
+							<div>
+								<h3 class="font-semibold text-white">{feature.title}</h3>
+								<p class="mt-1 text-[0.85rem] leading-relaxed text-slate-400">{feature.body}</p>
+							</div>
+						</div>
+					))
+				}
+			</div>
+			<div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+				<span class="shrink-0 text-sm font-medium text-slate-400">Libraries for</span>
+				<div class="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
+					{
+						languages.map((language) => (
+							<a href={language.href} class="flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-200 transition-colors hover:border-green-500 hover:text-white">
+								<img src={`/icons/cards/${language.icon}.svg`} class="h-7 w-7 object-contain" alt="" />
+								{language.name}
+							</a>
+						))
+					}
+				</div>
+			</div>
+			<div class="mt-10 flex flex-wrap items-center gap-3">
+				<a href="/demo" class="btn-green">Try the live demos <span aria-hidden="true">→</span></a>
+				<a href="https://doc.moq.dev" class="btn-line">Read the docs</a>
+			</div>
+		</div>
+	</section>
+
+	<!-- Standards -->
+	<section class="border-y border-slate-800 bg-slate-800/30">
+		<div class="mx-auto flex max-w-6xl flex-col items-start gap-6 px-5 py-8 md:flex-row md:items-center md:gap-10 md:px-8">
+			<div class="flex shrink-0 items-center gap-6">
+				<img src="/home/ietf.svg" class="h-11 w-auto" alt="IETF" />
+				<img src="/home/quic.svg" class="h-7 w-auto" alt="QUIC" />
+			</div>
+			<p class="text-[0.98rem] leading-relaxed text-slate-400">
+				<strong class="font-semibold text-white">Build first, argue later.</strong>
+				MoQ is being standardized by the <a class="green-link" href="https://datatracker.ietf.org/wg/moq/about/">IETF</a>
+				as a new RFC. We ship
+				<a class="green-link" href="https://doc.moq.dev/concept/layer/moq-lite">moq-lite</a> today: a forwards-compatible
+				subset of <a class="green-link" href="https://datatracker.ietf.org/doc/draft-ietf-moq-transport/">moq-transport</a>
+				that works with any MoQ CDN.
+			</p>
+		</div>
+	</section>
+
+	<!-- Use cases -->
+	<section class="mx-auto max-w-6xl px-5 py-20 md:px-8">
+		<h2 class="display mb-10 text-[2.3rem] md:text-[3rem]">More than Media</h2>
+		<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+			{
+				useCases.map((useCase) => (
+					<a
+						href={useCase.href}
+						class="group flex gap-5 rounded-2xl border border-slate-800 p-6 transition-colors hover:border-slate-600 hover:bg-slate-800/40"
+					>
+						<img src={`/icons/use-case/${useCase.icon}.svg`} class="h-14 w-14 shrink-0 object-contain" alt="" />
+						<span class="flex flex-col gap-1.5">
+							<span class="text-[1.15rem] font-semibold text-white group-hover:text-green-500">{useCase.title}</span>
+							<span class="text-[0.92rem] leading-relaxed text-slate-400">{useCase.body}</span>
+						</span>
+					</a>
+				))
+			}
+		</div>
+	</section>
+
+	<!-- Production -->
+	<section class="border-t border-slate-800 bg-slate-800/30">
+		<div class="mx-auto max-w-6xl px-5 py-20 md:px-8">
+			<div class="relative mb-10 max-w-2xl">
+				<h2 class="display text-[2.3rem] md:text-[3rem]">Ready for production.</h2>
+				<p class="mt-4 text-[1.1rem] leading-relaxed text-slate-400">
+					Every piece is open source under MIT or Apache 2.0. Run it yourself, or let us run it for you.
+				</p>
+				<img src="/drawn/open.svg" class="pointer-events-none absolute -right-64 top-4 hidden w-52 rotate-[4deg] lg:block" alt="open and optional" />
+			</div>
+			<div class="grid gap-5 md:grid-cols-2">
+				<div class="flex flex-col rounded-2xl border border-slate-700 bg-slate-900 p-8 md:p-10">
+					<span class="label">Open source</span>
+					<h3 class="mt-3 text-[1.6rem] font-bold text-white">Self-host</h3>
+					<p class="mt-3 leading-relaxed text-slate-400">
+						Deploy <code class="font-mono text-[0.85em] text-slate-200">moq-relay</code> anywhere. Clusters discover each
+						other, route by the shortest path, and fail over without a central controller.
+					</p>
+					<ul class="mt-6 flex flex-col gap-2 text-[0.95rem] text-slate-300">
+						<li><span class="text-green-500">✓</span> &nbsp;No license fees, no lock-in</li>
+						<li><span class="text-green-500">✓</span> &nbsp;Compatible with any MoQ CDN</li>
+						<li><span class="text-green-500">✓</span> &nbsp;Community support on Discord</li>
+					</ul>
+					<div class="mt-auto flex gap-3 pt-8">
+						<a href="https://doc.moq.dev/bin/relay/" class="btn-line">Relay docs</a>
+						<a href="https://github.com/moq-dev/moq" class="btn-line">GitHub</a>
+					</div>
+				</div>
+				<div class="flex flex-col rounded-2xl border border-green-500/50 bg-green-500/[0.06] p-8 md:p-10">
+					<span class="label !text-green-500">Managed</span>
+					<h3 class="mt-3 flex items-center gap-3 text-[1.6rem] font-bold text-white">
+						moq.pro
+						<img src="/layout/pro-icon.svg" class="h-7" alt="" />
+					</h3>
+					<p class="mt-3 leading-relaxed text-slate-400">
+						A global MoQ CDN run by the people who wrote the relay. Every viewer lands on the nearest edge, with no regions
+						to pick.
+					</p>
+					<ul class="mt-6 flex flex-col gap-2 text-[0.95rem] text-slate-300">
+						<li><span class="text-green-500">✓</span> &nbsp;500 GB of delivery free every month</li>
+						<li><span class="text-green-500">✓</span> &nbsp;Up and running in minutes, nothing to operate</li>
+						<li><span class="text-green-500">✓</span> &nbsp;Direct support from the maintainers</li>
+					</ul>
+					<div class="mt-auto flex flex-wrap gap-3 pt-8">
+						<a href={proUrl} class="btn-green">Get started <span aria-hidden="true">→</span></a>
+						<a href="mailto:me@kixel.me" class="btn-line">Talk to us</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Blog -->
+	<section class="border-t border-slate-800">
+		<div class="mx-auto max-w-6xl px-5 py-20 md:px-8">
+			<div class="mb-10 flex items-baseline justify-between gap-6">
+				<h2 class="display text-[2.3rem] md:text-[3rem]">From the blog.</h2>
+				<a href="/blog" class="green-link shrink-0 font-medium">All posts</a>
+			</div>
+			<div class="grid gap-8 md:grid-cols-3">
+				{
+					posts.map((post) => (
+						<a href={post.url} class="group flex flex-col gap-3">
+							<img
+								src={post.frontmatter.cover}
+								class="mb-2 aspect-[16/9] w-full rounded-xl border border-slate-800 object-cover transition-transform group-hover:-rotate-1"
+								alt=""
+								loading="lazy"
+							/>
+							<span class="label">{formatDate(post.frontmatter.date)}</span>
+							<span class="text-[1.3rem] font-semibold leading-tight text-white group-hover:text-green-500">
+								{post.frontmatter.title}
+							</span>
+							<span class="text-[0.95rem] leading-relaxed text-slate-400">{post.frontmatter.description}</span>
+						</a>
+					))
+				}
+			</div>
+		</div>
+	</section>
+</Layout>

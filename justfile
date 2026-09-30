@@ -29,6 +29,14 @@ test:
 	# Run the JS tests via node.
 	bun test
 
+# Render the social announcement cards (tools/cards/cards.ts) to PNG with the
+# devshell's Playwright Chromium: `just cards` for all, `just cards <slug>...`
+# for some, `--html` to keep the page for tweaking. Output lands in
+# tools/cards/out/, which is ignored; the PNGs are posted, not committed.
+cards *args:
+	bun i
+	bun tools/cards/render.ts {{args}}
+
 # Upgrade any tooling
 upgrade:
 	# Update the NPM dependencies

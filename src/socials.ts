@@ -1,6 +1,5 @@
 // Wherever you can find me. Rendered in the <Author /> sign-off at the bottom
-// of each post (and the homepage). The icons in public/social/ are placeholders
-// waiting on hand-drawn versions.
+// of each post (and the homepage). The icons in public/icons/social/ are hand-drawn.
 export const socials = [
 	{ name: "Email", icon: "email", href: "mailto:me@kixel.me" },
 	{ name: "X", icon: "x", href: "https://x.com/kixelated" },

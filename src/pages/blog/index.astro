@@ -1,7 +1,6 @@
 ---
 import MainLayout from "../../layouts/global.astro";
 
-//TODO: add the interface for the frontmatter of the blog posts
 interface Frontmatter {
 	title: string;
 	cover: string;
@@ -13,47 +12,44 @@ interface Frontmatter {
 const posts = Object.values(
 	await import.meta.glob<{ frontmatter: Frontmatter; url: string }>("./*.mdx", { eager: true }),
 );
-posts.sort((a, b) => {
-	const dateA = Date.parse(a.frontmatter.date);
-	const dateB = Date.parse(b.frontmatter.date);
-	return dateB - dateA;
-});
+posts.sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date));
+
+const formatDate = (date: string) =>
+	new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
 ---
 
-<MainLayout title="Blog" description="Blog posts and fun stuff">
-	<section>
-		<div class="flex items-center justify-between mb-6">
-			<h1>Blog Posts</h1>
-			<a href="/rss.xml" class="flex items-center gap-2 text-white hover:opacity-80 transition-opacity" title="RSS Feed">
-				<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="RSS Feed">
-					<!-- RSS dot -->
-					<circle cx="6" cy="26" r="2" fill="#F7F8F8"/>
-
-					<!-- First arc (inner) -->
-					<path d="M6 16 A10 10 0 0 1 16 26" fill="none" stroke="#F7F8F8" stroke-width="2" stroke-linecap="round"/>
-
-					<!-- Second arc (outer) -->
-					<path d="M6 8 A18 18 0 0 1 24 26" fill="none" stroke="#00C02D" stroke-width="2" stroke-linecap="round"/>
-				</svg>
-				<span class="text-sm font-medium">RSS</span>
-			</a>
+<MainLayout title="Blog" description="Blog posts and fun stuff" bare>
+	<section class="mx-auto max-w-4xl px-5 pb-24 pt-16 md:px-8">
+		<div class="mb-12 flex items-end justify-between gap-6">
+			<div>
+				<h1 class="display text-[3rem] md:text-[4rem]">Blog</h1>
+				<p class="mt-3 text-[1.1rem] text-slate-400">Hot takes on live media, QUIC, and building MoQ in the open.</p>
+			</div>
+			<a href="/rss.xml" class="green-link shrink-0 text-[0.95rem]">RSS</a>
 		</div>
 
-		{
-			posts.map((post) => (
-				<article class="p-4 rounded-lg grid grid-cols-3 gap-3 hover:bg-blue-950 hover:scale-110 hover:translate-x-2 transition-all ease-in-out">
-					<a href={post.url} class="rounded-2xl">
-						<img class="object-cover h-24 w-48 rounded-2xl" src={post.frontmatter.cover} alt="blog cover" />
-					</a>
-					<div class="grid grid-cols-1 col-span-2 gap-2 text-2xl place-content-center flex-grow">
-						<a href={post.url} class="text-white">
-							{post.frontmatter.title}
+		<ul class="border-t border-slate-600">
+			{
+				posts.map((post) => (
+					<li class="border-b border-slate-800">
+						<a href={post.url} class="group grid gap-5 py-7 sm:grid-cols-[9rem_1fr] sm:items-center">
+							<img
+								class="aspect-[16/10] w-full rounded-lg bg-slate-800 object-cover sm:w-36"
+								src={post.frontmatter.cover}
+								alt=""
+								loading="lazy"
+							/>
+							<div class="flex flex-col gap-1.5">
+								<span class="label">{formatDate(post.frontmatter.date)}</span>
+								<span class="text-[1.45rem] font-semibold leading-tight text-white group-hover:text-green-500">
+									{post.frontmatter.title}
+								</span>
+								<span class="text-[0.95rem] leading-relaxed text-slate-400">{post.frontmatter.description}</span>
+							</div>
 						</a>
-						<div class="text-sm font-light">{post.frontmatter.description}</div>
-						<div class="text-sm font-bold ">by {post.frontmatter.author}</div>
-					</div>
-				</article>
-			))
-		}
+					</li>
+				))
+			}
+		</ul>
 	</section>
 </MainLayout>
