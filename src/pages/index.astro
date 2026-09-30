@@ -50,10 +50,10 @@ const useCases = [
 
 <Layout title="" description="" bare>
 	<!-- Hero -->
-	<section class="mx-auto max-w-6xl px-5 pb-20 pt-14 md:px-8 md:pb-24">
+	<section class="mx-auto max-w-6xl px-5 pb-20 pt-16 md:px-8">
 		<a
 			href="https://moqalliance.org/demoqed-2026/"
-			class="group mb-7 inline-flex items-center gap-3 rounded-full border border-slate-700 bg-slate-800/60 py-1.5 pl-1.5 pr-4 text-[0.85rem] text-slate-300 transition-colors hover:border-slate-500"
+			class="group mb-8 inline-flex items-center gap-3 rounded-full border border-slate-700 bg-slate-800/60 py-1.5 pl-1.5 pr-4 text-[0.85rem] text-slate-300 transition-colors hover:border-slate-500"
 		>
 			<span class="shrink-0 whitespace-nowrap rounded-full bg-green-500 px-2.5 py-0.5 font-mono text-[0.68rem] font-medium uppercase tracking-wider text-slate-900">Oct 8</span>
 			<span>DEMOQED, the first MoQ conference, in San Francisco</span>
@@ -77,15 +77,14 @@ const useCases = [
 			cache streams on demand for browsers and native apps.
 		</p>
 
-		<div class="relative mt-8 flex flex-wrap items-center gap-3">
+		<div class="mt-8 flex flex-wrap items-center gap-3">
 			<a href="/demo" class="btn-green">Try the live demos <span aria-hidden="true">→</span></a>
 			<a href="https://doc.moq.dev" class="btn-line">Read the docs</a>
-			<img src="/drawn/how.svg" class="pointer-events-none absolute -bottom-10 left-8 w-24 rotate-[-4deg]" alt="it works" />
 		</div>
 
-		<div class="mt-14 md:mt-16">
+		<div class="mt-16">
 			<h2 class="sr-only">What you get</h2>
-			<img src="/drawn/what.svg" class="mb-5 w-32 rotate-[-3deg]" alt="" />
+			<img src="/drawn/what.svg" class="mb-4 w-32 rotate-[-3deg]" alt="" />
 			<div class="grid gap-px overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 sm:grid-cols-2 lg:grid-cols-4">
 				{
 					features.map((feature) => (
@@ -99,16 +98,18 @@ const useCases = [
 					))
 				}
 			</div>
-			<div class="mt-8 flex flex-wrap items-center gap-3">
-				<span class="mr-2 text-sm font-medium text-slate-400">Build with</span>
-				{
-					languages.map((language) => (
-						<a href={language.href} class="flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-200 transition-colors hover:border-green-500 hover:text-white">
-							<img src={`/icons/cards/${language.icon}.svg`} class="h-7 w-7 object-contain" alt="" />
-							{language.name}
-						</a>
-					))
-				}
+			<div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+				<span class="shrink-0 text-sm font-medium text-slate-400">Build with</span>
+				<div class="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
+					{
+						languages.map((language) => (
+							<a href={language.href} class="flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-200 transition-colors hover:border-green-500 hover:text-white">
+								<img src={`/icons/cards/${language.icon}.svg`} class="h-7 w-7 object-contain" alt="" />
+								{language.name}
+							</a>
+						))
+					}
+				</div>
 			</div>
 		</div>
 	</section>
@@ -132,8 +133,8 @@ const useCases = [
 	</section>
 
 	<!-- Use cases -->
-	<section class="mx-auto max-w-6xl px-5 pb-24 md:px-8">
-		<h2 class="display mb-12 text-[2.3rem] md:text-[3rem]">Built for more than video.</h2>
+	<section class="mx-auto max-w-6xl px-5 py-20 md:px-8">
+		<h2 class="display mb-10 text-[2.3rem] md:text-[3rem]">Built for more than video.</h2>
 		<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 			{
 				useCases.map((useCase) => (
@@ -154,8 +155,8 @@ const useCases = [
 
 	<!-- Production -->
 	<section class="border-t border-slate-800 bg-slate-800/30">
-		<div class="mx-auto max-w-6xl px-5 py-24 md:px-8">
-			<div class="relative mb-12 max-w-2xl">
+		<div class="mx-auto max-w-6xl px-5 py-20 md:px-8">
+			<div class="relative mb-10 max-w-2xl">
 				<h2 class="display text-[2.3rem] md:text-[3rem]">Ready for production.</h2>
 				<p class="mt-4 text-[1.1rem] leading-relaxed text-slate-400">
 					Every piece is open source under MIT or Apache 2.0. Run it yourself, or let us run it for you.
@@ -206,7 +207,7 @@ const useCases = [
 
 	<!-- Blog -->
 	<section class="border-t border-slate-800">
-		<div class="mx-auto max-w-6xl px-5 py-24 md:px-8">
+		<div class="mx-auto max-w-6xl px-5 py-20 md:px-8">
 			<div class="mb-10 flex items-baseline justify-between gap-6">
 				<h2 class="display text-[2.3rem] md:text-[3rem]">From the blog.</h2>
 				<a href="/blog" class="green-link shrink-0 font-medium">All posts</a>
