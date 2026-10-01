@@ -89,6 +89,8 @@ pre code.hljs {
 	.markdown {
 		@apply prose prose-lg max-w-none prose-moq;
 		@apply prose-headings:font-bold prose-headings:tracking-[-0.02em];
+		@apply prose-headings:underline prose-headings:decoration-green-500 prose-headings:decoration-4 prose-headings:underline-offset-4;
+		@apply prose-h1:decoration-8 prose-h2:decoration-4 prose-h3:decoration-2;
 		@apply prose-h1:text-[2.6rem] md:prose-h1:text-[3.2rem] prose-h1:leading-[1.05] prose-h1:mb-10 prose-h1:mt-4;
 		@apply prose-h2:text-[1.7rem] prose-h2:mt-14;
 		@apply prose-h3:text-[1.3rem];
@@ -125,7 +127,7 @@ pre code.hljs {
 	}
 
 	.tagline {
-		@apply my-12 text-center text-2xl font-bold text-white md:text-3xl;
+		@apply my-12 text-center text-2xl font-bold text-white underline decoration-green-500 decoration-4 underline-offset-4 md:text-3xl;
 	}
 
 	table td:first-child {
