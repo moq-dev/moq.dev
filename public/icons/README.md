@@ -8,6 +8,8 @@ This directory holds the traced SVGs used by moq.dev:
 | `social/` | Author links on the site |
 | `use-case/` | Homepage use case cards |
 
+Use `#4dc515` for the main silhouettes and strokes, with `#fcfcfc` for small recognizable accents: lettering, eyes, leaves, controls, and signal details. Keep large openings such as screens transparent. Simple silhouettes can stay entirely green. The homepage feature icons in `public/drawn/icon-*.svg` follow the same palette. Ferris keeps his green body and white eye highlights; the IETF and QUIC marks keep their original artwork colors with white lettering.
+
 The homepage also uses eight language drawings from `cards/` in its library links. The `moq` documentation keeps copies of those eight files in `doc/public/icons/languages/` for its library table. Copying these small static assets keeps each site's build independent; a shared package is unnecessary for two consumers.
 
 The **Voice and video AI** and **Interactive** use-case icons were traced from the hand-drawn `~/art/icons3/camera.PNG` and `~/art/icons3/gameboy.PNG`.
