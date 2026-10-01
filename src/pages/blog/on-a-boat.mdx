@@ -60,16 +60,16 @@ This is fantastic because now tracks are optional.
 Window minimized? Codec unsupported? Screen too small? Don't `SUBSCRIBE 1080p`.
 
 What if 100 viewers `SUBSCRIBE 1080p`?
-[moq-relay](https://doc.moq.dev/app/relay/) is the champ that merges them into a single *upstream* `SUBSCRIBE 1080p`.
+[moq-relay](https://doc.moq.dev/bin/relay/) is the champ that merges them into a single *upstream* `SUBSCRIBE 1080p`.
 Your boat is safe from the flood and serves *at most* one copy of each track.
 
 What if 100,000 viewers `SUBSCRIBE 1080p`?
-Run a [cluster](https://doc.moq.dev/app/relay/cluster) of relays.
+Run a [cluster](https://doc.moq.dev/bin/relay/cluster/) of relays.
 Sprinkle them around the world and suddenly you have a global CDN.
 
 It's the exact same concept as HTTP CDNs, but for live streams.
 MoQ is being standardized specifically so you can use a [CDN like Cloudflare](/blog/first-cdn) to scale world-wide.
-Or you could self-host [moq-relay](https://doc.moq.dev/app/relay/) (like Saronic) and keep everything in your network.
+Or you could self-host [moq-relay](https://doc.moq.dev/bin/relay/) (like Saronic) and keep everything in your network.
 
 
 ## Enter, Renditions
@@ -171,7 +171,7 @@ Saronic has been using my [moq.dev](https://github.com/moq-dev/moq) libraries fo
 
 I want to thank them for their patience and support.
 They put up with bugs, overzealous renaming, and other shenanigans.
-They've got a pretty nice solution now and [are hiring](https://jobs.lever.co/saronic).
+They've got a pretty nice solution now and [are hiring](https://jobs.ashbyhq.com/saronic).
 
 And there's a few other cant-be-named companies evaluating MoQ for *security purposes*.
 I can't say that was the plan... but it makes perfect sense.

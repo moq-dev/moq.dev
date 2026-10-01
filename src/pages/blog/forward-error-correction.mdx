@@ -12,7 +12,7 @@ import Author from "@/components/author.astro";
 # Forward? Error? Correction?
 
 So I absolutely _dunked_ on datagrams in the [last blog post](/blog/never-use-datagrams).
-Now it's time to dunk on the last remaining hope for datagrams: [Forward Error Correction](https://www.techtarget.com/searchmobilecomputing/definition/forward-error-correction) (FEC).
+Now it's time to dunk on the last remaining hope for datagrams: [Forward Error Correction](https://www.rfc-editor.org/rfc/rfc6363.html) (FEC).
 
 ## OPUS
 
@@ -77,7 +77,7 @@ BBRv1 doesn't even use packet loss as a signal; it's all about RTT.
 These packet loss misconceptions come up surprisingly often in the live video space.
 The hyperfocus on packet loss is a symptom of a larger problem: media experts suddenly have to become networking experts.
 
-Even modern media protocols are built directly on top of UDP; for example [WebRTC](https://webrtc.org/), [SRT](https://www.haivision.com/products/srt-secure-reliable-transport/), [Sye](https://nscreenmedia.com/amazon-buys-sye/), [RIST](https://www.rist.tv/).
+Even modern media protocols are built directly on top of UDP; for example [WebRTC](https://webrtc.org/), [SRT](https://www.haivision.com/products/srt-secure-reliable-transport/), [Sye](https://view.news.eu.nasdaq.com/view?id=bb4921747083298debfd22ff92b490e13&lang=en), [RIST](https://www.rist.tv/).
 And for good reason, as the head-of-line blocking of TCP is a non-starter for real-time media.
 But with great power (UDP) comes great responsibility.
 

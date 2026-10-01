@@ -34,7 +34,7 @@ Cloudflare is hosting a public `relay.cloudflare.mediaoverquic.com` endpoint tha
 Connect using [my library](https://github.com/moq-dev/moq), [Mike's fork](https://github.com/englishm/moq-rs), [Lorenzo's imquic](https://www.meetecho.com/blog/imquic/), [Meta's moxygen](https://github.com/facebookexperimental/moxygen), or any client that supports this limited subset of draft-07.
 
 I'm biased so naturally I'm going to use my [@moq](https://github.com/moq-dev/moq/tree/main/js) packages (smash that star button).
-You can publish a live broadcast in the browser using the [web demo](/publish) or the [library](https://github.com/moq-dev/moq/blob/main/js/hang-demo/src/publish.html#L25):
+You can publish a live broadcast in the browser using the [web demo](/publish) or the [library](https://github.com/moq-dev/moq/blob/6ddea0796a0b8a9063705908429b280b432477d8/js/hang-demo/src/publish.html#L25):
 
 ```html
 <script type="module">
@@ -90,7 +90,7 @@ Cloudflare is only supporting a *tiny* subset of an [old draft](https://www.ietf
 They're using a [fork](https://github.com/englishm/moq-rs) of my terrible code so bugs are guaranteed.
 
 - **There's no authentication yet**: choose an unguessable name for each broadcast.
-- **There's no ANNOUNCE support**: my [conferencing example](https://github.com/moq-dev/moq/blob/main/js/hang-demo/src/meet.html) uses **ANNOUNCE** to discover when broadcasts start/stop, so that won't work.
+- **There's no ANNOUNCE support**: my [conferencing example](https://github.com/moq-dev/moq/blob/007ab5109d687a29940d7d7a588eb21ddd526058/js/hang-demo/src/meet.html) uses **ANNOUNCE** to discover when broadcasts start/stop, so that won't work.
 - **There's no [Safari support](https://caniuse.com/webtransport)**: [It's coming eventually](https://github.com/WebKit/standards-positions/issues/18#issuecomment-1495890122).
 - **Nothing has been optimized**: the user experience will improve over time.
 
@@ -98,7 +98,7 @@ If any of these are deal breakers, then you could always run your own [moq-relay
 I've been adding new features and fixing a bunch of stuff *after* Cloudflare smashed that fork button.
 For example, authentication (via JWT) and a WebSocket fallback for Safari/TCP support.
 
-There's even a [terraform module](https://github.com/moq-dev/moq/blob/main/cdn/relay.tf) that powers `cdn.moq.pro`.
+There's even a [terraform module](https://github.com/moq-dev/moq/blob/378a7c7fd536169c79eb6087ad1ab8714ec051d0/cdn/relay.tf) that powers `cdn.moq.pro`.
 You too can run your own "global" CDN with 3 nodes and pay ~GCP~ Linode a boatload of money for the privilege.
 It's not *quite* as good as Cloudflare's network, currently available for free...
 

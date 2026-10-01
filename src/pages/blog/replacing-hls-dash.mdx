@@ -171,7 +171,7 @@ The upside is that we got [a mailing list](https://lists.apple.com/mailman/listi
 
 DASH is its own can of worms as it's controlled by [MPEG](https://en.wikipedia.org/wiki/Moving_Picture_Experts_Group).
 The specifications are [behind a paywall](https://www.iso.org/standard/79106.html) or [require patent licensing](https://www.streamingmedia.com/Articles/ReadArticle.aspx?ArticleID=133508)?
-I can't even tell if I'm going to [get sued](https://www.mpegla.com/wp-content/uploads/DASHWeb.pdf) for parsing a DASH playlist without paying the troll toll.
+I can't even tell if I'm going to [get sued](https://via-la.com/wp-content/uploads/2025/08/DASH-Launch-PrsRls-2016-11-17.pdf) for parsing a DASH playlist without paying the troll toll.
 
 <figure>
 	![troll toll](/blog/replacing-hls-dash/troll.webp)
@@ -210,7 +210,7 @@ See my next blog post about **Replacing RTMP**.
 
 ## HTTP
 
-Notably absent thus far has been any mention of [LL-HLS](https://www.theoplayer.com/blog/low-latency-hls-lhls) and [LL-DASH](https://www.wowza.com/blog/what-is-low-latency-dash).
+Notably absent thus far has been any mention of [LL-HLS](https://www.theoplayer.com/blog/low-latency-hls-lhls) and [LL-DASH](https://dashif.org/docs/Report%20on%20Low%20Latency%20DASH.pdf).
 These two protocols are meant to lower HLS/DASH latency respectively by breaking media segments into smaller chunks.
 
 The chunks might be smaller, but they're still served sequentially over TCP.

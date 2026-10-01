@@ -92,7 +92,7 @@ The connection-oriented nature makes it significantly easier to push media witho
 There's not much else to say, it's basically the same thing as QUIC.
 
 ...except that the underlying implementation is gross.
-A WebTransport session shares a QUIC connection with HTTP/3 requests and potentially other WebTransport sessions ([spec](https://datatracker.ietf.org/doc/draft-ietf-webtrans-http3/spec)).
+A WebTransport session shares a QUIC connection with HTTP/3 requests and potentially other WebTransport sessions ([spec](https://datatracker.ietf.org/doc/html/draft-ietf-webtrans-http3)).
 This *pooling* feature is responsible for a ton of headaches but the IETF went ahead and standardized it anyway (despite my best efforts).
 
 So we use WebTransport for WebSupport.

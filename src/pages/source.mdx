@@ -19,19 +19,19 @@ Native code is written in [Rust](https://doc.moq.dev/lib/rs/) and is split into 
 | ----------------------------------------------------------------------------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 |                [moq-lite](https://docs.rs/moq-lite/latest/moq_lite/) | A generic pub/sub transport. This is a minimal reinterpretation of the IETF [MoqTransport draft](https://datatracker.ietf.org/doc/draft-ietf-moq-transport/).  |
 |                [moq-relay](https://doc.moq.dev/bin/relay/) | A Moq server that connects publishers to subscribers, caching and deduplicating any subscriptions. Note that MoQ does not support P2P; instead it utilizes relays to scale out to many subscribers.                                                            |
-|                [moq-clock](https://github.com/moq-dev/moq/tree/main/rs/moq-clock) | It's a clock! Just to demonstrate that MoQ can be used for more than media.                                                                            |
+|                [clock example](https://github.com/moq-dev/moq/blob/main/rs/moq-tokio/examples/clock.rs) | It's a clock! Just to demonstrate that MoQ can be used for more than media.                                                                            |
 |                    [hang](https://docs.rs/hang/latest/hang/) | A media specific library built on top of moq-lite. This provides a JSON "catalog" that describes the media tracks and "container" that literally consists of a timestamp. The actual media decoding/encoding is left to the platform. |
 |                    [hang-cli](https://doc.moq.dev/bin/cli) | A client that integrates with ffmpeg to publish media. This pipes fMP4 over stdin, so it's not the most efficient...                                                                                             |
 |                    [hang-gst](https://doc.moq.dev/bin/gstreamer) | A GStreamer plugin for publishing and consuming media. Separate repository to avoid GStreamer build dependency. |
 |                    [hang-obs](https://doc.moq.dev/bin/obs) | An OBS plugin for publishing media. Separate repository to avoid OBS build dependency. |
-|                    [hang-wasm](https://github.com/moq-dev/moq/tree/main/hang-wasm) | An MoQ web client utilizing WebAssembly, WebCodecs, and WebTransport. Deprecated in favor of the Typescript implementation; see below for justification. |
+|                    [hang-wasm](https://github.com/moq-dev/moq/tree/f400ab34a4734838a9b5b7a82b9bcf29b5a9aca3/rs/hang-wasm) | An MoQ web client utilizing WebAssembly, WebCodecs, and WebTransport. Deprecated in favor of the Typescript implementation; see below for justification. |
 
 
 There are some additional crates in other repositories that might be of interest:
 | crate | description |
 | ----: | ----------- |
 | [web-transport-quinn](https://docs.rs/web-transport-quinn/latest/web_transport_quinn/) | A [WebTransport](https://datatracker.ietf.org/doc/draft-ietf-webtrans-http3/) client and server utilizing [Quinn](https://github.com/quinn-rs/quinn). Copies the Quinn API and abstracts away the HTTP/3 handshake.  |
-| [web-transport-wasm](https://github.com/moq-dev/web-transport/tree/main/web-transport-wasm) | A WASM [WebTransport](https://datatracker.ietf.org/doc/draft-ietf-webtrans-http3/) wrapper around the `web-sys` bindings. |
+| [web-transport-wasm](https://github.com/moq-dev/web-transport/tree/main/rs/web-transport-wasm) | A WASM [WebTransport](https://datatracker.ietf.org/doc/draft-ietf-webtrans-http3/) wrapper around the `web-sys` bindings. |
 | [web-transport](https://github.com/moq-dev/web-transport) | A common (opinionated) interface, utilizing one of the above depending on the platform. This is what the `moq-lite` crate uses. |
 | [web-codecs](https://docs.rs/web-codecs/latest/web_codecs/) | A wrapper around the [WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) for WASM. |
 | [web-streams](https://docs.rs/web-streams/latest/web_streams/) | A wrapper around the [Streams API](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API) for WASM. |
@@ -49,7 +49,7 @@ Web code is written in [Typescript](https://doc.moq.dev/lib/js/) and is split in
 **Note**: These utilize browser-specific APIs and there's no currently no support for Node and other server runtimes.
 [Deno](https://deno.com/) is doing some cool stuff with WebTransport so maybe it'll work there someday.
 
-And before you ask, yes, it is possible to use WASM for web support as demonstrated by the [hang-wasm](https://github.com/moq-dev/moq/tree/main/hang-wasm) crate.
+And before you ask, yes, it is possible to use WASM for web support as demonstrated by the [hang-wasm](https://github.com/moq-dev/moq/tree/f400ab34a4734838a9b5b7a82b9bcf29b5a9aca3/rs/hang-wasm) crate.
 However, it involves a lot of boilerplate, wrappers, and casting.
 The performance is not great because the WASM sandbox doesn't have networking or device access, requiring copying and/or message passing to use Web APIs.
 
