@@ -75,39 +75,34 @@ const useCases = [
 			</div>
 		</div>
 
-		<!-- One publisher, fanned out by relays to whoever subscribes. -->
-		<figure
-			class="card mx-auto w-full max-w-lg rotate-[1.5deg] px-6 py-6 sm:px-8"
-			aria-label="A publisher sends one stream to the relays, which fan it out to every subscriber"
-		>
-			<div class="grid grid-cols-[1fr_2.5rem_1fr_3.5rem_1fr] items-center">
-				<img src="/icons/use-case/voice-video-ai.svg" class="mx-auto h-14 w-16 object-contain" alt="" />
-				<svg viewBox="0 0 40 20" class="w-full text-green-500" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-					<path d="M3 11 C 14 8, 24 12, 35 9" />
-					<path d="M28 4 L 35 9 L 29 15" />
-				</svg>
-				<img src="/drawn/icon-globe.svg" class="mx-auto h-16 w-16 object-contain" alt="" />
-				<svg viewBox="0 0 56 140" class="w-full text-green-500" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-					<path d="M4 70 C 20 58, 30 24, 50 18" />
-					<path d="M42 13 L 50 18 L 43 25" />
-					<path d="M4 71 C 20 72, 34 68, 50 70" />
-					<path d="M43 64 L 50 70 L 43 76" />
-					<path d="M4 72 C 22 84, 30 116, 50 122" />
-					<path d="M42 116 L 50 122 L 41 126" />
-				</svg>
-				<div class="flex flex-col items-center gap-5">
-					<img src="/icons/use-case/conferencing.svg" class="h-10 w-12 object-contain" alt="" />
-					<img src="/icons/use-case/interactive.svg" class="h-10 w-12 object-contain" alt="" />
-					<img src="/icons/use-case/robotics.svg" class="h-10 w-12 object-contain" alt="" />
-				</div>
-			</div>
-			<div class="label mt-4 grid grid-cols-[1fr_2.5rem_1fr_3.5rem_1fr] text-center !text-slate-300">
-				<span>publish</span>
-				<span></span>
-				<span>relays</span>
-				<span></span>
-				<span>subscribe</span>
-			</div>
+		<!-- One publisher, fanned out by relays to whoever subscribes. One coordinate
+		system for the icons and arrows, so every arrow lands on its icon. -->
+		<figure class="card mx-auto w-full max-w-lg px-5 py-6 sm:px-7">
+			<svg
+				viewBox="0 0 470 262"
+				class="w-full"
+				role="img"
+				aria-label="A publisher sends one stream to the relays, which fan it out to every subscriber"
+			>
+				<image href="/icons/use-case/voice-video-ai.svg" x="10" y="85" width="100" height="70" />
+				<image href="/drawn/icon-globe.svg" x="190" y="75" width="90" height="90" />
+				<image href="/icons/use-case/conferencing.svg" x="390" y="18" width="60" height="50" />
+				<image href="/icons/use-case/interactive.svg" x="390" y="95" width="60" height="50" />
+				<image href="/icons/use-case/robotics.svg" x="390" y="168" width="60" height="58" />
+
+				<g fill="none" stroke="#4dc515" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M126 120 H174 M164 111 L174 120 L164 129" />
+					<path d="M296 120 C 330 120, 340 43, 374 43 M364 34 L374 43 L364 52" />
+					<path d="M296 120 H374 M364 111 L374 120 L364 129" />
+					<path d="M296 120 C 330 120, 340 197, 374 197 M364 188 L374 197 L364 206" />
+				</g>
+
+				<g class="font-mono uppercase" fill="#cbd5e1" font-size="13" letter-spacing="1.2" text-anchor="middle">
+					<text x="60" y="254">publish</text>
+					<text x="235" y="254">relays</text>
+					<text x="420" y="254">subscribe</text>
+				</g>
+			</svg>
 		</figure>
 	</section>
 
