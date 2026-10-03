@@ -202,6 +202,16 @@ h1 {
 	z-index: -1;
 	pointer-events: none;
 }
+.lead { display: flex; align-items: center; gap: 40px; }
+.shot {
+	flex: none;
+	width: 420px;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	border: 1px solid var(--hair);
+	border-radius: 14px;
+	box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+}
 .sub {
 	margin-top: 18px;
 	font-size: 23px;
@@ -295,8 +305,13 @@ pre .prompt { color: var(--green); font-weight: 700; }
 		${card.eyebrow ? `<div class="eyebrow">${escapeHtml(card.eyebrow)}</div>` : ""}
 	</div>
 	<div class="body">
-		<h1>${title(card.title)}</h1>
-		${card.sub ? `<p class="sub">${inline(card.sub, "strong")}</p>` : ""}
+		<div class="lead">
+			<div>
+				<h1>${title(card.title)}</h1>
+				${card.sub ? `<p class="sub">${inline(card.sub, "strong")}</p>` : ""}
+			</div>
+			${card.image ? `<img class="shot" src="${dataUrl(join(HERE, card.image), card.image.endsWith(".png") ? "image/png" : "image/jpeg")}" alt="">` : ""}
+		</div>
 		${tiles(card)}
 		${codeLines.length ? `<pre>${codeLines.map((l) => codeLine(l, card.lang ?? "shell")).join("\n")}</pre>` : ""}
 	</div>
