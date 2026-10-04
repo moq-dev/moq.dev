@@ -11,6 +11,7 @@
 //   `lang` (shell by default) where a line starting with `$ ` is a prompt. Only
 //   reach for code when the snippet itself is the news; most cards don't need
 //   either. A tile's `icon` sits before its name.
+// - `image` is a file next to this one, shown beside the title and sub.
 // - `eyebrow` (top right) names the release: a crate + version. `note` (bottom right) is the one-line kicker, if any.
 //
 // Keep cards factual: a version, a rate, a measured number. Retire a card once
@@ -34,6 +35,7 @@ export type Card = {
 	code?: string;
 	lang?: Lang;
 	note?: string;
+	image?: string;
 };
 
 export const CARDS: Card[] = [
@@ -41,14 +43,13 @@ export const CARDS: Card[] = [
 		slug: "e2ee",
 		eyebrow: "new crate: moq-e2ee 0.0.1",
 		title: "End-to-end **encrypted** media.",
-		sub: "Your CDN can't spy on you. Relays route what they can't read: not the media, and not even the names. The keys stay in your app, so neither moq.pro nor anyone else in the middle sees what you're streaming.",
+		sub: "Don't let your CDN spy on you. Relays route what they can't read: the media, and even the names.",
 		tiles: [
-			{ icon: "lock", name: "Payloads", detail: "AES-128-GCM, every frame and datagram" },
-			{ icon: "tag", name: "Broadcast names", detail: "an opaque 22-character path" },
-			{ icon: "hidden", name: "Track names", detail: "opaque too, derived per track" },
+			{ icon: "lock", name: "Payloads", detail: "AES-128-GCM on every frame" },
+			{ icon: "hidden", name: "Hidden names", detail: "opaque broadcast and track paths" },
 			{ icon: "key", name: "Keys", detail: "never reach the relay" },
 		],
-		note: "draft-lcurley-moq-e2ee",
+		note: "stream your dong with a clear conscience",
 	},
 	{
 		slug: "uring",
@@ -62,7 +63,7 @@ export const CARDS: Card[] = [
 			"io_uring = true   # Linux 6.12+; older kernels keep the tokio stack",
 		].join("\n"),
 		lang: "toml",
-		note: "moq-relay 0.15",
+		note: "donate tokens to make it faster",
 	},
 	{
 		slug: "noq",
@@ -76,6 +77,7 @@ export const CARDS: Card[] = [
 			'moq-tokio = { version = "0.19", features = ["quiche"] }',
 		].join("\n"),
 		lang: "toml",
+		note: "noq moq noq moq noq moq",
 	},
 	{
 		slug: "json",
@@ -95,25 +97,20 @@ export const CARDS: Card[] = [
 				detail: "The last N records. Join at any point, then follow pushes and pops.",
 			},
 		],
-		note: "examples/telemetry.rs: snapshot + delta + deflate",
+		note: "smaller than your hand-rolled protobuf btw",
 	},
 	{
-		slug: "binary",
-		eyebrow: "new crate: moq-binary 0.1.0",
-		title: "Binary tracks: **snapshot** or **stream**.",
-		sub: "Opaque payloads over MoQ, with the same per-group DEFLATE as `moq-json`.",
+		slug: "flate",
+		eyebrow: "moq-flate 0.2",
+		title: "DEFLATE **across frames**.",
+		sub: "Each group is one raw DEFLATE stream, sync-flushed per frame. Every frame stays self-delimited, but reuses earlier frames as its dictionary, so deltas, repeated records, and log lines shrink to a few bytes.",
 		tiles: [
-			{
-				icon: "snapshot",
-				name: "Snapshot",
-				detail: "Lossy. One value over time; whoever joins late gets the latest. A poster, a config, a game state.",
-			},
-			{
-				icon: "log",
-				name: "Stream",
-				detail: "Lossless. An ordered append-log where nothing is superseded. Events, chat, logs.",
-			},
+			{ name: "Per group", detail: "a fresh window, so late joiners can decode" },
+			{ name: "Interop", detail: "zlib sync flush or the browser's `deflate-raw`" },
+			{ name: "4 bytes off", detail: "the fixed `00 00 ff ff` trailer is dropped" },
+			{ name: "Built in", detail: "`moq-json` and `moq-binary` use it" },
 		],
+		note: "just like I delta compressed your mom last night",
 	},
 	{
 		slug: "auth",
@@ -126,53 +123,51 @@ export const CARDS: Card[] = [
 			{ name: "`alice/**`", detail: "a whole subtree" },
 			{ name: "`room/*/chat`", detail: "wildcards mid-path" },
 		],
-		note: "or sign JWTs with moq auth sign",
-	},
-	{
-		slug: "room",
-		eyebrow: "@moq/room 0.2",
-		title: "A video call is **a path prefix**.",
-		sub: "Members are discovered from announcements. Camera, mic, and screenshare built in. No room server: joining is a token for the prefix. Native twin: `moq-room`.",
+		note: "secure ur nudes",
 	},
 	{
 		slug: "play",
 		eyebrow: "moq-cli 0.12",
 		title: "Watch without **a browser**.",
 		sub: "`moq play` decodes H.264, H.265, AV1, Opus, and AAC with the platform's hardware decoder, into a native window synced to the speaker.",
-		code: "$ moq --connect https://relay.example.com/anon --broadcast my-stream.hang play",
+		code: "$ moq --connect https://cdn.moq.pro/demo --broadcast bbb.hang play",
+		image: "bbb.jpg",
+		note: "watch the bunny boye",
 	},
 	{
 		slug: "lan",
 		eyebrow: "moq-cli 0.12",
 		title: "Mesh the LAN with **zero config**.",
-		sub: "`--cluster-lan` meshes every MoQ process on the network over mDNS: no relay, no internet, no certificates. `--cluster-lan-secret` keeps strangers out.",
+		sub: "`--cluster-lan` meshes every MoQ process on the network over mDNS. Add `--connect` and each viewer takes the shortest path: peer-to-peer on the LAN, the CDN otherwise.",
 		code: [
-			"$ moq --cluster-lan --broadcast cam.hang import capture  # on the camera box",
-			"$ moq --cluster-lan --broadcast cam.hang play            # anywhere on the LAN",
+			"$ moq --cluster-lan --connect cdn.moq.pro --broadcast cam.hang import capture  # camera",
+			"$ moq --cluster-lan --broadcast cam.hang play                                  # LAN: peer-to-peer",
+			"$ moq --connect cdn.moq.pro --broadcast cam.hang play                          # elsewhere: CDN",
 		].join("\n"),
-		note: "add --connect cdn.moq.pro for everyone off the LAN",
+		note: "there's no place like home",
 	},
 	{
 		slug: "media",
 		eyebrow: "moq-video + moq-audio",
 		title: "Native media, **no ffmpeg**.",
-		sub: "`getUserMedia` and WebCodecs for Rust, with no system codecs to install.",
+		sub: "Hardware capture, encoding, decoding, and rendering for every platform.",
 		tiles: [
 			{ icon: "rocket", name: "Zero-copy", detail: "GPU in, GPU out" },
 			{ icon: "apple", name: "macOS", detail: "VideoToolbox" },
 			{ icon: "windows", name: "Windows", detail: "Media Foundation" },
 			{ icon: "nvidia", name: "NVIDIA", detail: "NVENC + NVDEC" },
-			{ icon: ["amd", "intel"], name: "AMD + Intel", detail: "VAAPI" },
+			{ icon: "amd", name: "AMD", detail: "VAAPI" },
+			{ icon: "intel", name: "Intel", detail: "VAAPI" },
 			{ icon: "linux", name: "Linux", detail: "V4L2, PipeWire" },
 			{ icon: "android", name: "Android", detail: "MediaCodec" },
-			{ icon: "mic", name: "Audio", detail: "echo cancellation" },
 		],
+		note: "yes I just told claude to rewrite in Rust",
 	},
 	{
 		slug: "languages",
 		eyebrow: "8 languages, 1 wire",
 		title: "MoQ in **your language**.",
-		sub: "Rust and TypeScript, plus six bindings over the same core. Python publishes, Swift plays.",
+		sub: "Native Rust and TypeScript support. Rust FFI for everything else.",
 		tiles: [
 			{ icon: "rust", name: "Rust", detail: "`moq-net`" },
 			{ icon: "typescript", name: "TypeScript", detail: "`@moq/net`" },
@@ -183,31 +178,45 @@ export const CARDS: Card[] = [
 			{ icon: "dart", name: "Dart", detail: "`moq`" },
 			{ icon: "c", name: "C", detail: "`libmoq`" },
 		],
+		note: "but you should be using Rust u dinosaur",
 	},
 	{
 		slug: "gateway",
 		eyebrow: "moq-cli 0.12",
 		title: "Bridge **every protocol**.",
-		sub: "`moq import` and `moq export`, as the server or the client. Plus FLV, WebM, and Annex-B over pipes.",
+		sub: "`moq import` and `moq export`: migrate your legacy protocols one at a time.",
 		tiles: [
-			{ icon: "rtmp", name: "RTMP", detail: "in + out" },
-			{ icon: "srt", name: "SRT", detail: "in + out" },
-			{ icon: "webrtc", name: "WHIP", detail: "serve in, push out" },
-			{ icon: "webrtc", name: "WHEP", detail: "serve out, pull in" },
-			{ icon: "hls", name: "HLS / LL-HLS", detail: "pull in, serve out" },
-			{ icon: "hls", name: "DASH", detail: "serve out" },
-			{ icon: "fmp4", name: "fMP4 / CMAF", detail: "in + out" },
-			{ icon: "mpegts", name: "MPEG-TS", detail: "in + out" },
+			{ icon: "rtmp", name: "RTMP", detail: "OBS in, restream out" },
+			{ icon: "srt", name: "SRT", detail: "caller or listener" },
+			{ icon: "webrtc", name: "WebRTC", detail: "WHIP + WHEP, both ways" },
+			{ icon: "hls", name: "HLS / LL-HLS", detail: "pull in, serve LL-HLS" },
+			{ icon: "hls", name: "DASH", detail: "serve any DASH player" },
+			{ icon: "fmp4", name: "fMP4 / CMAF", detail: "files, pipes, segments" },
+			{ icon: "mpegts", name: "MPEG-TS", detail: "broadcast gear, in + out" },
+			{ icon: "puzzle", name: "Other", detail: "FLV, WebM, Annex-B" },
 		],
+		note: "delete ur legacy crap",
 	},
 	{
-		slug: "transcode",
-		eyebrow: "moq-cli 0.12",
-		title: "Transcode **on demand**.",
-		sub: "`moq transcode` publishes an ABR ladder next to any broadcast. A rung is only decoded and encoded while someone watches it, and on NVIDIA the whole pipeline stays on the GPU.",
+		slug: "drain",
+		eyebrow: "moq-relay 0.16",
+		title: "Restart relays, **drop nobody**.",
+		sub: "On `SIGTERM` the relay sends every session a GOAWAY, and viewers reconnect elsewhere before the window closes. A second signal force-closes.",
 		code: [
-			"$ moq --connect https://relay.example.com/anon --broadcast cam.hang transcode \\",
-			"    --rung 720:2500000 --rung 360:600000 --encoder nvenc --decoder nvdec",
+			"$ moq-relay --drain-timeout 10s",
+			"$ kill -TERM $(pidof moq-relay)   # every viewer migrates, nobody buffers",
 		].join("\n"),
+	},
+	{
+		slug: "obs",
+		eyebrow: "obs-moq + moq-gst",
+		title: "MoQ in **OBS** and GStreamer.",
+		sub: "A plugin for stock OBS Studio that publishes and subscribes, plus `moqsink` and `moqsrc` for any GStreamer pipeline.",
+		tiles: [
+			{ name: "OBS Studio", detail: "no OBS rebuild needed" },
+			{ name: "GStreamer", detail: "`moqsink` + `moqsrc`" },
+			{ name: "apt", detail: "`gstreamer1.0-moq`" },
+			{ name: "dnf", detail: "`gstreamer1-moq`" },
+		],
 	},
 ];
