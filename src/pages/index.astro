@@ -70,36 +70,37 @@ const useCases = [
 			</p>
 
 			<div class="mt-9 flex flex-wrap items-center gap-3">
-				<a href="/demo" class="btn-green">Try the live demos <span aria-hidden="true">→</span></a>
-				<a href="https://doc.moq.dev" class="btn-line">Read the docs</a>
+				<a href="/demo" class="btn-green">Demos <span aria-hidden="true">→</span></a>
+				<a href="https://doc.moq.dev" class="btn-line">Docs</a>
 			</div>
 		</div>
 
-		<!-- One publisher, fanned out by relays to whoever subscribes. One coordinate
+		<!-- One publisher, fanned out by the relay to whoever subscribes. One coordinate
 		system for the icons and arrows, so every arrow lands on its icon. -->
-		<figure class="card mx-auto w-full max-w-lg px-5 py-6 sm:px-7">
+		<figure class="group card card-lift mx-auto w-full max-w-lg px-5 py-6 sm:px-7">
 			<svg
 				viewBox="0 0 494 262"
 				class="w-full"
 				role="img"
-				aria-label="A publisher sends one stream to the relays, which fan it out to every subscriber"
+				aria-label="A publisher sends one stream to the relay, which fans it out to every subscriber"
 			>
-				<image href="/icons/use-case/voice-video-ai.svg" x="0" y="85" width="96" height="70" />
-				<image href="/drawn/icon-globe.svg" x="206" y="75" width="90" height="90" />
-				<image href="/icons/use-case/conferencing.svg" x="416" y="18" width="60" height="50" />
-				<image href="/icons/use-case/interactive.svg" x="416" y="95" width="60" height="50" />
-				<image href="/icons/use-case/robotics.svg" x="416" y="168" width="60" height="58" />
+				<image class="boil" href="/icons/use-case/voice-video-ai.svg" x="0" y="85" width="96" height="70" />
+				<image class="boil" href="/drawn/icon-globe.svg" x="206" y="75" width="90" height="90" />
+				<image class="boil" href="/icons/use-case/conferencing.svg" x="416" y="18" width="60" height="50" />
+				<image class="boil" href="/icons/use-case/interactive.svg" x="416" y="95" width="60" height="50" />
+				<image class="boil" href="/icons/use-case/robotics.svg" x="416" y="168" width="60" height="58" />
 
 				<!-- Hand-drawn arrows, each placed by its tail and rotated toward its icon.
-				     The fan's tails are spread down the globe's edge so they don't overlap. -->
-				<image href="/drawn/arrow-2.svg" x="106" y="110.5" width="90" height="19" />
-				<image href="/drawn/arrow-4.svg" x="302" y="96.5" width="100" height="19" transform="rotate(-38 302 106)" />
-				<image href="/drawn/arrow-6.svg" x="310" y="110" width="90" height="20" />
-				<image href="/drawn/arrow-5.svg" x="302" y="122" width="100" height="24" transform="rotate(38 302 134)" />
+				     The fan's tails are spread down the globe's edge so they don't overlap.
+				     The rotation lives on a <g> so `.boil` can own `transform`. -->
+				<image class="boil" href="/drawn/arrow-2.svg" x="106" y="110.5" width="90" height="19" />
+				<g transform="rotate(-38 302 106)"><image class="boil" href="/drawn/arrow-4.svg" x="302" y="96.5" width="100" height="19" /></g>
+				<image class="boil" href="/drawn/arrow-6.svg" x="310" y="110" width="90" height="20" />
+				<g transform="rotate(38 302 134)"><image class="boil" href="/drawn/arrow-5.svg" x="302" y="122" width="100" height="24" /></g>
 
 				<g class="font-mono uppercase" fill="#cbd5e1" font-size="13" letter-spacing="1.2" text-anchor="middle">
 					<text x="48" y="254">publish</text>
-					<text x="251" y="254">relays</text>
+					<text x="251" y="254">relay</text>
 					<text x="446" y="254">subscribe</text>
 				</g>
 			</svg>
@@ -115,7 +116,7 @@ const useCases = [
 				features.map((feature) => (
 					<div class="card group flex gap-4 p-5 sm:flex-col">
 						<span class="icon-tile h-12 w-12">
-							<img src={`/drawn/icon-${feature.icon}.svg`} class="h-7 w-7 object-contain" alt="" />
+							<img src={`/drawn/icon-${feature.icon}.svg`} class="boil h-7 w-7 object-contain" alt="" />
 						</span>
 						<div>
 							<h3 class="font-semibold text-white">{feature.title}</h3>
@@ -130,8 +131,8 @@ const useCases = [
 			<div class="flex flex-wrap gap-2">
 				{
 					languages.map((language) => (
-						<a href={language.href} class="chip">
-							<img src={`/icons/cards/${language.icon}.svg`} class="h-6 w-6 object-contain" alt="" />
+						<a href={language.href} class="chip group">
+							<img src={`/icons/cards/${language.icon}.svg`} class="boil h-6 w-6 object-contain" alt="" />
 							{language.name}
 						</a>
 					))
@@ -166,7 +167,7 @@ const useCases = [
 				useCases.map((useCase) => (
 					<a href={useCase.href} class="card group flex gap-5 p-5">
 						<span class="icon-tile h-16 w-16">
-							<img src={`/icons/use-case/${useCase.icon}.svg`} class="h-10 w-10 object-contain" alt="" />
+							<img src={`/icons/use-case/${useCase.icon}.svg`} class="boil h-10 w-10 object-contain" alt="" />
 						</span>
 						<span class="flex flex-col gap-1">
 							<span class="flex items-center gap-2 text-[1.1rem] font-semibold text-white group-hover:text-green-500">

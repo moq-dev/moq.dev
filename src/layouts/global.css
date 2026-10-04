@@ -114,6 +114,28 @@ pre code.hljs {
 		transform: scale(1.06);
 	}
 
+	/* Hand-drawn art that "boils" while its `.group` is hovered: it re-jitters on
+	   a step timer, like a hand-drawn animation. Siblings are offset so they don't
+	   move in unison. */
+	.boil {
+		transform-box: fill-box;
+		transform-origin: center;
+	}
+	.group:hover .boil {
+		animation: boil 0.6s steps(1) infinite;
+	}
+	.group:hover .boil:nth-of-type(2n) {
+		animation-delay: -0.2s;
+	}
+	.group:hover .boil:nth-of-type(3n) {
+		animation-delay: -0.4s;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.group:hover .boil {
+			animation: none;
+		}
+	}
+
 	.chip {
 		@apply inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/60 py-1.5 pl-2 pr-4 text-sm text-slate-200 transition-colors hover:border-green-500 hover:text-white;
 	}
@@ -166,5 +188,17 @@ pre code.hljs {
 	table td:first-child {
 		white-space: nowrap;
 		text-align: right;
+	}
+}
+
+@keyframes boil {
+	0% {
+		transform: translate(0.6px, -0.4px) rotate(-1.2deg);
+	}
+	33% {
+		transform: translate(-0.5px, 0.6px) rotate(1deg);
+	}
+	66% {
+		transform: translate(0.3px, 0.5px) rotate(-0.4deg) scale(1.02);
 	}
 }
