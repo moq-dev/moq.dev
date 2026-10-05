@@ -273,13 +273,13 @@ They yearn to be useful.
 ## I Require Context
 The problem arises when your AI model and network **disagree on the latency budget**.
 
-Suppose you ask the question: `What is le capital of France?`
+Suppose you yell: `Captain, steer away from the kraken!`
 
 WebRTC has a hyper-aggressive latency budget. 
 It will drop arbitrary audio packets to keep latency real-time.
 
 But voice AI agent require context.
-`What is le capital ...`, with the last word missing, is not enough context.
+`Captain, steer ... the kraken!`, with two words missing, means the exact opposite.
 It can fill the blanks much of the time, but every ambiguity hurts the accuracy.
 
 <SpeechToText transport="webrtc" client:visible />
