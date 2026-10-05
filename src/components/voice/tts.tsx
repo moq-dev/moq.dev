@@ -3,23 +3,22 @@ import { Diagram, type Panel } from "./diagram";
 import { arrival, FLIGHT, FRAME, frames, has, head, type Segment, transmit } from "./sim";
 
 const WORDS = [
-	{ text: "The", start: 0.05, end: 0.2 },
-	{ text: "kraken", start: 0.35, end: 0.8 },
-	{ text: "is", start: 0.85, end: 0.95 },
-	{ text: "friendly.", start: 1.0, end: 1.6 },
-	{ text: "Just", start: 1.85, end: 2.1 },
-	{ text: "don't,", start: 2.2, end: 2.55 },
-	{ text: "I", start: 2.7, end: 2.8 },
-	{ text: "repeat,", start: 2.85, end: 3.35 },
-	{ text: "DON'T", start: 3.5, end: 3.95 },
-	{ text: "poke", start: 4.1, end: 4.4 },
-	{ text: "it.", start: 4.45, end: 4.7 },
+	{ text: "Paris.", start: 0.1, end: 0.6 },
+	{ text: "Bring", start: 0.85, end: 1.15 },
+	{ text: "lots", start: 1.2, end: 1.45 },
+	{ text: "of", start: 1.5, end: 1.6 },
+	{ text: "le", start: 1.65, end: 1.8 },
+	{ text: "capital", start: 1.85, end: 2.35 },
+	{ text: "though,", start: 2.4, end: 2.8 },
+	{ text: "it's", start: 3.0, end: 3.2 },
+	{ text: "très", start: 3.25, end: 3.5 },
+	{ text: "expensive.", start: 3.55, end: 4.2 },
 ];
 
-const AXIS = 4.8;
+const AXIS = 4.3;
 // The same stretch of audio is lost on both transports, by media timestamp, so they lose the same words:
-// "don't, I repeat, DON'T", leaving "Just … poke it."
-const LOST = { start: 2.2, end: 4.0 };
+// "lots of le capital though", leaving "Bring … it's très expensive."
+const LOST = { start: 1.2, end: 2.85 };
 
 const GENERATE = 10; // the model speaks 10x faster than real-time
 const THROUGHPUT = 3; // MoQ sends as fast as the (congested) network allows
@@ -79,16 +78,15 @@ function panel(moq: boolean): Panel {
 		packets,
 		loss,
 		reply: moq
-			? { at: finished + 0.2, text: "“Wasn’t gonna.”", good: true }
-			: { at: finished + 0.2, text: "*pokes the kraken*", good: false },
+			? { at: finished + 0.2, text: "“Ha, le pun.”", good: true }
+			: { at: finished + 0.2, text: "“Bring what?!”", good: false },
 	};
 }
 
 const PANELS = { webrtc: panel(false), moq: panel(true) };
 
 const LABELS = {
-	webrtc:
-		"Text-to-speech over WebRTC: audio is sent at human speed, and packet loss eats “don't, I repeat, DON'T”, leaving “just poke it”.",
+	webrtc: "Text-to-speech over WebRTC: audio is sent at human speed, and packet loss erases “lots of le capital”.",
 	moq: "Text-to-speech over MoQ: audio is sent ahead and buffered, so retransmits arrive before playback needs them.",
 };
 

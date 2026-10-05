@@ -3,17 +3,16 @@ import { Diagram, type Panel } from "./diagram";
 import { arrival, FLIGHT, FRAME, frames, has, head, type Segment, transmit } from "./sim";
 
 const WORDS = [
-	{ text: "Captain,", start: 0.1, end: 0.6 },
-	{ text: "steer", start: 0.75, end: 1.05 },
-	{ text: "away", start: 1.2, end: 1.55 },
-	{ text: "from", start: 1.65, end: 1.9 },
-	{ text: "the", start: 2.1, end: 2.3 },
-	{ text: "kraken!", start: 2.4, end: 3.0 },
+	{ text: "What", start: 0.1, end: 0.5 },
+	{ text: "is", start: 0.6, end: 0.8 },
+	{ text: "le", start: 0.9, end: 1.1 },
+	{ text: "capital", start: 1.3, end: 2.0 },
+	{ text: "of", start: 2.1, end: 2.3 },
+	{ text: "France?", start: 2.5, end: 3.3 },
 ];
 
-const AXIS = 3.1;
-// The kraken eats exactly "away from", which flips the meaning.
-const LOSS = { start: 1.3, end: 2.05 };
+const AXIS = 3.4;
+const LOSS = { start: 1.3, end: 2.4 };
 
 // How much faster than real-time the model can chew through buffered audio.
 // Real models are much faster; 4x keeps the catch-up visible.
@@ -59,15 +58,15 @@ function panel(retransmit: boolean): Panel {
 		packets,
 		loss: LOSS,
 		reply: retransmit
-			? { at: finished + 0.3, text: "“Aye, hard to starboard!”", good: true }
-			: { at: finished + 0.3, text: "“Aye, steering into the kraken. 🫡”", good: false },
+			? { at: finished + 0.3, text: "“Paris. Also, it’s la capitale.”", good: true }
+			: { at: finished + 0.3, text: "“Le croissant of France? Buttery, flaky, 10/10.”", good: false },
 	};
 }
 
 const PANELS = { webrtc: panel(false), moq: panel(true) };
 
 const LABELS = {
-	webrtc: "Speech-to-text over WebRTC: packet loss eats “away from”, so the AI steers into the kraken.",
+	webrtc: "Speech-to-text over WebRTC: packet loss erases “capital”, so the AI guesses le croissant.",
 	moq: "Speech-to-text over MoQ: lost audio is retransmitted, and the AI catches up before you finish talking.",
 };
 
