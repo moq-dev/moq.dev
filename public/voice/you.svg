@@ -1,0 +1,7 @@
+<!-- PLACEHOLDER: hand-draw a human head, ~1:1, green on transparent. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="#4dc515" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+	<path d="M50 12c19 0 31 14 30 33-1 20-13 33-31 33-17 0-30-14-29-33 1-19 12-33 30-33z" />
+	<path d="M37 40v4M63 39v4" />
+	<path d="M36 57c8 8 20 9 29-1" />
+	<path d="M25 88c8-7 16-9 25-9s18 3 25 9" />
+</svg>

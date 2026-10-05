@@ -1,0 +1,6 @@
+<!-- PLACEHOLDER: hand-draw a kraken chewing on packets, ~1:1. kraken-2.svg is a second frame; the two alternate. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="#ef4444" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+	<path d="M50 10c16 0 26 11 26 25 0 10-5 17-12 21H36c-7-4-12-11-12-21 0-14 10-25 26-25z" />
+	<path d="M41 33v3M59 33v3" />
+	<path d="M36 56c-6 10-16 12-22 8M44 57c-3 12-8 20-16 24M56 57c3 12 8 20 16 24M64 56c6 10 16 12 22 8" />
+</svg>

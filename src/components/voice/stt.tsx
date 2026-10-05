@@ -1,5 +1,5 @@
 // Speech-to-text: a human talks at human speed, the AI listens over a lossy network.
-import { type Art, Diagram, type Panel } from "./diagram";
+import { Diagram, type Panel } from "./diagram";
 import { arrival, FLIGHT, FRAME, frames, has, head, type Segment, transmit } from "./sim";
 
 const WORDS = [
@@ -57,24 +57,26 @@ function panel(retransmit: boolean): Panel {
 		bottom: { who: "ai", words: WORDS, segments: heard, note },
 		packets,
 		loss: LOSS,
-		result: retransmit
-			? { at: finished + 0.3, text: "🤖 “Paris.”", good: true }
-			: { at: finished + 0.3, text: "🤖 “Sorry, you broke up. Can you repeat that?”", good: false },
+		reply: retransmit
+			? { at: finished + 0.3, text: "“Paris.”", good: true }
+			: { at: finished + 0.3, text: "“Sorry, you broke up. Can you repeat that?”", good: false },
 	};
 }
 
-const PANELS = [panel(false), panel(true)];
-const END = Math.max(...PANELS.map((p) => p.result.at)) + 0.5;
+const PANELS = { webrtc: panel(false), moq: panel(true) };
 
-export default function SpeechToText(props: { art?: Art }) {
+const LABELS = {
+	webrtc: "Speech-to-text over WebRTC: packet loss erases a word, so the AI asks you to repeat yourself.",
+	moq: "Speech-to-text over MoQ: lost audio is retransmitted, and the AI catches up before you finish talking.",
+};
+
+export default function SpeechToText(props: { transport: "webrtc" | "moq" }) {
 	return (
 		<Diagram
 			axis={AXIS}
-			end={END}
-			panels={PANELS}
-			art={props.art}
+			panel={PANELS[props.transport]}
 			legend={{ done: "spoken / understood", have: "received, not yet understood" }}
-			label="Speech-to-text over WebRTC vs MoQ: packet loss erases a word over WebRTC, while MoQ retransmits it and the AI catches up before you finish talking."
+			label={LABELS[props.transport]}
 		/>
 	);
 }

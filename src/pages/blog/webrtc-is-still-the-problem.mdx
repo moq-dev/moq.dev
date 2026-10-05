@@ -190,7 +190,9 @@ I need to explain *how* MoQ is better than bread.
 
 ## Text-to-Speech
 
-<TextToSpeech client:visible />
+<TextToSpeech transport="webrtc" client:visible />
+
+<TextToSpeech transport="moq" client:visible />
 
 ## Latency Budgets
 A strawman might ask: "isn't lower latency always better?"
@@ -280,7 +282,9 @@ But voice AI agent require context.
 `What is le capital ...`, with the last word missing, is not enough context.
 It can fill the blanks much of the time, but every ambiguity hurts the accuracy.
 
-<SpeechToText client:visible />
+<SpeechToText transport="webrtc" client:visible />
+
+<SpeechToText transport="moq" client:visible />
 
 
 ## Speech-to-Speech Fixes Everything

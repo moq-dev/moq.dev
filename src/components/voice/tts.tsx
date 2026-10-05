@@ -1,5 +1,5 @@
 // Text-to-speech: the AI talks faster than real-time, the human listens at human speed.
-import { type Art, Diagram, type Panel } from "./diagram";
+import { Diagram, type Panel } from "./diagram";
 import { arrival, FLIGHT, FRAME, frames, has, head, type Segment, transmit } from "./sim";
 
 const WORDS = [
@@ -74,24 +74,26 @@ function panel(moq: boolean): Panel {
 		bottom: { who: "you", words: WORDS, segments: heard, note: buffered },
 		packets,
 		loss,
-		result: moq
-			? { at: finished + 0.2, text: "🧑 “Rude, but fair.”", good: true }
-			: { at: finished + 0.2, text: "🧑 “Sorry, you broke up. Can you repeat that?”", good: false },
+		reply: moq
+			? { at: finished + 0.2, text: "“Rude, but fair.”", good: true }
+			: { at: finished + 0.2, text: "“Sorry, you broke up. Can you repeat that?”", good: false },
 	};
 }
 
-const PANELS = [panel(false), panel(true)];
-const END = AXIS + DELAY + 0.7;
+const PANELS = { webrtc: panel(false), moq: panel(true) };
 
-export default function TextToSpeech(props: { art?: Art }) {
+const LABELS = {
+	webrtc: "Text-to-speech over WebRTC: audio is sent at human speed, and packet loss erases words.",
+	moq: "Text-to-speech over MoQ: audio is sent ahead and buffered, so retransmits arrive before playback needs them.",
+};
+
+export default function TextToSpeech(props: { transport: "webrtc" | "moq" }) {
 	return (
 		<Diagram
 			axis={AXIS}
-			end={END}
-			panels={PANELS}
-			art={props.art}
+			panel={PANELS[props.transport]}
 			legend={{ done: "sent / played", have: "generated / buffered" }}
-			label="Text-to-speech over WebRTC vs MoQ: WebRTC sends at human speed and packet loss erases a word, while MoQ sends ahead, buffers, and retransmits before playback needs it."
+			label={LABELS[props.transport]}
 		/>
 	);
 }
