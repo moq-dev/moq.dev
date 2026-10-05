@@ -58,15 +58,15 @@ function panel(retransmit: boolean): Panel {
 		packets,
 		loss: LOSS,
 		reply: retransmit
-			? { at: finished + 0.3, text: "“Paris. Also, it’s la capitale.”", good: true }
-			: { at: finished + 0.3, text: "“Le croissant of France? Buttery, flaky, 10/10.”", good: false },
+			? { at: finished + 0.3, text: "“Paris.”", good: true }
+			: { at: finished + 0.3, text: "“France is a country in Western Europe.”", good: false },
 	};
 }
 
 const PANELS = { webrtc: panel(false), moq: panel(true) };
 
 const LABELS = {
-	webrtc: "Speech-to-text over WebRTC: packet loss erases “capital”, so the AI guesses le croissant.",
+	webrtc: "Speech-to-text over WebRTC: packet loss erases “capital”, so the AI answers the wrong question.",
 	moq: "Speech-to-text over MoQ: lost audio is retransmitted, and the AI catches up before you finish talking.",
 };
 

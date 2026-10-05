@@ -3,22 +3,21 @@ import { Diagram, type Panel } from "./diagram";
 import { arrival, FLIGHT, FRAME, frames, has, head, type Segment, transmit } from "./sim";
 
 const WORDS = [
-	{ text: "Paris.", start: 0.1, end: 0.6 },
-	{ text: "Bring", start: 0.85, end: 1.15 },
-	{ text: "lots", start: 1.2, end: 1.45 },
-	{ text: "of", start: 1.5, end: 1.6 },
-	{ text: "le", start: 1.65, end: 1.8 },
-	{ text: "capital", start: 1.85, end: 2.35 },
-	{ text: "though,", start: 2.4, end: 2.8 },
-	{ text: "it's", start: 3.0, end: 3.2 },
-	{ text: "très", start: 3.25, end: 3.5 },
-	{ text: "expensive.", start: 3.55, end: 4.2 },
+	{ text: "Paris.", start: 0.1, end: 0.61 },
+	{ text: "It's", start: 0.93, end: 1.27 },
+	{ text: "been", start: 1.44, end: 1.78 },
+	{ text: "the", start: 1.95, end: 2.21 },
+	{ text: "capital", start: 2.38, end: 2.98 },
+	{ text: "for", start: 3.15, end: 3.41 },
+	{ text: "a", start: 3.58, end: 3.73 },
+	{ text: "thousand", start: 3.9, end: 4.58 },
+	{ text: "years.", start: 4.75, end: 5.26 },
 ];
 
-const AXIS = 4.3;
+const AXIS = 5.4;
 // The same stretch of audio is lost on both transports, by media timestamp, so they lose the same words:
-// "lots of le capital though", leaving "Bring … it's très expensive."
-const LOST = { start: 1.2, end: 2.85 };
+// "been the capital for", leaving "It's … a thousand years."
+const LOST = { start: 1.4, end: 3.45 };
 
 const GENERATE = 10; // the model speaks 10x faster than real-time
 const THROUGHPUT = 3; // MoQ sends as fast as the (congested) network allows
@@ -58,7 +57,7 @@ function panel(moq: boolean): Panel {
 
 	const buffered = (t: number) => {
 		const playhead = head(heard, t);
-		if (playhead <= 0 || playhead >= AXIS) return undefined;
+		if (playhead <= 0 || playhead >= AXIS - 0.01) return undefined;
 		let edge = playhead;
 		for (const s of heard) {
 			if (s.ts + FRAME <= playhead) continue;
@@ -78,15 +77,15 @@ function panel(moq: boolean): Panel {
 		packets,
 		loss,
 		reply: moq
-			? { at: finished + 0.2, text: "“Ha, le pun.”", good: true }
-			: { at: finished + 0.2, text: "“Bring what?!”", good: false },
+			? { at: finished + 0.2, text: "“Huh, I didn’t know that.”", good: true }
+			: { at: finished + 0.2, text: "“Sorry, you cut out. It’s what?”", good: false },
 	};
 }
 
 const PANELS = { webrtc: panel(false), moq: panel(true) };
 
 const LABELS = {
-	webrtc: "Text-to-speech over WebRTC: audio is sent at human speed, and packet loss erases “lots of le capital”.",
+	webrtc: "Text-to-speech over WebRTC: audio is sent at human speed, and packet loss erases half the sentence.",
 	moq: "Text-to-speech over MoQ: audio is sent ahead and buffered, so retransmits arrive before playback needs them.",
 };
 
