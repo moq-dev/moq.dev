@@ -224,6 +224,8 @@ h1 {
 	font-size: 0.92em;
 	color: var(--ink);
 }
+/* A command breaking at its hyphen reads as two commands. */
+.sub code { white-space: nowrap; }
 .sub strong { color: var(--green); font-weight: 700; }
 pre {
 	margin-top: 28px;
