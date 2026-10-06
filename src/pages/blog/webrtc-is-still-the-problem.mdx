@@ -24,7 +24,7 @@ I yearn for a **follow-up**.
 
 ## Hot Take Alert
 Let's say you're a professional prompter working on a voice AI product.\
-Let's say you're both making and burning an obscene amount of cash.\
+Let's say you're both making and burning an obscene amount of cash. (I'll take some)\
 Let's say one of your users vocalizes: `what is le capital of France?`
 
 If your AI ever replies with:
@@ -33,11 +33,8 @@ If your AI ever replies with:
 **You fucked up**. 
 You picked WebRTC for voice AI.
 
-## I Require Context
-Let's philosophize for a bit.
-Pretend like we still have independent thought.
-
-You boot up your favorite application: Codex™. You click on the microphone and grunt:
+## The Speed of You
+You boot up your favorite application: ChatGPT™. You click on the microphone and grunt:
 > What is le capital of France?
 
 **OH NO**, suddenly a surprise **kraken attacken**!
@@ -45,40 +42,35 @@ It nibbles on some underwater cable.
 Some of your packets are lost.
 All too common I'm afraid.
 
-Fortunately, **we don't need all of the context**.
-Our brains are designed to work wth incomplete audio and fill in the blanks:
-
-`What ... capital ... France?` is understandable.\
-`.... ... capital ... France?` is decipherable. \
-`What ... ....... ... France?` is **not enough context**.
-
-(what is France?)
+<SpeechToText transport="webrtc" client:visible />
 
 WebRTC is designed for conference calls, aka real humans and real voices.
-It takes advantage of this principle and will not retransmit audio packets.
+It is hyper aggressive any will drop any late audio packets to keep latency *real-time*.
 Just like Leonardo Dicaprio, anything above 30ms is too old.
 
-To understand why, we must first understand **TIME ITSELF**.
+**Why?**
 
-## Clocks and Rates
 We flesh bags consume/produce audio in "real-time", aka a **human clock rate**.
-Our neurons can only fire so fast.
-We need an IP drip of audio.
+Our neurons can only fire so fast and we don't want to overwhelm them with a surge of audio packets.
 
-WebRTC caters to the flesh.
-It drips out packets at a steady rate.
-It drops our packets at a steady rate.
+But this kind of sucks as a product. 
+You walk out of wifi range, hit a cellular dead zone, or starlink terminal switches satellites.
+Oops, your tokens are now wasted, or worse, **AI tries to guess what you said**.
 
-But **wake up old man**, it's not 2020 any longer.
+Are we doomed to this mediocrity?
+
+## Clock That Solder Boy
+Of course not.
+**Wake up old man**, it's not 2020 any longer.
 The internet is no longer for our flabby lips.
 
 Our robot overlords produce/consume audio based on a **silicon clock rate**.
 We shoved electricity into a rock and now it can read and narrate a library of audio books in minutes.
 What a time to be alive.
 
-Voice agents can **hear and speak** audio faster than real-time.
-Hearing from 5 seconds ago at 20x the speed? No problem.\
-Speaking 30 seconds in advance at 20x the speed? No problem.
+Voice agents can **hear and speak** audio faster than real-time.\
+Listening at 20x the speed? No problem.\
+Speaking at 20x the speed? No problem.
 
 **Humans are the problem.**\
 We speak too slowly, so **speech-to-text** has to wait for us.\
@@ -86,45 +78,88 @@ We hear too slowly, so **text-to-speech** has to wait for us.
 
 Those poor robots.
 
+## I Require Context
+When it comes to LLMs, latency budgets are overblown.
+Any AI usually needs a full sentence before it can reasonably do anything with a prompt.
 
-## Gotta Go Fast
-Back to grunting: `What is le capital of France?`
-It takes 4 seconds for you to utter *those fateful words*.
+Those poor packets that were attacken by the kraken?
+We actually had *seconds* to retransmit them with no latency penalty.
+The AI agent can process faster than real-time to catch up.
 
-**BUT OH NO** another **kraken attacken**!
-The first 1 second of packets are lost.
-Like we established earlier, WebRTC will just give up.
-Your `What`, and thus your context, is lost to the emptiness of the void.
+And audio is *tiny*.
+1s of Opus @ 64Kbps is 6 UDP packets.
+We have **literal seconds** to retransmit **6 packets** and avoid any user impact.
 
-I'm sorry for your ,̶'̶,̶|̶'̶,̶'̶_̶
+So that's what Mr. MoQ does.
 
-**But why give up?**
+<SpeechToText transport="moq" client:visible />
 
-- We have **3 seconds** until the word `Paris` is uttered.
-- We have **3 seconds** to **repair the context** before it is useful.
-- We have **3 seconds** to retransmit literally **6 IP packets**. (Opus @ 64Kb/s)
+All the context arrives and our model we spent billions on no longer has to guess.
 
-If we manage to accomplish this **herculean feat**, mr voice AI can process faster than real-time.
-The user will notice zero impact to the latency or quality of the response.
+## Not Just Mics
+Guess what? 
+WebRTC doesn't just suck for SST, it also sucks for TTS.
+
+
+WebRTC renders audio (and video) based on **when it arrives**.
+I wish I was kidding, there's a timestamp on the wire for each frame but it's more-or-less ignored.
+
+That's quite unfortunate because TTS is generated faster than real-time.
+In order to play back audio at the correct time, you **need to sleep before transmitting each packet**.
+
+And those packets can be lost, will never be retransmitted, tokens burned, yada yada.
+
+<TextToSpeech transport="webrtc" client:visible />
+
+When the kraken attacken, there's no coming backen.
+
+## Random Access Memory
+The solution is to **faster than real-time**.
+
+**WELCOME TO THE FUTURE**.
+
+**RAM** has this amazing property of being stupidly expensive.
+And being able to store stuff locally.
+Instead of sleeping before transmitting, we sleep before playing back.
+
+<TextToSpeech transport="moq" client:visible />
+
+If you've watched any media in the last couple of decades, this is obvious.
+It's how the Youtubes keeps playing even when you lose network connectivity.
+We can do the same thing for your *sick* baking recipe.
+
+And don't you fret, 2 minutes of audio is only 1MB.
+We're never going to approach Chrome levels of usage here.
+
+**Disclaimer**: this behavior is not IETF standardized.
+It's something only my [moq.dev](https://moq.dev) clients (and thus Pipecat) support.
+Be my guest if you want to argue with Cisco.
+
 
 ## Enter the Antagonist
 Then why is [OpenAI using WebRTC](https://openai.com/index/delivering-low-latency-voice-ai-at-scale/)?
 
-It seems like a no-brainer.
 WebRTC is the state of the art for real-time, conversational audio.
 And its available in every browser via [libwebrtc](https://webrtc.googlesource.com/src), a C++ monolith maintained by Google.
 
-**WebRTC is the Google Meet client**.
+**WebRTC *is* the Google Meet client**.
+
 It is designed specifically for their conferencing product, not their voice AI product, and certainly not your product.
-While there is a [disgusting WebRTC standard](https://webrtchacks.com/sdp-anatomy/), it's kind of irrelevant.
-If you want browser support, the only thing that matters is what **Google has decided to implement**.
+That's why it's hard-wired for **human latency**.
+
+If you want browser support, you can only use what **Google has decided to implement**.
+It doesn't matter what's in the [gross standard](https://webrtchacks.com/sdp-anatomy/).
+
+**Fun Fact**: This is why every other conferencing app recommends a native client.
+Otherwise, they can only reach parity with Google Meet *at best*.
+
+## Fix It Fix It Fix It
+
 
 And if you don't want browser support, make your own protocol over UDP.
 **Fun Fact**: This is why every other conferencing app recommends a native client.
 Otherwise, they can only reach parity with Google Meet *at best*.
 
-The problem is that Google Meet, and thus `libwebrtc`, and thus WebRTC, is **hard-wired for human latency**.
-It's a fixable problem, but not by you.
 
 ## A Better Transport
 So that's your hyper deluxe OpenAI voice AI model, after billions invested, has the audacity to ask: 
