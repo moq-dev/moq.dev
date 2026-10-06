@@ -40,6 +40,14 @@ export type Card = {
 
 export const CARDS: Card[] = [
 	{
+		slug: "install",
+		eyebrow: "moq-cli 0.14",
+		title: "Install moq in **one line**.",
+		sub: "The latest `moq` for macOS and Linux. Run it again to upgrade. On Windows, `winget install moq-dev.moq`.",
+		code: "$ curl -fsSL https://moq.sh | sh",
+		note: "yes you can read it first",
+	},
+	{
 		slug: "e2ee",
 		eyebrow: "new crate: moq-e2ee 0.0.1",
 		title: "End-to-end **encrypted** media.",
@@ -206,6 +214,7 @@ export const CARDS: Card[] = [
 			"$ moq-relay --drain-timeout 10s",
 			"$ kill -TERM $(pidof moq-relay)   # every viewer migrates, nobody buffers",
 		].join("\n"),
+		note: "GOAWAY mom, i'm making a network protocol",
 	},
 	{
 		slug: "obs",
