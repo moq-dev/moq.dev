@@ -115,8 +115,10 @@ function codeLine(line: string, lang: Lang): string {
 function html(card: Card): string {
 	// Longer headlines step down so a two-line title never collides with the
 	// code block; the breakpoints are the card lengths that fit at each size.
+	// A card with nothing below the sub (the site's og:image) fills the space.
 	const plain = card.title.replace(/\*\*/g, "");
-	const titleSize = plain.length <= 24 ? 72 : plain.length <= 36 ? 60 : 50;
+	const bare = !card.tiles?.length && !card.code && !card.image;
+	const titleSize = bare ? 96 : plain.length <= 24 ? 72 : plain.length <= 36 ? 60 : 50;
 	const codeLines = card.code?.split("\n") ?? [];
 	const longest = Math.max(0, ...codeLines.map((l) => l.length));
 	const codeSize = longest > 72 || codeLines.length > 7 ? 17 : longest > 56 ? 19 : 22;
@@ -213,8 +215,8 @@ h1 {
 	box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
 }
 .sub {
-	margin-top: 18px;
-	font-size: 23px;
+	margin-top: ${bare ? 32 : 18}px;
+	font-size: ${bare ? 34 : 23}px;
 	line-height: 1.5;
 	color: var(--ink-soft);
 	max-width: 1020px;

@@ -21,4 +21,5 @@ just cards --html     # also write out/<slug>.html, to tweak the layout in a bro
 Change the look in `render.ts`, not per card.
 
 `out/` is ignored. A card is retired from `cards.ts` once posted; the git
-history keeps it.
+history keeps it. The exception is `og`, the site's default `og:image`, which is
+committed as `public/layout/og.png`.
