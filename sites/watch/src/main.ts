@@ -32,7 +32,6 @@ async function mount(broadcast: Broadcast.Broadcast) {
 	const watch = document.createElement("moq-watch");
 	watch.setAttribute("url", relay.toString());
 	watch.setAttribute("name", broadcast.name);
-	watch.setAttribute("reload", "");
 	watch.appendChild(document.createElement("canvas"));
 
 	const ui = document.createElement("moq-watch-ui");
