@@ -2,18 +2,10 @@
 
 ## Goal
 
-The live sites run the current `@moq/*` packages: moq.watch plays from draft-18
-relays, moq.pub mints private `try` broadcasts instead of `/anon` names, and
-the sites host the player worklets once a release ships `assets()`.
-
-## Plan
-
-As of 2026-10-09, live moq.pub still redirects a bare `/` to an invented
-`/anon/...` name: the `try` integration (#136) passed staging but never
-deployed live. One live deploy carries it and the @moq bump.
+The sites host the `@moq` player worklets and workers themselves once a
+release ships `assets()`, so the hosted path gets real traffic.
 
 ## Required
 
-- [Deploy live](/quest/m0/deploy-live.md) - the maintainer ships the bump and the try demos to moq.dev, moq.pub, and moq.watch
 - [A release ships assets()](/quest/m0/assets-release.md) - the hosted worklet files exist on npm to copy
 - [Dogfood hosted worklets](/quest/m0/dogfood-assets.md) - the sites serve the @moq worklets and workers themselves

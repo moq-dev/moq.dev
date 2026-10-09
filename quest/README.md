@@ -15,4 +15,4 @@ its scope, until it is scheduled.
 
 ## Required
 
-- [m0: immediate priorities](/quest/m0/README.md) - the @moq bump for draft-18 relays, the live deploy, and hosted worklets
+- [m0: immediate priorities](/quest/m0/README.md) - hosted worklets once a release ships assets()
