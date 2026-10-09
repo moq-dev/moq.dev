@@ -26,4 +26,3 @@ Guidance:
 ## Required
 
 - [A release ships assets()](/quest/m0/assets-release.md) - the hosted files exist on npm to copy
-- [Bump @moq to the draft-18 release](/quest/m0/moq-bump.md) - lands the API break first, so this only adds assets()
