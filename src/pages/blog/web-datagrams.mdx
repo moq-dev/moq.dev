@@ -1,0 +1,114 @@
+---
+layout: "@/layouts/global.astro"
+title: Web Datagrams
+author: kixelated
+description: Every way to send an unreliable message from a browser, ranked by how much of a hack it is.
+cover: "/blog/web-datagrams/TODO.jpg"
+date: 2026-09-18
+---
+
+# Web Datagrams
+
+TODO: Intro.
+We want unreliable messages in the browser: send a packet, and if it gets lost, *don't* retransmit it.
+Real-time media, game state, anything where a late packet is worse than a missing one.
+
+This post is a tour of every option, roughly in order of increasing desperation.
+
+## Why not WebSocket?
+
+TODO.
+
+- TCP: head-of-line blocking, retransmits everything.
+- HTTP/3 fetch is QUIC underneath, but the browser API is still a reliable stream.
+- Link to [Never* use Datagrams](/blog/never-use-datagrams) for the "do you actually need this" caveat.
+
+## WebRTC Data Channels
+
+TODO.
+
+- SCTP over DTLS. `ordered: false, maxRetransmits: 0` looks like a datagram API.
+- It isn't. See [Distribution at Twitch](/blog/distribution-at-twitch): flow control is scoped per *message*, a message counts against the window until fully received, and large messages deadlock against hard-coded browser limits.
+- SCTP can't drop messages out of order.
+- SCTP congestion control is its own thing, and not a good one.
+- Extra RTTs to negotiate SCTP, then data channels.
+- SCTP ACKs are a ton of extra UDP packets.
+
+### One message per datagram + FORWARD-TSN
+
+TODO.
+
+- Keep each message under the MTU so it never fragments; use [PR-SCTP / FORWARD-TSN](https://www.rfc-editor.org/rfc/rfc3758) so the sender can skip lost ones.
+- Only works native (libwebrtc, pion, etc.). The browser side is still a hack on top of a hack.
+- Still congestion controlled by SCTP.
+
+## WebRTC Encoded Transforms
+
+The media path has no SCTP. RTP is basically a datagram already, so... smuggle arbitrary bytes inside RTP.
+
+### Video: 1x1 frames as payload
+
+TODO.
+
+- Publish a 1x1 video track, use [encoded transforms](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_Encoded_Transform) to replace each encoded frame's bytes with your payload.
+- Receiver's transform pulls the payload back out before it hits the decoder.
+- Gotchas: the packetizer will fragment large "frames" into multiple RTP packets, and the depacketizer needs *all* of them, so you're back to reassembly. Keep it under one packet or accept partial loss = whole loss.
+- Is this still congestion controlled? TODO: check whether the pacer / GCC throttles a track that isn't a real encoder. Probably yes.
+
+### Audio: one packet every 10ms
+
+TODO.
+
+- Audio frames are small enough to never fragment, and the sender emits one every 10ms (or 20ms) like clockwork.
+- No fragmentation, and audio is (mostly) exempt from congestion control.
+- Downside: exactly one packet per 10ms, so bandwidth is capped by the packet rate.
+
+### More tracks, more bandwidth
+
+TODO.
+
+- Each track is another 100 packets/sec. Want more? Add tracks.
+- ~1100 bytes of payload per packet after RTP/DTLS overhead, so 1100 B × 100 pkt/s = 880 kb/s per track.
+- 8 tracks (or 8 connections) ≈ 7 Mb/s. TODO: measurements.
+- TODO: where does this fall over (SDP size, CPU, packet count).
+
+## WebTransport Datagrams
+
+TODO.
+
+- The actual API: `transport.datagrams.writable`. QUIC DATAGRAM frames, no SCTP, no encoded-frame cosplay.
+- Still congestion controlled. Datagrams share the connection's congestion window, so a lossy link means the browser drops them *before* sending rather than letting you decide.
+- Client-server only. No P2P, no ICE, no NAT traversal.
+- Link to [QUIC Powers](/blog/quic-powers) and/or [Never* use Datagrams](/blog/never-use-datagrams) for how MoQ uses (and mostly doesn't use) this.
+
+## Future
+
+### WebTransport P2P
+
+TODO.
+
+- The WebTransport WG [recharter](https://www.w3.org/2026/07/webtransport-wg-charter.html) (effective ~Sep 2026) expands scope to "explore specific low-latency needs" and the "possibility to use WebTransport in P2P operations".
+- The charter says the group is "considering incubating mechanisms for peer-to-peer capability". That is permission to explore, not a deliverable: the normative spec is still WebTransport itself, and the initial version stays client-server.
+- So: P2P is in-bounds now. P2P WebTransport standardized? Not yet, and nothing shipped.
+
+### RTCTransport
+
+TODO.
+
+- Behind a Chrome feature flag. ICE + DTLS with *no* SCTP and no congestion control.
+- Basically "give me the raw pipe". I doubt browsers will let this fly unflagged; an unthrottled UDP socket in a webpage is a DDoS button.
+- TODO: link explainer, and what the congestion control story ends up being.
+
+## TL;DR
+
+TODO: table.
+
+| Approach | Fragmentation | Congestion controlled | P2P | Hack level |
+|---|---|---|---|---|
+| WebSocket | n/a | yes (TCP) | no | 0 |
+| Data channel message | yes | yes (SCTP) | yes | 1 |
+| Data channel + FORWARD-TSN | no | yes (SCTP) | yes | 2, native only |
+| Encoded transform (video) | yes | probably | yes | 3 |
+| Encoded transform (audio) | no | no | yes | 4 |
+| WebTransport datagram | no | yes (QUIC) | no | 0 |
+| RTCTransport | no | no | yes | flagged |
