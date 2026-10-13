@@ -24,9 +24,12 @@ Decided 2026-10-09:
 - **Draw it like `src/components/voice/`.** Reuse its segment colors and
   word layout on a sliding window of live, append-only data, in place of its
   fixed axis and simulated `FLIGHT`.
-- **Reply side** reads `@moq/watch`'s per-frame arrival signal (a bounded
-  window of recent `{timestamp, arrival}` per frame, with late and skipped
-  marks) and maps frames to words with the agent's TTS word timings.
+- **Reply side** reads `@moq/watch`'s per-frame `arrivals()` handle on the
+  audio decoder and maps frames to words with the agent's TTS word timings.
+  It yields each frame's `{timestamp, arrival, late}` and a gap item
+  (`timestamp` and `duration` in `Time.Milli`) where media will never
+  arrive. Its queue is unbounded, so the page keeps its own window. There is
+  no gap at the join: the strip starts on the first frame read.
 - **Prompt side** reads the agent's `voice.json` track on the response
   broadcast: word timings from STT and the arrival time of each request
   audio frame.
