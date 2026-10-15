@@ -38,6 +38,10 @@ const languages = [
 	{ name: "C", icon: "c", href: "https://doc.moq.dev/lib/c/" },
 ];
 
+// A few members of the MoQ Alliance. Most build their own MoQ stack, so they
+// sit apart from the users above.
+const alliance = ["Cloudflare", "Akamai", "AWS", "Fastly", "Cisco", "Intel", "Oracle", "Mux"];
+
 // `icon` is hand-drawn art in public/icons/use-case/.
 const useCases = [
 	{ title: "Robotics", icon: "robotics", body: "Real-time teleoperation, with telemetry and control on the same relays as the video.", href: "/robotics" },
@@ -190,6 +194,13 @@ const useCases = [
 			<a href="mailto:me@kixel.me" class="green-link shrink-0 font-medium">Using MoQ? Tell us</a>
 		</div>
 		<Users class="sm:grid-cols-2 lg:grid-cols-5" />
+		<div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
+			<h3 class="shrink-0 font-semibold text-white">Building the standard with</h3>
+			<div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.95rem] text-slate-400">
+				{alliance.map((name) => <span>{name}</span>)}
+				<a href="https://moqalliance.org/" class="green-link font-medium">and the rest of the MoQ Alliance</a>
+			</div>
+		</div>
 	</section>
 
 	<!-- Production -->
