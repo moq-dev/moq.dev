@@ -2,15 +2,25 @@
 interface Props {
 	// Grid columns, since the reading column is too narrow for four across.
 	class?: string;
+	// Only show users of this use case.
+	useCase?: string;
 }
 
-const { class: columns = "sm:grid-cols-2" } = Astro.props;
+const { class: columns = "sm:grid-cols-2", useCase } = Astro.props;
 
 // Companies running MoQ in production. A null `name` renders as a redaction bar
 // for users who can't be named yet; `redacted` sets the bar's width.
 const users = [
 	{
+		name: "Meta",
+		useCase: "contribution",
+		what: "Live ingest",
+		body: 'Spoke about "Shipping MoQ for Instagram and Facebook Live Ingest" at DEMOQED, the first MoQ conference.',
+		links: [{ text: "DEMOQED program", href: "https://moqalliance.org/demoqed-2026/" }],
+	},
+	{
 		name: "Saronic",
+		useCase: "robotics",
 		what: "Autonomous boats",
 		body: "MoQ is the primary video system across its vessels. One uplink per boat, hundreds of viewers, and nothing sent when nobody is watching.",
 		links: [
@@ -20,18 +30,21 @@ const users = [
 	},
 	{
 		name: "Evolve Robotics",
+		useCase: "robotics",
 		what: "Teleoperation",
 		body: 'Spoke about "MoQ beyond media" at DEMOQED, the first MoQ conference.',
 		links: [{ text: "evolverobotics.com", href: "https://evolverobotics.com/" }],
 	},
-	{ name: null, redacted: "w-32", what: "Drones", body: "That's all we're allowed to say.", links: [] },
-	{ name: null, redacted: "w-24", what: "Drones", body: "Also drones. Also can't say.", links: [] },
+	{ name: null, useCase: "robotics", redacted: "w-32", what: "Drones", body: "That's all we're allowed to say.", links: [] },
+	{ name: null, useCase: "robotics", redacted: "w-24", what: "Drones", body: "Also drones. Also can't say.", links: [] },
 ];
 ---
 
 <div class={`not-prose grid gap-5 ${columns}`}>
 	{
-		users.map((user) => (
+		users
+			.filter((user) => !useCase || user.useCase === useCase)
+			.map((user) => (
 			<div class="card flex flex-col gap-2 p-5">
 				<span class="label">{user.what}</span>
 				{user.name ? (
