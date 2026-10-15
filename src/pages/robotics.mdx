@@ -1,0 +1,34 @@
+---
+layout: "@/layouts/global.astro"
+title: Robotics
+description: MoQ streams video, telemetry, and control for robots on terrible networks.
+---
+
+import Users from "@/components/users.astro";
+
+# Robotics
+
+Robots have a lot of cameras.
+They also tend to be somewhere with a terrible network: cellular, satellite, mesh radio, or nothing at all.
+And everybody wants to watch: the operator, the fleet dashboard, the guy in the back with an iPad.
+
+Existing protocols make the robot pay for every viewer, and for every frame nobody is watching.
+
+## Why MoQ
+
+- **Pull, not push.** A robot only sends the tracks somebody subscribed to. Nobody watching camera 7? Camera 7 doesn't touch the uplink.
+- **One uplink, any number of viewers.** The robot publishes once to a relay, and the relay fans out. Viewer #100 costs the robot nothing.
+- **Latency over quality.** When the link degrades, MoQ skips old frames instead of buffering them. An operator wants what's happening *now*.
+- **More than video.** Telemetry, control, and logs are just more tracks on the same connection and the same relays.
+- **Watch in a browser.** Operators open a tab. No plugins, no WebRTC signaling servers, no VPN to the robot.
+
+I wrote about the pull model in more detail in [On a Boat](/blog/on-a-boat).
+
+## In Production
+
+<Users />
+
+## Yours?
+
+Running MoQ on something that moves? [Tell us](mailto:me@kixel.me), we'd love to brag about it.
+Or don't, and we'll add another black bar.

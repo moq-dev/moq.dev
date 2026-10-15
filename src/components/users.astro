@@ -1,0 +1,55 @@
+---
+interface Props {
+	// Grid columns, since the reading column is too narrow for four across.
+	class?: string;
+}
+
+const { class: columns = "sm:grid-cols-2" } = Astro.props;
+
+// Companies running MoQ in production. A null `name` renders as a redaction bar
+// for users who can't be named yet; `redacted` sets the bar's width.
+const users = [
+	{
+		name: "Saronic",
+		what: "Autonomous boats",
+		body: "MoQ is the primary video system across its vessels. One uplink per boat, hundreds of viewers, and nothing sent when nobody is watching.",
+		links: [
+			{ text: "Their write-up", href: "https://medium.com/saronic-technologies/the-ground-moves-building-on-early-open-source-without-getting-burned-ba2af78beb78" },
+			{ text: "Corsair rescues two Army pilots", href: "https://www.navalnews.com/naval-news/2026/06/saronic-usv-rescues-two-u-s-army-pilots-downed-by-iran/" },
+		],
+	},
+	{
+		name: "Evolve Robotics",
+		what: "Teleoperation",
+		body: 'Spoke about "MoQ beyond media" at DEMOQED, the first MoQ conference.',
+		links: [{ text: "evolverobotics.com", href: "https://evolverobotics.com/" }],
+	},
+	{ name: null, redacted: "w-32", what: "Drones", body: "That's all we're allowed to say.", links: [] },
+	{ name: null, redacted: "w-24", what: "Drones", body: "Also drones. Also can't say.", links: [] },
+];
+---
+
+<div class={`not-prose grid gap-5 ${columns}`}>
+	{
+		users.map((user) => (
+			<div class="card flex flex-col gap-2 p-5">
+				<span class="label">{user.what}</span>
+				{user.name ? (
+					<h3 class="text-[1.2rem] font-semibold text-white">{user.name}</h3>
+				) : (
+					<h3 class={`my-0.5 h-6 ${user.redacted} -rotate-1 bg-black`} aria-label="Redacted" />
+				)}
+				<p class="text-[0.9rem] leading-relaxed text-slate-400">{user.body}</p>
+				{user.links.length > 0 && (
+					<div class="mt-auto flex flex-col gap-1 pt-2 text-[0.9rem]">
+						{user.links.map((link) => (
+							<a href={link.href} class="green-link">
+								{link.text}
+							</a>
+						))}
+					</div>
+				)}
+			</div>
+		))
+	}
+</div>
