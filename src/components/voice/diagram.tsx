@@ -26,7 +26,13 @@ export interface Panel {
 	bottom: Track;
 	packets: Packet[];
 	loss: Loss;
-	reply: { at: number; text: string; good: boolean }; // what the bottom lane says back
+	replies: Reply[]; // what the bottom lane says, in order; each replaces the last
+}
+
+export interface Reply {
+	at: number;
+	text: string;
+	good?: boolean; // undefined is neutral
 }
 
 export interface Props {
@@ -60,10 +66,11 @@ const COLOR = {
 	ink: "#052e16", // words, drawn on top of the green fill
 	text: "#f1f5f9",
 	dim: "#475569",
+	neutral: "#94a3b8",
 };
 
 export function Diagram(props: Props) {
-	const end = props.panel.reply.at + 0.5;
+	const end = (props.panel.replies.at(-1)?.at ?? 0) + 0.5;
 	const [t, setT] = createSignal(0);
 	const [playing, setPlaying] = createSignal(false);
 	const now = () => Math.min(t(), end);
@@ -160,7 +167,9 @@ export function Diagram(props: Props) {
 					<Network {...view} packets={p.packets} loss={p.loss} />
 					<TrackView {...view} track={p.top} y={TOP_Y} name="top" notes="below" />
 					<TrackView {...view} track={p.bottom} y={BOTTOM_Y} name="bottom" notes="above" />
-					<Bubble reply={p.reply} t={now} />
+					<For each={p.replies}>
+						{(reply) => <Bubble reply={reply} show={p.replies.findLast((r) => now() >= r.at) === reply} />}
+					</For>
 				</svg>
 			</div>
 
@@ -341,7 +350,7 @@ function SegmentView(props: { s: Segment; t: Accessor<number>; x: number; y: num
 	const missing = () => has(props.s.missing, props.t()) && !have() && !lost();
 
 	return (
-		<g>
+		<Show when={!has(props.s.flushed, props.t())}>
 			<Show when={have() && !lost()}>
 				<rect x={props.x} y={props.y} width={props.w} height={TRACK_H} fill={COLOR.have} />
 			</Show>
@@ -362,7 +371,7 @@ function SegmentView(props: { s: Segment; t: Accessor<number>; x: number; y: num
 			<Show when={lost()}>
 				<rect x={props.x} y={props.y} width={props.w} height={TRACK_H} fill={props.hatch} />
 			</Show>
-		</g>
+		</Show>
 	);
 }
 
@@ -376,19 +385,23 @@ function WordView(props: {
 }) {
 	const overlap = props.segments.filter((s) => s.ts < props.word.end && s.ts + FRAME > props.word.start);
 	const lost = () => overlap.some((s) => has(s.lost, props.t()));
+	const exists = () =>
+		(props.word.from === undefined || has(props.word.from, props.t())) && !has(props.word.until, props.t());
 
 	const x1 = props.x(props.word.start);
 	const x2 = props.x(props.word.end);
 	const mid = props.y + TRACK_H / 2;
 
 	return (
-		<Show
-			when={!lost()}
-			fallback={<SpriteView sprite={ART.garbled} t={props.t} x={(x1 + x2) / 2} y={mid} w={x2 - x1} h={16} stretch />}
-		>
-			<text x={(x1 + x2) / 2} y={mid + 5} text-anchor="middle" font-weight="bold" fill={COLOR.ink}>
-				{props.word.text}
-			</text>
+		<Show when={exists()}>
+			<Show
+				when={!lost()}
+				fallback={<SpriteView sprite={ART.garbled} t={props.t} x={(x1 + x2) / 2} y={mid} w={x2 - x1} h={16} stretch />}
+			>
+				<text x={(x1 + x2) / 2} y={mid + 5} text-anchor="middle" font-weight="bold" fill={COLOR.ink}>
+					{props.word.text}
+				</text>
+			</Show>
 		</Show>
 	);
 }
@@ -466,15 +479,15 @@ function PacketView(props: { p: Packet; t: Accessor<number>; x: number; y0: numb
 }
 
 // The bottom lane's reply, in a speech bubble pointing back at its avatar.
-function Bubble(props: { reply: Panel["reply"]; t: Accessor<number> }) {
-	const color = props.reply.good ? COLOR.done : COLOR.lost;
+function Bubble(props: { reply: Reply; show: boolean }) {
+	const color = props.reply.good === undefined ? COLOR.neutral : props.reply.good ? COLOR.done : COLOR.lost;
 	// SVG text can't be measured before render; ~7.5 units per character at 13px is close enough.
 	const w = props.reply.text.length * 7.5 + 28;
 	const x = GUTTER;
 	const y = BUBBLE_Y;
 
 	return (
-		<g opacity={props.t() >= props.reply.at ? 1 : 0} style={{ transition: "opacity 0.3s" }}>
+		<g opacity={props.show ? 1 : 0} style={{ transition: "opacity 0.3s" }}>
 			<path
 				d={`M${x + 12} ${y} L${x - 8} ${y - 10} L${x + 26} ${y}`}
 				fill={COLOR.track}

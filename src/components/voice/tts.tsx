@@ -2,7 +2,7 @@
 import { Diagram, type Panel } from "./diagram";
 import { arrival, FLIGHT, FRAME, frames, has, head, type Segment, transmit } from "./sim";
 
-const WORDS = [
+export const WORDS = [
 	{ text: "Paris.", start: 0.1, end: 0.61 },
 	{ text: "It's", start: 0.93, end: 1.27 },
 	{ text: "been", start: 1.44, end: 1.78 },
@@ -76,9 +76,11 @@ function panel(moq: boolean): Panel {
 		bottom: { who: "you", words: WORDS, segments: heard, note: buffered },
 		packets,
 		loss,
-		reply: moq
-			? { at: finished + 0.2, text: "“Huh, I didn’t know that.”", good: true }
-			: { at: finished + 0.2, text: "“Sorry, you cut out. It’s what?”", good: false },
+		replies: [
+			moq
+				? { at: finished + 0.2, text: "“Huh, I didn’t know that.”", good: true }
+				: { at: finished + 0.2, text: "“Sorry, you cut out. It’s what?”", good: false },
+		],
 	};
 }
 

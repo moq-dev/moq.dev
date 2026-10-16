@@ -11,6 +11,8 @@ export interface Word {
 	text: string;
 	start: number;
 	end: number;
+	from?: number; // wall-clock window the word exists in, for audio that gets replaced
+	until?: number;
 }
 
 // A packet-sized slice of a track, keyed by media timestamp.
@@ -22,6 +24,7 @@ export interface Segment {
 	done?: number; // consumption finishes
 	missing?: number; // known to be missing, waiting on a retransmit
 	lost?: number; // given up on
+	flushed?: number; // thrown away unconsumed, along with the rest of its track
 }
 
 export interface Packet {
@@ -72,6 +75,7 @@ export function has(at: number | undefined, t: number): boolean {
 export function head(segments: Segment[], t: number): number {
 	let pos = 0;
 	for (const s of segments) {
+		if (has(s.flushed, t)) continue;
 		if (has(s.lost, t)) pos = Math.max(pos, s.ts + FRAME);
 		const f = fill(s, t);
 		if (f > 0) pos = Math.max(pos, s.ts + FRAME * f);
@@ -81,7 +85,7 @@ export function head(segments: Segment[], t: number): number {
 
 // When consumption reaches media timestamp `ts`, the inverse of head().
 export function reach(segments: Segment[], ts: number): number | undefined {
-	const s = segments.find((s) => ts < s.ts + FRAME);
+	const s = segments.find((s) => ts < s.ts + FRAME && (s.start !== undefined || s.lost !== undefined));
 	if (s?.lost !== undefined) return s.lost;
 	if (s?.start === undefined || s.done === undefined) return undefined;
 	return s.start + ((s.done - s.start) * Math.max(0, ts - s.ts)) / FRAME;

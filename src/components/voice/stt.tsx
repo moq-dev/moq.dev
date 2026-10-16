@@ -57,9 +57,11 @@ function panel(retransmit: boolean): Panel {
 		bottom: { who: "ai", words: WORDS, segments: heard, note },
 		packets,
 		loss: LOSS,
-		reply: retransmit
-			? { at: finished + 0.3, text: "“Paris.”", good: true }
-			: { at: finished + 0.3, text: "“France is a country in Western Europe.”", good: false },
+		replies: [
+			retransmit
+				? { at: finished + 0.3, text: "“Paris.”", good: true }
+				: { at: finished + 0.3, text: "“France is a country in Western Europe.”", good: false },
+		],
 	};
 }
 
