@@ -2,7 +2,7 @@
 import { Diagram, type Panel } from "./diagram";
 import { arrival, FLIGHT, FRAME, frames, has, head, type Segment, transmit } from "./sim";
 
-const WORDS = [
+export const WORDS = [
 	{ text: "What", start: 0.1, end: 0.5 },
 	{ text: "is", start: 0.6, end: 0.8 },
 	{ text: "le", start: 0.9, end: 1.1 },

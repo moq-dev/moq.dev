@@ -10,6 +10,7 @@ date: 2026-07-31
 import SpeechToText from "@/components/voice/stt";
 import TextToSpeech from "@/components/voice/tts";
 import Interrupt from "@/components/voice/interrupt";
+import Budget from "@/components/voice/budget";
 import VoiceDemo from "@/components/voice-demo.astro";
 import Author from "@/components/author.astro";
 
@@ -324,6 +325,8 @@ Fuck that noise, MoQ supports every latency target:
 Every subscription includes how long the **subscriber is willing to wait**.
 Your real-time model can have a maximum latency of 1s while your more accurate model might have a maximum latency of 10s.
 Both get coalesced into a single upstream subscription so it scales horizontally.
+
+<Budget client:visible />
 
 **Your transport latency SHOULD be aligned with your product latency budget.**
 

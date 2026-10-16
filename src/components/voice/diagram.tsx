@@ -17,7 +17,8 @@ export interface Track {
 	words: Word[];
 	segments: Segment[];
 	note?: (t: number) => string | undefined;
-	label?: { text: string; at: number }; // shown in the lane once it exists; the lane is faded before then
+	// Shown inside the lane, at its start or end. With `at`, the lane is faded until then.
+	label?: { text: string; at?: number; align?: "start" | "end" };
 }
 
 export interface Panel {
@@ -298,7 +299,8 @@ function TrackView(props: ViewProps & { track: Track; y: number; name: string; n
 		}
 		return edge;
 	};
-	const created = () => props.track.label === undefined || has(props.track.label.at, props.t());
+	const created = () => props.track.label?.at === undefined || has(props.track.label.at, props.t());
+	const end = props.track.label?.align === "end";
 
 	// Keep the note on the track: hang it off the left of the playhead once it's past halfway.
 	const right = () => props.x(pos()) > W * 0.55;
@@ -338,8 +340,9 @@ function TrackView(props: ViewProps & { track: Track; y: number; name: string; n
 
 			<Show when={props.track.label && created()}>
 				<text
-					x={GUTTER + 10}
+					x={end ? GUTTER + TRACK_W - 10 : GUTTER + 10}
 					y={props.y + TRACK_H / 2 + 4}
+					text-anchor={end ? "end" : "start"}
 					fill={COLOR.neutral}
 					font-size="11"
 					font-family="'JetBrains Mono', monospace"
