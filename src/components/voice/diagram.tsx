@@ -22,8 +22,8 @@ export interface Track {
 export interface Panel {
 	title: string;
 	subtitle: string;
-	top: Track;
-	bottom: Track;
+	top: Track[]; // stacked lanes, one per track; the network sits between the two sides
+	bottom: Track[];
 	packets: Packet[];
 	loss: Loss;
 	replies: Reply[]; // what the bottom lane says, in order; each replaces the last
@@ -38,7 +38,7 @@ export interface Reply {
 export interface Props {
 	axis: number; // media seconds shown on the x-axis
 	panel: Panel;
-	legend: { have: string; done: string };
+	legend: { have: string; done: string; lost?: string };
 	label: string; // accessible description of the whole animation
 }
 
@@ -51,11 +51,14 @@ const GUTTER = 64;
 const TRACK_W = W - GUTTER - 4;
 const TRACK_H = 32;
 const AVATAR = 44;
+const LANE_GAP = 8;
+const NET_H = 78;
 const TOP_Y = 6;
-const BOTTOM_Y = 116;
-const BUBBLE_Y = BOTTOM_Y + TRACK_H + 16;
 const BUBBLE_H = 30;
-const H = BUBBLE_Y + BUBBLE_H + 4;
+
+// The y of each lane on a side, top to bottom.
+const lanes = (y: number, count: number) => Array.from({ length: count }, (_, i) => y + i * (TRACK_H + LANE_GAP));
+const span = (count: number) => count * TRACK_H + (count - 1) * LANE_GAP;
 
 const COLOR = {
 	done: "#22c55e",
@@ -137,7 +140,12 @@ export function Diagram(props: Props) {
 
 	const p = props.panel;
 	const retransmits = p.packets.some((p) => p.rtx !== undefined);
-	const losses = [...p.top.segments, ...p.bottom.segments].some((s) => s.lost !== undefined);
+	const losses = [...p.top, ...p.bottom].some((track) => track.segments.some((s) => s.lost !== undefined));
+
+	const netY = TOP_Y + span(p.top.length);
+	const bottomY = netY + NET_H;
+	const bubbleY = bottomY + span(p.bottom.length) + 16;
+	const h = bubbleY + BUBBLE_H + 4;
 
 	return (
 		<figure ref={root} class="not-prose card my-8 select-none p-4 sm:p-5">
@@ -157,18 +165,18 @@ export function Diagram(props: Props) {
 				aria-valuetext={`${now().toFixed(1)} seconds`}
 				onKeyDown={key}
 			>
-				<svg viewBox={`0 0 ${W} ${H}`} class="block w-full" font-size="14" aria-hidden="true">
+				<svg viewBox={`0 0 ${W} ${h}`} class="block w-full" font-size="14" aria-hidden="true">
 					<defs>
 						<pattern id={`${id}-lost`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
 							<rect width="6" height="6" fill="rgba(239, 68, 68, 0.2)" />
 							<rect width="2" height="6" fill={COLOR.lost} />
 						</pattern>
 					</defs>
-					<Network {...view} packets={p.packets} loss={p.loss} />
-					<TrackView {...view} track={p.top} y={TOP_Y} name="top" notes="below" />
-					<TrackView {...view} track={p.bottom} y={BOTTOM_Y} name="bottom" notes="above" />
+					<Network {...view} packets={p.packets} loss={p.loss} y0={netY} y1={bottomY} />
+					<Side {...view} tracks={p.top} y={TOP_Y} name="top" notes="below" />
+					<Side {...view} tracks={p.bottom} y={bottomY} name="bottom" notes="above" />
 					<For each={p.replies}>
-						{(reply) => <Bubble reply={reply} show={p.replies.findLast((r) => now() >= r.at) === reply} />}
+						{(reply) => <Bubble reply={reply} y={bubbleY} show={p.replies.findLast((r) => now() >= r.at) === reply} />}
 					</For>
 				</svg>
 			</div>
@@ -191,7 +199,7 @@ export function Diagram(props: Props) {
 					<Swatch stroke={COLOR.missing}>waiting for retransmit</Swatch>
 				</Show>
 				<Show when={losses}>
-					<Swatch fill={`url(#${id}-lost)`}>lost forever</Swatch>
+					<Swatch fill={`url(#${id}-lost)`}>{props.legend.lost ?? "lost forever"}</Swatch>
 				</Show>
 			</div>
 		</figure>
@@ -253,6 +261,25 @@ function SpriteView(props: {
 	);
 }
 
+// One side's avatar beside its stack of lanes.
+function Side(props: ViewProps & { tracks: Track[]; y: number; name: string; notes: "above" | "below" }) {
+	const ys = lanes(props.y, props.tracks.length);
+	return (
+		<g>
+			<SpriteView
+				sprite={ART[props.tracks[0].who]}
+				t={props.t}
+				x={GUTTER / 2 - 4}
+				y={props.y + span(props.tracks.length) / 2}
+				w={AVATAR}
+			/>
+			<For each={props.tracks}>
+				{(track, i) => <TrackView {...props} track={track} y={ys[i()]} name={`${props.name}-${i()}`} />}
+			</For>
+		</g>
+	);
+}
+
 function TrackView(props: ViewProps & { track: Track; y: number; name: string; notes: "above" | "below" }) {
 	const w = props.x(FRAME) - props.x(0);
 	const pos = () => head(props.track.segments, props.t());
@@ -265,8 +292,6 @@ function TrackView(props: ViewProps & { track: Track; y: number; name: string; n
 
 	return (
 		<g>
-			<SpriteView sprite={ART[props.track.who]} t={props.t} x={GUTTER / 2 - 4} y={props.y + TRACK_H / 2} w={AVATAR} />
-
 			<clipPath id={bar}>
 				<rect x={GUTTER} y={props.y} width={TRACK_W} height={TRACK_H} rx="8" />
 			</clipPath>
@@ -350,7 +375,7 @@ function SegmentView(props: { s: Segment; t: Accessor<number>; x: number; y: num
 	const missing = () => has(props.s.missing, props.t()) && !have() && !lost();
 
 	return (
-		<Show when={!has(props.s.flushed, props.t())}>
+		<g>
 			<Show when={have() && !lost()}>
 				<rect x={props.x} y={props.y} width={props.w} height={TRACK_H} fill={COLOR.have} />
 			</Show>
@@ -371,7 +396,7 @@ function SegmentView(props: { s: Segment; t: Accessor<number>; x: number; y: num
 			<Show when={lost()}>
 				<rect x={props.x} y={props.y} width={props.w} height={TRACK_H} fill={props.hatch} />
 			</Show>
-		</Show>
+		</g>
 	);
 }
 
@@ -385,30 +410,26 @@ function WordView(props: {
 }) {
 	const overlap = props.segments.filter((s) => s.ts < props.word.end && s.ts + FRAME > props.word.start);
 	const lost = () => overlap.some((s) => has(s.lost, props.t()));
-	const exists = () =>
-		(props.word.from === undefined || has(props.word.from, props.t())) && !has(props.word.until, props.t());
 
 	const x1 = props.x(props.word.start);
 	const x2 = props.x(props.word.end);
 	const mid = props.y + TRACK_H / 2;
 
 	return (
-		<Show when={exists()}>
-			<Show
-				when={!lost()}
-				fallback={<SpriteView sprite={ART.garbled} t={props.t} x={(x1 + x2) / 2} y={mid} w={x2 - x1} h={16} stretch />}
-			>
-				<text x={(x1 + x2) / 2} y={mid + 5} text-anchor="middle" font-weight="bold" fill={COLOR.ink}>
-					{props.word.text}
-				</text>
-			</Show>
+		<Show
+			when={!lost()}
+			fallback={<SpriteView sprite={ART.garbled} t={props.t} x={(x1 + x2) / 2} y={mid} w={x2 - x1} h={16} stretch />}
+		>
+			<text x={(x1 + x2) / 2} y={mid + 5} text-anchor="middle" font-weight="bold" fill={COLOR.ink}>
+				{props.word.text}
+			</text>
 		</Show>
 	);
 }
 
-function Network(props: ViewProps & { packets: Packet[]; loss: Loss }) {
-	const y0 = TOP_Y + TRACK_H;
-	const y1 = BOTTOM_Y;
+function Network(props: ViewProps & { packets: Packet[]; loss: Loss; y0: number; y1: number }) {
+	const y0 = props.y0;
+	const y1 = props.y1;
 	const mid = (y0 + y1) / 2;
 
 	// The kraken eats every packet sent while it's around; shade the slice it has chewed so far.
@@ -479,12 +500,12 @@ function PacketView(props: { p: Packet; t: Accessor<number>; x: number; y0: numb
 }
 
 // The bottom lane's reply, in a speech bubble pointing back at its avatar.
-function Bubble(props: { reply: Reply; show: boolean }) {
+function Bubble(props: { reply: Reply; y: number; show: boolean }) {
 	const color = props.reply.good === undefined ? COLOR.neutral : props.reply.good ? COLOR.done : COLOR.lost;
 	// SVG text can't be measured before render; ~7.5 units per character at 13px is close enough.
 	const w = props.reply.text.length * 7.5 + 28;
 	const x = GUTTER;
-	const y = BUBBLE_Y;
+	const y = props.y;
 
 	return (
 		<g opacity={props.show ? 1 : 0} style={{ transition: "opacity 0.3s" }}>

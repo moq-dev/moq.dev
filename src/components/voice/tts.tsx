@@ -72,8 +72,8 @@ function panel(moq: boolean): Panel {
 	return {
 		title: moq ? "MoQ" : "WebRTC",
 		subtitle: moq ? "sends everything ASAP, the player buffers" : "sends at human speed, gives up on late audio",
-		top: { who: "ai", words: WORDS, segments: spoken, note: moq ? undefined : queued },
-		bottom: { who: "you", words: WORDS, segments: heard, note: buffered },
+		top: [{ who: "ai", words: WORDS, segments: spoken, note: moq ? undefined : queued }],
+		bottom: [{ who: "you", words: WORDS, segments: heard, note: buffered }],
 		packets,
 		loss,
 		replies: [

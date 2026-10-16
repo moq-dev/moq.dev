@@ -53,8 +53,8 @@ function panel(retransmit: boolean): Panel {
 	return {
 		title: retransmit ? "MoQ" : "WebRTC",
 		subtitle: retransmit ? "retransmits for up to 5s" : "gives up on late audio",
-		top: { who: "you", words: WORDS, segments: SPOKEN },
-		bottom: { who: "ai", words: WORDS, segments: heard, note },
+		top: [{ who: "you", words: WORDS, segments: SPOKEN }],
+		bottom: [{ who: "ai", words: WORDS, segments: heard, note }],
 		packets,
 		loss: LOSS,
 		replies: [
