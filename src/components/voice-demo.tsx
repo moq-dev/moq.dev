@@ -301,12 +301,16 @@ export default function VoiceDemo() {
 		});
 	};
 
-	const onMessage = (gen: number, { type, data }: RtviMessage) => {
+	// RTVI 2.x repeats a bot sentence on every spoken word as progress, all under
+	// one segment_id, so only the first message per segment is new text.
+	const onMessage = (gen: number, segments: Set<unknown>, { type, data }: RtviMessage) => {
 		const text = data?.text;
 		if (gen !== generation || typeof text !== "string") return;
 		if (type === "user-transcription") addLine("you", text, data?.final === true);
-		// Word-level events repeat the sentence that follows them.
-		if (type === "bot-output" && data?.aggregated_by !== "word") addLine("bot", text, true);
+		if (type === "bot-output" && !segments.has(data?.segment_id)) {
+			segments.add(data?.segment_id);
+			addLine("bot", text, true);
+		}
 	};
 
 	// Our side of RTVI: announce the client the moment the broadcast exists, so
@@ -330,6 +334,7 @@ export default function VoiceDemo() {
 
 	const bindWatch = (effects: Signals.Effect, el: MoqWatch, gen: number, admitted: Session) => {
 		let seen = false;
+		const segments = new Set<unknown>();
 		effects.run((effect) => {
 			const active = effect.get(el.broadcast.out.active);
 			if (!active) {
@@ -343,7 +348,7 @@ export default function VoiceDemo() {
 			effect.cleanup(() => track.close());
 			const consumer = new Json.Stream.Consumer<RtviMessage>(track, { compression: true });
 			effect.spawn(async () => {
-				for await (const message of consumer) onMessage(gen, message);
+				for await (const message of consumer) onMessage(gen, segments, message);
 			});
 		});
 	};
