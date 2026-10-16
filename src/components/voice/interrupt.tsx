@@ -3,23 +3,32 @@ import { Diagram, type Panel } from "./diagram";
 import { arrival, FLIGHT, FRAME, frames, head, type Packet, type Segment, transmit, type Word } from "./sim";
 import { WORDS } from "./tts";
 
-const AXIS = 5.4;
+const AXIS = 3.6;
 const GENERATE = 10; // the model speaks 10x faster than real-time
 const THROUGHPUT = 3; // MoQ sends as fast as the network allows
 const DELAY = 0.5; // the player starts playback after a short delay
 const NONE = { start: 0, end: 0 }; // no packet loss, the network is fine
 
-const STOP = 1.7; // you say "stop", partway through "It's"
+const STOP = 0.9; // you say "stop" partway through "Paris."
 const HEARD = STOP + FLIGHT; // the AI hears you, discards the old track, and starts a new one
-const CUT = 1.8; // the media timestamp the new track starts at, right after "been"
-const OKAY: Word[] = [{ text: "Okay.", start: 1.9, end: 2.3 }];
+const CUT = 1.0; // the media timestamp the new track starts at, right before "Home"
+const REPLY: Word[] = [
+	{ text: "Okay,", start: 1.1, end: 1.5 },
+	{ text: "what", start: 1.65, end: 1.85 },
+	{ text: "should", start: 1.95, end: 2.2 },
+	{ text: "we", start: 2.3, end: 2.4 },
+	{ text: "discuss", start: 2.5, end: 2.95 },
+	{ text: "next?", start: 3.05, end: 3.4 },
+];
+const REPLY_END = 3.5;
 
 const generated = (ts: number) => (ts + FRAME) / GENERATE;
+const regenerated = (ts: number) => HEARD + (ts - CUT + FRAME) / GENERATE;
 
-function spoken(packets: Packet[], discard?: number): Segment[] {
+function spoken(packets: Packet[], made: (ts: number) => number, discard?: number): Segment[] {
 	return packets.map((p) => ({
 		ts: p.ts,
-		have: Math.min(p.sent, generated(p.ts)),
+		have: made(p.ts),
 		start: p.sent,
 		done: p.sent + FRAME / THROUGHPUT,
 		lost: discard !== undefined && p.ts >= CUT ? discard : undefined,
@@ -45,7 +54,7 @@ function same(): Panel {
 	return {
 		title: "MoQ",
 		subtitle: "one track, the player keeps its buffer",
-		top: [{ who: "ai", words: WORDS, segments: spoken(old) }],
+		top: [{ who: "ai", words: WORDS, segments: spoken(old, generated) }],
 		bottom: [{ who: "you", words: WORDS, segments: played, note }],
 		packets: old,
 		loss: NONE,
@@ -58,8 +67,8 @@ function same(): Panel {
 
 function replace(): Panel {
 	const fresh = transmit(
-		frames(CUT + 0.6).filter((ts) => ts >= CUT),
-		(ts) => HEARD + (ts - CUT + FRAME) / GENERATE,
+		frames(REPLY_END).filter((ts) => ts >= CUT),
+		regenerated,
 		NONE,
 		false,
 	);
@@ -72,18 +81,18 @@ function replace(): Panel {
 		title: "MoQ",
 		subtitle: "a new track replaces the old one, and its buffer is discarded",
 		top: [
-			{ who: "ai", words: WORDS, segments: spoken(old, HEARD) },
-			{ who: "ai", words: OKAY, segments: spoken(fresh) },
+			{ who: "ai", words: WORDS, segments: spoken(old, generated, HEARD) },
+			{ who: "ai", words: REPLY, segments: spoken(fresh, regenerated), label: { text: "new track", at: HEARD } },
 		],
 		bottom: [
 			{ who: "you", words: WORDS, segments: heard(old, swap), note },
-			{ who: "you", words: OKAY, segments: heard(fresh) },
+			{ who: "you", words: REPLY, segments: heard(fresh), label: { text: "new track", at: swap } },
 		],
 		packets: [...old, ...fresh],
 		loss: NONE,
 		replies: [
 			{ at: STOP, text: "“Stop!”" },
-			{ at: CUT + 0.6 + DELAY + 0.2, text: "“Thanks.”", good: true },
+			{ at: REPLY_END + DELAY + 0.2, text: "“Croissants.”", good: true },
 		],
 	};
 }

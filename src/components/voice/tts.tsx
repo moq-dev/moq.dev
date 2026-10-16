@@ -3,21 +3,17 @@ import { Diagram, type Panel } from "./diagram";
 import { arrival, FLIGHT, FRAME, frames, has, head, type Segment, transmit } from "./sim";
 
 export const WORDS = [
-	{ text: "Paris.", start: 0.1, end: 0.61 },
-	{ text: "It's", start: 0.93, end: 1.27 },
-	{ text: "been", start: 1.44, end: 1.78 },
-	{ text: "the", start: 1.95, end: 2.21 },
-	{ text: "capital", start: 2.38, end: 2.98 },
-	{ text: "for", start: 3.15, end: 3.41 },
-	{ text: "a", start: 3.58, end: 3.73 },
-	{ text: "thousand", start: 3.9, end: 4.58 },
-	{ text: "years.", start: 4.75, end: 5.26 },
+	{ text: "Paris.", start: 0.1, end: 0.6 },
+	{ text: "Home", start: 1.0, end: 1.35 },
+	{ text: "of", start: 1.5, end: 1.65 },
+	{ text: "le", start: 1.8, end: 1.95 },
+	{ text: "croissant.", start: 2.15, end: 2.95 },
 ];
 
-const AXIS = 5.4;
+const AXIS = 3.1;
 // The same stretch of audio is lost on both transports, by media timestamp, so they lose the same words:
-// "been the capital for", leaving "It's … a thousand years."
-const LOST = { start: 1.4, end: 3.45 };
+// "of le croissant.", leaving "Paris. Home …"
+const LOST = { start: 1.45, end: 3.0 };
 
 const GENERATE = 10; // the model speaks 10x faster than real-time
 const THROUGHPUT = 3; // MoQ sends as fast as the (congested) network allows
@@ -79,7 +75,7 @@ function panel(moq: boolean): Panel {
 		replies: [
 			moq
 				? { at: finished + 0.2, text: "“Huh, I didn’t know that.”", good: true }
-				: { at: finished + 0.2, text: "“Sorry, you cut out. It’s what?”", good: false },
+				: { at: finished + 0.2, text: "“Sorry, you cut out. Home of what?”", good: false },
 		],
 	};
 }

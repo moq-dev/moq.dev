@@ -17,6 +17,7 @@ export interface Track {
 	words: Word[];
 	segments: Segment[];
 	note?: (t: number) => string | undefined;
+	label?: { text: string; at: number }; // shown in the lane once it exists; the lane is faded before then
 }
 
 export interface Panel {
@@ -67,6 +68,7 @@ const COLOR = {
 	lost: "#ef4444",
 	track: "#0f172a",
 	ink: "#052e16", // words, drawn on top of the green fill
+	faint: "rgba(220, 252, 231, 0.5)", // words that are available but not yet consumed
 	text: "#f1f5f9",
 	dim: "#475569",
 	neutral: "#94a3b8",
@@ -286,18 +288,32 @@ function TrackView(props: ViewProps & { track: Track; y: number; name: string; n
 	const note = () => props.track.note?.(props.t());
 	const bar = `${props.id}-${props.name}-bar`;
 	const said = `${props.id}-${props.name}-said`;
+	const avail = `${props.id}-${props.name}-avail`;
+
+	// How far the available (light green) audio reaches, for the faint words.
+	const edge = () => {
+		let edge = 0;
+		for (const s of props.track.segments) {
+			if (has(s.have, props.t()) && !has(s.lost, props.t())) edge = Math.max(edge, s.ts + FRAME);
+		}
+		return edge;
+	};
+	const created = () => props.track.label === undefined || has(props.track.label.at, props.t());
 
 	// Keep the note on the track: hang it off the left of the playhead once it's past halfway.
 	const right = () => props.x(pos()) > W * 0.55;
 
 	return (
-		<g>
+		<g opacity={created() ? 1 : 0.35}>
 			<clipPath id={bar}>
 				<rect x={GUTTER} y={props.y} width={TRACK_W} height={TRACK_H} rx="8" />
 			</clipPath>
 			{/* Words only appear once they've been said (or heard), so the reader sees them arrive. */}
 			<clipPath id={said}>
 				<rect x={GUTTER} y={props.y} width={Math.max(0, props.x(pos()) - GUTTER)} height={TRACK_H} />
+			</clipPath>
+			<clipPath id={avail}>
+				<rect x={GUTTER} y={props.y} width={Math.max(0, props.x(edge()) - GUTTER)} height={TRACK_H} />
 			</clipPath>
 
 			{/* crispEdges, or the 100ms segments show seams between them. */}
@@ -320,6 +336,23 @@ function TrackView(props: ViewProps & { track: Track; y: number; name: string; n
 				stroke-width="1"
 			/>
 
+			<Show when={props.track.label && created()}>
+				<text
+					x={GUTTER + 10}
+					y={props.y + TRACK_H / 2 + 4}
+					fill={COLOR.neutral}
+					font-size="11"
+					font-family="'JetBrains Mono', monospace"
+				>
+					{props.track.label?.text}
+				</text>
+			</Show>
+
+			<g clip-path={`url(#${avail})`}>
+				<For each={props.track.words}>
+					{(word) => <WordView word={word} segments={props.track.segments} t={props.t} x={props.x} y={props.y} faint />}
+				</For>
+			</g>
 			<g clip-path={`url(#${said})`}>
 				<For each={props.track.words}>
 					{(word) => <WordView word={word} segments={props.track.segments} t={props.t} x={props.x} y={props.y} />}
@@ -407,6 +440,7 @@ function WordView(props: {
 	t: Accessor<number>;
 	x: (ts: number) => number;
 	y: number;
+	faint?: boolean; // available but not consumed: lighter, and lost words are left to the solid layer
 }) {
 	const overlap = props.segments.filter((s) => s.ts < props.word.end && s.ts + FRAME > props.word.start);
 	const lost = () => overlap.some((s) => has(s.lost, props.t()));
@@ -418,9 +452,19 @@ function WordView(props: {
 	return (
 		<Show
 			when={!lost()}
-			fallback={<SpriteView sprite={ART.garbled} t={props.t} x={(x1 + x2) / 2} y={mid} w={x2 - x1} h={16} stretch />}
+			fallback={
+				<Show when={!props.faint}>
+					<SpriteView sprite={ART.garbled} t={props.t} x={(x1 + x2) / 2} y={mid} w={x2 - x1} h={16} stretch />
+				</Show>
+			}
 		>
-			<text x={(x1 + x2) / 2} y={mid + 5} text-anchor="middle" font-weight="bold" fill={COLOR.ink}>
+			<text
+				x={(x1 + x2) / 2}
+				y={mid + 5}
+				text-anchor="middle"
+				font-weight="bold"
+				fill={props.faint ? COLOR.faint : COLOR.ink}
+			>
 				{props.word.text}
 			</text>
 		</Show>
