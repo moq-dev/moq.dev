@@ -306,88 +306,92 @@ function TrackView(props: ViewProps & { track: Track; y: number; name: string; n
 	const right = () => props.x(pos()) > W * 0.55;
 
 	return (
-		<g opacity={created() ? 1 : 0.35}>
-			<clipPath id={bar}>
-				<rect x={GUTTER} y={props.y} width={TRACK_W} height={TRACK_H} rx="8" />
-			</clipPath>
-			{/* Words only appear once they've been said (or heard), so the reader sees them arrive. */}
-			<clipPath id={said}>
-				<rect x={GUTTER} y={props.y} width={Math.max(0, props.x(pos()) - GUTTER)} height={TRACK_H} />
-			</clipPath>
-			<clipPath id={avail}>
-				<rect x={GUTTER} y={props.y} width={Math.max(0, props.x(edge()) - GUTTER)} height={TRACK_H} />
-			</clipPath>
+		<g>
+			<g opacity={created() ? 1 : 0.35}>
+				<clipPath id={bar}>
+					<rect x={GUTTER} y={props.y} width={TRACK_W} height={TRACK_H} rx="8" />
+				</clipPath>
+				{/* Words only appear once they've been said (or heard), so the reader sees them arrive. */}
+				<clipPath id={said}>
+					<rect x={GUTTER} y={props.y} width={Math.max(0, props.x(pos()) - GUTTER)} height={TRACK_H} />
+				</clipPath>
+				<clipPath id={avail}>
+					<rect x={GUTTER} y={props.y} width={Math.max(0, props.x(edge()) - GUTTER)} height={TRACK_H} />
+				</clipPath>
 
-			{/* crispEdges, or the 100ms segments show seams between them. */}
-			<g clip-path={`url(#${bar})`} shape-rendering="crispEdges">
-				<rect x={GUTTER} y={props.y} width={TRACK_W} height={TRACK_H} fill={COLOR.track} />
-				<For each={props.track.segments}>
-					{(s) => (
-						<SegmentView s={s} t={props.t} x={props.x(s.ts)} y={props.y} w={w} hatch={`url(#${props.id}-lost)`} />
-					)}
-				</For>
-			</g>
-			<rect
-				x={GUTTER}
-				y={props.y}
-				width={TRACK_W}
-				height={TRACK_H}
-				rx="8"
-				fill="none"
-				stroke="#334155"
-				stroke-width="1"
-			/>
-
-			<Show when={props.track.label && created()}>
-				<text
-					x={end ? GUTTER + TRACK_W - 10 : GUTTER + 10}
-					y={props.y + TRACK_H / 2 + 4}
-					text-anchor={end ? "end" : "start"}
-					fill={COLOR.neutral}
-					font-size="11"
-					font-family="'JetBrains Mono', monospace"
-				>
-					{props.track.label?.text}
-				</text>
-			</Show>
-
-			<g clip-path={`url(#${avail})`}>
-				<For each={props.track.words}>
-					{(word) => <WordView word={word} segments={props.track.segments} t={props.t} x={props.x} y={props.y} faint />}
-				</For>
-			</g>
-			<g clip-path={`url(#${said})`}>
-				<For each={props.track.words}>
-					{(word) => <WordView word={word} segments={props.track.segments} t={props.t} x={props.x} y={props.y} />}
-				</For>
-			</g>
-
-			<Show when={pos() > 0}>
-				<line
-					x1={props.x(pos())}
-					x2={props.x(pos())}
-					y1={props.y - 4}
-					y2={props.y + TRACK_H + 4}
-					stroke={COLOR.text}
-					stroke-width="2.5"
-					stroke-linecap="round"
+				{/* crispEdges, or the 100ms segments show seams between them. */}
+				<g clip-path={`url(#${bar})`} shape-rendering="crispEdges">
+					<rect x={GUTTER} y={props.y} width={TRACK_W} height={TRACK_H} fill={COLOR.track} />
+					<For each={props.track.segments}>
+						{(s) => (
+							<SegmentView s={s} t={props.t} x={props.x(s.ts)} y={props.y} w={w} hatch={`url(#${props.id}-lost)`} />
+						)}
+					</For>
+				</g>
+				<rect
+					x={GUTTER}
+					y={props.y}
+					width={TRACK_W}
+					height={TRACK_H}
+					rx="8"
+					fill="none"
+					stroke="#334155"
+					stroke-width="1"
 				/>
-			</Show>
 
-			{/* Click a track to jump to when it reaches that point. */}
-			{/* biome-ignore lint/a11y/noStaticElementInteractions: the mouse path; the slider handles the keyboard. */}
-			<rect
-				x={GUTTER}
-				y={props.y}
-				width={TRACK_W}
-				height={TRACK_H}
-				fill="transparent"
-				class="cursor-pointer"
-				onClick={(e) => {
-					const r = e.currentTarget.getBoundingClientRect();
-					props.seek((e.clientX - r.left) / r.width, props.track.segments);
-				}}
-			/>
+				<Show when={props.track.label && created()}>
+					<text
+						x={end ? GUTTER + TRACK_W - 10 : GUTTER + 10}
+						y={props.y + TRACK_H / 2 + 4}
+						text-anchor={end ? "end" : "start"}
+						fill={COLOR.neutral}
+						font-size="11"
+						font-family="'JetBrains Mono', monospace"
+					>
+						{props.track.label?.text}
+					</text>
+				</Show>
+
+				<g clip-path={`url(#${avail})`}>
+					<For each={props.track.words}>
+						{(word) => (
+							<WordView word={word} segments={props.track.segments} t={props.t} x={props.x} y={props.y} faint />
+						)}
+					</For>
+				</g>
+				<g clip-path={`url(#${said})`}>
+					<For each={props.track.words}>
+						{(word) => <WordView word={word} segments={props.track.segments} t={props.t} x={props.x} y={props.y} />}
+					</For>
+				</g>
+
+				<Show when={pos() > 0}>
+					<line
+						x1={props.x(pos())}
+						x2={props.x(pos())}
+						y1={props.y - 4}
+						y2={props.y + TRACK_H + 4}
+						stroke={COLOR.text}
+						stroke-width="2.5"
+						stroke-linecap="round"
+					/>
+				</Show>
+
+				{/* Click a track to jump to when it reaches that point. */}
+				{/* biome-ignore lint/a11y/noStaticElementInteractions: the mouse path; the slider handles the keyboard. */}
+				<rect
+					x={GUTTER}
+					y={props.y}
+					width={TRACK_W}
+					height={TRACK_H}
+					fill="transparent"
+					class="cursor-pointer"
+					onClick={(e) => {
+						const r = e.currentTarget.getBoundingClientRect();
+						props.seek((e.clientX - r.left) / r.width, props.track.segments);
+					}}
+				/>
+			</g>
 
 			<Show when={note()}>
 				<text
@@ -520,7 +524,7 @@ function Network(props: ViewProps & { packets: Packet[]; loss: Loss; y0: number;
 }
 
 function PacketView(props: { p: Packet; t: Accessor<number>; x: number; y0: number; y1: number }) {
-	const lerp = (k: number) => props.y0 + (props.y1 - props.y0) * k;
+	const lerp = (k: number) => props.y0 + (props.y1 - props.y0) * (props.p.up ? 1 - k : k);
 	const first = () => (props.t() - props.p.sent) / FLIGHT;
 	const rtx = () => (props.p.rtx === undefined ? -1 : (props.t() - props.p.rtx) / FLIGHT);
 
@@ -532,7 +536,12 @@ function PacketView(props: { p: Packet; t: Accessor<number>; x: number; y0: numb
 	return (
 		<g>
 			<Show when={flying()}>
-				<circle cx={props.x} cy={lerp(first())} r="3.5" fill={props.p.lost ? COLOR.lost : COLOR.done} />
+				<circle
+					cx={props.x}
+					cy={lerp(first())}
+					r="3.5"
+					fill={props.p.lost ? COLOR.lost : props.p.up ? COLOR.neutral : COLOR.done}
+				/>
 			</Show>
 			<Show when={dead()}>
 				<text x={props.x} y={lerp(0.5) + 4} text-anchor="middle" fill={COLOR.lost} font-weight="bold" opacity={fade()}>

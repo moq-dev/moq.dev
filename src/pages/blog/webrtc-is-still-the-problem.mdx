@@ -54,12 +54,11 @@ Just like Leonardo DiCaprio, anything above 30ms is too old.
 
 WebRTC *could* detect packet loss and retransmit.
 That's what TCP does after all, and it powers most of the internet.
-But WebRTC doesn't retransmit audio for **product reasons**.
+WebRTC will retransmit audio if you munge the SDP, but the jitter buffer rarely waits for it.
 
 We flesh bags consume/produce audio in "real-time", aka a **human clock rate**.
 Retransmitted audio packets will be delayed, either introducing latency, or a burst of audio.
 Our neurons can only fire so fast and don't want to process time shifts.
-You *can* munge the SDP to enable NACKs, but the jitter buffer is so tiny that a late retransmit gets dropped anyway.
 
 But this kind of sucks for a **voice AI product**. 
 You walk out of wifi range, hit a cellular dead zone, or starlink terminal switches satellites.
