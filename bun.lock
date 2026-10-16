@@ -6,6 +6,7 @@
       "name": "moq.dev",
       "dependencies": {
         "@moq/boy": "^0.3.1",
+        "@moq/json": "^0.3.3",
         "@moq/publish": "^0.4.7",
         "@moq/watch": "^0.5.4",
         "astro": "^5.18.2",
