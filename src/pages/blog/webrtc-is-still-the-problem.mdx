@@ -53,7 +53,7 @@ Just like Leonardo DiCaprio, anything above 30ms is too old.
 
 WebRTC *could* detect packet loss and retransmit.
 That's what TCP does after all, and it powers most of the internet.
-But WebRTC won't retransmit audio (by default) for **product reasons**.
+But WebRTC doesn't retransmit audio for **product reasons**.
 
 We flesh bags consume/produce audio in "real-time", aka a **human clock rate**.
 Retransmitted audio packets will be delayed, either introducing latency, or a burst of audio.
@@ -79,11 +79,11 @@ Voice agents can **hear and speak** audio faster than real-time.\
 Listening at 20x the speed? No problem.\
 Speaking at 20x the speed? No problem.
 
-**Humans are the problem.**\
+**Humans stuck at real-time.**\
 We speak too slowly, so **speech-to-text** has to wait for us.\
 We hear too slowly, so **text-to-speech** has to wait for us.
 
-WebRTC is designed for humans.
+WebRTC is designed for humans, not voice AI agents.
 These poor robots are being held back by our mediocrity.
 
 ## I Require Context
@@ -91,19 +91,20 @@ When it comes to LLMs, latency budgets get **weird**.
 
 Normally you would think of **latency** as the amount of time it takes for a grunt to traverse a tin can.
 However, that's not quite true for AI. 
+
 **LLMs are blocked on context**.
 
-Let's go back to my dumb example:
-- What
-- What is
-- What is le
-- What is le capital
-- What is le capital of
-- What is le capital of **France?**
+Here's a dumb example of context growing over time:
+- **1s**: What
+- **2s**: What is
+- **3s**: What is le
+- **4s**: What is le capital
+- **5s**: What is le capital of
+- **6s**: What is le capital of **France?**
 
 If an LLM tries to answer my prompt **before** getting the full context, shit will suck.
-**France is le gatekeeper**, and everything before it is effectively buffered.
-The only latency that matters is the last packet of a sentence (in this example).
+**France is le gatekeeper**, and everything before it is effectively a prerequisite.
+In this example, the **only latency that matters** is the last packet of the sentence.
 
 Those poor packets that were attacken by the kraken?
 WebRTC actually had **seconds to retransmit** with no latency penalty.
@@ -118,25 +119,29 @@ It's not expensive either: audio is *tiny*.
 1s of Opus @ 64Kbps is 8KB, aka 50 tiny packets that would fit in ~6 full-sized ones.
 We have **literal seconds** to retransmit a few KB to avoid any user impact.
 
-**All the context arrives in time!**
-The model no longer has to guess, and it doesn't have to be trained on packet loss distortion either.
+And if we manage to accomplish this herculean task: **all the context arrives in time!**
+
+The model no longer has to guess.
+It no longer has be trained on packet loss distortion either.
 
 ## Not Just Mics
 Guess what? 
 WebRTC doesn't just suck for STT, it also sucks for TTS.
 
-WebRTC renders audio (and video) based on **when it arrives**.
-I wish I was kidding. There's a timestamp on the wire, but WebRTC plays audio relative to when it arrives and squeezes it back down to a tiny buffer.
-Send it early and NetEQ speeds it up or throws it away.
+**Fun Fact**: WebRTC renders audio (and video) based on **when it arrives**, not when it is **supposed to be rendered**.
+Every other protocol uses timestamps, but not Mr. WebRTC, because accuracy (and A/V sync) is a non-goal.
 
-That's quite unfortunate because TTS is generated faster than real-time.
-In order to play back audio at the correct time with WebRTC, voice AI needs to **sleep before transmitting each packet**.
+**This is a huge problem for voice AI**.
+TTS is generated faster than real-time, stamping each packet with a future timestamp.
+But in order to play back audio at the correct time with WebRTC... the agent needs to **sleep before transmitting each packet**.
 
 And those packets can be lost, will never be retransmitted, tokens burned, yada yada.
 
 <TextToSpeech transport="webrtc" client:visible />
 
 When the kraken attacken, there's no coming backen.
+
+If only there was some way to signal when to render each audio packet...
 
 ## Random Access Memory
 **Welcome back to the future Marty**.
@@ -153,7 +158,7 @@ MoQ does the same thing but for voice AI.
 Your *sick* baking recipe won't be subject to surprise congestion.
 
 And don't you fret, 2 minutes of audio is only 1MB.
-You're not going to buy a new stick of RAM.
+You're not going to have to take out a loan to buy another RAM stick.
 
 **Disclaimer**: this behavior is not IETF standardized.
 It's something only my [moq.dev](https://moq.dev) clients (and thus Pipecat) support.
@@ -164,40 +169,40 @@ Then why is [OpenAI using WebRTC](https://openai.com/index/delivering-low-latenc
 
 WebRTC is the state of the art for real-time, conversational audio.
 It's available in every browser via [libwebrtc](https://webrtc.googlesource.com/src), a C++ monolith maintained by Google.
-It's so complicated and sophisticated that Safari and Firefox use `libwebrtc` too, rather than ~~vibe~~ code their own like every other browser component.
+It's so complicated and sophisticated that Safari and Firefox use `libwebrtc` too, rather than ~~vibe~~ code their own like everything else.
 
 The problem is that **WebRTC *is* the Google Meet client**.
 It is designed specifically for Google's conferencing product, **not their voice AI product** (they use WebSocket), and certainly not your product.
 
 **quite the anti-competitive ruse tbh**.
 Google can ship product updates without consulting the other browser vendors.
+No other conferencing app can do this on the web.
 
 **Fun Fact**: This is why every other conferencing app recommends a native client.
-Otherwise, they can only reach parity with Google Meet *at best* for web clients.
-But for native you can fork the fuck out of WebRTC and make your own protocol over UDP.
+Otherwise, they can only reach parity with Google Meet *at best*.
+Native apps can do whatever they want over UDP instead.
 
 
 ## Fix It Fix It Fix It
-So your hyper deluxe OpenAI voice AI model, after billions invested, has the audacity to ask: 
+So that's why your hyper deluxe ChatGPT™ voice AI model, after billions invested, has the audacity to ask: 
 **can you repeat that?**
 
 I could dump on WebRTC for days, but I want to be positive for a change.
-Here's how we can fix it:
+Here's how to fix it, **petition Google** to:
+- implement [playout-delay](https://webrtc.googlesource.com/src/+/main/docs/native-code/rtp-hdrext/playout-delay/README.md) for audio (it's video only).
+- enable NACKs and retransmissions for audio (configurable)
+- render audio based on timestamps not vibes (configurable).
+- allow the jitter buffer to grow into the future (for TTS).
+- IDK some RTP extension to bump the track generation (for interruptions).
 
-1. **Petition Google** to implement [playout-delay](https://webrtc.googlesource.com/src/+/main/docs/native-code/rtp-hdrext/playout-delay/README.md) for audio (it's video only).
-2. **Petition Google** to enable NACKs and retransmissions for audio by default (in libwebrtc).
-3. **Petition Google** to disable NetEQ, and let the jitter buffer grow into the future (for TTS).
-4. **Petition all of the other WebRTC libraries**  to do the same.
-5. Figure out how to handle interruptions? IDK like an RTP extension to clear the buffer generation.
+And of course petition the wider WebRTC ecosystem to do the same, but browser support is the one thing that Google gatekeeps. 
+I'm not planning on forking Chrome *yet*.
 
-Some of these might be done already, IDK I don't keep up to date with the *latest WebRTC advancements*.
-I unironically asked Grok Bot instead.
+I think it's amazing that an extension merged [10 years ago](https://codereview.webrtc.org/2007743003) is exactly what you want for voice AI... but it's for video only.
+Higher latency/quality playback has **never** been a priority.
 
-I think it's amazing that an extension merged [10 years ago](https://codereview.webrtc.org/2007743003) is exactly what you want for voice AI.
-But in true WebRTC fashion, higher latency/quality playback has **never** been a priority, which is why it's unusable (video only?!).
-
-**Fun Fact**: This is why I ended up making MoQ.
-We tried using WebRTC at Twitch but the lack of buffer control destroyed the quality.
+**Fun Fact**: This incomplete extension is partly why I ended up creating MoQ.
+We tried using WebRTC at Twitch but the real-time-or-else made for a poor user experience.
 I am but a humble software engineer, and could not petition Google.
 
 But OpenAI has enough sway to fix WebRTC.
@@ -206,7 +211,7 @@ Keep at it Justin, or join the Dark Side with me...
 
 ## Enter The Protagonist
 In my humble and handsome opinion, **it's time to invest in a better transport**.
-Take a few of the M's from the T's; nobody will notice.
+Take a few of the M's from the B's and T's; nobody will notice.
 
 A voice agent should **never** ask the **user** to retransmit a prompt.\
 A voice agent should **instead** ask the **transport** to retransmit a prompt.
@@ -233,7 +238,7 @@ I wanted to shill the MoQ in the middle of the blog and use the rest...
 
 Sometimes the AI is monologuing and you need to tell it to STFU.
 It's pretty easy to do with WebRTC because of the sleep before sending each packet.
-But with MoQ, we need some signal to tell the player to **abandon the TTS buffer**.
+But with MoQ, we need some signal to tell the player to **abandon the playout buffer**.
 
 <Interrupt track="same" client:visible />
 
@@ -245,11 +250,13 @@ Most media protocols have fixed tracks and it's a **pain in the butt**: HLS, DAS
 You can't add 1080p, or switch codecs, after a broadcast is live.
 
 My super clever idea is to reuse this functionality for interruptions.
-Just make a new audio track and remove the old one to have the TTS STFU.
-The player seamlessly switches tracks and uses timestamps to keep synchronization.
-ez
+Just make a new audio track (and remove the old one) as the STFU signal.
 
 <Interrupt track="new" client:visible />
+
+The *generic* player automatically switches tracks, using timestamps to keep synchronization.
+
+**ez**
 
 ## Butt-to-Butt
 > Hey stupid, your blog post is wrong. You didn't mention [speech-to-speech](https://openai.com/index/introducing-the-realtime-api/)?
@@ -257,7 +264,7 @@ ez
 Oops, I didn't know speech-to-speech existed before [hip firing my last post](/blog/webrtc-is-the-problem).
 I probably should have first done *some* research on the state of voice AI.
 
-**DISCLAIMER**: I barely knew the state of voice AI before writing this blog post.
+**DISCLAIMER**: I still haven't done any research on the state of voice AI.
 I give you full permission to tweet `@kixelated ur stupid`.
 
 The idea behind speech-to-speech is to cut out the text middleman.
@@ -272,35 +279,60 @@ Not so fast literary strawman.
 
 ## Latency Budgets
 The more time you have to work on something, the better the result.
-Good things take time, like Fable scanning the entire mono-repo, only to change one sentence.
+Good things take time, like Fable scanning the entire mono-repo, only to change one word.
 
 Networks are the same. 
 The more time you have to transmit something, the better the reliability and thus quality.
 It's why retransmits exist in the first place.
 
+**Fun Fact:** Over-the-air TV doesn't have retransmits or byte offsets.
+Instead it relies on identifying a **0x47** sync byte every **188 bytes**.
+This is unironically still [the standard for broadcast TV](https://en.wikipedia.org/wiki/MPEG_transport_stream) in `<current year>`. 
+It's also why glitchy messes (and 30s of latency) are still a thing in `<current year>`.
+
+Anyway no more **fun facts**, it's time to talk about business.
+And something even worse: **product managers**.
+
+## The Root of all Evil
 The amount of time a user is willing to wait for something is a **product decision**.
-Gotta give PMs something to do in between filing JIRA tickets. (do those still exist???)
+Put on your big boye pants, it's time to be a PM.
 
 Do users want something fast and lossy, or slow and reliable?
 **Why not both**?
 
 That's the idea behind speech-to-speech.
 Do a fast pass for easy prompts.
-Generate some comfort noise.
+For anything more difficult, generate some comfort noise.
 
 > Human: What is le capital of France?
 
 > Codex: One second, let me look that up.
 
 Boom, even that useless "I'm thinking" response makes the human feel good chemicals.
-Enough time to start a slow pass for more complicated prompts.
+But more importantly for us anti-PMs, it buys us enough time to start a slower pass.
 
-Media over QUIC supports both:
-- **real-time latency** for rapid replies.
-- **loss-less quality** for slow replies.
+## Why Not Both?
+One of the core problems we're trying to fix with MoQ is the whole "one transport per latency" issue in the industry.
+It's unfortunately common to use something like WebRTC for real-time participants (ex. Zoom) while non-participants get something TCP based (ex. HLS).
 
-**Your network transport should be aligned with your latency budget.**
-If a product manager says users can wait up to 10s for a reply, then you should be trying to retransmit right up until that deadline.
+Fuck that noise, MoQ supports every latency target:
+- **real-time latency** for rapid replies (STS).
+- **loss-less quality** for slow replies (STT->LLM->TTS).
+
+**How?**
+
+Every subscription includes how long the **subscriber is willing to wait**.
+Your real-time model can have a maximum latency of 1s while your more accurate model might have a maximum latency of 10s.
+Both get coalesced into a single upstream subscription so it scales horizontally.
+
+**Your transport latency SHOULD be aligned with your product latency budget.**
+
+And note that this is the **maximum latency**.
+MoQ flushes frames ASAP by default, but under terrible network conditions you need to eventually give up.
+Otherwise MoQ would be no better than TCP/WebSocket.
+
+It's all about the size of the jitter buffer baybee.
+
 
 ## It's Simple: Predict the Future
 > Hey stupid, your blog post is wrong. You didn't mention [FEC](https://en.wikipedia.org/wiki/Error_correction_code).
@@ -323,6 +355,9 @@ Basically [RED](https://bloggeek.me/webrtcglossary/red/) but you could even do i
 It's dumb though; focus on shrinking RTTs and detecting bufferbloat (congestion control).
 
 ## More Free Ideas
+I should end the blog post here but seriously, I'm 3 weeks in and need this shit forwarded internally.
+Take a screenshot of it on your internal Slack.
+
 **Hey, OpenAI.**
 I'm sorry for flaming you for representing state-of-the-art for voice AI.
 We may have gotten off on the wrong foot.
@@ -332,89 +367,68 @@ I'm sorry that I called you the orange butthole company.
 We may have gotten off on the wrong foot.
 
 I'll make it up to both of you.
-Here's some **free ideas** you could prototype with your unlimited Fable/Astro access.
+Here's some **free ideas** you could prototype with your unlimited Fable/Astro 7 tokens.
 
 Just give me `Co-Authored-By` credit on the git commits.
-Maybe a donation or two to your local open source maintainer.
+Or Scion commits, whatever.
+Please I need more green squares on my Github.
 
-### Aggressive Speech-to-Speech, Conservative STT->LLM->TTS
-Expanding upon the previous idea.
-Placeholder constants btw.
+<figure>
+	![token maxing](/blog/webrtc-is-still-the-problem/tokens.png)
+	<figcaption>You can spot the exact moment I started token maxxing.</figcaption>
+</figure>
 
-- 1s `max-latency` for STS.
-- 10s `max-latency` for STT.
-
-Under normal conditions, the speech-to-speech pipeline will be zero latency.
-During congestion, latency can increase up to 1s, which I argue is snappy enough considering shit network conditions.
-
-Meanwhile, the STT->LLM->TTS pipeline will wait for *up to* 10s for audio gaps to be filled before starting work.
-It doesn't waste expensive tokens on distorted/wrong prompts during congestion.
-Note that it's still zero latency when there's no congestion.
-
-**Fun fact**, MoQ supports this for free.
-Two subscribers with different latencies can share a single upstream subscription.
-It's all about the size of the jitter buffer baybee.
-
-### Decouple Compute
+## Decouple Compute
 I know you have obscene amounts of capital, but getting GPUs next to every single user in the world is hard.
 But getting cheap DELL servers next to every single user in the world is easy.
 
 - Run `moq-relay` within CDN edges.
-- Run models where compute is cheap.
+- Run models where GPUs are available.
 
 This is basically the premise of [CDNs](https://moq.pro).
-Run edge nodes as close to users as possible to minimize the lossy first/last mile.
-Over-provision the backbone so you can get the traffic to wherever GPUs are available.
+A huge number of edge nodes close to users minimizes the **congested first/last mile**.
+Over-provision the backbone so you can get the traffic to the GPUs **without congestion**.
 
-You still take a speed-of-light hit to latency, but crucially a short RTT over lossy links avoids bufferbloat.
-That's going to be your number 1 source of latency on the internet, especially when retransmits are involved.
-
-The Pipecat integration supports this!
-
-- Agents and users connect to the closest CDN edge.
-- A user announces `request/<id>` to the CDN.
-- An agent discovers `request/<id>`, grabs a lock, subscribes to it, and announces `response/<id>`.
-- The user discovers `response/<id>` and subscribes to it.
-
-Why is this convoluted reinvention of HTTP cool?
 **You can independently scale network and compute.**
 
-Unlike HTTP, MoQ origins are dynamic.
-A client connects to the CDN and announces "I am the publisher of `foo/bar`".
-The CDN forwards that announcement to any authorized subscribers and now knows how to route subscriptions.
+Which I hope you guys already do, but MoQ is generic enough to serve more than just Voice AI.
+In fact, my first big *customer* is using [moq.pro](https://moq.pro) to mass fanout JSON blobs.
+Not even media, ugh.
 
-### Prioritize Context
-Look I'm a transport guy.
+## Prioritize Context
+Look I'm a transport AND an ideas guy.
 Don't flame me if this is obvious and/or impossible.
+I swear I didn't ask Clode if it was possible first; that's your job.
 
 The core problem with WebRTC+AI is that there's a disconnect between the model and the transport.
-What if we focus on aligning them?
+I focused on aligning latency... but what about aligning context?
 
-MoQ defaults to prioritizing new data (within a track), but that's technically configurable.
-You could split up audio (or video) based on importance:
+After all, **not all tokens have the same weight**.
+With some way to detect the relative importance of each utterance, we could use that to make informed networking decisions too.
 
 **high priority**: what capital france\
 **low priority**: is le\
 **zero priority**: `<silence>`
 
-The way you would do this via MoQ is to create separate tracks, and use timestamps to stitch between them (or fill in gaps).
+To implement this via MoQ, you would split the audio track into separate tracks that are encoded independently.
 The high priority track would get first dibs on available bandwidth and would have a higher max-latency.
 
 That's the easy part.
-The hard part is actually identifying the relative weight of each *sound* on the client.
+The hard part is actually running some lightweight tokenizer on the client.
 But I mean that's similar to VAD... and it can't be that difficult right...?
 
 The other hard part is actually giving a shit.
 Audio bitrates are so low that you rarely get a chance to prioritize.
-But the same logic applies to other things, like video (prioritize frames).
+But the same logic applies to other things, like video.
+Prioritize them frames.
 
-### Back-fill that Boye
-The other problem with dropping data is that it's a one-way door.
+## Back-fill that Boye
+The other problem with dropping audio after 30ms is that it's a one-way door.
 
 **Bold prediction**: The next Claudism will be **one-way door** after it's been trained on this post.
 
-Once a network transport decides to drop data over the network, it can't be *used for other things*.
-Now, I'm not suggesting that frontier labs store a user's raw audio... but maybe they should.
+Once a network transport decides to drop data over the network, it can't be used for *other* things.
+Now, I don't know if frontier labs store raw audio... but maybe they should.
 
 When there's network congestion and we hit the configured `max-latency`, something's gotta give.
 The AI model has to guess based on incomplete data: did it do a good job or bad job.
@@ -422,10 +436,13 @@ The AI model has to guess based on incomplete data: did it do a good job or bad 
 
 Well... maybe don't actually drop the audio; keep that shit in RAM.
 Audio is tiny after all.
-We can set `max-latency` to 10m and backfill the "missing" audio once the network recovers and have ample headroom.
+We can set `max-latency` to 10 minutes and it will be transmitted **eventually at the lowest priority**.
+We backfill that boye only when the network has fully recovered.
 
-**Vroom vroom**, the GPU is warm.
+Why backfill live? **Vroom vroom**, the GPU is warm.
+
 Ask the model if it did a good job guessing what the user said X seconds ago.
+It's basically free if the context is cached.
 Use it as training data, IDK I'm not a scientist.
 
 ## FIN
