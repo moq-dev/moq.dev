@@ -35,8 +35,7 @@ export default function Cat(props: { voice?: AudioNode; class?: string }) {
 	let tap: Tap | undefined;
 
 	// A side branch off the player's output: nothing downstream of the analyser, so playback is
-	// untouched. It is never disconnected because it lives exactly as long as the node it hangs
-	// off, which goes when the call's AudioContext closes.
+	// untouched.
 	createEffect(() => {
 		const voice = props.voice;
 		if (!voice) return;
@@ -49,14 +48,14 @@ export default function Cat(props: { voice?: AudioNode; class?: string }) {
 		};
 		tap = current;
 		onCleanup(() => {
+			voice.disconnect(analyser);
 			if (tap === current) tap = undefined;
 		});
 	});
 
 	onMount(() => {
 		// Reduced motion keeps the lip sync and blinks but drops the boil, which never stops.
-		const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-		setBoil(!still);
+		const reduce = matchMedia("(prefers-reduced-motion: reduce)");
 
 		let open = 0;
 		// The voice's brightness now and on average, in Hz, to tell its dark sounds from its bright.
@@ -90,6 +89,9 @@ export default function Cat(props: { voice?: AudioNode; class?: string }) {
 				mouthAt = now;
 				setShape(pick(open, usual ? bright / usual : 1));
 			}
+			// Read live, so a preference changed mid-call applies on the next frame.
+			const still = reduce.matches;
+			setBoil(!still);
 			if (!still && now - boilAt >= BOIL_MS) {
 				boilAt = now;
 				turbulence.setAttribute("seed", String(Math.floor(Math.random() * 997)));
