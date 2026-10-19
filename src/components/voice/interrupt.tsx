@@ -3,7 +3,7 @@ import { Diagram, type Panel } from "./diagram";
 import { arrival, FLIGHT, FRAME, frames, head, type Packet, type Segment, transmit, type Word } from "./sim";
 import { WORDS } from "./tts";
 
-const AXIS = 4.6;
+const AXIS = 4.8;
 const ANSWER = 3.1; // seconds of the original answer: "Paris. Home of le croissant."
 const GENERATE = 10; // the model speaks 10x faster than real-time
 const THROUGHPUT = 3; // MoQ sends as fast as the network allows
@@ -25,6 +25,13 @@ const REPLY: Word[] = [
 	{ text: "next?", start: 4.05, end: 4.4 },
 ];
 const REPLY_END = 4.5;
+
+// One track can only append, so the AI's reply to "stop" queues behind the rest of the answer.
+const QUEUED: Word[] = [
+	{ text: "What", start: 3.2, end: 3.45 },
+	{ text: "next?", start: 3.55, end: 3.9 },
+];
+const QUEUED_END = 4.0;
 
 const generated = (ts: number) => (ts + FRAME) / GENERATE;
 const regenerated = (ts: number) => NEW + (ts - CUT + FRAME) / GENERATE;
@@ -58,21 +65,38 @@ function heard(packets: Packet[], discard?: number): Segment[] {
 const old = transmit(frames(ANSWER), (ts) => Math.max(generated(ts), ts / THROUGHPUT), NONE, false);
 
 function same(): Panel {
-	const played = heard(old);
-	const ai = (t: number) => (t >= HEARING && t < HEARD + 1.2 ? "heard “stop”, but it’s all sent already" : undefined);
+	const queued = (ts: number) => NEW + (ts - ANSWER + FRAME) / GENERATE;
+	const appended = transmit(
+		frames(QUEUED_END).filter((ts) => ts >= ANSWER),
+		queued,
+		NONE,
+		false,
+	);
+	const packets = [...old, ...appended];
+	const words = [...WORDS, ...QUEUED];
+	const played = heard(packets);
+	const ai = (t: number) => {
+		if (t >= HEARING && t < NEW) return "heard “stop”, but the answer is already sent";
+		if (t >= NEW && t < NEW + 1.2) return "replies, after the buffered answer";
+		return undefined;
+	};
 	const you = (t: number) =>
-		t >= STOP && head(played, t) < ANSWER - 0.01 ? `still talking ${(t - STOP).toFixed(1)}s after “stop”` : undefined;
+		t >= STOP && head(played, t) < QUEUED_END - 0.01
+			? `still talking ${(t - STOP).toFixed(1)}s after “stop”`
+			: undefined;
 
 	return {
-		title: "MoQ",
-		subtitle: "one track, the player keeps its buffer",
-		top: [{ who: "ai", words: WORDS, segments: spoken(old, generated), note: ai }],
-		bottom: [{ who: "you", words: WORDS, segments: played, note: you }],
-		packets: [...old, ...UP],
+		title: "MoQ (naive)",
+		subtitle: "one track, so the reply waits behind the buffered answer",
+		top: [
+			{ who: "ai", words, segments: spoken(packets, (ts) => (ts < ANSWER ? generated(ts) : queued(ts))), note: ai },
+		],
+		bottom: [{ who: "you", words, segments: played, note: you }],
+		packets: [...packets, ...UP],
 		loss: NONE,
 		replies: [
 			{ at: STOP, text: "“Stop!”" },
-			{ at: ANSWER + DELAY + 0.2, text: "“I said STOP.”", good: false },
+			{ at: QUEUED_END + DELAY + 0.1, text: "“I said STOP.”", good: false },
 		],
 	};
 }
@@ -123,7 +147,7 @@ function replace(): Panel {
 const PANELS = { same: same(), new: replace() };
 
 const LABELS = {
-	same: "Interrupting over a single MoQ track: the answer is already buffered, so the AI keeps talking after you say stop.",
+	same: "A naive interruption over a single MoQ track: the answer is already buffered, so the AI keeps talking after you say stop, and its reply only plays once the buffer runs out.",
 	new: "Interrupting by replacing the MoQ track: your stop reaches the AI, it starts a new track, and the old track's buffered audio is discarded.",
 };
 

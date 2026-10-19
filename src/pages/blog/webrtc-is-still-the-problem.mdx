@@ -51,16 +51,17 @@ Just like Leonardo DiCaprio, anything above 30ms is too old.
 <SpeechToText transport="webrtc" client:visible />
 
 **But why?**
-
-WebRTC *could* detect packet loss and retransmit.
-That's what TCP does after all, and it powers most of the internet.
-WebRTC will retransmit audio if you munge the SDP, but the jitter buffer rarely waits for it.
+WebRTC *could* detect packet loss and retransmit, and in fact that's what it does for video.
+However, for audio it uses an aggressive jitter buffer for **product reasons**.
 
 We flesh bags consume/produce audio in "real-time", aka a **human clock rate**.
 Retransmitted audio packets will be delayed, either introducing latency, or a burst of audio.
 Our neurons can only fire so fast and don't want to process time shifts.
 
-But this kind of sucks for a **voice AI product**. 
+For the nerds in the audience, WebRTC handles this with [NetEQ](https://chromium.googlesource.com/external/webrtc/+/master/modules/audio_coding/neteq/g3doc/index.md).
+It's neat because it does change the speed of playback in response to RTT changes... but not packet loss.
+
+This kind of sucks for a **voice AI product**. 
 You walk out of wifi range, hit a cellular dead zone, or starlink terminal switches satellites.
 Oops, your **tokens are wasted**, or worse, **AI tries to guess what you said**.
 
@@ -87,14 +88,12 @@ WebRTC is designed for humans, not voice AI agents.
 These poor robots are being held back by our mediocrity.
 
 ## I Require Context
-When it comes to LLMs, latency budgets get **weird**.
+When it comes to LLMs, latency budgets get **_weird_**.
 
 Normally you would think of **latency** as the amount of time it takes for a grunt to traverse a tin can.
 However, that's not quite true for AI. 
 
-**LLMs are blocked on context**.
-
-Here's a dumb example of context growing over time:
+**LLMs are blocked on context**. Here's a dumb example of context growing over time:
 - **1s**: What
 - **2s**: What is
 - **3s**: What is le
@@ -104,25 +103,25 @@ Here's a dumb example of context growing over time:
 
 If an LLM tries to answer my prompt **before** getting the full context, shit will suck.
 **France is le gatekeeper**, and everything before it is effectively a prerequisite.
-In this example, the **only latency that matters** is the last packet of the sentence.
+In this example, what matters is the **latency of last packet**.
 
 Those poor packets that were attacken by the kraken?
 WebRTC actually had **seconds to retransmit** with no latency penalty.
-The AI agent can process **faster than real-time** to catch up.
-The end user (aka **YOU**) won't notice a thing.
+The AI agent can process **faster than real-time** to catch up without the end user (aka **YOU**) noticing a thing.
 
 So that's what Mr. MoQ does.
+We don't give up until the damn bell rings.
 
 <SpeechToText transport="moq" client:visible />
 
 It's not expensive either: audio is *tiny*.
-1s of Opus @ 64Kbps is 8KB, aka 50 tiny packets that would fit in ~6 full-sized ones.
-We have **literal seconds** to retransmit a few KB to avoid any user impact.
+1s of Opus @ 64Kbps is 8KB, originally sent as 50 tiny packets, but it can be retransmitted as ~6 QUIC packets.
+We have **literal seconds** to retransmit **6 packets** to avoid any user impact.
 
 And if we manage to accomplish this herculean task: **all the context arrives in time!**
 
-The model no longer has to guess.
-It no longer has be trained on packet loss distortion either.
+The model no longer has to guess, like with WebRTC.
+It no longer has be trained on silence or loss distortion (specific to Opus) either.
 
 ## Not Just Mics
 Guess what? 
@@ -135,13 +134,14 @@ Every other protocol uses timestamps, but not Mr. WebRTC, because accuracy (and 
 TTS is generated faster than real-time, stamping each packet with a future timestamp.
 But in order to play back audio at the correct time with WebRTC... the agent needs to **sleep before transmitting each packet**.
 
-And those packets can be lost, will never be retransmitted, tokens burned, yada yada.
+That's right, using `sleep` in `<current year>`.
+If there's any packet loss, our TTS is lost, will never be retransmitted, tokens burned, yada yada.
 
 <TextToSpeech transport="webrtc" client:visible />
 
 When the kraken attacken, there's no coming backen.
-
-If only there was some way to signal when to render each audio packet...
+If only there was some way to signal when to render each audio packet.
+A stamp of sorts.
 
 ## Random Access Memory
 **Welcome back to the future Marty**.
@@ -150,6 +150,9 @@ We faster than real-time now.
 **RAM** has this amazing property of being stupidly expensive.
 And being able to store stuff locally.
 You know, like audio that needs to be played over the speakers.
+
+We put a timestamp on each audio frame and use that to determine when to play it out of RAM.
+Absurd, I know.
 
 <TextToSpeech transport="moq" client:visible />
 
@@ -162,7 +165,7 @@ You're not going to have to take out a loan to buy another RAM stick.
 
 **Disclaimer**: this behavior is not IETF standardized.
 It's something only my [moq.dev](https://moq.dev) clients (and thus Pipecat) support.
-Be my guest if you want to argue with Cisco and get it into the official standard.
+Be my guest if you want to argue with Cisco and get it into the official standards.
 
 ## Enter the Antagonist
 Then why is [OpenAI using WebRTC](https://openai.com/index/delivering-low-latency-voice-ai-at-scale/)?
@@ -190,24 +193,26 @@ So that's why your hyper deluxe ChatGPT™ voice AI model, after billions invest
 I could dump on WebRTC for days, but I want to be positive for a change.
 Here's how to fix it, **petition Google** to:
 - implement [playout-delay](https://webrtc.googlesource.com/src/+/main/docs/native-code/rtp-hdrext/playout-delay/README.md) for audio (it's video only).
-- enable NACKs and retransmissions for audio (configurable)
+- implement a fully reliable jitter buffer (with retransmits).
 - render audio based on timestamps not vibes (configurable).
 - allow the jitter buffer to grow into the future (for TTS).
 - IDK some RTP extension to bump the track generation (for interruptions).
 
-And of course petition the wider WebRTC ecosystem to do the same, but browser support is the one thing that Google gatekeeps. 
-I'm not planning on forking Chrome *yet*.
+And of course, petition the wider WebRTC ecosystem to do the same (ex. LiveKit, Daily).
+However, browser support is gatekept by Google until vibe coded Chrome forks take off.
 
 I think it's amazing that an extension merged [10 years ago](https://codereview.webrtc.org/2007743003) is exactly what you want for voice AI... but it's for video only.
 Higher latency/quality playback has **never** been a priority.
 
 **Fun Fact**: This incomplete extension is partly why I ended up creating MoQ.
 We tried using WebRTC at Twitch but the real-time-or-else made for a poor user experience.
-I am but a humble software engineer, and could not petition Google.
+I am but a humble software engineer, and despite trying, we failed to petition Google.
 
 But OpenAI has enough sway to fix WebRTC.
-One long-deserved improvement is [WARP](https://www.ietf.org/archive/id/draft-uberti-tsvwg-warp-00.html) (faster connection setup), ironically the same name as the first [MoQ draft](https://www.ietf.org/archive/id/draft-lcurley-warp-04.html) that I wrote.
-Keep at it Justin, or join the Dark Side with me...
+One long-deserved improvement is [WARP](https://www.ietf.org/archive/id/draft-uberti-tsvwg-warp-00.html) (not that [WARP](https://www.ietf.org/archive/id/draft-lcurley-warp-04.html)), which was hot off the heels of my last blog post.
+
+Keep at it Justin, or join the Dark Side with me.
+Everything is so much nicer when you can abandon [disgusting VOIP standards](https://webrtchacks.com/sdp-anatomy/).
 
 ## Enter The Protagonist
 In my humble and handsome opinion, **it's time to invest in a better transport**.
@@ -239,6 +244,8 @@ I wanted to shill the MoQ in the middle of the blog and use the rest...
 Sometimes the AI is monologuing and you need to tell it to STFU.
 It's pretty easy to do with WebRTC because of the sleep before sending each packet.
 But with MoQ, we need some signal to tell the player to **abandon the playout buffer**.
+
+Here's the naive approach approach that I most definitely did not do on my first attempt:
 
 <Interrupt track="same" client:visible />
 
@@ -331,13 +338,13 @@ Both get coalesced into a single upstream subscription so it scales horizontally
 
 And note that this is the **maximum latency**.
 MoQ flushes frames ASAP by default, but under terrible network conditions you need to eventually give up.
-Otherwise MoQ would be no better than TCP/WebSocket.
+Otherwise MoQ would be no better than TCP/WebSocket... which is probably still better than WebRTC.
 
 It's all about the size of the jitter buffer baybee.
 
 
 ## It's Simple: Predict the Future
-> Hey stupid, your blog post is wrong. You didn't mention [FEC](https://en.wikipedia.org/wiki/Error_correction_code).
+> Hey stupid, your blog post is wrong. WebRTC doesn't care about packet loss because it uses [FEC](https://en.wikipedia.org/wiki/Error_correction_code).
 
 Mate go read my [previous blog posts](/blog/never-use-datagrams).
 
@@ -345,16 +352,18 @@ WebRTC (and Opus) include Forward Error Correction to help mask packet loss.
 The idea is to send some parity bits for the previous audio frame.
 
 But that's it; it helps recover a single last packet.
-Two in a row, or an entire second in a row, and you're out of luck.
+And that's **not how the internet works**; packet loss is not random.
+Most packet loss on the internet is bursty and caused by bufferbloat or the loss of jumbo frames.
 
-FEC involves fortune telling; trying to predict the shape of upcoming packet loss.
-The reality is that most packet loss on the internet is bursty and caused by bufferbloat.
-Sending additional packets can aggravate congestion if you're not careful.
+FEC is fortune telling.
+You send extra packets attempting to predict the future and mask loss.
+But sending additional packets **will aggravate congestion** if you're not careful (and you're not).
 
-But if you insist, QUIC libraries *could* totally transmit the data as many times as you want.
-Basically [RED](https://bloggeek.me/webrtcglossary/red/) but you could even do it based on byte offsets, not packets.
-
+But if you insist, QUIC libraries can retransmit stream data as many times as they want.
+Basically [RED](https://bloggeek.me/webrtcglossary/red/) but based on byte offsets, not packets.
 It's dumb though; focus on shrinking RTTs and detecting bufferbloat (congestion control).
+
+And if 
 
 ## More Free Ideas
 I should end the blog post here but seriously, I'm 3 weeks in and need this shit forwarded internally.
