@@ -4,8 +4,8 @@
 
 Under each word of the live `/voice` transcript, a strip draws that word's
 audio frames from real measurements: when each arrived against when it plays.
-A frame that arrived later than a WebRTC jitter buffer would have waited
-turns red, because WebRTC would have concealed or skipped it. Both
+A frame that arrived later than a typical WebRTC jitter buffer waits turns
+red: an estimate from the MoQ arrivals, not a measured WebRTC receiver. Both
 directions: your prompt as the agent received it, and the agent's reply as
 your browser received it. Nothing is simulated or injected.
 

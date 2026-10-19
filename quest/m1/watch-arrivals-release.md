@@ -12,6 +12,7 @@ links it.
 ## Plan
 
 moq shipped the handle in
-[moq-dev/moq#5311](https://github.com/moq-dev/moq/pull/5311).
+[moq-dev/moq#5311](https://github.com/moq-dev/moq/pull/5311) on `main`, a
+breaking change. 0.6.3 came from moq's `release` branch without it.
 Check `npm view @moq/watch version` and its type definitions for
 `Audio.Decoder.arrivals()` and `Watch.Arrival`.

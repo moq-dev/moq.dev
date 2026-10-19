@@ -4,8 +4,8 @@
 
 `/voice` lets a reader talk to the moq.pro Pipecat agent over MoQ and shows a
 live transcript of both sides. `/demo` gets a card for it. The component is
-reusable, so a blog post can embed it later; the post itself (branch
-`voice-api-2`) is not part of this quest.
+reusable, so a blog post can embed it; the post itself (branch
+`claude/voice-post-components`) is not part of this quest.
 
 ## Plan
 
@@ -21,9 +21,10 @@ Decided 2026-10-09:
   `GET /voice/sessions/:id` until the agent claims it, and render refusals by
   `code` (`busy`, `rate_limit`, `daily_budget`, ...).
   moq.pro's `app/src/lib/VoiceDemo.svelte` is the reference client.
-  The older component on `voice-ai2` / `codex/voice-demo-embed` predates this
-  contract (`publishToken`/`watchToken`, no poll), so port its Turnstile
-  loader and layout, not its session code.
+  Start from `src/components/voice-demo.tsx` on
+  `claude/voice-post-components`, which already speaks this contract
+  (Turnstile, poll, `transcript.json.z`). The older `voice-ai2` component
+  predates it.
 - **Live points at staging.** The demo only runs on `api.moq.wtf` until
   moq.pro's production quest lands, so a separate `PUBLIC_VOICE_API_URL` is
   `https://api.moq.wtf` for live and staging, and `PUBLIC_TURNSTILE_SITE_KEY`
@@ -42,7 +43,3 @@ Decided 2026-10-09:
 
 Verify against staging in `just dev`: a conversation, barge-in, Stop, the
 five-minute limit, and a `busy` refusal.
-
-## Required
-
-- [moq.pro accepts moq.dev](/quest/m1/voice-api-moqdev.md) - the wtf voice API and Turnstile widget serve the moq.dev origin

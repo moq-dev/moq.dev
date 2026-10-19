@@ -12,5 +12,8 @@ this quest and every `Required` entry that links it.
 ## Plan
 
 moq.pro tracks the track as
-[its own quest](https://github.com/moq-dev/moq.pro/blob/main/quest/m1/voice-timeline.md),
-which owns its schema. Check by subscribing to it during a staging session.
+[its own quest](https://github.com/moq-dev/moq.pro/blob/main/quest/m2/voice-timeline.md),
+which owns its schema. It merged in
+[moq-dev/moq.pro#2319](https://github.com/moq-dev/moq.pro/pull/2319), but wtf
+has not been deployed since. Check by subscribing to it during a staging
+session.
