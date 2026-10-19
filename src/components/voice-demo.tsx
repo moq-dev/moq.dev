@@ -9,6 +9,7 @@ import type MoqPublish from "@moq/publish/element";
 import "@moq/watch/element";
 import type MoqWatch from "@moq/watch/element";
 import { createSignal, For, Index, onCleanup, Show } from "solid-js";
+import Cat from "./voice/cat";
 
 type Turnstile = {
 	render: (
@@ -196,6 +197,8 @@ export default function VoiceDemo() {
 	const [mounted, setMounted] = createSignal<Call>();
 	const [remaining, setRemaining] = createSignal<number>();
 	const [transcript, setTranscript] = createSignal<Turn[]>([]);
+	// The agent's decoded audio, before volume, for the cat to lip-sync to.
+	const [voice, setVoice] = createSignal<AudioNode>();
 
 	// Bumped by every start and teardown, so an await that resumes after Stop sees it is stale
 	// and backs out instead of resurrecting the call.
@@ -422,6 +425,12 @@ export default function VoiceDemo() {
 		const seen = { epoch: undefined as string | undefined, seq: -1 };
 		const segments = new Set<unknown>();
 		effects.run((effect) => {
+			const root = effect.get(el.audio.out.root);
+			if (!root) return;
+			setVoice(root);
+			effect.cleanup(() => setVoice((v) => (v === root ? undefined : v)));
+		});
+		effects.run((effect) => {
 			const active = effect.get(el.broadcast.out.active);
 			if (!active) return;
 			onPickup(call);
@@ -461,6 +470,7 @@ export default function VoiceDemo() {
 
 	return (
 		<div class="not-prose my-8 rounded-2xl border border-slate-700 bg-slate-950 p-5 shadow-xl sm:p-6">
+			<Cat voice={voice()} class="mx-auto mb-5 block h-40 w-40" />
 			<div class="flex flex-wrap items-center gap-3">
 				<Show
 					when={phase() !== "idle"}
