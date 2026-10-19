@@ -19,5 +19,6 @@ Check `npm view @moq/watch version` and its type definitions for
 
 Decided 2026-10-19: the same bump brings `@moq/net`'s draining `close()`
 (also on moq `main` only). With it, drop the voice page's 250 ms wait before
-closing (`src/components/voice-demo.tsx`) and close the connection with
-`close()` so the final `session-ending` record still reaches the agent.
+closing (`GOODBYE_MS` in `src/components/voice-demo.tsx`) and close the
+connection with `close()` so the final `session-ending` record still reaches
+the agent.
