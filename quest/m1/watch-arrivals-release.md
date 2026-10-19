@@ -16,3 +16,9 @@ moq shipped the handle in
 breaking change. 0.6.3 came from moq's `release` branch without it.
 Check `npm view @moq/watch version` and its type definitions for
 `Audio.Decoder.arrivals()` and `Watch.Arrival`.
+
+Decided 2026-10-19: the same bump brings `@moq/net`'s draining `close()`
+(also on moq `main` only). With it, drop the voice page's 250 ms wait before
+closing (`GOODBYE_MS` in `src/components/voice-demo.tsx`) and close the
+connection with `close()` so the final `session-ending` record still reaches
+the agent.
