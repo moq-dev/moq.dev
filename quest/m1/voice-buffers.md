@@ -36,6 +36,5 @@ Decided 2026-10-09:
 
 ## Required
 
-- [Voice AI demo page](/quest/m1/voice-page.md) - the page and transcript this draws under
 - [An @moq/watch release ships per-frame arrivals](/quest/m1/watch-arrivals-release.md) - the reply-side data
 - [The voice agent publishes voice.json](/quest/m1/voice-timeline-track.md) - word timings and the prompt-side data

@@ -333,7 +333,7 @@ export default function VoiceDemo() {
 			if (res.status === 503 && body?.code === "busy") return finish(call.gen, "busy");
 			if (res.ok && body?.state === "claimed") return;
 			if (res.ok && body?.state === "ended") return finish(call.gen, "no_pickup");
-			if (res.ok || res.status >= 500) return next();
+			if (res.ok || res.status === 429 || res.status >= 500) return next();
 			finish(call.gen, "unavailable");
 		};
 		next();
