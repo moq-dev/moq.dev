@@ -34,3 +34,5 @@ jobs:
       - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
       # Evaluating the shell checks the Nix, package.json, and Docker Bun pins.
       - run: nix eval --raw .#devShells.x86_64-linux.default.drvPath
+      # Just the quest package, not the whole dev shell.
+      - run: nix run .#quest -- check

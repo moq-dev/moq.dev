@@ -1,0 +1,12 @@
+<!-- PLACEHOLDER: the voice cat's "big-o" mouth. Redraw it in this 200x120 box with (100,50) as the mouth's center; see src/components/voice/cat.tsx. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">
+	<defs>
+		<path id="lips" d="M27.5,13.6C27.9,19.6 29,26 27.7,31.4C26.4,36.7 23.5,42.1 19.7,45.7C15.9,49.3 9.3,51.6 4.9,52.9C0.6,54.2 -2.8,54.7 -6.6,53.6C-10.4,52.5 -14.5,50.4 -17.7,46.3C-21,42.3 -24.2,35 -26.2,29.3C-28.1,23.6 -29.8,17.9 -29.6,11.9C-29.3,6 -26.7,-0.7 -24.7,-6.1C-22.7,-11.6 -21.2,-16.7 -17.8,-20.9C-14.4,-25.2 -8.4,-29.9 -4.3,-31.4C-0.3,-32.8 2.5,-31.3 6.5,-29.8C10.5,-28.2 16.5,-26 19.7,-21.8C22.8,-17.6 24,-10.6 25.3,-4.7C26.6,1.2 27.1,7.6 27.5,13.6Z" />
+		<clipPath id="inside"><use href="#lips" /></clipPath>
+	</defs>
+	<g transform="translate(100 50)">
+		<use href="#lips" fill="#05070d" />
+		<path d="M-30,54C-18,18.3 18,16.2 30,54Z" fill="#e0707a" clip-path="url(#inside)" />
+		<use href="#lips" fill="none" stroke="#fafafa" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" />
+	</g>
+</svg>

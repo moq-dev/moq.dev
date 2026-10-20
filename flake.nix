@@ -4,12 +4,21 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+
+    # The quest CLI, which also serves the quest guide and skills the stubs in
+    # .claude/skills call. Bump the rev to upgrade them.
+    quest = {
+      url = "github:kixelated/quest/5ff9229d277a4580296795a82f427f5ec30072c7";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
   };
 
   outputs =
     {
       nixpkgs,
       flake-utils,
+      quest,
       ...
     }:
     flake-utils.lib.eachSystem
@@ -22,8 +31,12 @@
         system:
         let
           pkgs = import nixpkgs { inherit system; };
+          quest-cli = quest.packages.${system}.default;
         in
         {
+          # The quest CLI alone, so CI can validate the tree without the dev shell.
+          packages.quest = quest-cli;
+
           devShells.default =
             assert pkgs.lib.assertMsg
               ((builtins.fromJSON (builtins.readFile ./package.json)).packageManager == "bun@${pkgs.bun.version}")
@@ -47,6 +60,9 @@
 
                   # The task runner every recipe in the justfile is written for.
                   just
+
+                  # `quest check` and the quest-* skills; see the input.
+                  quest-cli
                 ];
 
                 # `just cards` imports Playwright from here rather than node_modules,
