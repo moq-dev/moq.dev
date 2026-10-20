@@ -1,0 +1,122 @@
+---
+layout: "@/layouts/global.astro"
+title: Robotics
+description: MoQ streams video, telemetry, and control for robots on terrible networks.
+---
+
+import Users from "@/components/users.astro";
+
+# Robotics
+
+Robots have a lot of cameras.
+They're basically cameras with legs or wheels or pinchers or spinning blades or you get the idea.
+
+Teleoperation is becoming less and less relevant, but *something* still needs to monitor the little guys.
+A human, a fleet dashboard, an AI model looking for trouble, a recorder for the post-mortem.
+And they're all watching over the worst network you've ever seen.
+
+<figure>
+	![nine cameras on a boat](/blog/on-a-boat/kraken.png)
+	<figcaption>Arr, there be a kraken on the starboard bow.</figcaption>
+</figure>
+
+## Pull, not Push
+Existing contribution protocols (ex. WebRTC, SRT, RTMP) are push-based.
+The robot constantly transmits *everything* to a server, watched or not.
+Not great when you've got 9 cameras and StarLink is expensive.
+
+**MoQ is pull-based.**
+Each camera is a broadcast, split into tracks like `1080p`, `360p`, `audio` and `telemetry`.
+Nothing is transmitted until somebody subscribes to a track.
+
+So by default, an AI model subscribes to the 360p track from every camera.
+If it spots a kraken, then it subscribes to the 1080p track from that camera.
+Camera 7 doesn't touch the uplink until somebody cares about camera 7.
+
+## Shit Networks
+Robots tend to be somewhere with a terrible network: cellular, satellite, mesh radio, or nothing at all.
+Your bandwidth will fluctuate, and *something* has to give.
+
+**You decide what gives.**
+Every subscription has a priority, and they all cooperate over one QUIC connection.
+Controls before audio before telemetry before the kraken cam before the rest of the cameras.
+When the link degrades, the least important stuff waits.
+
+And it waits, it doesn't disappear.
+Real-time RTP stacks like WebRTC give up on a frame after a short deadline, and it's gone forever.
+MoQ sends the newest frames first and keeps the old ones in RAM, up to a TTL.
+
+Each subscriber decides how long it's willing to wait:
+- The **operator** waits 100ms, skipping ahead to stay real-time.
+- The **AI model** waits a second, because it'd rather see every frame.
+- The **recorder** waits 30 seconds, backfilling once the link recovers.
+
+The result is a lossy live feed AND a pristine VOD from the same stream, as long as the link recovers before the recorder's deadline.
+
+<figure>
+	![Realtime vs Backfill](/blog/cars2/backfill.png)
+	<figcaption>If I ever own a racing team, it's going to be called The Backfill Boyes</figcaption>
+</figure>
+
+## Bonded Pairs
+Near the coast? Use cellular *and* satellite.
+
+QUIC supports path migration, so you can switch from WiFi to cellular to satellite without dropping the connection.
+There's also a [multi-path extension](https://datatracker.ietf.org/doc/draft-ietf-quic-multipath/) that uses multiple paths at the same time.
+It's [behind a feature flag](https://github.com/moq-dev/moq/blob/main/rs/moq-native/Cargo.toml) if you want to give it a spin.
+
+Or go up a layer and open multiple MoQ connections: P2P via [iroh](https://iroh.computer/), a self-hosted relay, a public CDN.
+The robot announces its broadcasts on all of them, and every subscription takes the best available path.
+Idle connections cost nothing, because nothing flows until somebody subscribes.
+
+<figure>
+	![bonded pairs](/blog/on-a-boat/multipath.png)
+	<figcaption>Like kittens, these pairs are bonded.</figcaption>
+</figure>
+
+## Fan Out
+If 100 viewers subscribe to the same track, [moq-relay](https://doc.moq.dev/bin/relay/) merges them into a single upstream subscription.
+The robot serves *at most* one copy of each track, no matter how many people are watching.
+
+Relays connect to each other and form a [cluster](https://doc.moq.dev/bin/relay/cluster/), handling discovery, routing, and failover.
+Self-host a relay on the robot or the base station to keep everything on your network.
+Then cluster it with a public CDN like [moq.pro](https://moq.pro) or [Cloudflare](/blog/first-cdn) when the whole world wants to watch.
+
+<figure>
+	![relay fanout](/blog/on-a-boat/fanout.png)
+	<figcaption>One uplink from the boat, any number of viewers.</figcaption>
+</figure>
+
+## Not Just Media
+There's nothing special about media.
+It's just timestamped, delta-encoded data, and so is everything else a robot produces.
+
+- The camera? **A track.**
+- The GPS? **A track.**
+- The joystick? **A track.**
+- The killswitch? **A track**, and every robot in the fleet can subscribe to it.
+
+Stamp it all with the same clock and send it over the same connection, so you can put humpty back together on the other side.
+WebRTC botches this: data channels have their own congestion control that fights the media instead of cooperating with it.
+
+Controls work the same way, just backwards.
+The operator publishes a `controls` track, and the robot subscribes to it.
+Lockout, handoff, or anarchy is your application's call, not the relay's.
+The [MoQ Boy](/blog/moq-boy) demo does exactly this, with a GameBoy standing in for the robot.
+
+<figure>
+	![MoQ Boy](/blog/moq-boy/moqboy.png)
+	<figcaption>weapon of mass destruction?</figcaption>
+</figure>
+
+## In Production
+
+<Users useCase="robotics" />
+
+## Yours?
+
+That's only the companies willing to tell me they're using the moq.dev libraries.
+Running MoQ on something that moves? [Tell us](mailto:me@kixel.me), we'd love to brag about it.
+Or don't, and we'll add another black bar.
+
+Want the long version? Read [On a Boat](/blog/on-a-boat) and the [Cars 2](/blog/cars2) post.
