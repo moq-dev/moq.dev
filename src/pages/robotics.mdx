@@ -12,13 +12,14 @@ Robots have a lot of cameras.
 They also tend to be somewhere with a terrible network: cellular, satellite, mesh radio, or nothing at all.
 And everybody wants to watch: the operator, the fleet dashboard, the guy in the back with an iPad.
 
-Existing protocols make the robot pay for every viewer, and for every frame nobody is watching.
+Connect viewers straight to the robot and it pays for every one of them.
+Put a media server in the middle and the robot still pushes every camera, watched or not.
 
 ## Why MoQ
 
 - **Pull, not push.** A robot only sends the tracks somebody subscribed to. Nobody watching camera 7? Camera 7 doesn't touch the uplink.
 - **One uplink, any number of viewers.** The robot publishes once to a relay, and the relay fans out. Viewer #100 costs the robot nothing.
-- **Latency over quality.** When the link degrades, MoQ skips old frames instead of buffering them. An operator wants what's happening *now*.
+- **Each viewer picks its latency.** When the link degrades, the operator skips ahead to what's happening *now*. A recorder on the same stream waits, and backfills once the link recovers.
 - **More than video.** Telemetry, control, and logs are just more tracks on the same connection and the same relays.
 - **Watch in a browser.** Operators open a tab. No plugins, no WebRTC signaling servers, no VPN to the robot.
 
