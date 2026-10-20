@@ -128,7 +128,7 @@ export function Diagram(props: Props) {
 	return (
 		<div ref={root} class="not-prose my-8 select-none">
 			<div
-				class="rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-green-500"
+				class="rounded-sm focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-green-500"
 				role="slider"
 				tabIndex={0}
 				aria-label={props.label}
@@ -179,7 +179,7 @@ export function Diagram(props: Props) {
 			<div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
 				<button
 					type="button"
-					class="w-7 rounded bg-slate-800 py-0.5 text-slate-200 hover:bg-slate-700"
+					class="w-7 rounded-sm bg-slate-800 py-0.5 text-slate-200 hover:bg-slate-700"
 					onClick={() => {
 						if (t() >= props.end) setT(0);
 						setPlaying(!playing());

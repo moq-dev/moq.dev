@@ -2,12 +2,12 @@
 	"extends": "astro/tsconfigs/strict",
 	"exclude": ["**/dist", "node_modules"],
 	"compilerOptions": {
-		"baseUrl": ".",
 		"jsx": "preserve",
 		"jsxImportSource": "solid-js",
 		"esModuleInterop": true,
+		"types": ["bun"],
 		"paths": {
-			"@/*": ["src/*"]
+			"@/*": ["./src/*"]
 		}
 	}
 }

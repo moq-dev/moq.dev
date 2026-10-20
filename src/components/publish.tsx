@@ -36,7 +36,7 @@ export default function Publish() {
 								<button
 									type="button"
 									onClick={() => void copyToClipboard(current().share)}
-									class="flex items-center gap-1 rounded bg-gray-700 px-3 py-1 text-sm hover:bg-gray-600"
+									class="flex items-center gap-1 rounded-sm bg-gray-700 px-3 py-1 text-sm hover:bg-gray-600"
 									title="Copy share URL"
 								>
 									{copied() ? (
