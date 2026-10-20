@@ -4,13 +4,13 @@
 		.arrow {
 			fill: #00BF2D;
 			stroke: #00BF2D;
-			stroke-width: 6px;
+			stroke-width: 3px;
 		}
 
 		.text {
 			fill: #FBFBFB;
 			stroke: #FBFBFB;
-			stroke-width: 8px;
+			stroke-width: 4px;
 			stroke-linejoin: round;
 		}
 	</style>
