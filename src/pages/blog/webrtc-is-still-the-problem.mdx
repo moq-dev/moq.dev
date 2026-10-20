@@ -245,7 +245,7 @@ Sometimes the AI is monologuing and you need to tell it to STFU.
 It's pretty easy to do with WebRTC because of the sleep before sending each packet.
 But with MoQ, we need some signal to tell the player to **abandon the playout buffer**.
 
-Here's the naive approach approach that I most definitely did not do on my first attempt:
+Here's the naive approach approach, that I most definitely did ~not~ do on my first attempt:
 
 <Interrupt track="same" client:visible />
 
@@ -261,7 +261,8 @@ Just make a new audio track (and remove the old one) as the STFU signal.
 
 <Interrupt track="new" client:visible />
 
-The *generic* player automatically switches tracks, using timestamps to keep synchronization.
+This works on a **generic MoQ player**.
+We automatically switches tracks, using timestamps to keep synchronization.
 
 **ez**
 
@@ -269,9 +270,10 @@ The *generic* player automatically switches tracks, using timestamps to keep syn
 > Hey stupid, your blog post is wrong. You didn't mention [speech-to-speech](https://openai.com/index/introducing-the-realtime-api/)?
 
 Oops, I didn't know speech-to-speech existed before [hip firing my last post](/blog/webrtc-is-the-problem).
-I probably should have first done *some* research on the state of voice AI.
+Dunning-Kruger is the only reason you guys got a blog post in the first place.
+What can I say but **ur welcome**.
 
-**DISCLAIMER**: I still haven't done any research on the state of voice AI.
+**DISCLAIMER**: I still haven't done any research on the state of voice AI, nor has Claude.
 I give you full permission to tweet `@kixelated ur stupid`.
 
 The idea behind speech-to-speech is to cut out the text middleman.
@@ -286,30 +288,26 @@ Not so fast literary strawman.
 
 ## Latency Budgets
 The more time you have to work on something, the better the result.
-Good things take time, like Fable scanning the entire mono-repo, only to change one word.
+Good things take time, like Fable changing a single line in `README.md` because I forgot to change model first.
+fuck.
 
 Networks are the same. 
 The more time you have to transmit something, the better the reliability and thus quality.
 It's why retransmits exist in the first place.
 
-**Fun Fact:** Over-the-air TV doesn't have retransmits or byte offsets.
-Instead it relies on identifying a **0x47** sync byte every **188 bytes**.
+**Fun Fact:** Over-the-air TV doesn't have retransmits. 
+It can detect loss via a **0x47** sync byte every **188 bytes** but there's no way to repair it.
 This is unironically still [the standard for broadcast TV](https://en.wikipedia.org/wiki/MPEG_transport_stream) in `<current year>`. 
 It's also why glitchy messes (and 30s of latency) are still a thing in `<current year>`.
 
-Anyway no more **fun facts**, it's time to talk about business.
-And something even worse: **product managers**.
-
-## The Root of all Evil
 The amount of time a user is willing to wait for something is a **product decision**.
 Put on your big boye pants, it's time to be a PM.
-
 Do users want something fast and lossy, or slow and reliable?
+
 **Why not both**?
 
 That's the idea behind speech-to-speech.
-Do a fast pass for easy prompts.
-For anything more difficult, generate some comfort noise.
+Do a low-latency STS pass for easy prompts and to generate comfort noise.
 
 > Human: What is le capital of France?
 
@@ -318,52 +316,58 @@ For anything more difficult, generate some comfort noise.
 Boom, even that useless "I'm thinking" response makes the human feel good chemicals.
 But more importantly for us anti-PMs, it buys us enough time to start a slower pass.
 
+I don't work at a frontier lab so this is **all speculation**, but I imagine SST->LLM->TTS is still used for these slower passes where correctness is more important than latency.
+A STS model with Astra/Fable quality is absolutely ideal... but maybe not worth the investment.
+
+Either way, doesn't matter if it's STS or SST->LLM->TTS.
+The only thing that matters is the **latency budget**.
+
 ## Why Not Both?
 One of the core problems we're trying to fix with MoQ is the whole "one transport per latency" issue in the industry.
-It's unfortunately common to use something like WebRTC for real-time participants (ex. Zoom) while non-participants get something TCP based (ex. HLS).
+It's face-palmingly common to use different protocols based on the latency budget.
 
-Fuck that noise, MoQ supports every latency target:
+Fuck that noise, MoQ supports multiple latency targets:
 - **real-time latency** for rapid replies (STS).
 - **loss-less quality** for slow replies (STT->LLM->TTS).
 
 **How?**
 
-Every subscription includes how long the **subscriber is willing to wait**.
-Your real-time model can have a maximum latency of 1s while your more accurate model might have a maximum latency of 10s.
-Both get coalesced into a single upstream subscription so it scales horizontally.
+Every MoQ subscription includes how long the **subscriber is willing to wait**.
+Your real-time model can have a maximum latency of 500ms while your more accurate model might have a maximum latency of 5s.
+
+Both get coalesced into a **single upstream subscription** which can fanout.
+We're not wasting any bandwidth; it's all about the size of the jitter buffer baybee.
 
 <Budget client:visible />
-
-**Your transport latency SHOULD be aligned with your product latency budget.**
 
 And note that this is the **maximum latency**.
 MoQ flushes frames ASAP by default, but under terrible network conditions you need to eventually give up.
 Otherwise MoQ would be no better than TCP/WebSocket... which is probably still better than WebRTC.
 
-It's all about the size of the jitter buffer baybee.
+**Your transport latency should be aligned with your product latency budget.**
 
 
 ## It's Simple: Predict the Future
 > Hey stupid, your blog post is wrong. WebRTC doesn't care about packet loss because it uses [FEC](https://en.wikipedia.org/wiki/Error_correction_code).
 
-Mate go read my [previous blog posts](/blog/never-use-datagrams).
+M8 go read my [previous blog posts](/blog/never-use-datagrams).
 
 WebRTC (and Opus) include Forward Error Correction to help mask packet loss.
 The idea is to send some parity bits for the previous audio frame.
 
-But that's it; it helps recover a single last packet.
-And that's **not how the internet works**; packet loss is not random.
-Most packet loss on the internet is bursty and caused by bufferbloat or the loss of jumbo frames.
+**But only a single last packet**, not even two in a row.
+Which is fine for WebRTC because it doesn't give a shit about audio older than 30ms.
+But unfortunately for voice AI, packet loss on the internet is bursty, not random.
 
-FEC is fortune telling.
-You send extra packets attempting to predict the future and mask loss.
-But sending additional packets **will aggravate congestion** if you're not careful (and you're not).
+A common "fix" is to spread parity information spread over time, so you can handle X lost packets in a row.
+All of this extra data has a real cost, and if you don't know what you're doing (and you don't), then you will **aggrevate bufferbloat**.
+
+In my humble (and attractive) opinion, FEC is best for huge RTTs, like transmitting to le moon.
+In `<current year>`, we instead use CDNs is to **shrink the lossy first/last mile** which makes retransmissions **OP**.
+Why spread FEC over 200ms if it takes 40ms to retransmit?
 
 But if you insist, QUIC libraries can retransmit stream data as many times as they want.
 Basically [RED](https://bloggeek.me/webrtcglossary/red/) but based on byte offsets, not packets.
-It's dumb though; focus on shrinking RTTs and detecting bufferbloat (congestion control).
-
-And if 
 
 ## More Free Ideas
 I should end the blog post here but seriously, I'm 3 weeks in and need this shit forwarded internally.
@@ -396,26 +400,29 @@ But getting cheap DELL servers next to every single user in the world is easy.
 - Run `moq-relay` within CDN edges.
 - Run models where GPUs are available.
 
-This is basically the premise of [CDNs](https://moq.pro).
+Like I said earlier, this is basically the premise of [CDNs](https://moq.pro).
 A huge number of edge nodes close to users minimizes the **congested first/last mile**.
 Over-provision the backbone so you can get the traffic to the GPUs **without congestion**.
 
 **You can independently scale network and compute.**
 
-Which I hope you guys already do, but MoQ is generic enough to serve more than just Voice AI.
+Which I hope you guys already do, and are big enough to justify a custom Voice AI protocol instead of using a standardized MoQ implementation.
+
+For everybody else, MoQ is generic enough to serve **more than just Voice AI**.
+Think of MoQ like a live HTTP.
+
 In fact, my first big *customer* is using [moq.pro](https://moq.pro) to mass fanout JSON blobs.
-Not even media, ugh.
+Literally a generic pub/sub protocol.
 
 ## Prioritize Context
-Look I'm a transport AND an ideas guy.
+Look I'm a transport and ideas guy, not an AI scientest.
 Don't flame me if this is obvious and/or impossible.
-I swear I didn't ask Clode if it was possible first; that's your job.
 
 The core problem with WebRTC+AI is that there's a disconnect between the model and the transport.
-I focused on aligning latency... but what about aligning context?
+While this blog focused on aligning latency... but what about aligning context?
 
 After all, **not all tokens have the same weight**.
-With some way to detect the relative importance of each utterance, we could use that to make informed networking decisions too.
+If we knew the relative importance of each token, we can use that to make informed networking decisions.
 
 **high priority**: what capital france\
 **low priority**: is le\
@@ -424,14 +431,9 @@ With some way to detect the relative importance of each utterance, we could use 
 To implement this via MoQ, you would split the audio track into separate tracks that are encoded independently.
 The high priority track would get first dibs on available bandwidth and would have a higher max-latency.
 
-That's the easy part.
-The hard part is actually running some lightweight tokenizer on the client.
-But I mean that's similar to VAD... and it can't be that difficult right...?
-
-The other hard part is actually giving a shit.
-Audio bitrates are so low that you rarely get a chance to prioritize.
-But the same logic applies to other things, like video.
-Prioritize them frames.
+But TBH the hard part is actually giving a shit.
+Audio bitrates are so low that you rarely get a chance to prioritize anyway, and it's not worth the hassle of doing a client-side tokenizer.
+Maybe it could matter for video tho.
 
 ## Back-fill that Boye
 The other problem with dropping audio after 30ms is that it's a one-way door.
@@ -441,27 +443,29 @@ The other problem with dropping audio after 30ms is that it's a one-way door.
 Once a network transport decides to drop data over the network, it can't be used for *other* things.
 Now, I don't know if frontier labs store raw audio... but maybe they should.
 
-When there's network congestion and we hit the configured `max-latency`, something's gotta give.
-The AI model has to guess based on incomplete data: did it do a good job or bad job.
-**How do we know?**
+When there's network congestion and we hit the configured `max-latency`, the AI model has to guess based on incomplete data.
+
+Did it do a good job or bad job?
+**How can we know?**
 
 Well... maybe don't actually drop the audio; keep that shit in RAM.
 Audio is tiny after all.
 We can set `max-latency` to 10 minutes and it will be transmitted **eventually at the lowest priority**.
-We backfill that boye only when the network has fully recovered.
+We **backfill that boye** only when the network has fully recovered.
 
-Why backfill live? **Vroom vroom**, the GPU is warm.
+Why backfill via MoQ?
+Why not save it as a file an train on it later?
 
-Ask the model if it did a good job guessing what the user said X seconds ago.
-It's basically free if the context is cached.
-Use it as training data, IDK I'm not a scientist.
+**Vroom vroom**, the GPU is warm.  Ask the model if it did a good job guessing what the user said X seconds ago while the context is cached.
+Use it as training data.
+IDK I'm not a scientist.
 
 ## FIN
 Oh god I've spent so long on this blog post.
 Please upvote on your favorite link aggregator of choice.
 
-I'm about to **YOLO** into funding, so hit me up if you want to invest/acquire [Kixel, Corp.](https://kixel.us)
-You get a discount while I'm technically unemployed ("Pre-Seed") and easy to impress.
+I'm about to **YOLO** into funding, so hit me up if you're interested in [Kixel, Corp.](https://kixel.us)
+You get a discount while I'm spiritually unemployed and easy to impress.
 
 Also hit me up if you're tired of being well paid and want to **YOLO** into a job.
 There's already a second nerd starting next month.

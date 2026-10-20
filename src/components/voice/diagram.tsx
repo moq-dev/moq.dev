@@ -103,8 +103,11 @@ export function Diagram(props: Props) {
 		};
 		frame = requestAnimationFrame(tick);
 
-		// Only run while on screen, so the reader doesn't miss the start.
-		const observer = new IntersectionObserver(([entry]) => setPlaying(entry.isIntersecting), { threshold: 0.5 });
+		// Only run once the diagram reaches the top half of the screen, where the reader is looking,
+		// so they don't miss the start.
+		const observer = new IntersectionObserver(([entry]) => setPlaying(entry.isIntersecting), {
+			rootMargin: "0px 0px -50% 0px",
+		});
 		observer.observe(root);
 
 		onCleanup(() => {

@@ -35,13 +35,13 @@ function listen(budget: number): Segment[] {
 	});
 }
 
-const STS = listen(1);
-const STT = listen(10);
+const STS = listen(0.5);
+const STT = listen(5);
 
 const finished = (segments: Segment[]) => Math.max(...segments.map((s) => s.done ?? s.lost ?? 0));
 
 const note = (t: number) => {
-	if (STS.some((s) => has(s.missing, t) && !has(s.have, t) && !has(s.lost, t))) return "waiting, for up to 1s";
+	if (STS.some((s) => has(s.missing, t) && !has(s.have, t) && !has(s.lost, t))) return "waiting, for up to 500ms";
 	if (STS.some((s) => has(s.lost, t)) && t < finished(STS) + 0.5) return "gave up, guessing";
 	return undefined;
 };
@@ -51,8 +51,8 @@ const PANEL: Panel = {
 	subtitle: "one upstream, two subscribers with different latency budgets",
 	top: [{ who: "you", words: WORDS, segments: SPOKEN }],
 	bottom: [
-		{ who: "ai", words: WORDS, segments: STS, note, label: { text: "STS · 1s budget", align: "end" } },
-		{ who: "ai", words: WORDS, segments: STT, label: { text: "STT · 10s budget", align: "end" } },
+		{ who: "ai", words: WORDS, segments: STS, note, label: { text: "STS · 500ms budget", align: "end" } },
+		{ who: "ai", words: WORDS, segments: STT, label: { text: "STT · 5s budget", align: "end" } },
 	],
 	packets: PACKETS,
 	loss: LOSS,
@@ -68,7 +68,7 @@ export default function Budget() {
 			axis={AXIS}
 			panel={PANEL}
 			legend={{ done: "spoken / understood", have: "received, not yet understood" }}
-			label="Two subscribers share one upstream. The 1s speech-to-speech subscriber gives up on the lost audio and stalls politely, while the 10s speech-to-text subscriber waits for retransmits and answers correctly."
+			label="Two subscribers share one upstream. The 500ms speech-to-speech subscriber gives up on the lost audio and stalls politely, while the 5s speech-to-text subscriber waits for retransmits and answers correctly."
 		/>
 	);
 }
