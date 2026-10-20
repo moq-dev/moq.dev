@@ -30,7 +30,7 @@ const fullTitle = title ? `${title} - Media over QUIC` : "Media over QUIC";
 const fullDescription = description
 	? `Media over QUIC: ${description}`
 	: "Media over QUIC is a new live media protocol designed for simplicity and scale. It uses new browser technologies like WebTransport and WebCodecs to deliver media with latency that rivals WebRTC.";
-const ogImage = new URL(frontmatter?.cover ?? "/layout/icon.png", siteUrl).toString();
+const ogImage = new URL(frontmatter?.cover ?? "/layout/og.png", siteUrl).toString();
 
 // moq.wtf for staging builds, moq.pro for live (and local dev).
 const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https://moq.pro";
@@ -87,7 +87,7 @@ const date = frontmatter?.date
 		<header class="sticky top-0 z-20 border-b border-slate-800 bg-slate-900/85 backdrop-blur">
 			<div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-6 sm:px-5 md:px-8">
 				<a href="/" class="shrink-0" aria-label="Media over QUIC home">
-					<img src="/home/logo.svg" class="-mb-1 h-7 w-auto sm:h-9 md:h-11" alt="Media over QUIC" />
+					<img src="/home/logo.svg" class="-mb-1 h-8 w-auto sm:h-10 md:h-12" alt="Media over QUIC" />
 				</a>
 				<nav class="ml-auto flex items-center text-[0.95rem] font-medium text-slate-300 sm:gap-1">
 					{

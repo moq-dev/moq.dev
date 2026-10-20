@@ -39,6 +39,13 @@ export type Card = {
 };
 
 export const CARDS: Card[] = [
+	// The site's default og:image, never retired: copy out/og.png to public/layout/og.png
+	// (and moq-dev/moq's doc/public/og.png) when the homepage hero changes.
+	{
+		slug: "og",
+		title: "Real-time media and **massive scale.**",
+		sub: "The open standard for streaming live video, audio, and whatever you want.",
+	},
 	{
 		slug: "install",
 		eyebrow: "moq-cli 0.14",
