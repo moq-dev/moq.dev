@@ -21,7 +21,7 @@ And they're all watching over the worst network you've ever seen.
 </figure>
 
 ## Pull, not Push
-Existing contribution protocols (ex. WebRTC, SRT, RTSP, RTMP) are push-based.
+Existing contribution protocols (ex. WebRTC, SRT, RTMP) are push-based.
 The robot constantly transmits *everything* to a server, watched or not.
 Not great when you've got 9 cameras and StarLink is expensive.
 
@@ -43,7 +43,7 @@ Controls before audio before telemetry before the kraken cam before the rest of 
 When the link degrades, the least important stuff waits.
 
 And it waits, it doesn't disappear.
-Boring protocols like RTP give up on a frame after ~100ms, and it's gone forever.
+Real-time RTP stacks like WebRTC give up on a frame after a short deadline, and it's gone forever.
 MoQ sends the newest frames first and keeps the old ones in RAM, up to a TTL.
 
 Each subscriber decides how long it's willing to wait:
@@ -51,7 +51,7 @@ Each subscriber decides how long it's willing to wait:
 - The **AI model** waits a second, because it'd rather see every frame.
 - The **recorder** waits 30 seconds, backfilling once the link recovers.
 
-The result is a lossy live feed AND a pristine VOD, from the same stream.
+The result is a lossy live feed AND a pristine VOD from the same stream, as long as the link recovers before the recorder's deadline.
 
 <figure>
 	![Realtime vs Backfill](/blog/cars2/backfill.png)
@@ -97,7 +97,7 @@ It's just timestamped, delta-encoded data, and so is everything else a robot pro
 - The killswitch? **A track**, and every robot in the fleet can subscribe to it.
 
 Stamp it all with the same clock and send it over the same connection, so you can put humpty back together on the other side.
-WebRTC botches this: metadata needs a separate connection, and the browser doesn't expose timestamps.
+WebRTC botches this: data channels have their own congestion control that fights the media instead of cooperating with it.
 
 Controls work the same way, just backwards.
 The operator publishes a `controls` track, and the robot subscribes to it.
