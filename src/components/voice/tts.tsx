@@ -1,21 +1,19 @@
 // Text-to-speech: the AI talks faster than real-time, the human listens at human speed.
-import { type Art, Diagram, type Panel } from "./diagram";
+import { Diagram, type Panel } from "./diagram";
 import { arrival, FLIGHT, FRAME, frames, has, head, type Segment, transmit } from "./sim";
 
-const WORDS = [
+export const WORDS = [
 	{ text: "Paris.", start: 0.1, end: 0.6 },
-	{ text: "Obviously.", start: 0.9, end: 1.6 },
-	{ text: "Did", start: 2.0, end: 2.2 },
-	{ text: "you", start: 2.3, end: 2.5 },
-	{ text: "even", start: 2.6, end: 2.9 },
-	{ text: "try", start: 3.0, end: 3.2 },
-	{ text: "googling", start: 3.3, end: 3.8 },
-	{ text: "it?", start: 3.9, end: 4.2 },
+	{ text: "Home", start: 1.0, end: 1.35 },
+	{ text: "of", start: 1.5, end: 1.65 },
+	{ text: "le", start: 1.8, end: 1.95 },
+	{ text: "croissant.", start: 2.15, end: 2.95 },
 ];
 
-const AXIS = 4.3;
-// The same stretch of audio is lost on both transports, by media timestamp, so they lose the same words.
-const LOST = { start: 0.7, end: 2.5 };
+const AXIS = 3.1;
+// The same stretch of audio is lost on both transports, by media timestamp, so they lose the same words:
+// "of le croissant.", leaving "Paris. Home …"
+const LOST = { start: 1.45, end: 3.0 };
 
 const GENERATE = 10; // the model speaks 10x faster than real-time
 const THROUGHPUT = 3; // MoQ sends as fast as the (congested) network allows
@@ -55,7 +53,7 @@ function panel(moq: boolean): Panel {
 
 	const buffered = (t: number) => {
 		const playhead = head(heard, t);
-		if (playhead <= 0 || playhead >= AXIS) return undefined;
+		if (playhead <= 0 || playhead >= AXIS - 0.01) return undefined;
 		let edge = playhead;
 		for (const s of heard) {
 			if (s.ts + FRAME <= playhead) continue;
@@ -70,28 +68,32 @@ function panel(moq: boolean): Panel {
 	return {
 		title: moq ? "MoQ" : "WebRTC",
 		subtitle: moq ? "sends everything ASAP, the player buffers" : "sends at human speed, gives up on late audio",
-		top: { who: "ai", words: WORDS, segments: spoken, note: moq ? undefined : queued },
-		bottom: { who: "you", words: WORDS, segments: heard, note: buffered },
+		top: [{ who: "ai", words: WORDS, segments: spoken, note: moq ? undefined : queued }],
+		bottom: [{ who: "you", words: WORDS, segments: heard, note: buffered }],
 		packets,
 		loss,
-		result: moq
-			? { at: finished + 0.2, text: "🧑 “Rude, but fair.”", good: true }
-			: { at: finished + 0.2, text: "🧑 “Sorry, you broke up. Can you repeat that?”", good: false },
+		replies: [
+			moq
+				? { at: finished + 0.2, text: "“Huh, I didn’t know that.”", good: true }
+				: { at: finished + 0.2, text: "“Sorry, you cut out. Home of what?”", good: false },
+		],
 	};
 }
 
-const PANELS = [panel(false), panel(true)];
-const END = AXIS + DELAY + 0.7;
+const PANELS = { webrtc: panel(false), moq: panel(true) };
 
-export default function TextToSpeech(props: { art?: Art }) {
+const LABELS = {
+	webrtc: "Text-to-speech over WebRTC: audio is sent at human speed, and packet loss erases half the sentence.",
+	moq: "Text-to-speech over MoQ: audio is sent ahead and buffered, so retransmits arrive before playback needs them.",
+};
+
+export default function TextToSpeech(props: { transport: "webrtc" | "moq" }) {
 	return (
 		<Diagram
 			axis={AXIS}
-			end={END}
-			panels={PANELS}
-			art={props.art}
+			panel={PANELS[props.transport]}
 			legend={{ done: "sent / played", have: "generated / buffered" }}
-			label="Text-to-speech over WebRTC vs MoQ: WebRTC sends at human speed and packet loss erases a word, while MoQ sends ahead, buffers, and retransmits before playback needs it."
+			label={LABELS[props.transport]}
 		/>
 	);
 }
