@@ -51,15 +51,16 @@ Just like Leonardo DiCaprio, anything above 30ms is too old.
 <SpeechToText transport="webrtc" client:visible />
 
 **But why?**
-WebRTC *could* detect packet loss and retransmit, and in fact that's what it does for video.
-However, for audio it uses an aggressive jitter buffer for **product reasons**.
+WebRTC *can* detect packet loss and retransmit, and in fact that's what it does for video.
+It can even retransmit audio, but it doesn't matter: the jitter buffer is so aggressive that the retransmission shows up too late and gets tossed anyway.
+That's for **product reasons**.
 
 We flesh bags consume/produce audio in "real-time", aka a **human clock rate**.
 Retransmitted audio packets will be delayed, either introducing latency, or a burst of audio.
 Our neurons can only fire so fast and don't want to process time shifts.
 
-For the nerds in the audience, WebRTC handles this with [NetEQ](https://chromium.googlesource.com/external/webrtc/+/master/modules/audio_coding/neteq/g3doc/index.md).
-It's neat because it does change the speed of playback in response to RTT changes... but not packet loss.
+For the nerds in the audience, WebRTC handles this with [NetEQ](https://webrtc.googlesource.com/src/+/main/modules/audio_coding/neteq/g3doc/index.md).
+It's neat because it does change the speed of playback in response to jitter... but not packet loss.
 
 This kind of sucks for a **voice AI product**. 
 You walk out of wifi range, hit a cellular dead zone, or starlink terminal switches satellites.
@@ -125,14 +126,14 @@ We have **literal seconds** to retransmit **6 packets** to avoid any user impact
 And if we manage to accomplish this herculean task: **all the context arrives in time!**
 
 The model no longer has to guess.
-It no longer has be trained on silence or loss distortion (specific to Opus) either.
+It no longer has to be trained on silence or loss distortion (specific to Opus) either.
 
 ## Not Just Mics
 Guess what? 
 WebRTC doesn't just suck for STT, it also sucks for TTS.
 
 **Fun Fact**: WebRTC renders audio (and video) based on **when it arrives**, not when it is **supposed to be rendered**.
-Every other protocol uses timestamps, but not Mr. WebRTC, because accuracy (and A/V sync) is a non-goal.
+Every other protocol uses timestamps, but Mr. WebRTC barely looks at them, because accuracy (and A/V sync) is a non-goal.
 
 **This is a huge problem for voice AI**.
 TTS is generated faster than real-time, stamping each packet with a future timestamp.
@@ -213,7 +214,7 @@ We tried using WebRTC at Twitch but the real-time-or-else made for a poor user e
 I am but a humble software engineer, and despite trying, we failed to petition Google.
 
 But OpenAI has enough sway to fix WebRTC.
-One long-deserved improvement is [WARP](https://www.ietf.org/archive/id/draft-uberti-tsvwg-warp-00.html) (not that [WARP](https://www.ietf.org/archive/id/draft-lcurley-warp-04.html)), which was hot off the heels of my last blog post.
+One long-deserved improvement is [WARP](https://www.ietf.org/archive/id/draft-uberti-tsvwg-warp-00.html) (not that [WARP](https://www.ietf.org/archive/id/draft-lcurley-warp-04.html)), which was hot on the heels of my last blog post.
 
 Keep at it Justin, or join the Dark Side with me.
 Everything is so much nicer when you can abandon [disgusting VOIP standards](https://webrtchacks.com/sdp-anatomy/).
@@ -249,7 +250,7 @@ Sometimes the AI is monologuing and you need to tell it to STFU.
 It's pretty easy to do with WebRTC because of the sleep before sending each packet.
 But with MoQ, we need some signal to tell the player to **abandon the playout buffer**.
 
-Here's the naive approach approach, that I most definitely did ~not~ do on my first attempt:
+Here's the naive approach, that I most definitely did ~not~ do on my first attempt:
 
 <Interrupt track="same" client:visible />
 
@@ -266,7 +267,7 @@ Just make a new audio track (and remove the old one) as the STFU signal.
 <Interrupt track="new" client:visible />
 
 This works on a **generic MoQ player**.
-We automatically switches tracks, using timestamps to keep synchronization.
+We automatically switch tracks, using timestamps to keep synchronization.
 
 **ez**
 
@@ -300,7 +301,8 @@ The more time you have to transmit something, the better the reliability and thu
 It's why retransmits exist in the first place.
 
 **Fun Fact:** Over-the-air TV doesn't have retransmits. 
-It can detect loss via a **0x47** sync byte every **188 bytes** but there's no way to repair it.
+There's no back channel, so it sends a pile of FEC and hopes for the best.
+When that's not enough, a counter in each **188 byte** packet tells you what you lost, but there's no way to get it back.
 This is unironically still [the standard for broadcast TV](https://en.wikipedia.org/wiki/MPEG_transport_stream) in `<current year>`. 
 It's also why glitchy messes (and 30s of latency) are still a thing in `<current year>`.
 
@@ -315,15 +317,15 @@ Do a low-latency STS pass for easy prompts and to generate comfort noise.
 
 > Human: What is le capital of France?
 
-> Codex: One second, let me look that up.
+> ChatGPT: One second, let me look that up.
 
 Boom, even that useless "I'm thinking" response makes the human feel good chemicals.
 But more importantly for us anti-PMs, it buys us enough time to start a slower pass.
 
-I don't work at a frontier lab so this is **all speculation**, but I imagine SST->LLM->TTS is still used for these slower passes where correctness is more important than latency.
+I don't work at a frontier lab so this is **all speculation**, but I imagine STT->LLM->TTS is still used for these slower passes where correctness is more important than latency.
 A STS model with Astra/Fable quality is absolutely ideal... but maybe not worth the investment.
 
-Either way, doesn't matter if it's STS or SST->LLM->TTS.
+Either way, doesn't matter if it's STS or STT->LLM->TTS.
 The only thing that matters is the **latency budget**.
 
 ## Why Not Both?
@@ -357,17 +359,17 @@ Otherwise MoQ would be no better than TCP/WebSocket... which is probably still b
 M8 go read my [previous blog posts](/blog/never-use-datagrams).
 
 WebRTC (and Opus) include Forward Error Correction to help mask packet loss.
-The idea is to send some parity bits for the previous audio frame.
+The idea is to stuff a crappier, lower bitrate copy of the previous audio frame into the next packet.
 
 **But only a single last packet**, not even two in a row.
 Which is fine for WebRTC because it doesn't give a shit about audio older than 30ms.
 But unfortunately for voice AI, packet loss on the internet is bursty, not random.
 
-A common "fix" is to spread parity information spread over time, so you can handle X lost packets in a row.
-All of this extra data has a real cost, and if you don't know what you're doing (and you don't), then you will **aggrevate bufferbloat**.
+A common "fix" is to spread these copies over time, so you can handle X lost packets in a row.
+All of this extra data has a real cost, and if you don't know what you're doing (and you don't), then you will **aggravate bufferbloat**.
 
 In my humble (and attractive) opinion, FEC is best for huge RTTs, like transmitting to le moon.
-In `<current year>`, we instead use CDNs is to **shrink the lossy first/last mile** which makes retransmissions **OP**.
+In `<current year>`, we instead use CDNs to **shrink the lossy first/last mile** which makes retransmissions **OP**.
 Why spread FEC over 200ms if it takes 40ms to retransmit?
 
 But if you insist, QUIC libraries can retransmit stream data as many times as they want.
@@ -423,10 +425,10 @@ Look I'm a transport and ideas guy, not an AI scientest.
 Don't flame me if this is obvious and/or impossible.
 
 The core problem with WebRTC+AI is that there's a disconnect between the model and the transport.
-While this blog focused on aligning latency... but what about aligning context?
+This blog focused on aligning latency... but what about aligning context?
 
 After all, **not all tokens have the same weight**.
-If we knew the relative importance of each token, we can use that to make informed networking decisions.
+If we knew the relative importance of each token, we could use that to make informed networking decisions.
 
 **high priority**: what capital france\
 **low priority**: is le\
@@ -458,7 +460,7 @@ We can set `max-latency` to 10 minutes and it will be transmitted **eventually a
 We **backfill that boye** only when the network has fully recovered.
 
 Why backfill via MoQ?
-Why not save it as a file an train on it later?
+Why not save it as a file and train on it later?
 
 **Vroom vroom**, the GPU is warm.  Ask the model if it did a good job guessing what the user said X seconds ago while the context is cached.
 Use it as training data.
