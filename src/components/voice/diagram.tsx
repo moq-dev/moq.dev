@@ -103,16 +103,19 @@ export function Diagram(props: Props) {
 		};
 		frame = requestAnimationFrame(tick);
 
-		// Only run once the diagram reaches the top half of the screen, where the reader is looking,
-		// so they don't miss the start.
-		const observer = new IntersectionObserver(([entry]) => setPlaying(entry.isIntersecting), {
-			rootMargin: "0px 0px -50% 0px",
+		// Start once the diagram reaches the middle half of the screen, where the reader is looking,
+		// so they don't miss the start. Keep running until it scrolls fully out of view.
+		const start = new IntersectionObserver(([entry]) => entry.isIntersecting && setPlaying(true), {
+			rootMargin: "-25% 0px -25% 0px",
 		});
-		observer.observe(root);
+		const stop = new IntersectionObserver(([entry]) => entry.isIntersecting || setPlaying(false));
+		start.observe(root);
+		stop.observe(root);
 
 		onCleanup(() => {
 			cancelAnimationFrame(frame);
-			observer.disconnect();
+			start.disconnect();
+			stop.disconnect();
 		});
 	});
 
