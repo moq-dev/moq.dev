@@ -2,9 +2,9 @@
 layout: "@/layouts/global.astro"
 title: "OpenAI still has a WebRTC Problem"
 author: kixelated
-description: Stuff was added, stuff was removed, stuff was changed for no reason at all.
+description: Your voice AI keeps asking "can you repeat that?" because WebRTC throws away your words. MoQ doesn't.
 cover: "/blog/webrtc-is-still-the-problem/context.png"
-date: 2026-10-20
+date: 2026-10-21
 ---
 
 import SpeechToText from "@/components/voice/stt";
@@ -73,7 +73,7 @@ We flesh bags consume/produce audio in "real-time", aka a **human clock rate**.
 Our neurons can only fire so fast.
 
 For a real-time conferencing product like Google Meet, latency needs to be near zero.
-Any delay is super fucking annoying, which is WebRTC does everything in its power to minimize it.
+Any delay is super fucking annoying, which is why WebRTC does everything in its power to minimize it.
 
 Blocking on retransmissions will cause delays.
 It's the fatal flaw with TCP and why WebRTC is UDP based in the first place.
@@ -135,7 +135,7 @@ Here's a dumb example of context growing over time:
 
 If an LLM tries to answer my prompt **before** getting the full context, shit will suck.
 **France is le gatekeeper**, and everything before it is effectively a prerequisite.
-In this example, what matters is the **latency of last packet**.
+In this example, what matters is the **latency of the last packet**.
 
 Those poor packets that were attacken by the kraken?
 WebRTC actually had **seconds to retransmit** with no latency penalty.
@@ -169,7 +169,8 @@ WebRTC doesn't just suck for STT, it also sucks for TTS.
 </figure>
 
 **Fun Fact**: WebRTC renders audio (and video) based on **when it arrives**, not when it is **supposed to be rendered**.
-Every other protocol uses timestamps, but Mr. WebRTC barely looks at them, because accuracy (and A/V sync) is a non-goal.
+Every other protocol uses timestamps, but Mr. WebRTC barely looks at them, because accuracy is a non-goal.
+Sure, it'll nudge audio and video into sync by a few milliseconds, but good luck sending the video 500ms after the audio.
 
 **This is a huge problem for voice AI**.
 TTS is generated faster than real-time, stamping each packet with a future timestamp.
@@ -257,7 +258,7 @@ The main problem with WebRTC will remain: **Google is the gatekeeper**.
 Your Claude friend can't just fork `libwebrtc` and fix these issues.
 Google is required for web support, at least until [Theo spends $420k](https://www.youtube.com/watch?v=ND_kRgU_WlY) to rewrite Chromium in Rust.
 
-I think it's amazing that an extension merged [10 years ago](https://codereview.webrtc.org/2007743003) is exactly what you want for voice AI... but it's for video only.
+I think it's amazing that playout-delay was merged [10 years ago](https://codereview.webrtc.org/2007743003) and audio *still* doesn't have it.
 Higher latency/quality playback has **never** been a priority for WebRTC, since **Google Meet is the only product that matters**.
 
 **Fun Fact**: This is why I ended up creating MoQ.
@@ -357,7 +358,7 @@ Networks are the same.
 **The more time you have to transmit something, the better the quality.**
 It's why retransmits exist in the first place.
 
-Unless you're doing broadcast TV, which *still* uses [MPEG-TS](https://en.wikipedia.org/wiki/MPEG_transport_stream) and *still* results glitchy messes.
+Unless you're doing broadcast TV, which *still* uses [MPEG-TS](https://en.wikipedia.org/wiki/MPEG_transport_stream) and *still* results in glitchy messes.
 Seriously wtf guys, TV is no longer over the air, and we don't need 188 byte packets any longer.
 
 Anyway, the amount of time a user is willing to wait for something is a **product decision**.
@@ -367,7 +368,7 @@ Do users want something fast and lossy, or slow and reliable?
 **Why not both**?
 
 That's the idea behind speech-to-speech.
-Do a low-latency STS pass for easy prompts and to generate comfort noise.
+Do a low-latency STS pass for easy prompts and to generate filler noise.
 
 > Human: What is le capital of France?
 
@@ -416,7 +417,7 @@ One more strawman to beat into the dirt.
 
 > Hey stupid, your blog post is wrong. WebRTC doesn't care about packet loss because it uses [FEC](https://en.wikipedia.org/wiki/Error_correction_code).
 
-M8 go read my [previous blog posts](/blog/never-use-datagrams).
+M8 go read my previous blog posts: [never use datagrams](/blog/never-use-datagrams) and [forward error correction](/blog/forward-error-correction).
 This is like my dumber one hot take.
 
 WebRTC (and Opus) include Forward Error Correction to help mask packet loss.
@@ -487,7 +488,7 @@ Think of MoQ like a live HTTP.
 It's an [IETF standard after all](https://datatracker.ietf.org/group/moq/documents/), the same body that does that HTTP thing.
 
 In fact, my first big *customer* is using [moq.pro](https://moq.pro) to mass fanout JSON blobs.
-Literally a generic pub/sub protocol mascurading as an A/V protocol.
+Literally a generic pub/sub protocol masquerading as an A/V protocol.
 
 ## Prioritize Context
 I'm a transport and ideas guy, not an AI scientest.
