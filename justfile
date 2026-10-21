@@ -16,6 +16,9 @@ check:
 	# Make sure Typescript compiles
 	bun run check
 
+	# Validate the quest tree
+	quest check
+
 # Automatically fix some issues.
 fix:
 	# Fix the JS packages

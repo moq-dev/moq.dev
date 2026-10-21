@@ -1,0 +1,19 @@
+---
+layout: "@/layouts/global.astro"
+title: Voice AI
+description: Talk to a Voice AI agent over MoQ.
+---
+
+import VoiceDemo from "@/components/voice-demo.astro";
+
+<VoiceDemo />
+
+Click Start, allow your microphone, and talk. Interrupt it whenever you like.
+
+## Features
+
+- 🎙️ **Two broadcasts**: your browser publishes your microphone with [@moq/publish](https://doc.moq.dev/lib/js/@moq/publish) and plays the agent's reply with [@moq/watch](https://doc.moq.dev/lib/js/@moq/watch). No WebRTC, no SFU.
+- 🤖 **Pipecat**: the agent is a [Pipecat](https://github.com/pipecat-ai/pipecat) pipeline speaking MoQ instead of WebRTC.
+- ⏩ **Faster than real-time**: the agent sends its reply as fast as it's generated, seconds ahead of playback, so a congested network delays nothing you can hear.
+- ✋ **Barge-in**: talk over the agent and it stops. The audio it already sent is retired with its track, not played out.
+- 💬 **Transcripts**: both sides' words travel as a JSON track beside the audio, the same way [MoQ Boy](/boy) sends its controls.

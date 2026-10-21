@@ -30,9 +30,8 @@ export default function Watch() {
 								prop:url={current().url}
 								prop:name={Net.Path.from(current().broadcast.name)}
 								prop:muted={true}
-								prop:reload={true}
-								// The default "real-time" sizes the buffer from RTT alone, too small for relay jitter.
-								prop:latency={Net.Time.Milli(100)}
+								// The default "auto" sizes the buffer from RTT alone, too small for relay jitter.
+								prop:delay={Net.Time.Milli(100)}
 							>
 								<canvas style={{ "max-width": "100%", height: "auto", margin: "0 auto", "border-radius": "1rem" }} />
 							</moq-watch>

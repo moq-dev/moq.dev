@@ -39,6 +39,21 @@ export type Card = {
 };
 
 export const CARDS: Card[] = [
+	// The site's default og:image, never retired: copy out/og.png to public/layout/og.png
+	// (and moq-dev/moq's doc/public/og.png) when the homepage hero changes.
+	{
+		slug: "og",
+		title: "Real-time media and **massive scale.**",
+		sub: "The open standard for streaming live video, audio, and whatever you want.",
+	},
+	{
+		slug: "install",
+		eyebrow: "moq-cli 0.14",
+		title: "Install moq in **one line**.",
+		sub: "The latest `moq` for macOS and Linux. Run it again to upgrade. On Windows, `winget install moq-dev.moq`.",
+		code: "$ curl -fsSL https://moq.sh | sh",
+		note: "yes you can read it first",
+	},
 	{
 		slug: "e2ee",
 		eyebrow: "new crate: moq-e2ee 0.0.1",
@@ -206,6 +221,7 @@ export const CARDS: Card[] = [
 			"$ moq-relay --drain-timeout 10s",
 			"$ kill -TERM $(pidof moq-relay)   # every viewer migrates, nobody buffers",
 		].join("\n"),
+		note: "GOAWAY mom, i'm making a network protocol",
 	},
 	{
 		slug: "obs",

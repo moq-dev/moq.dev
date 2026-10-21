@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.13-slim AS base
+FROM oven/bun:1.4.2-slim AS base
 ENV NODE_ENV=production
 
 COPY . /app

@@ -1,4 +1,5 @@
 ---
+import Users from "@/components/users.astro";
 import Layout from "@/layouts/global.astro";
 
 interface Post {
@@ -37,9 +38,13 @@ const languages = [
 	{ name: "C", icon: "c", href: "https://doc.moq.dev/lib/c/" },
 ];
 
+// A few members of the MoQ Alliance. Most build their own MoQ stack, so they
+// sit apart from the users above.
+const alliance = ["Cloudflare", "Akamai", "AWS", "Fastly", "Cisco", "Intel", "Oracle", "Mux"];
+
 // `icon` is hand-drawn art in public/icons/use-case/.
 const useCases = [
-	{ title: "Robotics", icon: "robotics", body: "Real-time teleoperation, with telemetry and control on the same relays as the video.", href: "/blog/on-a-boat" },
+	{ title: "Robotics", icon: "robotics", body: "Real-time teleoperation, with telemetry and control on the same relays as the video.", href: "/robotics" },
 	{ title: "Voice and video AI", icon: "voice-video-ai", body: "Server-side media in Rust or Python, played back faster than real time in the browser.", href: "https://doc.moq.dev/concept/use-case/ai" },
 	{ title: "Interactive", icon: "interactive", body: "Media down, input up. MoQ Boy is a Game Boy played by everyone watching at once.", href: "/boy" },
 	{ title: "Conferencing", icon: "conferencing", body: "Browser publish and watch with a live roster, plus WebRTC for WHIP and WHEP clients.", href: "/blog/first-app" },
@@ -53,11 +58,11 @@ const useCases = [
 	<section class="mx-auto grid max-w-6xl items-center gap-14 px-5 pb-16 pt-12 md:px-8 lg:grid-cols-[1.1fr_1fr] lg:pt-16">
 		<div>
 			<a
-				href="https://moqalliance.org/demoqed-2026/"
+				href="/robotics"
 				class="group mb-7 inline-flex items-center gap-3 rounded-full border border-slate-700 bg-slate-800/60 py-1.5 pl-1.5 pr-4 text-[0.85rem] text-slate-300 transition-colors hover:border-slate-500"
 			>
-				<span class="shrink-0 whitespace-nowrap rounded-full bg-green-500 px-2.5 py-0.5 font-mono text-[0.68rem] font-medium uppercase tracking-wider text-slate-900">Oct 8</span>
-				<span>DEMOQED, the first MoQ conference, in San Francisco</span>
+				<span class="shrink-0 whitespace-nowrap rounded-full bg-green-500 px-2.5 py-0.5 font-mono text-[0.68rem] font-medium uppercase tracking-wider text-slate-900">In prod</span>
+				<span>Saronic ships MoQ on its autonomous boats</span>
 				<span class="text-slate-500 transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
 			</a>
 
@@ -179,6 +184,22 @@ const useCases = [
 					</a>
 				))
 			}
+		</div>
+	</section>
+
+	<!-- Users -->
+	<section class="mx-auto max-w-6xl px-5 pb-16 md:px-8 md:pb-20">
+		<div class="mb-10 flex items-baseline justify-between gap-6">
+			<h2 class="display text-[2.1rem] md:text-[2.6rem]">Already in the <span class="scribble">wild.</span></h2>
+			<a href="mailto:me@kixel.me" class="green-link shrink-0 font-medium">Using MoQ? Tell us</a>
+		</div>
+		<Users class="sm:grid-cols-2 lg:grid-cols-5" />
+		<div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
+			<h3 class="shrink-0 font-semibold text-white">Building the standard with</h3>
+			<div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.95rem] text-slate-400">
+				{alliance.map((name) => <span>{name}</span>)}
+				<a href="https://moqalliance.org/" class="green-link font-medium">and the rest of the MoQ Alliance</a>
+			</div>
 		</div>
 	</section>
 
