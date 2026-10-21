@@ -13,6 +13,7 @@ import Interrupt from "@/components/voice/interrupt";
 import Budget from "@/components/voice/budget";
 import VoiceDemo from "@/components/voice-demo.astro";
 import Author from "@/components/author.astro";
+import Meme from "@/components/meme.astro";
 
 # OpenAI still has a WebRTC Problem
 On a previous episode, [I flamed OpenAI for using WebRTC](/blog/webrtc-is-the-problem) and it went [viral on Hacker News](https://news.ycombinator.com/item?id=48051951).
@@ -36,7 +37,7 @@ If your AI ever replies with:
 **You fucked up**. 
 You picked WebRTC for voice AI.
 
-## The Speed of You
+## The Voyage
 You boot up your favorite application: ChatGPT™. You click on the microphone and grunt:
 > What is le capital of France?
 
@@ -48,23 +49,44 @@ WebRTC is designed for conference calls, aka real humans and real voices.
 It is hyper aggressive and will drop any late audio packets to keep latency **real-time**.
 Just like Leonardo DiCaprio, anything above 30ms is too old.
 
-<SpeechToText transport="webrtc" client:visible />
-
-**But why?**
-WebRTC *can* detect packet loss and retransmit, and in fact that's what it does for video.
-It can even retransmit audio, but it doesn't matter: the jitter buffer is so aggressive that the retransmission shows up too late and gets tossed anyway.
-That's for **product reasons**.
-
-We flesh bags consume/produce audio in "real-time", aka a **human clock rate**.
-Retransmitted audio packets will be delayed, either introducing latency, or a burst of audio.
-Our neurons can only fire so fast and don't want to process time shifts.
-
-For the nerds in the audience, WebRTC handles this with [NetEQ](https://webrtc.googlesource.com/src/+/main/modules/audio_coding/neteq/g3doc/index.md).
-It's neat because it does change the speed of playback in response to jitter... but not packet loss.
+<figure>
+	<SpeechToText transport="webrtc" client:visible />
+	<figcaption>What *is* le France?</figcaption>
+</figure>
 
 This kind of sucks for a **voice AI product**. 
 You walk out of wifi range, hit a cellular dead zone, or starlink terminal switches satellites.
 Oops, your **tokens are wasted**, or worse, **AI tries to guess what you said**.
+
+WebRTC can *usually* detect packet loss and retransmit.
+But retransmissions are disabled by default for audio, and even when enabled, the audio jitter buffer won't wait for them.
+
+**But why?** Doesn't this seem like networking 101?
+
+It's because of **us**.
+
+## The Speed of You
+We flesh bags consume/produce audio in "real-time", aka a **human clock rate**.
+Our neurons can only fire so fast.
+
+For a real-time conferencing product like Google Meet, latency needs to be near zero.
+Any delay is super fucking annoying, which is WebRTC does everything in its power to minimize it.
+
+Blocking on retransmissions will cause delays.
+It's the fatal flaw with TCP, and why WebRTC is UDP based.
+And worse yet, it will cause a rapid burst of audio on recovery.
+
+This is a **bad user experience**.
+Humans do not want to wait, then process a burst of audio at 10x speed.
+WebRTC instead primarily\* relies on **human retransmissions**.
+
+**You:** What is le ... France?
+
+**Me:** <Meme src="/blog/webrtc-is-still-the-problem/huh.webm" label="huh?" class="w-20" />
+
+**You:** I said, what is le capital of France?
+
+\* Before a WebRTC warrior flames me on LinkedIn, read the `fix it fix it fix it` section.
 
 Are we doomed to mediocrity?
 
@@ -89,16 +111,18 @@ WebRTC is designed for humans, not voice AI agents.
 These poor robots are being held back by our mediocrity.
 
 ## I Require Context
-<figure>
-	<img src="/blog/webrtc-is-still-the-problem/context.png" alt="I require context" className="w-full max-w-sm" />
-</figure>
 
 When it comes to LLMs, latency budgets get **_weird_**.
 
 Normally you would think of **latency** as the amount of time it takes for a grunt to traverse a tin can.
-However, that's not quite true for AI. 
+However, **LLMs are blocked on context**.
 
-**LLMs are blocked on context**. Here's a dumb example of context growing over time:
+<figure>
+	<img src="/blog/webrtc-is-still-the-problem/context.png" alt="I require context" className="w-full max-w-sm" />
+	<figcaption>i require context</figcaption>
+</figure>
+
+Here's a dumb example of context growing over time:
 - **1s**: What
 - **2s**: What is
 - **3s**: What is le
@@ -117,7 +141,10 @@ The AI agent can process **faster than real-time** to catch up without the end u
 So that's what Mr. MoQ does.
 No packet left behind: we keep retransmitting until the AI actually needs the audio.
 
-<SpeechToText transport="moq" client:visible />
+<figure>
+	<SpeechToText transport="moq" client:visible />
+	<figcaption>get stuffed mr kraken</figcaption>
+</figure>
 
 It's not expensive either: audio is *tiny*.
 1s of Opus @ 64Kbps is 8KB, originally sent as 50 tiny packets, but it can be retransmitted as ~6 QUIC packets.
@@ -126,7 +153,8 @@ We have **literal seconds** to retransmit **6 packets** to avoid any user impact
 And if we manage to accomplish this herculean task: **all the context arrives in time!**
 
 The model no longer has to guess.
-It no longer has to be trained on silence or loss distortion (specific to Opus) either.
+It no longer has to be trained on silence or distortion either.
+**This is a pure user experience win**.
 
 ## Not Just Mics
 Guess what? 
@@ -142,9 +170,11 @@ But in order to play back audio at the correct time with WebRTC... the agent nee
 That's right, using `sleep` in `<current year>`.
 If there's any packet loss, our TTS is lost, will never be retransmitted, tokens burned, yada yada.
 
-<TextToSpeech transport="webrtc" client:visible />
+<figure>
+	<TextToSpeech transport="webrtc" client:visible />
+	<figcaption>When the kraken attacken, there's no coming backen.</figcaption>
+</figure>
 
-When the kraken attacken, there's no coming backen.
 If only there was some way to signal when to render each audio packet.
 A stamp of sorts.
 
@@ -196,15 +226,22 @@ So that's why your hyper deluxe ChatGPT™ voice AI model, after billions invest
 **can you repeat that?**
 
 I could dump on WebRTC for days, but I want to be positive for a change.
-Here's how to fix it, **petition Google** to:
-- implement [playout-delay](https://webrtc.googlesource.com/src/+/main/docs/native-code/rtp-hdrext/playout-delay/README.md) for audio (it's video only).
-- implement a fully reliable jitter buffer (with retransmits).
-- render audio based on timestamps not vibes (configurable).
-- allow the jitter buffer to grow into the future (for TTS).
+**Here's how to fix it.**
+
+First off, I need to acknowledge what WebRTC *does* have:
+- [NetEQ](https://webrtc.googlesource.com/src/+/main/modules/audio_coding/neteq/g3doc/index.md) is amazing. It changes audio playback speed based on jitter, but not packet loss.
+- Audio retransmissions can now (added 2026 btw) be enabled via SDP munging ([disgusting](https://webrtchacks.com/sdp-anatomy/)), but the jitter buffer won't wait for them.
+- The [playout-delay](https://webrtc.googlesource.com/src/+/main/docs/native-code/rtp-hdrext/playout-delay/README.md) RTP extension is perfect... but it's video only.
+
+To fix WebRTC for voice AI, we need to **petition Google** to:
+- Implement [playout-delay](https://webrtc.googlesource.com/src/+/main/docs/native-code/rtp-hdrext/playout-delay/README.md) for audio.
+- Allow the jitter buffer to grow, both in the past and into the future (for TTS).
+- Render audio based on timestamps not vibes.
 - IDK some RTP extension to bump the track generation (for interruptions).
 
-And of course, petition the wider WebRTC ecosystem to do the same (ex. LiveKit, Daily).
-However, browser support is gatekept by Google until vibe coded Chrome forks take off.
+And of course, petition the wider WebRTC ecosystem to do the same.
+But crucially we need to **petition Google** for web support.
+At least until Chromium is rewritten in Rust.
 
 I think it's amazing that an extension merged [10 years ago](https://codereview.webrtc.org/2007743003) is exactly what you want for voice AI... but it's for video only.
 Higher latency/quality playback has **never** been a priority.
@@ -217,7 +254,6 @@ But OpenAI has enough sway to fix WebRTC.
 One long-deserved improvement is [WARP](https://www.ietf.org/archive/id/draft-uberti-tsvwg-warp-00.html) (not that [WARP](https://www.ietf.org/archive/id/draft-lcurley-warp-04.html)), which was hot on the heels of my last blog post.
 
 Keep at it Justin, or join the Dark Side with me.
-Everything is so much nicer when you can abandon [disgusting VOIP standards](https://webrtchacks.com/sdp-anatomy/).
 
 ## Enter The Protagonist
 In my humble and handsome opinion, **it's time to invest in a better transport**.

@@ -1,0 +1,33 @@
+---
+// A tiny looping meme clip. It autoplays muted (browsers block sound until you interact), and a
+// click toggles the sound.
+interface Props {
+	src: string;
+	label: string;
+	class?: string;
+}
+
+const { src, label, class: className } = Astro.props;
+---
+
+<button type="button" class:list={["meme not-prose relative shrink-0 cursor-pointer", className]} aria-label={`${label} (play sound)`} aria-pressed="false">
+	<video src={src} autoplay muted loop playsinline class="block w-full rounded-lg"></video>
+	<span class="absolute right-1 bottom-1 rounded bg-slate-900/80 px-1 text-xs" aria-hidden="true">🔇</span>
+</button>
+
+<script>
+	for (const button of document.querySelectorAll<HTMLButtonElement>("button.meme")) {
+		const video = button.querySelector("video");
+		const badge = button.querySelector("span");
+		if (!video || !badge) continue;
+
+		button.addEventListener("click", () => {
+			video.muted = !video.muted;
+			// Restart so the sound lands on the punchline instead of mid-loop.
+			if (!video.muted) video.currentTime = 0;
+			video.play();
+			badge.textContent = video.muted ? "🔇" : "🔊";
+			button.setAttribute("aria-pressed", String(!video.muted));
+		});
+	}
+</script>
