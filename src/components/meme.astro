@@ -21,13 +21,20 @@ const { src, label, class: className } = Astro.props;
 		const badge = button.querySelector("span");
 		if (!video || !badge) continue;
 
+		const setMuted = (muted: boolean) => {
+			video.muted = muted;
+			badge.textContent = muted ? "🔇" : "🔊";
+			button.setAttribute("aria-pressed", String(!muted));
+		};
+
 		button.addEventListener("click", () => {
-			video.muted = !video.muted;
+			setMuted(!video.muted);
 			// Restart so the sound lands on the punchline instead of mid-loop.
 			if (!video.muted) video.currentTime = 0;
 			video.play();
-			badge.textContent = video.muted ? "🔇" : "🔊";
-			button.setAttribute("aria-pressed", String(!video.muted));
 		});
+
+		// Go quiet once it scrolls off screen, so it doesn't keep yelling from somewhere else on the page.
+		new IntersectionObserver(([entry]) => entry.isIntersecting || setMuted(true)).observe(button);
 	}
 </script>
