@@ -6,7 +6,7 @@
 	</defs>
 	<g transform="translate(100 50)">
 		<use href="#lips" fill="#05070d" />
-		<path d="M-20,20C-12,6.4 12,5.6 20,20Z" fill="#e0707a" clip-path="url(#inside)" />
+		<path d="M-20,20C-12,6.4 12,5.6 20,20Z" fill="#4cc315" clip-path="url(#inside)" />
 		<use href="#lips" fill="none" stroke="#fafafa" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" />
 	</g>
 </svg>
