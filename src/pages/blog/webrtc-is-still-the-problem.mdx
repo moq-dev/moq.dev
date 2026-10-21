@@ -258,7 +258,7 @@ Your Claude friend can't just fork `libwebrtc` and fix these issues.
 Google is required for web support, at least until [Theo spends $420k](https://www.youtube.com/watch?v=ND_kRgU_WlY) to rewrite Chromium in Rust.
 
 I think it's amazing that an extension merged [10 years ago](https://codereview.webrtc.org/2007743003) is exactly what you want for voice AI... but it's for video only.
-But higher latency/quality playback has **never** been a priority for Google, since **Google Meet is the only product that matters**.
+Higher latency/quality playback has **never** been a priority for WebRTC, since **Google Meet is the only product that matters**.
 
 **Fun Fact**: This is why I ended up creating MoQ.
 We tried using WebRTC at Twitch but the real-time-or-else made for a poor user experience.
@@ -266,7 +266,6 @@ I am but a humble software engineer, and despite trying, we failed to petition G
 
 But OpenAI has enough sway to fix WebRTC.
 One long-deserved improvement is [WARP](https://www.ietf.org/archive/id/draft-uberti-tsvwg-warp-00.html) (not that [WARP](https://www.ietf.org/archive/id/draft-lcurley-warp-04.html)), which was hot on the heels of my last blog post.
-
 Keep at it Justin, or **join the Dark Side with me**.
 
 ## Enter The Protagonist
@@ -387,7 +386,10 @@ The only thing that matters is the **latency budget**.
 One of the core problems we're trying to fix with MoQ is the whole "one transport per latency" issue in the industry.
 It's face-palmingly common to use different protocols based on the latency budget.
 
-Fuck that noise, MoQ supports multiple latency targets:
+For example, an all-hands presentation where the speakers use Zoom, while everybody else watches via HLS and can't participate.
+
+Fuck that noise, MoQ supports multiple latency targets with a single connection. 
+In the case of voice AI:
 - **real-time latency** for rapid replies (STS).
 - **loss-less quality** for slow replies (STT->LLM->TTS).
 
@@ -425,7 +427,7 @@ It can't even handle two lost packets in a row, let alone a full network blip.
 
 This is fine for WebRTC because it doesn't give a shit about audio older than 30ms.
 But it's not fine for voice AI or really anything on the internet.
-Packet loss due to congestion is bursty, not random.
+**Packet loss due to congestion is bursty, not random.**
 
 A common "fix" is to spread these copies over time, so you can handle X lost packets in a row.
 See [Opus 1.5](https://opus-codec.org/demo/opus-1.5/).
@@ -433,11 +435,11 @@ All of this extra data has a real cost, and if you don't know what you're doing 
 
 In my humble (and attractive) opinion, FEC is best for huge RTTs, like transmitting to le moon.
 In `<current year>`, we instead use CDNs to **shrink the lossy first/last mile** which makes retransmissions **OP**.
-
-**Why spread FEC over 400ms if it takes 40ms to retransmit?**
+Why send more bytes spread over 400ms, instead of retransmitting in 40ms?
 
 But if a WebRTC warrior insists, QUIC libraries can retransmit stream data as many times as they want.
 Basically [RED](https://bloggeek.me/webrtcglossary/red/) but based on byte offsets, not packets, and fully transparent to the receiver.
+That's a **free idea** btw.
 
 ## More Free Ideas
 I should end the blog post here but seriously, I'm 3 weeks in and need this shit forwarded internally.
@@ -454,12 +456,15 @@ We may have gotten off on the wrong foot.
 I'll make it up to both of you.
 Here's some **free ideas** you could prototype with your unlimited Fable/Astro 7 tokens.
 Just give me `Co-Authored-By` credit on the git commits.
+Or Scion, I don't care.
+
 Please I need more green squares on my Github.
 
 <figure>
 	![token maxing](/blog/webrtc-is-still-the-problem/tokens.png)
 	<figcaption>You can spot the exact moment I started token maxxing.</figcaption>
 </figure>
+
 
 
 ## Decouple Compute
