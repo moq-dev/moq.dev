@@ -201,7 +201,9 @@
 		@apply rounded bg-slate-800 px-1.5 py-0.5 text-[0.82em];
 	}
 
+	/* No ligatures: JetBrains Mono would draw `-->` as an arrow, not what you type. */
 	.markdown pre {
+		font-variant-ligatures: none;
 		tab-size: 4;
 		scrollbar-width: thin;
 		scrollbar-color: #334155 transparent; /* slate-700 */
