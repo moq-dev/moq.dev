@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import mdx from "@astrojs/mdx";
 import solidJs from "@astrojs/solid-js";
-import tailwind from "@astrojs/tailwind";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import { createCssVariablesTheme } from "shiki";
 
@@ -18,15 +18,9 @@ export default defineConfig({
 	markdown: {
 		shikiConfig: { theme: codeTheme },
 	},
-	integrations: [
-		mdx(),
-		solidJs(),
-		tailwind({
-			// Disable injecting a basic `base.css` import on every page.
-			applyBaseStyles: false,
-		}),
-	],
+	integrations: [mdx(), solidJs()],
 	vite: {
+		plugins: [tailwindcss()],
 		build: {
 			target: "esnext",
 		},

@@ -12,7 +12,7 @@ const { src, label, class: className } = Astro.props;
 
 <button type="button" class:list={["meme not-prose relative shrink-0 cursor-pointer", className]} aria-label={`${label} (play sound)`} aria-pressed="false">
 	<video src={src} muted loop playsinline preload="auto" class="block w-full rounded-lg"></video>
-	<span class="absolute right-1 bottom-1 rounded bg-slate-900/80 px-1 text-xs" aria-hidden="true">🔇</span>
+	<span class="absolute right-1 bottom-1 rounded-sm bg-slate-900/80 px-1 text-xs" aria-hidden="true">🔇</span>
 </button>
 
 <script>

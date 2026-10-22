@@ -1,6 +1,15 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/forms";
+
+@theme {
+	--font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	--font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+	/* v3's greens: the brand green is #22c55e, baked into the drawings and logo. */
+	--color-green-400: #4ade80;
+	--color-green-500: #22c55e;
+}
 
 @layer base {
 	html {
@@ -25,6 +34,27 @@
 		outline: 2px solid #22c55e;
 		outline-offset: 3px;
 	}
+
+	/* v4 defaults borders to currentcolor; v3 used gray-200. */
+	*,
+	::after,
+	::before,
+	::backdrop,
+	::file-selector-button {
+		border-color: var(--color-gray-200, currentcolor);
+	}
+
+	/* v4 dropped the pointer cursor on buttons. */
+	button:not(:disabled),
+	[role="button"]:not(:disabled) {
+		cursor: pointer;
+	}
+}
+
+/* Unlayered so it beats the typography plugin, which v4 puts in the utilities layer. */
+table td:first-child {
+	white-space: nowrap;
+	text-align: right;
 }
 
 /* One syntax palette for both highlighters: Shiki's MDX blocks reference these
@@ -44,6 +74,7 @@
 	--astro-code-token-link: #4ade80; /* green-400 */
 }
 
+/* Unlayered so they beat the typography plugin's `pre code { color: inherit }`. */
 .hljs {
 	color: var(--astro-code-foreground);
 }
@@ -71,36 +102,37 @@
 	color: var(--astro-code-token-comment);
 }
 
-@layer components {
-	.display {
-		@apply font-sans font-bold tracking-[-0.025em] text-white;
-		line-height: 1.05;
-	}
+@utility display {
+	@apply font-sans font-bold tracking-tight text-white;
+	line-height: 1.05;
+}
 
-	/* Small technical labels. Used sparingly so mono still means "this is code". */
-	.label {
-		@apply font-mono text-[0.72rem] uppercase tracking-[0.08em] text-slate-400;
-	}
+/* Small technical labels. Used sparingly so mono still means "this is code". */
+@utility label {
+	@apply font-mono text-[0.72rem] uppercase tracking-[0.08em] text-slate-400;
+}
 
-	.green-link {
-		@apply text-green-500 underline decoration-green-500/40 decoration-2 underline-offset-4 transition-colors hover:decoration-green-500;
-	}
+@utility green-link {
+	@apply text-green-500 underline decoration-green-500/40 decoration-2 underline-offset-4 transition-colors hover:decoration-green-500;
+}
 
-	.btn {
-		@apply inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-[0.95rem] font-semibold leading-none transition-colors;
-	}
-	.btn-green {
-		@apply btn bg-green-500 text-slate-900 hover:bg-green-400;
-	}
-	.btn-line {
-		@apply btn border border-slate-700 text-slate-100 hover:border-slate-500 hover:bg-slate-800;
-	}
+@utility btn {
+	@apply inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-[0.95rem] font-semibold leading-none transition-colors;
+}
 
-	/* A hand-drawn marker underline under a word or two of a heading. */
-	.scribble {
-		@apply relative inline-block whitespace-nowrap;
-	}
-	.scribble::after {
+@utility btn-green {
+	@apply btn bg-green-500 text-slate-900 hover:bg-green-400;
+}
+
+@utility btn-line {
+	@apply btn border border-slate-700 text-slate-100 hover:border-slate-500 hover:bg-slate-800;
+}
+
+/* A hand-drawn marker underline under a word or two of a heading. */
+@utility scribble {
+	@apply relative inline-block whitespace-nowrap;
+
+	&::after {
 		content: "";
 		position: absolute;
 		left: -2%;
@@ -111,104 +143,138 @@
 		background-size: 100% 100%;
 		pointer-events: none;
 	}
-	/* Different strokes and angles so two on one page don't look copy-pasted. */
-	.scribble-2::after {
+}
+
+/* Different strokes and angles so two on one page don't look copy-pasted. */
+@utility scribble-2 {
+	&::after {
 		background-image: url("/drawn/stroke-3.svg");
 		transform: rotate(-1deg);
 	}
-	.scribble-3::after {
+}
+
+@utility scribble-3 {
+	&::after {
 		background-image: url("/drawn/stroke-5.svg");
 		transform: scaleX(-1) rotate(-1.5deg);
 	}
+}
 
-	/* A piece of paper on the page: a hard offset shadow instead of a glow, so it
-	   reads as cut out and stuck down. Links lift off the page on hover. */
-	.card {
-		@apply rounded-2xl border border-slate-700/70 bg-slate-800/50;
-		box-shadow: 5px 5px 0 0 rgb(2 6 23 / 90%);
+/* A piece of paper on the page: a hard offset shadow instead of a glow, so it
+   reads as cut out and stuck down. Links lift off the page on hover. */
+@utility card {
+	@apply rounded-2xl border border-slate-700/70 bg-slate-800/50;
+	box-shadow: 5px 5px 0 0 rgb(2 6 23 / 90%);
+
+	&:is(a) {
+		@apply card-lift;
 	}
-	a.card,
-	.card-lift {
-		@apply transition duration-200 ease-out;
-	}
-	a.card:hover,
-	.card-lift:hover {
+}
+
+@utility card-lift {
+	@apply transition duration-200 ease-out;
+
+	&:hover {
 		@apply border-slate-500;
 		transform: translate(-2px, -2px);
 		box-shadow: 7px 7px 0 0 rgb(34 197 94 / 45%);
 	}
+}
 
-	.polaroid {
-		@apply card card-lift flex flex-col gap-2 p-3 pb-5;
-	}
+@utility polaroid {
+	@apply card card-lift flex flex-col gap-2 p-3 pb-5;
+}
 
-	/* A square tile for a hand-drawn icon. */
-	.icon-tile {
-		@apply flex shrink-0 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 transition-transform duration-200;
-	}
-	.group:hover .icon-tile {
+/* A square tile for a hand-drawn icon. */
+@utility icon-tile {
+	@apply flex shrink-0 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 transition-transform duration-200;
+
+	.group:hover & {
 		transform: scale(1.06);
 	}
+}
 
-	/* Hand-drawn art that "boils" while its `.group` is hovered: it re-jitters on
-	   a step timer, like a hand-drawn animation. Siblings are offset so they don't
-	   move in unison. */
-	.boil {
-		transform-box: fill-box;
-		transform-origin: center;
-	}
-	.group:hover .boil {
+/* Hand-drawn art that "boils" while its `.group` is hovered: it re-jitters on
+   a step timer, like a hand-drawn animation. Siblings are offset so they don't
+   move in unison. */
+@utility boil {
+	transform-box: fill-box;
+	transform-origin: center;
+
+	.group:hover & {
 		animation: boil 0.6s steps(1) infinite;
 	}
-	.group:hover .boil:nth-of-type(2n) {
+	.group:hover &:nth-of-type(2n) {
 		animation-delay: -0.2s;
 	}
-	.group:hover .boil:nth-of-type(3n) {
+	.group:hover &:nth-of-type(3n) {
 		animation-delay: -0.4s;
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.group:hover .boil {
+		.group:hover & {
 			animation: none;
 		}
 	}
+}
 
-	.chip {
-		@apply inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/60 py-1.5 pl-2 pr-4 text-sm text-slate-200 transition-colors hover:border-green-500 hover:text-white;
+@utility chip {
+	@apply inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/60 py-1.5 pl-2 pr-4 text-sm text-slate-200 transition-colors hover:border-green-500 hover:text-white;
+}
+
+/* The typography plugin's colors for a dark page. */
+@utility prose-moq {
+	--tw-prose-body: var(--color-slate-200);
+	--tw-prose-headings: var(--color-white);
+	--tw-prose-lead: var(--color-slate-400);
+	--tw-prose-links: var(--color-green-500);
+	--tw-prose-bold: var(--color-green-500);
+	--tw-prose-counters: var(--color-slate-400);
+	--tw-prose-bullets: var(--color-slate-600);
+	--tw-prose-hr: var(--color-slate-700);
+	--tw-prose-quotes: var(--color-slate-100);
+	--tw-prose-quote-borders: var(--color-slate-700);
+	--tw-prose-captions: var(--color-slate-400);
+	--tw-prose-kbd: var(--color-white);
+	--tw-prose-kbd-shadows: var(--color-white);
+	--tw-prose-code: var(--color-white);
+	--tw-prose-pre-code: var(--color-slate-300);
+	--tw-prose-pre-bg: var(--astro-code-background);
+	--tw-prose-th-borders: var(--color-slate-600);
+	--tw-prose-td-borders: var(--color-slate-700);
+}
+
+/* see https://github.com/tailwindlabs/tailwindcss-typography */
+@utility markdown {
+	@apply prose prose-lg max-w-none prose-moq;
+	@apply prose-headings:font-bold prose-headings:tracking-[-0.02em];
+	@apply prose-headings:underline prose-headings:decoration-green-500 prose-headings:decoration-4 prose-headings:underline-offset-4;
+	@apply prose-h1:decoration-8 prose-h2:decoration-4 prose-h3:decoration-2;
+	@apply prose-h1:text-[2.6rem] md:prose-h1:text-[3.2rem] prose-h1:leading-[1.05] prose-h1:mb-10 prose-h1:mt-4;
+	@apply prose-h2:text-[1.7rem] prose-h2:mt-14;
+	@apply prose-h3:text-[1.3rem];
+	@apply prose-p:leading-[1.7];
+	@apply prose-li:my-1;
+	@apply prose-img:rounded-xl;
+	@apply prose-figure:object-center prose-figure:text-center prose-img:m-auto;
+	@apply prose-a:font-semibold prose-a:text-green-500 prose-a:underline prose-a:decoration-green-500/40 prose-a:decoration-2 prose-a:underline-offset-4 prose-a:hover:decoration-green-500;
+	@apply prose-code:font-mono prose-code:font-normal prose-code:before:content-none prose-code:after:content-none;
+	@apply prose-pre:rounded-xl prose-pre:border prose-pre:border-slate-800 prose-pre:text-[0.875rem];
+
+	/* Long URLs and inline `code` shouldn't push the page wider than the viewport. */
+	@apply wrap-break-word;
+
+	& :where(code):not(:where(pre *)) {
+		@apply rounded-sm bg-slate-800 px-1.5 py-0.5 text-[0.82em];
 	}
 
-	/* see https://tailwindcss.com/docs/typography-plugin */
-	.markdown {
-		@apply prose prose-lg max-w-none prose-moq;
-		@apply prose-headings:font-bold prose-headings:tracking-[-0.02em];
-		@apply prose-headings:underline prose-headings:decoration-green-500 prose-headings:decoration-4 prose-headings:underline-offset-4;
-		@apply prose-h1:decoration-8 prose-h2:decoration-4 prose-h3:decoration-2;
-		@apply prose-h1:text-[2.6rem] md:prose-h1:text-[3.2rem] prose-h1:leading-[1.05] prose-h1:mb-10 prose-h1:mt-4;
-		@apply prose-h2:text-[1.7rem] prose-h2:mt-14;
-		@apply prose-h3:text-[1.3rem];
-		@apply prose-p:leading-[1.7];
-		@apply prose-li:my-1;
-		@apply prose-img:rounded-xl;
-		@apply prose-figure:object-center prose-figure:text-center prose-img:m-auto;
-		@apply prose-a:font-semibold prose-a:text-green-500 prose-a:underline prose-a:decoration-green-500/40 prose-a:decoration-2 prose-a:underline-offset-4 hover:prose-a:decoration-green-500;
-		@apply prose-code:font-mono prose-code:font-normal prose-code:before:content-none prose-code:after:content-none;
-		@apply prose-pre:rounded-xl prose-pre:border prose-pre:border-slate-800 prose-pre:text-[0.875rem];
-
-		/* Long URLs and inline `code` shouldn't push the page wider than the viewport. */
-		@apply break-words;
-	}
-
-	.markdown :where(code):not(:where(pre *)) {
-		@apply rounded bg-slate-800 px-1.5 py-0.5 text-[0.82em];
-	}
-
-	.markdown pre {
+	& pre {
 		tab-size: 4;
 		scrollbar-width: thin;
-		scrollbar-color: #334155 transparent; /* slate-700 */
+		scrollbar-color: var(--color-slate-700) transparent;
 	}
 	/* prose-lg sizes every `code` at 0.89em, which would shrink block code a
 	   second time on top of the pre's own size. */
-	.markdown pre code {
+	& pre code {
 		font-size: inherit;
 	}
 
@@ -216,7 +282,7 @@
 	   turns the table into the scroll container; the rows still lay out as a table
 	   inside it. Specificity is .markdown table (0,1,1) so it beats the prose
 	   plugin's .prose :where(table) (0,1,0) regardless of layer ordering. */
-	.markdown table {
+	& table {
 		display: block;
 		width: 100%;
 		max-width: 100%;
@@ -224,18 +290,13 @@
 	}
 
 	/* Embeds (YouTube, etc) that declare a fixed pixel width. */
-	.markdown iframe {
+	& iframe {
 		max-width: 100%;
 	}
+}
 
-	.tagline {
-		@apply my-12 text-center text-2xl font-bold text-white underline decoration-green-500 decoration-4 underline-offset-4 md:text-3xl;
-	}
-
-	table td:first-child {
-		white-space: nowrap;
-		text-align: right;
-	}
+@utility tagline {
+	@apply my-12 text-center text-2xl font-bold text-white underline decoration-green-500 decoration-4 underline-offset-4 md:text-3xl;
 }
 
 @keyframes boil {
