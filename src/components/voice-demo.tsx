@@ -567,7 +567,10 @@ export default function VoiceDemo() {
 			</Show>
 
 			<p class="mt-4 mb-0 text-xs text-slate-500">
-				Your audio goes to Deepgram, OpenAI, and Cartesia for the call. We don't keep it.
+				Your audio goes to Deepgram, OpenAI, and Cartesia for the call. We don't keep it.{" "}
+				<a href="https://moq.pro/privacy" class="underline hover:text-slate-300">
+					Privacy
+				</a>
 			</p>
 		</div>
 	);
