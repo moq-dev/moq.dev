@@ -12,8 +12,9 @@ Robots have a lot of cameras.
 They're basically cameras with legs or wheels or pinchers or spinning blades or you get the idea.
 
 Teleoperation is becoming less and less relevant, but *something* still needs to monitor the little guys.
-A human, a fleet dashboard, an AI model looking for trouble, a recorder for the post-mortem.
-And they're all watching over the worst network you've ever seen.
+A human, a fleet dashboard, an AI model looking for trouble, and/or an archive for the inevitable post-mortem.
+
+Now imagine operating on the **worst networks**, or in the middle of the ocean, with no fear.
 
 <figure>
 	![nine cameras on a boat](/blog/on-a-boat/kraken.png)
@@ -22,20 +23,21 @@ And they're all watching over the worst network you've ever seen.
 
 ## Pull, not Push
 Existing contribution protocols (ex. WebRTC, SRT, RTMP) are push-based.
-The robot constantly transmits *everything* to a server, watched or not.
+The robot constantly transmits **everything** to a server, watched or not.
 Not great when you've got 9 cameras and StarLink is expensive.
 
 **MoQ is pull-based.**
 Each camera is a broadcast, split into tracks like `1080p`, `360p`, `audio` and `telemetry`.
-Nothing is transmitted until somebody subscribes to a track.
+Note that last one; **MoQ is not just for Media, but any live data**.
+The benefit of pull is that nothing is transmitted *until* somebody subscribes to a track.
 
-So by default, an AI model subscribes to the 360p track from every camera.
+Imagine an AI model that only subscribes to 360p from each camera.
 If it spots a kraken, then it subscribes to the 1080p track from that camera.
 Camera 7 doesn't touch the uplink until somebody cares about camera 7.
 
 ## Shit Networks
 Robots tend to be somewhere with a terrible network: cellular, satellite, mesh radio, or nothing at all.
-Your bandwidth will fluctuate, and *something* has to give.
+Your bandwidth will fluctuate, and **something has to give**.
 
 **You decide what gives.**
 Every subscription has a priority, and they all cooperate over one QUIC connection.
@@ -62,8 +64,7 @@ The result is a lossy live feed AND a pristine VOD from the same stream, as long
 Near the coast? Use cellular *and* satellite.
 
 QUIC supports path migration, so you can switch from WiFi to cellular to satellite without dropping the connection.
-There's also a [multi-path extension](https://datatracker.ietf.org/doc/draft-ietf-quic-multipath/) that uses multiple paths at the same time.
-It's [behind a feature flag](https://github.com/moq-dev/moq/blob/main/rs/moq-native/Cargo.toml) if you want to give it a spin.
+There's also a [multi-path extension](https://datatracker.ietf.org/doc/draft-ietf-quic-multipath/) that uses multiple paths **at the same time**.
 
 Or go up a layer and open multiple MoQ connections: P2P via [iroh](https://iroh.computer/), a self-hosted relay, a public CDN.
 The robot announces its broadcasts on all of them, and every subscription takes the best available path.
