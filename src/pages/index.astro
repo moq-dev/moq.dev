@@ -196,15 +196,12 @@ const useCases = [
 
 	<!-- Alliance -->
 	<section class="mx-auto max-w-6xl px-5 pb-16 md:px-8 md:pb-20">
-		<div class="mb-4 flex items-baseline justify-between gap-6">
-			<h2 class="display text-[2.1rem] md:text-[2.6rem]">Not just <span class="scribble">us.</span></h2>
-			<a href="https://moqalliance.org/" class="green-link shrink-0 font-medium">All members</a>
-		</div>
+		<h2 class="display mb-4 text-[2.1rem] md:text-[2.6rem]">Not just <span class="scribble">us.</span></h2>
 		<p class="mb-8 max-w-2xl text-[1.05rem] leading-relaxed text-slate-400">
 			The <a class="green-link" href="https://moqalliance.org/">MoQ Alliance</a> is a group of CDNs, vendors, and open
 			source projects building MoQ together, with independent implementations that interoperate.
 		</p>
-		<div class="grid grid-cols-4 gap-3 sm:gap-4 lg:grid-cols-8">
+		<div class="grid grid-cols-3 gap-3 sm:gap-4 lg:grid-cols-9">
 			{
 				alliance.map((member) => (
 					<div class="card flex flex-col items-center gap-3 px-2 py-5">
@@ -213,6 +210,10 @@ const useCases = [
 					</div>
 				))
 			}
+			<a href="https://moqalliance.org/" class="card group flex flex-col items-center justify-center gap-1 px-2 py-5 text-center">
+				<span class="font-semibold text-white group-hover:text-green-500">and many more</span>
+				<span class="text-green-500 transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+			</a>
 		</div>
 	</section>
 
