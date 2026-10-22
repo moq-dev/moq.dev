@@ -1,5 +1,4 @@
 ---
-import Users from "@/components/users.astro";
 import Layout from "@/layouts/global.astro";
 
 interface Post {
@@ -38,9 +37,17 @@ const languages = [
 	{ name: "C", icon: "c", href: "https://doc.moq.dev/lib/c/" },
 ];
 
-// A few members of the MoQ Alliance. Most build their own MoQ stack, so they
-// sit apart from the users above.
-const alliance = ["Cloudflare", "Akamai", "AWS", "Fastly", "Cisco", "Intel", "Oracle", "Mux"];
+// A few members of the MoQ Alliance. `icon` is hand-drawn art in public/icons/alliance/.
+const alliance = [
+	{ name: "Cloudflare", icon: "cloudflare" },
+	{ name: "Akamai", icon: "akamai" },
+	{ name: "AWS", icon: "aws" },
+	{ name: "Fastly", icon: "fastly" },
+	{ name: "Cisco", icon: "cisco" },
+	{ name: "Intel", icon: "intel" },
+	{ name: "Oracle", icon: "oracle" },
+	{ name: "Mux", icon: "mux" },
+];
 
 // `icon` is hand-drawn art in public/icons/use-case/.
 const useCases = [
@@ -187,19 +194,25 @@ const useCases = [
 		</div>
 	</section>
 
-	<!-- Users -->
+	<!-- Alliance -->
 	<section class="mx-auto max-w-6xl px-5 pb-16 md:px-8 md:pb-20">
-		<div class="mb-10 flex items-baseline justify-between gap-6">
-			<h2 class="display text-[2.1rem] md:text-[2.6rem]">Already in the <span class="scribble">wild.</span></h2>
-			<a href="mailto:me@kixel.me" class="green-link shrink-0 font-medium">Using MoQ? Tell us</a>
+		<div class="mb-4 flex items-baseline justify-between gap-6">
+			<h2 class="display text-[2.1rem] md:text-[2.6rem]">Not just <span class="scribble">us.</span></h2>
+			<a href="https://moqalliance.org/" class="green-link shrink-0 font-medium">All members</a>
 		</div>
-		<Users class="sm:grid-cols-2 lg:grid-cols-5" />
-		<div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-			<h3 class="shrink-0 font-semibold text-white">Building the standard with</h3>
-			<div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.95rem] text-slate-400">
-				{alliance.map((name) => <span>{name}</span>)}
-				<a href="https://moqalliance.org/" class="green-link font-medium">and the rest of the MoQ Alliance</a>
-			</div>
+		<p class="mb-8 max-w-2xl text-[1.05rem] leading-relaxed text-slate-400">
+			The <a class="green-link" href="https://moqalliance.org/">MoQ Alliance</a> is a group of CDNs, vendors, and open
+			source projects building MoQ together, with independent implementations that interoperate.
+		</p>
+		<div class="grid grid-cols-4 gap-3 sm:gap-4 lg:grid-cols-8">
+			{
+				alliance.map((member) => (
+					<div class="card flex flex-col items-center gap-3 px-2 py-5">
+						<img src={`/icons/alliance/${member.icon}.svg`} class="boil h-10 w-full max-w-20 object-contain" alt="" />
+						<span class="text-[0.8rem] text-slate-300 sm:text-[0.9rem]">{member.name}</span>
+					</div>
+				))
+			}
 		</div>
 	</section>
 
