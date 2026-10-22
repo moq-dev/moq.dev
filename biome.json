@@ -20,12 +20,7 @@
 		"rules": {
 			"preset": "recommended",
 			"suspicious": {
-				"noUnknownAtRules": {
-					"level": "error",
-					"options": {
-						"ignore": ["tailwind"]
-					}
-				}
+				"noUnknownAtRules": "error"
 			},
 			"style": {
 				"noParameterAssign": "error",

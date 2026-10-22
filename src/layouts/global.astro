@@ -84,7 +84,7 @@ const date = frontmatter?.date
 		<meta name="theme-color" content="#0f172a" />
 	</head>
 	<body class="min-h-screen flex flex-col">
-		<header class="sticky top-0 z-20 border-b border-slate-800 bg-slate-900/85 backdrop-blur">
+		<header class="sticky top-0 z-20 border-b border-slate-800 bg-slate-900/85 backdrop-blur-sm">
 			<div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-6 sm:px-5 md:px-8">
 				<a href="/" class="shrink-0" aria-label="Media over QUIC home">
 					<img src="/home/logo.svg" class="-mb-1 h-8 w-auto sm:h-10 md:h-12" alt="Media over QUIC" />
@@ -112,7 +112,7 @@ const date = frontmatter?.date
 						Discord
 						<span data-stat="chatters" data-short class="font-mono text-[0.7rem] text-green-500"></span>
 					</a>
-					<a href={proUrl} class="btn-green ml-1 whitespace-nowrap !px-4 !py-2 !text-[0.9rem] sm:ml-3">
+					<a href={proUrl} class="btn-green ml-1 whitespace-nowrap px-4! py-2! text-[0.9rem]! sm:ml-3">
 						<img src="/layout/pro-icon.svg" class="-my-1 -ml-2 h-6" alt="" />
 						moq.pro <span class="hidden sm:inline" aria-hidden="true">→</span>
 					</a>
@@ -125,9 +125,9 @@ const date = frontmatter?.date
 				bare ? (
 					<slot />
 				) : (
-					<article class="markdown mx-auto max-w-[44rem] px-5 pb-24 pt-14 md:px-0">
+					<article class="markdown mx-auto max-w-176 px-5 pb-24 pt-14 md:px-0">
 						{date && (
-							<p class="label !mb-3">
+							<p class="label mb-3!">
 								{date}
 								{frontmatter?.author && <> · {frontmatter.author}</>}
 							</p>
