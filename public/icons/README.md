@@ -17,7 +17,7 @@ The homepage also uses eight language drawings from `cards/` in its library link
 
 The **Voice and video AI** and **Interactive** use-case icons were traced from the hand-drawn `~/art/icons3/camera.PNG` and `~/art/icons3/gameboy.PNG`.
 
-The `alliance/` logos were traced from the hand-drawn `~/art/pitch/2.kra` slide. They flip the palette, white marks with one green accent each, to match the white-led icons such as Contribution.
+The `alliance/` logos were traced from the hand-drawn `~/art/pitch/2.kra` slide.
 
 The Rust card's Ferris drawing is based on the [CC0 original by Karen Rustad Tölva](https://rustacean.net/).
 

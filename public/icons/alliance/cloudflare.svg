@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1165 526">
   <title>Cloudflare</title>
-<g fill="#fcfcfc">
+<g fill="#4dc515">
 <g transform="translate(0.000000,526.000000) scale(0.250000,-0.250000)"
 >
 <path d="M2296 2068 c-159 -20 -309 -92 -418 -202 -77 -76 -99 -108 -172 -245
@@ -26,7 +26,7 @@
 -156 26 -169 26 -4 -1 -15 -2 -25 -4z"/>
 </g>
 </g>
-<g fill="#4dc515">
+<g fill="#fcfcfc">
 <g transform="translate(0.000000,526.000000) scale(0.250000,-0.250000)"
 >
 <path d="M3462 1554 c-23 -10 -32 -32 -50 -131 -7 -36 -17 -84 -22 -106 -78
