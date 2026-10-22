@@ -24,7 +24,7 @@ module.exports = {
 						"--tw-prose-kbd-shadows": theme("colors.white"),
 						"--tw-prose-code": theme("colors.white"),
 						"--tw-prose-pre-code": theme("colors.slate[300]"),
-						"--tw-prose-pre-bg": "rgb(0 0 0 / 50%)",
+						"--tw-prose-pre-bg": "var(--astro-code-background)",
 						"--tw-prose-th-borders": theme("colors.slate[600]"),
 						"--tw-prose-td-borders": theme("colors.slate[700]"),
 					},
