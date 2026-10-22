@@ -4,7 +4,7 @@ title: "OpenAI still has a WebRTC Problem"
 author: kixelated
 description: Your voice AI keeps asking "can you repeat that?" because WebRTC throws away your words. MoQ doesn't.
 cover: "/blog/webrtc-is-still-the-problem/context.png"
-date: 2026-10-21
+date: 2026-10-22
 ---
 
 import SpeechToText from "@/components/voice/stt";
@@ -279,7 +279,7 @@ A voice agent should **instead** ask the **transport** to retransmit a prompt.
 **Spoiler alert**: [Media over QUIC](https://moq.dev) is that better transport btw.
 
 [Pipecat now supports MoQ](https://github.com/pipecat-ai/pipecat/pull/4629)!
-A huge thank you to [Vanessa](https://github.com/vipyne) and [Claude Code](https://claude.ai) for putting in the work and putting up with my constant "improvements".
+A huge thank you to [Vanessa](https://github.com/vipyne) and [Claude Code](https://claude.com/claude-code) for putting in the work and putting up with my constant "improvements".
 
 Here's a crude demo with my credit card deets attached. 
 please don't milk me dry.
@@ -491,7 +491,7 @@ In fact, my first big *customer* is using [moq.pro](https://moq.pro) to mass fan
 Literally a generic pub/sub protocol masquerading as an A/V protocol.
 
 ## Prioritize Context
-I'm a transport and ideas guy, not an AI scientest.
+I'm a transport and ideas guy, not an AI scientist.
 Don't flame me if this is obvious and/or impossible.
 
 The core problem with WebRTC+AI is that there's a disconnect between the model and the transport.

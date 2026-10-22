@@ -566,7 +566,9 @@ export default function VoiceDemo() {
 				}}
 			</Show>
 
-			<p class="mt-4 mb-0 text-xs text-slate-500">Audio is sent to the demo agent, not stored by this page.</p>
+			<p class="mt-4 mb-0 text-xs text-slate-500">
+				Your audio goes to Deepgram, OpenAI, and Cartesia for the call. We don't keep it.
+			</p>
 		</div>
 	);
 }

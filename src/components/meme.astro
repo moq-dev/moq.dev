@@ -31,7 +31,8 @@ const { src, label, class: className } = Astro.props;
 			if (muted && still()) video.pause();
 		};
 
-		if (!still()) video.play();
+		// Chrome rejects this when it pauses muted offscreen video to save power; it resumes on scroll.
+		if (!still()) video.play().catch(() => {});
 
 		button.addEventListener("click", () => {
 			setMuted(!video.muted);
