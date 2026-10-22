@@ -6,7 +6,7 @@
 	</defs>
 	<g transform="translate(100 50)">
 		<use href="#lips" fill="#05070d" />
-		<path d="M-50,50C-30,16 30,14 50,50Z" fill="#e0707a" clip-path="url(#inside)" />
+		<path d="M-50,50C-30,16 30,14 50,50Z" fill="#4cc315" clip-path="url(#inside)" />
 		<rect x="-50" y="-4" width="100" height="10" fill="#fafafa" clip-path="url(#inside)" />
 		<use href="#lips" fill="none" stroke="#fafafa" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" />
 	</g>

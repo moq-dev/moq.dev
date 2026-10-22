@@ -29,6 +29,7 @@ export interface Packet {
 	sent: number;
 	lost: boolean;
 	rtx?: number; // retransmit time, if the transport bothers
+	up?: boolean; // travels bottom to top, like the listener talking back
 }
 
 // A window of wall-clock time where every packet sent is lost.
