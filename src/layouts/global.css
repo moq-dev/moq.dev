@@ -57,12 +57,49 @@ table td:first-child {
 	text-align: right;
 }
 
-/* highlight.js's atom-one-dark theme paints its own background on code.hljs,
-   which double-stacks with the prose plugin's pre background. Strip it. */
-code.hljs,
-pre code.hljs {
-	background: transparent;
-	padding: 0;
+/* One syntax palette for both highlighters: Shiki's MDX blocks reference these
+   variables (see astro.config.ts), and the .hljs-* rules below map highlight.js's
+   client-side embeds onto the same colors. */
+:root {
+	--astro-code-foreground: #e2e8f0; /* slate-200 */
+	--astro-code-background: #020617; /* slate-950 */
+	--astro-code-token-keyword: #4ade80; /* green-400 */
+	--astro-code-token-string: #fde68a; /* amber-200 */
+	--astro-code-token-string-expression: #fde68a; /* amber-200 */
+	--astro-code-token-constant: #7dd3fc; /* sky-300 */
+	--astro-code-token-function: #c4b5fd; /* violet-300 */
+	--astro-code-token-parameter: #e2e8f0; /* slate-200 */
+	--astro-code-token-punctuation: #94a3b8; /* slate-400 */
+	--astro-code-token-comment: #64748b; /* slate-500 */
+	--astro-code-token-link: #4ade80; /* green-400 */
+}
+
+/* Unlayered so they beat the typography plugin's `pre code { color: inherit }`. */
+.hljs {
+	color: var(--astro-code-foreground);
+}
+.hljs-keyword,
+.hljs-built_in,
+.hljs-name {
+	color: var(--astro-code-token-keyword);
+}
+.hljs-string {
+	color: var(--astro-code-token-string);
+}
+.hljs-number,
+.hljs-literal {
+	color: var(--astro-code-token-constant);
+}
+.hljs-title,
+.hljs-attr {
+	color: var(--astro-code-token-function);
+}
+.hljs-tag,
+.hljs-punctuation {
+	color: var(--astro-code-token-punctuation);
+}
+.hljs-comment {
+	color: var(--astro-code-token-comment);
 }
 
 @utility display {
@@ -201,7 +238,7 @@ pre code.hljs {
 	--tw-prose-kbd-shadows: var(--color-white);
 	--tw-prose-code: var(--color-white);
 	--tw-prose-pre-code: var(--color-slate-300);
-	--tw-prose-pre-bg: rgb(0 0 0 / 50%);
+	--tw-prose-pre-bg: var(--astro-code-background);
 	--tw-prose-th-borders: var(--color-slate-600);
 	--tw-prose-td-borders: var(--color-slate-700);
 }
@@ -220,14 +257,25 @@ pre code.hljs {
 	@apply prose-img:rounded-xl;
 	@apply prose-figure:object-center prose-figure:text-center prose-img:m-auto;
 	@apply prose-a:font-semibold prose-a:text-green-500 prose-a:underline prose-a:decoration-green-500/40 prose-a:decoration-2 prose-a:underline-offset-4 prose-a:hover:decoration-green-500;
-	@apply prose-code:font-mono prose-code:text-[0.82em] prose-code:font-normal prose-code:before:content-none prose-code:after:content-none;
-	@apply prose-pre:rounded-xl prose-pre:border prose-pre:border-slate-800 prose-pre:text-[0.82rem];
+	@apply prose-code:font-mono prose-code:font-normal prose-code:before:content-none prose-code:after:content-none;
+	@apply prose-pre:rounded-xl prose-pre:border prose-pre:border-slate-800 prose-pre:text-[0.875rem];
 
 	/* Long URLs and inline `code` shouldn't push the page wider than the viewport. */
 	@apply wrap-break-word;
 
 	& :where(code):not(:where(pre *)) {
-		@apply rounded-sm bg-slate-800 px-1.5 py-0.5;
+		@apply rounded-sm bg-slate-800 px-1.5 py-0.5 text-[0.82em];
+	}
+
+	& pre {
+		tab-size: 4;
+		scrollbar-width: thin;
+		scrollbar-color: var(--color-slate-700) transparent;
+	}
+	/* prose-lg sizes every `code` at 0.89em, which would shrink block code a
+	   second time on top of the pre's own size. */
+	& pre code {
+		font-size: inherit;
 	}
 
 	/* Wide tables scroll on their own instead of widening the page. `display: block`
