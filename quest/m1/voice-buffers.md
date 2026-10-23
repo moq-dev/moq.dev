@@ -41,7 +41,9 @@ Sources, as of planning:
   `@moq/watch`'s audio `buffered` ranges and playback `timestamp`; the
   connection's PROBE RTT; RTVI turn events and per-service `metrics` on the
   transcript track.
-- Reply-side arrivals: `@moq/watch`'s per-frame `arrivals()`.
+- Reply-side arrivals: `@moq/watch`'s per-frame `arrivals()`, which also
+  yields a gap item where media will never arrive. Draw a frame as lost only
+  from such a gap; until then a missing frame is in flight.
 - Agent side: `voice.json` on the response broadcast, extended to carry
   everything that happens on the agent with its time.
 
@@ -50,8 +52,9 @@ the agent" from the agent's arrivals instead.
 
 Placing agent events on the browser's axis needs a clock offset. Both
 directions carry media timestamps with send and arrival times, so an
-NTP-style estimate from the minimum transit each way is a good starting point;
-verify it holds against the PROBE RTT.
+NTP-style estimate from the minimum transit each way is a good starting point.
+The two minimum transits should sum to about the PROBE RTT, and their
+asymmetry bounds the error; show agent events only once that bound is small.
 
 Build on [moq-dev/moq.dev#194](https://github.com/moq-dev/moq.dev/pull/194)
 (transcript auto-scroll, steadier cat) if it is still open.
