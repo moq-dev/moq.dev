@@ -8,7 +8,7 @@ import "@moq/publish/element";
 import type MoqPublish from "@moq/publish/element";
 import "@moq/watch/element";
 import type MoqWatch from "@moq/watch/element";
-import { createSignal, For, Index, onCleanup, Show } from "solid-js";
+import { createEffect, createSignal, For, Index, onCleanup, Show } from "solid-js";
 import Cat from "./voice/cat";
 
 type Turnstile = {
@@ -206,6 +206,14 @@ export default function VoiceDemo() {
 	let current: Call | undefined;
 	let widget: { api: Turnstile; id: string } | undefined;
 	let turnstileContainer!: HTMLDivElement;
+
+	// The transcript follows new words unless the reader has scrolled up to reread.
+	let transcriptList: HTMLOListElement | undefined;
+	let following = true;
+	createEffect(() => {
+		transcript();
+		if (transcriptList && following) transcriptList.scrollTop = transcriptList.scrollHeight;
+	});
 
 	const removeWidget = () => {
 		widget?.api.remove(widget.id);
@@ -516,7 +524,18 @@ export default function VoiceDemo() {
 			<div ref={turnstileContainer} classList={{ "mt-4": phase() === "challenge" }} />
 
 			<Show when={transcript().length > 0}>
-				<ol class="mt-4 mb-0 max-h-80 list-none space-y-3 overflow-y-auto p-0" aria-label="Transcript">
+				<ol
+					ref={(el) => {
+						transcriptList = el;
+						following = true;
+					}}
+					onScroll={(e) => {
+						const el = e.currentTarget;
+						following = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
+					}}
+					class="mt-4 mb-0 max-h-80 list-none space-y-3 overflow-y-auto p-0"
+					aria-label="Transcript"
+				>
 					<For each={transcript()}>
 						{(turn) => (
 							<li class="flex gap-3">

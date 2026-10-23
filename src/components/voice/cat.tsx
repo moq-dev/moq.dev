@@ -1,11 +1,10 @@
-// The moq.pro cat, lip-syncing to whatever `voice` plays. It is drawn on twos with a boiling
-// outline, like a chalk cartoon.
+// The moq.pro cat, lip-syncing to whatever `voice` plays, with mouths on twos like a cartoon.
 //
 // Mouths are separate files so they can be redrawn by hand: public/voice/mouth/<shape>.svg, one
 // per name in SHAPES. Each is a 200x120 box whose point (100,50) is the center of the mouth, and
 // the box sits at (108,265) in the cat's 420x420 favicon box, just under the eyes. Draw on
-// transparent: the cat's slate shows through. The boil distorts the mouth along with the cat.
-import { createEffect, createSignal, createUniqueId, For, onCleanup, onMount } from "solid-js";
+// transparent: the cat's slate shows through.
+import { createEffect, createSignal, For, onCleanup, onMount } from "solid-js";
 import { centroid, ease, follow, level, pick, SHAPES, type Shape } from "./mouth";
 
 // moq.pro's favicon (app/static/favicon.svg), in its own upside-down tenths.
@@ -19,19 +18,15 @@ const FAVICON = "translate(0 420) scale(0.1 -0.1)";
 // Squash the eyes toward their middle row.
 const BLINK = "translate(0 230) scale(1 0.15) translate(0 -230)";
 
-// Animation timing: mouths on twos at 24 fps, a new boil every third frame.
+// Mouths on twos at 24 fps.
 const MOUTH_MS = 83;
-const BOIL_MS = 125;
 const BLINK_MS = 120;
 
 type Tap = { analyser: AnalyserNode; samples: Float32Array<ArrayBuffer>; spectrum: Float32Array<ArrayBuffer> };
 
 export default function Cat(props: { voice?: AudioNode; class?: string }) {
-	const id = createUniqueId();
 	const [shape, setShape] = createSignal<Shape>("rest");
 	const [blink, setBlink] = createSignal(false);
-	const [boil, setBoil] = createSignal(false);
-	let turbulence!: SVGFETurbulenceElement;
 	let tap: Tap | undefined;
 
 	// A side branch off the player's output: nothing downstream of the analyser, so playback is
@@ -54,16 +49,12 @@ export default function Cat(props: { voice?: AudioNode; class?: string }) {
 	});
 
 	onMount(() => {
-		// Reduced motion keeps the lip sync and blinks but drops the boil, which never stops.
-		const reduce = matchMedia("(prefers-reduced-motion: reduce)");
-
 		let open = 0;
 		// The voice's brightness now and on average, in Hz, to tell its dark sounds from its bright.
 		let bright = 0;
 		let usual = 0;
 		let last = performance.now();
 		let mouthAt = 0;
-		let boilAt = 0;
 		let blinkAt = last + 2500;
 		let frame = 0;
 
@@ -89,13 +80,6 @@ export default function Cat(props: { voice?: AudioNode; class?: string }) {
 				mouthAt = now;
 				setShape(pick(open, usual ? bright / usual : 1));
 			}
-			// Read live, so a preference changed mid-call applies on the next frame.
-			const still = reduce.matches;
-			setBoil(!still);
-			if (!still && now - boilAt >= BOIL_MS) {
-				boilAt = now;
-				turbulence.setAttribute("seed", String(Math.floor(Math.random() * 997)));
-			}
 			setBlink(now >= blinkAt);
 			if (now >= blinkAt + BLINK_MS) blinkAt = now + 2000 + Math.random() * 4000;
 
@@ -107,34 +91,26 @@ export default function Cat(props: { voice?: AudioNode; class?: string }) {
 
 	return (
 		<svg viewBox="0 0 420 420" class={props.class} role="img" aria-label="The MoQ cat">
-			<defs>
-				<filter id={`${id}-boil`} x="-5%" y="-5%" width="110%" height="110%">
-					<feTurbulence ref={turbulence} type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="1" />
-					<feDisplacementMap in="SourceGraphic" scale="5" />
-				</filter>
-			</defs>
 			<rect width="420" height="420" rx="90" fill="#0f172a" />
-			<g filter={boil() ? `url(#${id}-boil)` : undefined}>
-				<path transform={FAVICON} d={M} fill="#fafafa" />
-				<g transform={blink() ? BLINK : undefined}>
-					<g transform={FAVICON} fill="#4cc315">
-						<For each={EYES}>{(d) => <path d={d} />}</For>
-					</g>
+			<path transform={FAVICON} d={M} fill="#fafafa" />
+			<g transform={blink() ? BLINK : undefined}>
+				<g transform={FAVICON} fill="#4cc315">
+					<For each={EYES}>{(d) => <path d={d} />}</For>
 				</g>
-				{/* All five stay loaded so a swap never waits on the network. */}
-				<For each={SHAPES}>
-					{(s) => (
-						<image
-							href={`/voice/mouth/${s}.svg`}
-							x="108"
-							y="265"
-							width="200"
-							height="120"
-							visibility={shape() === s ? "visible" : "hidden"}
-						/>
-					)}
-				</For>
 			</g>
+			{/* All five stay loaded so a swap never waits on the network. */}
+			<For each={SHAPES}>
+				{(s) => (
+					<image
+						href={`/voice/mouth/${s}.svg`}
+						x="108"
+						y="265"
+						width="200"
+						height="120"
+						visibility={shape() === s ? "visible" : "hidden"}
+					/>
+				)}
+			</For>
 		</svg>
 	);
 }
