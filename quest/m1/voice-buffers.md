@@ -1,40 +1,62 @@
-# [M] Voice buffers under the words
+# [L] A live timeline of the voice call
 
 ## Goal
 
-Under each word of the live `/voice` transcript, a strip draws that word's
-audio frames from real measurements: when each arrived against when it plays.
-A frame that arrived later than a typical WebRTC jitter buffer waits turns
-red: an estimate from the MoQ arrivals, not a measured WebRTC receiver. Both
-directions: your prompt as the agent received it, and the agent's reply as
-your browser received it. Nothing is simulated or injected.
+The `/voice` demo draws the whole call on one live, scrolling timeline, from
+real measurements: your mic frames as captured, those frames reaching the
+agent, its VAD and turn decisions, the words STT recognizes and when, the LLM
+and TTS working, each reply frame published, in flight, and buffered in your
+browser, and the playhead. A reader watches packets cross before the AI
+recognizes them as words, sees how far ahead MoQ holds the reply in memory, and
+can tell at a glance where a slow reply spent its time, which answers "is the
+delay MoQ?".
+
+Frames that arrived later than a typical WebRTC jitter buffer waits turn red:
+an estimate from the MoQ arrivals, not a measured WebRTC receiver. Nothing is
+simulated or injected.
 
 ## Plan
 
-Decided 2026-10-09:
+Decided 2026-10-23:
 
-- **Real data only.** No "network blip" button and no injected loss. On a
-  clean network the strips are all on time, and the reply strip still shows
-  how far ahead the agent sent its audio.
-- **A WebRTC deadline line, computed from the real arrivals.** A frame is
-  "late for WebRTC" when its arrival spread exceeds a typical WebRTC jitter
-  target. Measure lateness as arrival minus timestamp, relative to the
-  smallest one seen, so the sender's and receiver's clocks never need to
-  agree. Choose and cite the target when implementing.
-- **Draw it like `src/components/voice/`.** Reuse its segment colors and
-  word layout on a sliding window of live, append-only data, in place of its
-  fixed axis and simulated `FLIGHT`.
-- **Reply side** reads `@moq/watch`'s per-frame `arrivals()` handle on the
-  audio decoder and maps frames to words with the agent's TTS word timings.
-  It yields each frame's `{timestamp, arrival, late}` and a gap item
-  (`timestamp` and `duration` in `Time.Milli`) where media will never
-  arrive. Its queue is unbounded, so the page keeps its own window. There is
-  no gap at the join: the strip starts on the first frame read.
-- **Prompt side** reads the agent's `voice.json` track on the response
-  broadcast: word timings from STT and the arrival time of each request
-  audio frame.
+- **One shared wall-clock axis**, not per-direction panels or strips under
+  words: every lane on the same time, so a frame's capture, arrival, and
+  recognition line up vertically. A sliding window around now; buffered reply
+  audio sits to the right of the playhead.
+- **All at once.** Build the page after the agent-side and reply-side data
+  exist, rather than shipping lanes piecemeal.
+- **Real data only**, and keep the WebRTC mark: a frame is late for WebRTC
+  when its arrival spread exceeds a typical WebRTC jitter target. Measure
+  lateness as arrival minus media timestamp, relative to the smallest seen,
+  so it needs no clock agreement. Choose and cite the target when
+  implementing.
+- **Draw it like the post.** Reuse `src/components/voice/`'s colors and
+  vocabulary (buffered, consumed, waiting, lost; packets crossing a network
+  band; words over their audio) so the live view reads as the post's diagrams
+  come alive.
+
+Sources, as of planning:
+
+- Browser, available now: `@moq/publish`'s captured audio frames;
+  `@moq/watch`'s audio `buffered` ranges and playback `timestamp`; the
+  connection's PROBE RTT; RTVI turn events and per-service `metrics` on the
+  transcript track.
+- Reply-side arrivals: `@moq/watch`'s per-frame `arrivals()`.
+- Agent side: `voice.json` on the response broadcast, extended to carry
+  everything that happens on the agent with its time.
+
+The browser cannot see its own QUIC send buffer. Show "captured, not yet at
+the agent" from the agent's arrivals instead.
+
+Placing agent events on the browser's axis needs a clock offset. Both
+directions carry media timestamps with send and arrival times, so an
+NTP-style estimate from the minimum transit each way is a good starting point;
+verify it holds against the PROBE RTT.
+
+Build on [moq-dev/moq.dev#194](https://github.com/moq-dev/moq.dev/pull/194)
+(transcript auto-scroll, steadier cat) if it is still open.
 
 ## Required
 
 - [An @moq/watch release ships per-frame arrivals](/quest/m1/watch-arrivals-release.md) - the reply-side data
-- [The voice agent publishes voice.json](/quest/m1/voice-timeline-track.md) - word timings and the prompt-side data
+- [The voice agent publishes the full voice.json](/quest/m1/voice-timeline-track.md) - the agent's side of the timeline
