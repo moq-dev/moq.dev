@@ -79,7 +79,7 @@ Quests: when work mentions a quest, run `quest guide` and follow it. The `quest`
 - **Styling**: Tailwind CSS
 - **Build**: Vite
 - **Code Quality**: Biome for linting/formatting
-- **Package Manager**: bun v1.3.13
+- **Package Manager**: bun
 - **Task Runner**: just
 - **Toolchain**: pinned in `flake.nix`; `nix develop` (or direnv, via `.envrc`) provides bun, node, and just
 
