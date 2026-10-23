@@ -16,9 +16,9 @@
 	},
 	"dependencies": {
 		"@moq/boy": "^0.4.1",
-		"@moq/json": "^0.4.2",
-		"@moq/publish": "^0.5.2",
-		"@moq/watch": "^0.6.2",
+		"@moq/json": "^0.4.3",
+		"@moq/publish": "^0.5.3",
+		"@moq/watch": "^0.6.5",
 		"astro": "^7.3.8",
 		"highlight.js": "^11.12.0",
 		"solid-js": "^1.9.17"
