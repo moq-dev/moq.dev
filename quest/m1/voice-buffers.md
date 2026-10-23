@@ -2,8 +2,8 @@
 
 ## Goal
 
-The `/voice` demo draws the whole call on one live, scrolling timeline, from
-real measurements: your mic frames as captured, those frames reaching the
+The `/voice` demo draws the latest exchange, your most recent statement and
+the agent's most recent reply, on one live timeline from real measurements: your mic frames as captured, those frames reaching the
 agent, its VAD and turn decisions, the words STT recognizes and when, the LLM
 and TTS working, each reply frame published, in flight, and buffered in your
 browser, and the playhead. A reader watches packets cross before the AI
@@ -21,8 +21,12 @@ Decided 2026-10-23:
 
 - **One shared wall-clock axis**, not per-direction panels or strips under
   words: every lane on the same time, so a frame's capture, arrival, and
-  recognition line up vertically. A sliding window around now; buffered reply
-  audio sits to the right of the playhead.
+  recognition line up vertically. Buffered reply audio sits to the right of
+  the playhead.
+- **The latest exchange, not the whole call** (decided later on 2026-10-23,
+  replacing a sliding window around now): the axis spans your most recent
+  statement and the agent's most recent reply. `voice.json` holds exactly
+  that, so the page draws what it reads.
 - **All at once.** Build the page after the agent-side and reply-side data
   exist, rather than shipping lanes piecemeal.
 - **Real data only**, and keep the WebRTC mark: a frame is late for WebRTC
@@ -44,8 +48,11 @@ Sources, as of planning:
 - Reply-side arrivals: `@moq/watch`'s per-frame `arrivals()`, which also
   yields a gap item where media will never arrive. Draw a frame as lost only
   from such a gap; until then a missing frame is in flight.
-- Agent side: `voice.json` on the response broadcast, extended to carry
-  everything that happens on the agent with its time.
+- Agent side: `voice.json` on the response broadcast, a moq-json Window
+  carrying everything that happens on the agent with its time. At each
+  utterance boundary the agent cuts a group and pops everything older than
+  the latest statement on each side, so a joiner or reconnect gets exactly the
+  current exchange. Read it with `@moq/json`'s Window consumer.
 
 The browser cannot see its own QUIC send buffer. Show "captured, not yet at
 the agent" from the agent's arrivals instead.
