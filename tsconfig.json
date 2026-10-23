@@ -1,6 +1,6 @@
 {
 	"extends": "astro/tsconfigs/strict",
-	"exclude": ["**/dist", "node_modules"],
+	"exclude": ["**/dist", "node_modules", "moq"],
 	"compilerOptions": {
 		"jsx": "preserve",
 		"jsxImportSource": "solid-js",

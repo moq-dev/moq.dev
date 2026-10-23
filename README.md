@@ -44,9 +44,12 @@ With [direnv](https://direnv.net/) installed, `direnv allow` loads that shell
 automatically on every `cd` into the repo.
 
 Don't have Nix? Install `bun`, Node.js 24, and `just` yourself, matching the `bun`
-version in `packageManager`. Either way, the dependencies come from `bun`:
+version in `packageManager`. You still need `nix` on your `PATH`: the `@moq/*`
+packages build from the `moq` submodule, and its `@moq/libav` is built with Nix.
+Either way, fetch the submodule and install with `bun`:
 
 ```bash
+git submodule update --init
 bun i
 ```
 

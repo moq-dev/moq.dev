@@ -15,6 +15,5 @@ like the Bun version stop drifting because they are no longer written down.
   code (`sites/*/wrangler.jsonc`, `sites/lib/worker.ts`). If something
   load-bearing turns out to be missing, add it as a comment beside that code.
 - The Bun pin-sync rule goes too. Make the flake's Bun assertion failure name
-  all three pins (nixpkgs, `packageManager` in `package.json`, the `Dockerfile`
-  base image), so the guidance appears exactly when CI catches the drift.
+  both pins (nixpkgs and `packageManager` in `package.json`), so the guidance appears exactly when CI catches the drift.
 - Read `PROMPTING.md` first. `CLAUDE.md` is a symlink to `AGENTS.md`.

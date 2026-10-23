@@ -61,5 +61,4 @@ Build on [moq-dev/moq.dev#194](https://github.com/moq-dev/moq.dev/pull/194)
 
 ## Required
 
-- [An @moq/watch release ships per-frame arrivals](/quest/m1/watch-arrivals-release.md) - the reply-side data
 - [The voice agent publishes the full voice.json](/quest/m1/voice-timeline-track.md) - the agent's side of the timeline

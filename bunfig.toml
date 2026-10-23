@@ -1,0 +1,3 @@
+[test]
+# The moq submodule runs its own tests.
+pathIgnorePatterns = ["moq/**"]

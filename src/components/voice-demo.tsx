@@ -3,7 +3,7 @@
 // Pipecat client: <moq-publish> sends the mic, <moq-watch> plays the reply, and the page speaks
 // the slice of RTVI the agent needs over a `transcript.json.z` side track in each direction.
 import * as Json from "@moq/json";
-import { Net, Signals } from "@moq/publish";
+import { Clock, Net, Signals } from "@moq/publish";
 import "@moq/publish/element";
 import type MoqPublish from "@moq/publish/element";
 import "@moq/watch/element";
@@ -223,7 +223,7 @@ export default function VoiceDemo() {
 	const send = (call: Call, message: Message) => {
 		const record = { ...message, seq: call.log.length, epoch: call.epoch };
 		call.log.push(record);
-		call.producer?.append(record);
+		call.producer?.append({ value: record });
 	};
 
 	// Tear the call down and show why. `undefined` is the reader's own Stop.
@@ -420,7 +420,7 @@ export default function VoiceDemo() {
 				track: broadcast.createTrack(RTVI_TRACK),
 				compression: "deflate",
 			});
-			for (const record of call.log) producer.append(record);
+			for (const record of call.log) producer.append({ value: record });
 			call.producer = producer;
 			effect.cleanup(() => {
 				if (call.producer === producer) call.producer = undefined;
@@ -447,7 +447,9 @@ export default function VoiceDemo() {
 			effect.cleanup(() => track.close());
 			const consumer = new Json.Stream.Consumer<Message>({ track, compression: "deflate" });
 			effect.spawn(async () => {
-				for await (const { seq, epoch, ...message } of consumer) {
+				for await (const {
+					value: { seq, epoch, ...message },
+				} of consumer) {
 					if (typeof seq === "number") {
 						if (epoch !== seen.epoch) Object.assign(seen, { epoch, seq: -1 });
 						if (seq <= seen.seq) continue;
@@ -576,9 +578,9 @@ export default function VoiceDemo() {
 								prop:url={url}
 								prop:name={Net.Path.from(call.session.responseBroadcast)}
 								prop:volume={1}
-								prop:delay={Net.Time.Milli(100)}
+								prop:delay={Clock.Milli(100)}
 								// The agent sends its reply up to ~25s ahead of real time; holding less drops it.
-								prop:buffer={Net.Time.Milli(30_000)}
+								prop:buffer={Clock.Milli(30_000)}
 							/>
 						</>
 					);

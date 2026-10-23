@@ -41,7 +41,7 @@ just fix           # Auto-fix code formatting/lint issues
 - Propose a course change, even suggest abandoning a PR, rather than finish a half-solution.
 - When a decision is the maintainer's (design, copy, naming, scope), ask with 2-3 options and a recommendation.
 - Never deploy to any environment, including staging, without the user's explicit permission for that deployment. A coding task or quest does not authorize a deploy.
-- Protocol, player, and publisher fixes belong upstream in moq-dev/moq (`@moq/publish`, `@moq/watch`, ...). Fix them there first, then bump the package here.
+- Protocol, player, and publisher fixes belong upstream in moq-dev/moq (`@moq/publish`, `@moq/watch`, ...). Fix them there first, then bump the `moq` submodule here; the `@moq/*` packages build from it.
 - Never edit an `AGENTS.md`, `PROMPTING.md`, or skill without being prompted. Read `PROMPTING.md` before editing one or instructing other agents via context, memory, plans, or reviews.
 - No em dashes in code, comments, or agent-written prose.
 - Match the existing conventions, patterns, and naming when possible.
@@ -83,10 +83,10 @@ Quests: when work mentions a quest, run `quest guide` and follow it. The `quest`
 - **Task Runner**: just
 - **Toolchain**: pinned in `flake.nix`; `nix develop` (or direnv, via `.envrc`) provides bun, node, and just
 
-The Bun version in nixpkgs must match `packageManager` in `package.json`
-and the base image in `Dockerfile`. CI reads its version from `package.json`
-and evaluates the flake assertions to catch drift. When a weekly Dependabot
-Nix update changes Bun, update the other two pins in the same PR.
+The Bun version in nixpkgs must match `packageManager` in `package.json`.
+CI reads its version from `package.json` and evaluates the flake assertion to
+catch drift. When a weekly Dependabot Nix update changes Bun, update
+`package.json` in the same PR.
 
 ### Key Components
 

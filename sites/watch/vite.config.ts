@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import { worklet } from "../../moq/js/common/vite-plugin-worklet.ts";
 import { routing } from "../lib/dev";
 
 // moq.watch — a static Vite build of the @moq/watch player. The Worker in
@@ -8,7 +9,7 @@ export default defineConfig({
 	// PUBLIC_ prefix rather than Vite's default VITE_.
 	envDir: "../..",
 	envPrefix: "PUBLIC_",
-	plugins: [routing()],
+	plugins: [routing(), worklet()],
 	build: {
 		target: "esnext",
 		outDir: "dist",

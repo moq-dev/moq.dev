@@ -41,17 +41,14 @@
             assert pkgs.lib.assertMsg
               ((builtins.fromJSON (builtins.readFile ./package.json)).packageManager == "bun@${pkgs.bun.version}")
               "Update package.json to match Nix Bun ${pkgs.bun.version}";
-            assert pkgs.lib.assertMsg
-              (pkgs.lib.hasPrefix "FROM oven/bun:${pkgs.bun.version}-slim AS base\n" (builtins.readFile ./Dockerfile))
-              "Update Dockerfile to match Nix Bun ${pkgs.bun.version}";
             pkgs.mkShell (
               {
                 packages = with pkgs; [
                   # Everything in the justfile runs through bun: astro, vite, biome,
                   # tsc, and wrangler are all `bun run` or `bunx`.
                   #
-                  # Keep package.json and Dockerfile aligned when nixpkgs changes
-                  # Bun. CI reads package.json and evaluates the assertions above.
+                  # Keep package.json aligned when nixpkgs changes Bun. CI reads
+                  # package.json and evaluates the assertion above.
                   bun
 
                   # Astro and Vite target node, and parts of their toolchains shell

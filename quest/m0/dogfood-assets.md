@@ -14,15 +14,13 @@ hosted mode dogfooded, not just the pin bump.
 
 Guidance:
 
-- Copy `node_modules/@moq/{watch,publish}/assets/*` into a served `/moq/`
-  directory at build time. `vite-plugin-static-copy` is already an unused
-  devDependency; Astro takes it through `vite.plugins`.
-- Call `assets("/moq/")` once, before any element or player starts. The sites
+- The `@moq` packages build from the `moq` submodule, and its `worklet()`
+  Vite plugin already emits each worklet and worker to `assets/<name>.js` in
+  every site's build. Point `assets()` there rather than copying files, and
+  check that the dev server serves them too. `vite-plugin-static-copy` is
+  then an unused devDependency to drop.
+- Call `assets()` once, before any element or player starts. The sites
   import the element entries, so import `assets` from the package root.
 - Verify in a browser that audio plays and publishes, and that the network
   panel shows the worklets and the capture worker (Firefox) loading from
   `/moq/`, not `blob:`.
-
-## Required
-
-- [A release ships assets()](/quest/m0/assets-release.md) - the hosted files exist on npm to copy
