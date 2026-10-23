@@ -19,14 +19,14 @@
 		"@moq/json": "^0.4.3",
 		"@moq/publish": "^0.5.3",
 		"@moq/watch": "^0.6.6",
-		"astro": "^7.3.8",
+		"astro": "^7.4.0",
 		"highlight.js": "^11.12.0",
 		"solid-js": "^1.9.17"
 	},
 	"devDependencies": {
-		"@astrojs/mdx": "8.0.3",
+		"@astrojs/mdx": "8.1.0",
 		"@astrojs/rss": "^4.0.19",
-		"@astrojs/solid-js": "7.0.2",
+		"@astrojs/solid-js": "7.1.0",
 		"@biomejs/biome": "^2.5.15",
 		"@tailwindcss/forms": "^0.5.11",
 		"@tailwindcss/typography": "^0.5.20",
@@ -38,7 +38,7 @@
 		"typescript": "^7.0.2",
 		"vite": "^8.3.4",
 		"vite-plugin-static-copy": "^4.1.1",
-		"wrangler": "^4.150.0"
+		"wrangler": "^4.151.1"
 	},
 	"packageManager": "bun@1.4.2"
 }
