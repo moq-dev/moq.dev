@@ -3,7 +3,10 @@ import * as Try from "@/lib/try";
 import "@moq/watch/support/element";
 import "@moq/watch/element";
 import "@moq/watch/ui";
-import { Clock, Net } from "@moq/watch";
+import { assets, Clock, Net } from "@moq/watch";
+
+// Load the worklets the build emits to /assets/ rather than blob: URLs.
+assets("/assets/");
 
 export default function Watch() {
 	const [session] = createResource(Try.watch);

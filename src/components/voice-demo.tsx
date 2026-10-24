@@ -3,13 +3,18 @@
 // Pipecat client: <moq-publish> sends the mic, <moq-watch> plays the reply, and the page speaks
 // the slice of RTVI the agent needs over a `transcript.json.z` side track in each direction.
 import * as Json from "@moq/json";
-import { Clock, Net, Signals } from "@moq/publish";
+import { Clock, Net, assets as publishAssets, Signals } from "@moq/publish";
 import "@moq/publish/element";
 import type MoqPublish from "@moq/publish/element";
+import { assets as watchAssets } from "@moq/watch";
 import "@moq/watch/element";
 import type MoqWatch from "@moq/watch/element";
 import { createEffect, createSignal, For, Index, onCleanup, Show } from "solid-js";
 import Cat from "./voice/cat";
+
+// Load the worklets the build emits to /assets/ rather than blob: URLs.
+publishAssets("/assets/");
+watchAssets("/assets/");
 
 type Turnstile = {
 	render: (

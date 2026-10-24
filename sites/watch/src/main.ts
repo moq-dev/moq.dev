@@ -4,6 +4,7 @@
 //   ?relay=<url>          Relay server URL (default: the relay this site was built for)
 //   ?cloudflare=<label>  Shorthand for <label>.cloudflare.mediaoverquic.com
 //   ?jwt=<token>          Appended to the relay URL as ?jwt=<token>
+import { assets } from "@moq/watch";
 import "@moq/watch/element";
 import "@moq/watch/ui";
 
@@ -11,6 +12,9 @@ import * as Broadcast from "../../lib/broadcast";
 import * as Try from "../../lib/try";
 
 const DEFAULT_RELAY = import.meta.env.PUBLIC_RELAY_URL ?? "https://cdn.moq.pro";
+
+// Load the worklets the build emits to /assets/ rather than blob: URLs.
+assets("/assets/");
 
 const broadcast = Broadcast.parse(location.pathname);
 if (broadcast) {
