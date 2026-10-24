@@ -3,6 +3,23 @@
 	"type": "module",
 	"version": "0.0.1",
 	"private": true,
+	"workspaces": [
+		"moq/js/clock",
+		"moq/js/flate",
+		"moq/js/hang",
+		"moq/js/json",
+		"moq/js/libav",
+		"moq/js/loc",
+		"moq/js/moq-boy",
+		"moq/js/msf",
+		"moq/js/net",
+		"moq/js/pattern",
+		"moq/js/publish",
+		"moq/js/qmux",
+		"moq/js/signals",
+		"moq/js/video",
+		"moq/js/watch"
+	],
 	"scripts": {
 		"dev": "astro dev --open",
 		"dev:pub": "vite sites/pub",
@@ -12,13 +29,14 @@
 		"deploy": "wrangler deploy",
 		"prod": "astro build --production && wrangler pages dev ./dist --open",
 		"check": "biome ci && tsc --noEmit",
-		"fix": "biome check --write && bun audit fix"
+		"fix": "biome check --write && bun audit fix",
+		"postinstall": "bun run --cwd moq/js/libav build"
 	},
 	"dependencies": {
-		"@moq/boy": "^0.4.1",
-		"@moq/json": "^0.4.3",
-		"@moq/publish": "^0.5.3",
-		"@moq/watch": "^0.6.6",
+		"@moq/boy": "workspace:*",
+		"@moq/json": "workspace:*",
+		"@moq/publish": "workspace:*",
+		"@moq/watch": "workspace:*",
 		"astro": "^7.4.0",
 		"highlight.js": "^11.12.0",
 		"solid-js": "^1.9.17"
@@ -33,6 +51,7 @@
 		"@tailwindcss/vite": "^4.3.3",
 		"@types/bun": "^1.4.3",
 		"@types/node": "^26.6.5",
+		"rolldown": "^1.2.14",
 		"shiki": "^4.5.0",
 		"tailwindcss": "^4.3.3",
 		"typescript": "^7.0.2",

@@ -1,4 +1,5 @@
 /// <reference types="astro/client" />
+/// <reference path="./moq/js/common/worklet.d.ts" />
 
 interface ImportMetaEnv {
 	readonly PUBLIC_RELAY_URL: string;

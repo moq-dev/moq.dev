@@ -3,7 +3,7 @@ import * as Try from "@/lib/try";
 import "@moq/watch/support/element";
 import "@moq/watch/element";
 import "@moq/watch/ui";
-import { Net } from "@moq/watch";
+import { Clock, Net } from "@moq/watch";
 
 export default function Watch() {
 	const [session] = createResource(Try.watch);
@@ -31,7 +31,7 @@ export default function Watch() {
 								prop:name={Net.Path.from(current().broadcast.name)}
 								prop:muted={true}
 								// The default "auto" sizes the buffer from RTT alone, too small for relay jitter.
-								prop:delay={Net.Time.Milli(100)}
+								prop:delay={Clock.Milli(100)}
 							>
 								<canvas style={{ "max-width": "100%", height: "auto", margin: "0 auto", "border-radius": "1rem" }} />
 							</moq-watch>

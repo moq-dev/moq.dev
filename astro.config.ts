@@ -1,10 +1,9 @@
-import fs from "node:fs";
-import path from "node:path";
 import mdx from "@astrojs/mdx";
 import solidJs from "@astrojs/solid-js";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import { createCssVariablesTheme } from "shiki";
+import { worklet } from "./moq/js/common/vite-plugin-worklet.ts";
 
 // Colors come from the --astro-code-* variables in global.css, shared with highlight.js.
 const codeTheme = createCssVariablesTheme({ variablePrefix: "--astro-code-" });
@@ -20,19 +19,9 @@ export default defineConfig({
 	},
 	integrations: [mdx(), solidJs()],
 	vite: {
-		plugins: [tailwindcss()],
+		plugins: [tailwindcss(), worklet()],
 		build: {
 			target: "esnext",
-		},
-		server: {
-			fs: {
-				allow: [
-					".",
-					// Allow `npm link @moq/*`
-					fs.realpathSync(path.resolve("node_modules/@moq/publish")),
-					fs.realpathSync(path.resolve("node_modules/@moq/watch")),
-				],
-			},
 		},
 		resolve: {
 			alias: {

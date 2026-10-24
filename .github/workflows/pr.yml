@@ -10,6 +10,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: true
+      # bun install builds @moq/libav from the moq submodule's flake. Accepting
+      # its nixConfig pulls the build from the nix.moq.dev cache.
+      - uses: cachix/install-nix-action@448cde739abec1eaf0646249e3d25bb8d9bc7702 # v31
+        with:
+          extra_nix_config: accept-flake-config = true
       # Read the Bun version from package.json.
       - uses: oven-sh/setup-bun@v2
         with:
@@ -32,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: cachix/install-nix-action@448cde739abec1eaf0646249e3d25bb8d9bc7702 # v31
-      # Evaluating the shell checks the Nix, package.json, and Docker Bun pins.
+      # Evaluating the shell checks the Nix and package.json Bun pins.
       - run: nix eval --raw .#devShells.x86_64-linux.default.drvPath
       # Just the quest package, not the whole dev shell.
       - run: nix run .#quest -- check
