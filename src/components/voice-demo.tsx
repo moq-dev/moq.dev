@@ -72,10 +72,6 @@ const POLL_MS = 2_000;
 // lands a little before our pickup.
 const LIMIT_SLACK_SECS = 15;
 
-// Closing the connection drops whatever has not reached the wire, so the goodbye gets a moment
-// first, the same as @pipecat-ai/moq-transport.
-const GOODBYE_MS = 250;
-
 // The API's refusal codes plus the ones only the page can see. Copy comes from here, never from
 // the API's error string.
 type Outcome =
@@ -193,7 +189,7 @@ function clock(secs: number): string {
 export default function VoiceDemo() {
 	const [phase, setPhase] = createSignal<Phase>("idle");
 	const [outcome, setOutcome] = createSignal<Outcome>();
-	// Mounts the publisher and player; it outlives `current` by the goodbye.
+	// Mounts the publisher and player.
 	const [mounted, setMounted] = createSignal<Call>();
 	const [remaining, setRemaining] = createSignal<number>();
 	const [transcript, setTranscript] = createSignal<Turn[]>([]);
@@ -236,11 +232,11 @@ export default function VoiceDemo() {
 		if (call) {
 			for (const timer of call.timers) clearTimeout(timer);
 			clearInterval(call.ticker);
-			// The agent hangs up at once on this, instead of waiting for us to redial.
+			// The agent hangs up at once on this, instead of waiting for us to redial. Unmounting
+			// right after is safe: <moq-publish> only releases its pooled connection, which keeps
+			// sending the cleanly finished track until the pool's linger closes it.
 			send(call, { label: "moq-transport", type: "session-ending" });
-			const unmount = () => setMounted((m) => (m === call ? undefined : m));
-			if (call.producer) setTimeout(unmount, GOODBYE_MS);
-			else unmount();
+			setMounted(undefined);
 		}
 		setRemaining(undefined);
 		setOutcome(why);
