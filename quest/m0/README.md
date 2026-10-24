@@ -12,5 +12,4 @@ developer's machine.
 
 - [Lean AGENTS.md](/quest/m0/lean-agents-md.md) - agent context keeps only rules and conventions, no repo description
 - [Biome passes locally](/quest/m0/biome-local.md) - `just check` passes with Claude Code's local files present
-- [Type-check .astro files](/quest/m0/astro-typecheck.md) - `just check` covers `.astro` via the TypeScript 7.1 content mapper
 - [Dogfood hosted worklets](/quest/m0/dogfood-assets.md) - the sites serve the @moq worklets and workers themselves
