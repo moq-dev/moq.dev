@@ -27,3 +27,7 @@ result-*
 # Cloudflare
 .wrangler/
 .dev.vars
+
+# Claude Code per-user files
+.claude/settings.local.json
+.claude/launch.json
