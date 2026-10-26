@@ -452,6 +452,11 @@ export default function VoiceDemo() {
 			const playing = !effect.get(el.audio.out.stalled);
 			call.log.playhead(performance.now(), media, playing);
 		});
+		// The decoder reports a frame only once playback nears it, so a reply streamed ahead shows up
+		// here first: the frames are already in the buffer.
+		effects.run((effect) => {
+			call.log.buffer(effect.get(el.audio.out.buffered));
+		});
 		effects.spawn(async () => {
 			const arrivals = el.audio.arrivals();
 			effects.cleanup(() => arrivals.close());

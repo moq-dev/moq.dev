@@ -184,13 +184,26 @@ const drawReply: Draw = (ctx, width, call, now) => {
 		}
 	}
 
+	// Held by the player ahead of the frames its decoder has reported.
+	const held: { start: number; end: number }[] = [];
+	for (const r of call.buffered) {
+		const start = Math.max(r.start, reply.start);
+		const end = Math.min(r.end, reply.end);
+		if (end <= start) continue;
+		held.push({ start, end });
+		// Over the track, not the in-flight tint, so it reads as the legend's color.
+		for (const color of [PALETTE.track, PALETTE.have]) {
+			ctx.fillStyle = color;
+			ctx.fillRect(bar.x(start), BAR_Y, (end - start) * bar.pxPerMs, BAR_H);
+		}
+	}
+
 	const head = call.mediaNow(now);
 	const frameW = Math.max(1, FRAME_MS * bar.pxPerMs);
-	let arrived = 0;
 	for (const f of call.reply) {
 		// A frame can beat the record of the track that carries it.
 		if (f.media < reply.start || f.media >= reply.end || (f.track !== undefined && f.track !== reply.track)) continue;
-		arrived += FRAME_MS;
+		held.push({ start: f.media, end: Math.min(f.media + FRAME_MS, reply.end) });
 		const played = f.play !== undefined || (head !== undefined && f.media <= head);
 		ctx.fillStyle = f.discarded ? PALETTE.discarded : f.late ? PALETTE.lost : played ? PALETTE.done : PALETTE.have;
 		ctx.fillRect(bar.x(f.media), BAR_Y, frameW, BAR_H);
@@ -208,8 +221,20 @@ const drawReply: Draw = (ctx, width, call, now) => {
 	axis(ctx, bar, reply.start);
 
 	const total = reply.end - reply.start;
-	return `${seconds(Math.min(arrived, total))} of ${seconds(total)} cached · ${seconds(position - reply.start)} played`;
+	return `${seconds(covered(held))} of ${seconds(total)} cached · ${seconds(position - reply.start)} played`;
 };
+
+// The length of a set of spans, counting overlaps once.
+function covered(spans: { start: number; end: number }[]): number {
+	spans.sort((a, b) => a.start - b.start);
+	let total = 0;
+	let edge = Number.NEGATIVE_INFINITY;
+	for (const { start, end } of spans) {
+		if (end > edge) total += end - Math.max(start, edge);
+		edge = Math.max(edge, end);
+	}
+	return total;
+}
 
 interface Scale {
 	x: (t: number) => number;

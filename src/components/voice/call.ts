@@ -89,6 +89,8 @@ export class CallLog {
 	mic: MicFrame[] = [];
 	reply: ReplyFrame[] = [];
 	gaps: { media: number; duration: number }[] = [];
+	// Reply media the player holds but has not played: received, decoded or not.
+	buffered: { start: number; end: number }[] = [];
 	userWords: Word[] = [];
 	interims: Word[] = [];
 	agentWords: Word[] = [];
@@ -305,6 +307,11 @@ export class CallLog {
 	/** Reply media that will never arrive. */
 	gap(media: number, duration: number) {
 		this.gaps.push({ media, duration });
+	}
+
+	/** The reply media the player holds, which runs ahead of the arrivals its decoder has reached. */
+	buffer(ranges: readonly { start: number; end: number }[]) {
+		this.buffered = ranges.map(({ start, end }) => ({ start, end }));
 	}
 
 	/** The reply's playhead: media `media` is playing at local time `now`, or nothing is. */
