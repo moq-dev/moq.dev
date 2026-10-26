@@ -10,11 +10,6 @@
 // The agent's clock is placed on ours NTP-style, from the fastest transit each way: request frames
 // bound the offset from one side and reply frames from the other, so it needs no clock agreement.
 
-// A frame is late for WebRTC once it arrives this much later than the fastest one did: the initial
-// target of libwebrtc's audio jitter buffer (NetEQ's kStartDelayMs in
-// modules/audio_coding/neteq/delay_manager.cc), which only grows after it has already dropped audio.
-export const WEBRTC_MS = 80;
-
 // The agent's Opus frames, and the duration drawn for a reply frame.
 export const FRAME_MS = 20;
 
@@ -134,17 +129,6 @@ export class CallLog {
 	local(agent: number): number | undefined {
 		const offset = this.offset;
 		return offset === undefined ? undefined : agent - offset;
-	}
-
-	/** How much later than the fastest a request frame reached the agent. */
-	upLateness(frame: MicFrame): number {
-		return frame.arrive - frame.capture - (this.minUp ?? 0);
-	}
-
-	/** How much later than the fastest a reply frame reached us, once its publish is known. */
-	downLateness(frame: ReplyFrame): number | undefined {
-		if (frame.published === undefined) return undefined;
-		return frame.arrive - frame.published - (this.minDown ?? 0);
 	}
 
 	/** Ingest one `voice.json` record. */
@@ -361,18 +345,38 @@ export class CallLog {
 		return media;
 	}
 
-	/**
-	 * Where the latest exchange starts on the local clock: your latest statement or the agent's
-	 * latest reply, whichever began first, as `voice.json` keeps the latest statement on each side.
-	 */
-	exchange(): number | undefined {
+	/** Your latest statement on the local clock: from its speech until the agent took its turn, or now. */
+	statement(now: number): { start: number; end: number } | undefined {
+		const latest = this.speech.at(-1);
+		const yours = this.marks.findLast((m) => m.kind === "turn" && m.label === "your turn");
+		const heard = yours?.media;
+		if (!yours || heard === undefined) return latest && { start: latest.start, end: latest.end ?? now };
 		// The turn is decided a little into the statement, so it starts with the speech before it.
-		const heard = this.marks.findLast((m) => m.kind === "turn" && m.label === "your turn")?.media;
-		const said = heard === undefined ? undefined : (this.speech.findLast((s) => s.start <= heard)?.start ?? heard);
-		const thought = this.spans.findLast((s) => s.kind === "llm");
-		const replied = thought && this.local(thought.start);
-		if (said === undefined) return replied;
-		return replied === undefined ? said : Math.min(said, replied);
+		const start = this.speech.findLast((s) => s.start <= heard)?.start ?? heard;
+		const mine = this.marks.find((m) => m.kind === "turn" && m.label === "my turn" && m.at > yours.at);
+		const end = (mine && this.local(mine.at)) ?? now;
+		// Speech after the agent took its turn is the next statement.
+		if (latest && latest.start > end) return { start: latest.start, end: latest.end ?? now };
+		return { start, end };
+	}
+
+	/**
+	 * The agent's latest reply in media time, as far as it has published: its newest track, from the
+	 * first publish since the request that led to it. A track carries every reply until a barge-in.
+	 */
+	answer(): { track: string; start: number; end: number } | undefined {
+		let latest: Publish | undefined;
+		for (const p of this.publishes) if (!latest || p.at > latest.at) latest = p;
+		if (!latest) return undefined;
+		const newest = latest;
+		const asked = this.spans.findLast((s) => s.kind === "llm" && s.start <= newest.at)?.start;
+		let { start, end } = newest;
+		for (const p of this.publishes) {
+			if (p.track !== newest.track || (asked !== undefined && p.at < asked)) continue;
+			start = Math.min(start, p.start);
+			end = Math.max(end, p.end);
+		}
+		return { track: newest.track, start, end };
 	}
 
 	/** Drop what has scrolled far out of view. */

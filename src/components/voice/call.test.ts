@@ -86,7 +86,7 @@ describe("publish", () => {
 		const [old, claimed] = [log.reply.find((f) => f.media === 2020), log.reply.find((f) => f.media === 2000)];
 		expect(old?.track).toBe("bot-audio");
 		expect(claimed?.track).toBe("bot-audio-1");
-		expect(claimed && log.downLateness(claimed)).toBe(40);
+		expect(claimed?.published).toBe(4000);
 	});
 
 	test("a claimed frame sheds the retired track's discard", () => {
@@ -156,24 +156,50 @@ describe("publish", () => {
 	});
 });
 
-describe("exchange", () => {
-	test("starts with the earlier of your latest statement and the agent's latest reply", () => {
+const record = (type: string, at: number, fields: object) => ({
+	version: 2,
+	type,
+	timescale: 1000,
+	at_ns: at * 1e6,
+	...fields,
+});
+
+describe("statement", () => {
+	test("runs from your speech until the agent takes its turn", () => {
 		const log = synced();
-		const record = (type: string, at: number, fields: object) => ({
-			version: 2,
-			type,
-			timescale: 1000,
-			at_ns: at * 1e6,
-			...fields,
-		});
-		// The agent starts replying at 3000 local, then you interrupt: speech from 5000, confirmed at 5200.
-		log.agent(record("llm", 4000, { event: "request" }));
 		log.agent(record("vad", 6210, { speaking: true, media_ticks: 5200, confirm_ticks: 200 }));
-		expect(log.exchange()).toBe(3000);
 		log.agent(record("turn", 6250, { speaking: true, media_ticks: 5240 }));
-		expect(log.exchange()).toBe(3000);
-		// Its next reply is to your interruption, so the exchange now starts where you did.
+		expect(log.statement(5500)).toEqual({ start: 5000, end: 5500 });
+		log.agent(record("vad", 7210, { speaking: false, media_ticks: 6200, confirm_ticks: 200 }));
+		log.agent(record("turn", 7300, { speaking: false, media_ticks: 6290 }));
+		expect(log.statement(9000)).toEqual({ start: 5000, end: 6300 });
+	});
+
+	test("speech after the agent's turn is the next statement", () => {
+		const log = synced();
+		log.agent(record("vad", 6210, { speaking: true, media_ticks: 5200, confirm_ticks: 200 }));
+		log.agent(record("turn", 6250, { speaking: true, media_ticks: 5240 }));
+		log.agent(record("vad", 7210, { speaking: false, media_ticks: 6200, confirm_ticks: 200 }));
+		log.agent(record("turn", 7300, { speaking: false, media_ticks: 6290 }));
+		log.agent(record("vad", 9210, { speaking: true, media_ticks: 8200, confirm_ticks: 200 }));
+		expect(log.statement(8500)).toEqual({ start: 8000, end: 8500 });
+	});
+});
+
+describe("answer", () => {
+	test("spans the newest track's publishes since the request that led to them", () => {
+		const log = synced();
+		// The first reply rides bot-audio from 0. The next, on the same track, starts at 5000.
 		log.agent(record("llm", 7000, { event: "request" }));
-		expect(log.exchange()).toBe(5000);
+		log.agent(publish("bot-audio", 5000, 6000, 7100));
+		log.agent(publish("bot-audio", 6000, 8000, 7200));
+		expect(log.answer()).toEqual({ track: "bot-audio", start: 5000, end: 8000 });
+	});
+
+	test("a barge-in's track replaces the interrupted reply", () => {
+		const log = synced();
+		log.agent(record("llm", 7000, { event: "request" }));
+		log.agent(publish("bot-audio-1", 2000, 3000, 7100));
+		expect(log.answer()).toEqual({ track: "bot-audio-1", start: 2000, end: 3000 });
 	});
 });
