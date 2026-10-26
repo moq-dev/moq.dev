@@ -390,10 +390,12 @@ export class CallLog {
 	prune(now: number) {
 		const cut = now - KEEP_MS;
 		const offset = this.offset ?? 0;
-		this.mic = this.mic.filter((f) => f.capture >= cut);
-		this.userWords = this.userWords.filter((w) => w.end >= cut);
-		this.interims = this.interims.filter((w) => w.end >= cut);
-		this.speech = this.speech.filter((s) => s.end === undefined || s.end >= cut);
+		// The statement on screen stays whole, however long it runs.
+		const said = Math.min(cut, this.statement(now)?.start ?? cut);
+		this.mic = this.mic.filter((f) => f.capture >= said);
+		this.userWords = this.userWords.filter((w) => w.end >= said);
+		this.interims = this.interims.filter((w) => w.end >= said);
+		this.speech = this.speech.filter((s) => s.end === undefined || s.end >= said);
 		this.marks = this.marks.filter((m) => m.at - offset >= cut);
 		this.spans = this.spans.filter((s) => s.end === undefined || s.end - offset >= cut);
 		this.reply = this.reply.filter((f) => f.play === undefined || f.play >= cut);

@@ -184,6 +184,15 @@ describe("statement", () => {
 		log.agent(record("vad", 9210, { speaking: true, media_ticks: 8200, confirm_ticks: 200 }));
 		expect(log.statement(8500)).toEqual({ start: 8000, end: 8500 });
 	});
+
+	test("pruning keeps a statement longer than the window whole", () => {
+		const log = synced();
+		log.agent(record("vad", 6210, { speaking: true, media_ticks: 5200, confirm_ticks: 200 }));
+		for (let capture = 5000; capture < 75_000; capture += 20) log.agent(arrival(capture, capture + 1010));
+		log.prune(76_000);
+		expect(log.statement(76_000)?.start).toBe(5000);
+		expect(log.mic[0]?.capture).toBe(5000);
+	});
 });
 
 describe("answer", () => {
