@@ -9,7 +9,9 @@ import type MoqPublish from "@moq/publish/element";
 import "@moq/watch/element";
 import type MoqWatch from "@moq/watch/element";
 import { createEffect, createSignal, For, Index, onCleanup, Show } from "solid-js";
+import { type AgentRecord, CallLog } from "./voice/call";
 import Cat from "./voice/cat";
+import Timeline from "./voice/timeline";
 
 type Turnstile = {
 	render: (
@@ -63,6 +65,8 @@ const TURNSTILE_SCRIPT = "https://challenges.cloudflare.com/turnstile/v0/api.js?
 // The agent subscribes to this fixed-name track on our broadcast and publishes its own beside
 // its audio. Neither is in the catalog.
 const RTVI_TRACK = "transcript.json.z";
+// The agent's own measurements of the call (moq.pro agent/VOICE.md), a window of records.
+const TIMELINE_TRACK = "voice.json";
 const RTVI_VERSION = "2.1.0";
 
 // How often a caller waiting for pickup asks whether an edge refused it.
@@ -122,8 +126,9 @@ type Call = {
 	ticker?: ReturnType<typeof setInterval>;
 	liveAt?: number;
 	epoch: string;
-	log: Message[];
+	messages: Message[];
 	producer?: Json.Stream.Producer<Message>;
+	log: CallLog;
 };
 
 let turnstilePromise: Promise<Turnstile> | undefined;
@@ -199,6 +204,8 @@ export default function VoiceDemo() {
 	const [transcript, setTranscript] = createSignal<Turn[]>([]);
 	// The agent's decoded audio, before volume, for the cat to lip-sync to.
 	const [voice, setVoice] = createSignal<AudioNode>();
+	// The last call's measurements, kept after it ends so the reader can look them over.
+	const [timeline, setTimeline] = createSignal<CallLog>();
 
 	// Bumped by every start and teardown, so an await that resumes after Stop sees it is stale
 	// and backs out instead of resurrecting the call.
@@ -221,8 +228,8 @@ export default function VoiceDemo() {
 	};
 
 	const send = (call: Call, message: Message) => {
-		const record = { ...message, seq: call.log.length, epoch: call.epoch };
-		call.log.push(record);
+		const record = { ...message, seq: call.messages.length, epoch: call.epoch };
+		call.messages.push(record);
 		call.producer?.append({ value: record });
 	};
 
@@ -236,6 +243,7 @@ export default function VoiceDemo() {
 		if (call) {
 			for (const timer of call.timers) clearTimeout(timer);
 			clearInterval(call.ticker);
+			call.log.ended = performance.now();
 			// The agent hangs up at once on this, instead of waiting for us to redial.
 			send(call, { label: "moq-transport", type: "session-ending" });
 			const unmount = () => setMounted((m) => (m === call ? undefined : m));
@@ -308,7 +316,8 @@ export default function VoiceDemo() {
 		const epoch = Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, "0")).join(
 			"",
 		);
-		const call: Call = { gen, session, timers: [], epoch, log: [] };
+		const call: Call = { gen, session, timers: [], epoch, messages: [], log: new CallLog() };
+		setTimeline(call.log);
 		current = call;
 		// Queued until the publisher's broadcast exists, so the agent reads it first.
 		send(call, {
@@ -420,7 +429,7 @@ export default function VoiceDemo() {
 				track: broadcast.createTrack(RTVI_TRACK),
 				compression: "deflate",
 			});
-			for (const record of call.log) producer.append({ value: record });
+			for (const record of call.messages) producer.append({ value: record });
 			call.producer = producer;
 			effect.cleanup(() => {
 				if (call.producer === producer) call.producer = undefined;
@@ -439,9 +448,33 @@ export default function VoiceDemo() {
 			effect.cleanup(() => setVoice((v) => (v === root ? undefined : v)));
 		});
 		effects.run((effect) => {
+			const media = effect.get(el.audio.out.timestamp);
+			const playing = !effect.get(el.audio.out.stalled);
+			call.log.playhead(performance.now(), media, playing);
+		});
+		effects.spawn(async () => {
+			const arrivals = el.audio.arrivals();
+			effects.cleanup(() => arrivals.close());
+			for (;;) {
+				const next = await arrivals.next();
+				if (!next) return;
+				if (next.kind === "frame") call.log.received(next.timestamp, next.arrival, next.late);
+				else call.log.gap(next.timestamp, next.duration);
+			}
+		});
+		effects.run((effect) => {
 			const active = effect.get(el.broadcast.out.active);
 			if (!active) return;
 			onPickup(call);
+
+			const timeline = active.track(TIMELINE_TRACK).subscribe();
+			effect.cleanup(() => timeline.close());
+			const records = new Json.Window.Consumer<AgentRecord>({ track: timeline });
+			effect.spawn(async () => {
+				for await (const { value } of records) {
+					if ("push" in value) call.log.agent(value.push.value);
+				}
+			});
 
 			const track = active.track(RTVI_TRACK).subscribe();
 			effect.cleanup(() => track.close());
@@ -554,6 +587,10 @@ export default function VoiceDemo() {
 						)}
 					</For>
 				</ol>
+			</Show>
+
+			<Show when={timeline()} keyed>
+				{(log) => <Timeline call={log} />}
 			</Show>
 
 			<Show when={mounted()} keyed>

@@ -62,7 +62,7 @@ const BUBBLE_H = 30;
 const lanes = (y: number, count: number) => Array.from({ length: count }, (_, i) => y + i * (TRACK_H + LANE_GAP));
 const span = (count: number) => count * TRACK_H + (count - 1) * LANE_GAP;
 
-const COLOR = {
+export const COLOR = {
 	done: "#22c55e",
 	have: "rgba(34, 197, 94, 0.25)",
 	missing: "#f59e0b",

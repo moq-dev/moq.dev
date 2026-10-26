@@ -17,6 +17,7 @@
 		"moq/js/publish",
 		"moq/js/qmux",
 		"moq/js/signals",
+		"moq/js/ui",
 		"moq/js/video",
 		"moq/js/watch"
 	],
