@@ -149,7 +149,8 @@ const drawStatement: Draw = (ctx, width, call, now) => {
 	// Heard without a gap: the first frame missing after the statement started.
 	let contiguous = said.start;
 	for (const f of frames) {
-		if (f.capture > contiguous + FRAME_MS * 1.5) break;
+		// Half a frame absorbs timestamp jitter; a whole missing frame stops it.
+		if (f.capture > contiguous + FRAME_MS / 2) break;
 		contiguous = Math.max(contiguous, f.capture + FRAME_MS);
 	}
 	slider(ctx, bar.x(Math.min(contiguous, edge)));
