@@ -102,6 +102,10 @@ export class CallLog {
 	// User speech as the VAD decided it, in local capture time.
 	speech: { start: number; end?: number }[] = [];
 	publishes: Publish[] = [];
+	// The longest publish, which bounds how far back one can still hold a media time.
+	#longest = 0;
+	// Retired tracks and when they retired, on the local clock: their later arrivals never play.
+	#retired = new Map<string, number>();
 
 	// The fastest transit each way, each including the clock offset.
 	minUp?: number; // agent - local
@@ -212,6 +216,7 @@ export class CallLog {
 				if (typeof record.track !== "string" || start === undefined || end === undefined || at === undefined) return;
 				const publish = { track: record.track, start, end, at };
 				insert(this.publishes, publish, (p) => p.start);
+				this.#longest = Math.max(this.#longest, end - start);
 				// The audio can beat its own record here, leaving a frame on the retired track's publish
 				// of the same media time; the newest publish sent before it arrived claims it.
 				for (const frame of this.reply) {
@@ -229,11 +234,11 @@ export class CallLog {
 				const label = unplayed ? `barge-in, dropped ${(unplayed / 1000).toFixed(1)}s` : "barge-in";
 				this.marks.push({ at, kind: "retire", label });
 				// What the retired track still held never plays; draw it where it would have.
+				if (typeof record.track !== "string") return;
 				const now = this.local(at) ?? performance.now();
+				this.#retired.set(record.track, now);
 				for (const frame of this.reply) {
-					if (frame.track !== record.track || frame.play !== undefined) continue;
-					frame.play = this.playAt(frame, now);
-					frame.discarded = true;
+					if (frame.track === record.track) this.#discard(frame, now);
 				}
 				return;
 			}
@@ -280,6 +285,15 @@ export class CallLog {
 		frame.published = publish.at;
 		const down = frame.arrive - publish.at;
 		if (this.minDown === undefined || down < this.minDown) this.minDown = down;
+		const retired = this.#retired.get(publish.track);
+		if (retired !== undefined) this.#discard(frame, retired);
+	}
+
+	/** What a retired track still held never plays; draw it where it would have. */
+	#discard(frame: ReplyFrame, retired: number) {
+		if (frame.play !== undefined) return;
+		frame.play = this.playAt(frame, retired);
+		frame.discarded = true;
 	}
 
 	/** A reply frame as `@moq/watch` received it. */
@@ -290,7 +304,8 @@ export class CallLog {
 		let best: Publish | undefined;
 		for (let i = this.publishes.length - 1; i >= 0; i--) {
 			const p = this.publishes[i];
-			if (p.end <= media - 1000) break;
+			// Sorted by start, so once even the longest publish ends before this media time, none earlier holds it.
+			if (p.start + this.#longest <= media) break;
 			if (media < p.start || media >= p.end) continue;
 			if (!this.#sentBefore(p.at, arrive)) continue;
 			if (!best || p.at > best.at) best = p;

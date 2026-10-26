@@ -99,6 +99,32 @@ describe("publish", () => {
 		expect(claimed?.discarded).toBeFalsy();
 		expect(claimed?.play).toBeUndefined();
 	});
+
+	test("a frame of a track retired before it arrived never plays", () => {
+		const log = synced();
+		log.agent({
+			version: 2,
+			type: "retire",
+			track: "bot-audio",
+			timescale: 1000,
+			unplayed_ticks: 3000,
+			at_ns: 3900 * 1e6,
+		});
+		log.received(3000, 3000, false);
+
+		const late = log.reply.find((f) => f.media === 3000);
+		expect(late?.track).toBe("bot-audio");
+		expect(late?.discarded).toBe(true);
+		expect(late?.play).toBeDefined();
+	});
+
+	test("an older publish still holds media past a newer, shorter one", () => {
+		const log = synced();
+		log.agent(publish("bot-audio-1", 2000, 3000, 4000));
+		log.received(4500, 4100, false);
+
+		expect(log.reply.find((f) => f.media === 4500)?.track).toBe("bot-audio");
+	});
 });
 
 describe("exchange", () => {
