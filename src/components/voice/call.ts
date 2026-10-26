@@ -214,11 +214,10 @@ export class CallLog {
 				insert(this.publishes, publish, (p) => p.start);
 				// The audio can beat its own record here, leaving a frame on the retired track's publish
 				// of the same media time; the newest publish sent before it arrived claims it.
-				const sent = this.local(at);
 				for (const frame of this.reply) {
 					if (frame.media < start || frame.media >= end) continue;
 					if (frame.published !== undefined && frame.published >= at) continue;
-					if (sent !== undefined && sent > frame.arrive) continue;
+					if (!this.#sentBefore(at, frame.arrive)) continue;
 					this.#published(frame, publish);
 				}
 				return;
@@ -263,7 +262,20 @@ export class CallLog {
 		}
 	}
 
+	/** Whether a publish at agent time `at` can have been sent before local time `arrive`. */
+	#sentBefore(at: number, arrive: number): boolean {
+		// Trusting the offset's midpoint would turn away the faster frames that would refine it.
+		const offset = this.offset;
+		const error = this.error;
+		return offset === undefined || error === undefined || at - offset - error <= arrive;
+	}
+
 	#published(frame: ReplyFrame, publish: Publish) {
+		// A frame claimed from a retired track is not what that retirement discarded.
+		if (frame.track !== undefined && frame.track !== publish.track && frame.discarded) {
+			frame.discarded = false;
+			frame.play = undefined;
+		}
 		frame.track = publish.track;
 		frame.published = publish.at;
 		const down = frame.arrive - publish.at;
@@ -275,13 +287,12 @@ export class CallLog {
 		const frame: ReplyFrame = { media, arrive, late };
 		// Of the publishes holding this media time, the newest one sent before it arrived. Without a
 		// clock offset yet there has been no barge-in, so there is only one.
-		const offset = this.offset;
 		let best: Publish | undefined;
 		for (let i = this.publishes.length - 1; i >= 0; i--) {
 			const p = this.publishes[i];
 			if (p.end <= media - 1000) break;
 			if (media < p.start || media >= p.end) continue;
-			if (offset !== undefined && p.at - offset > arrive) continue;
+			if (!this.#sentBefore(p.at, arrive)) continue;
 			if (!best || p.at > best.at) best = p;
 		}
 		if (best) this.#published(frame, best);

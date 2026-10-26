@@ -37,6 +37,33 @@ describe("clock", () => {
 	});
 });
 
+describe("clock", () => {
+	// The first downlink sample is 90 ms slow, so the estimate starts 45 ms off (error 55).
+	function slow(): CallLog {
+		const log = new CallLog();
+		log.agent(arrival(0, 1010));
+		log.agent(publish("bot-audio", 0, 1000, 1100));
+		log.received(0, 200, false);
+		expect(log.offset).toBe(955);
+		return log;
+	}
+
+	test("a faster frame refines the estimate when its record comes first", () => {
+		const log = slow();
+		log.agent(publish("bot-audio", 1000, 2000, 1200));
+		log.received(1000, 210, false);
+		expect(log.offset).toBe(1000);
+		expect(log.error).toBe(10);
+	});
+
+	test("a faster frame refines the estimate when it beats its record", () => {
+		const log = slow();
+		log.received(1000, 210, false);
+		log.agent(publish("bot-audio", 1000, 2000, 1200));
+		expect(log.offset).toBe(1000);
+	});
+});
+
 describe("publish", () => {
 	test("a barge-in's track claims the frames that beat its record", () => {
 		const log = synced();
@@ -50,6 +77,27 @@ describe("publish", () => {
 		expect(old?.track).toBe("bot-audio");
 		expect(claimed?.track).toBe("bot-audio-1");
 		expect(claimed && log.downLateness(claimed)).toBe(40);
+	});
+
+	test("a claimed frame sheds the retired track's discard", () => {
+		const log = synced();
+		log.received(2020, 2500, false);
+		log.received(2000, 3050, false);
+		log.agent({
+			version: 2,
+			type: "retire",
+			track: "bot-audio",
+			timescale: 1000,
+			unplayed_ticks: 3000,
+			at_ns: 3900 * 1e6,
+		});
+		log.agent(publish("bot-audio-1", 2000, 3000, 4000));
+
+		const [old, claimed] = [log.reply.find((f) => f.media === 2020), log.reply.find((f) => f.media === 2000)];
+		expect(old?.discarded).toBe(true);
+		expect(claimed?.track).toBe("bot-audio-1");
+		expect(claimed?.discarded).toBeFalsy();
+		expect(claimed?.play).toBeUndefined();
 	});
 });
 

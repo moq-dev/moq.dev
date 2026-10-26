@@ -56,21 +56,24 @@ export default function Timeline(props: { call: CallLog }) {
 		if (!ctx) return;
 
 		let width = 0;
+		let frame = 0;
+		let view: { left: number; right: number; at: number } | undefined;
 		const resize = () => {
 			const dpr = window.devicePixelRatio || 1;
 			width = canvas.clientWidth;
 			canvas.width = Math.round(width * dpr);
 			canvas.height = Math.round(H * dpr);
 			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+			// Resizing clears the canvas, so a finished call whose loop has stopped draws again.
+			const call = props.call;
+			if (frame === 0 && view && call.ended !== undefined) draw(ctx, call, call.ended, width, view.left, view.right);
 		};
 		const observer = new ResizeObserver(resize);
 		observer.observe(canvas);
 		resize();
 
-		let frame = 0;
 		let pruned = 0;
 		let summarized = 0;
-		let view: { left: number; right: number; at: number } | undefined;
 		const tick = () => {
 			const call = props.call;
 			const now = call.ended ?? performance.now();
@@ -92,7 +95,7 @@ export default function Timeline(props: { call: CallLog }) {
 				setStats(s);
 				setSummary(describe(s));
 			}
-			if (call.ended === undefined || performance.now() - call.ended < 2000) frame = requestAnimationFrame(tick);
+			frame = call.ended === undefined || performance.now() - call.ended < 2000 ? requestAnimationFrame(tick) : 0;
 		};
 		frame = requestAnimationFrame(tick);
 		onCleanup(() => {
