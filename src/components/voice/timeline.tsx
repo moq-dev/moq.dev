@@ -148,8 +148,9 @@ function measure(call: CallLog, now: number) {
 		if (late > WEBRTC_MS) lateDown++;
 	}
 	const head = call.mediaNow(now);
-	const last = call.reply.at(-1);
-	const ahead = head !== undefined && last && last.play === undefined ? last.media + FRAME_MS - head : undefined;
+	// A retired track's frames can sit past the replacement in media time, but never play.
+	const last = call.reply.findLast((f) => f.play === undefined && !f.discarded);
+	const ahead = head !== undefined && last ? last.media + FRAME_MS - head : undefined;
 	return { lateUp, up: call.mic.length, lateDown, down, ahead, error: call.error };
 }
 
@@ -165,7 +166,7 @@ function describe(s: ReturnType<typeof measure>): string {
 // The latest exchange, through the end of the reply buffered so far, with now always in view.
 function span(call: CallLog, now: number): [number, number] {
 	let end = now;
-	const last = call.reply.at(-1);
+	const last = call.reply.findLast((f) => !f.discarded);
 	const played = last && call.playAt(last, now);
 	if (played !== undefined) end = Math.max(end, played + FRAME_MS);
 	const right = end + PAD;
