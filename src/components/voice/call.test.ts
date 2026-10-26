@@ -62,6 +62,16 @@ describe("clock", () => {
 		log.agent(publish("bot-audio", 1000, 2000, 1200));
 		expect(log.offset).toBe(1000);
 	});
+
+	test("a frame either of two overlapping publishes could have sent leaves the estimate alone", () => {
+		const log = slow();
+		// The barge-in's publish was sent at 215 local, after this frame arrived, but the loose estimate
+		// can't rule it out. Measuring transit from it would claim 1007.5 ± 2.5, excluding the truth.
+		log.agent(publish("bot-audio-1", 500, 1500, 1215));
+		log.received(600, 210, false);
+		expect(log.offset).toBe(955);
+		expect(log.error).toBe(55);
+	});
 });
 
 describe("publish", () => {

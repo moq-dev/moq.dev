@@ -283,8 +283,11 @@ export class CallLog {
 		}
 		frame.track = publish.track;
 		frame.published = publish.at;
+		// Between overlapping publishes the pick is only as good as the clock, and the wrong one could
+		// undercut the fastest transit, so only a frame one publish alone holds measures it.
 		const down = frame.arrive - publish.at;
-		if (this.minDown === undefined || down < this.minDown) this.minDown = down;
+		const holders = this.publishes.filter((p) => frame.media >= p.start && frame.media < p.end).length;
+		if (holders === 1 && (this.minDown === undefined || down < this.minDown)) this.minDown = down;
 		const retired = this.#retired.get(publish.track);
 		if (retired !== undefined) this.#discard(frame, retired);
 	}
