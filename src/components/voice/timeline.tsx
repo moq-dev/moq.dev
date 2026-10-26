@@ -150,7 +150,8 @@ function measure(call: CallLog, now: number) {
 	const head = call.mediaNow(now);
 	// A retired track's frames can sit past the replacement in media time, but never play.
 	const last = call.reply.findLast((f) => f.play === undefined && !f.discarded);
-	const ahead = head !== undefined && last ? last.media + FRAME_MS - head : undefined;
+	// A frame the extrapolated head already passed is due, not owed.
+	const ahead = head !== undefined && last ? Math.max(0, last.media + FRAME_MS - head) : undefined;
 	return { lateUp, up: call.mic.length, lateDown, down, ahead, error: call.error };
 }
 

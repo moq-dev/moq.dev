@@ -128,6 +128,25 @@ describe("publish", () => {
 		expect(late?.play).toBeDefined();
 	});
 
+	test("a frame of a track retired before any reply arrived is placed at the retirement", () => {
+		const log = new CallLog();
+		log.agent(arrival(0, 1010));
+		log.agent(publish("bot-audio", 0, 5000, 1100));
+		log.agent({
+			version: 2,
+			type: "retire",
+			track: "bot-audio",
+			timescale: 1000,
+			unplayed_ticks: 5000,
+			at_ns: 1200 * 1e6,
+		});
+		log.received(0, 300, false);
+
+		const frame = log.reply.find((f) => f.media === 0);
+		expect(frame?.discarded).toBe(true);
+		expect(frame?.play).toBeDefined();
+	});
+
 	test("an older publish still holds media past a newer, shorter one", () => {
 		const log = synced();
 		log.agent(publish("bot-audio-1", 2000, 3000, 4000));

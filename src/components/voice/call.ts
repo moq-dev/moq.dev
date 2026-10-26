@@ -295,7 +295,8 @@ export class CallLog {
 	/** What a retired track still held never plays; draw it where it would have. */
 	#discard(frame: ReplyFrame, retired: number) {
 		if (frame.play !== undefined) return;
-		frame.play = this.playAt(frame, retired);
+		// Before any playhead there is nowhere it would have played, so it ends where it was retired.
+		frame.play = this.playAt(frame, retired) ?? retired;
 		frame.discarded = true;
 	}
 
