@@ -165,14 +165,27 @@ const record = (type: string, at: number, fields: object) => ({
 });
 
 describe("statement", () => {
-	test("runs from your speech until the agent takes its turn", () => {
+	test("runs from your speech until you stop", () => {
 		const log = synced();
 		log.agent(record("vad", 6210, { speaking: true, media_ticks: 5200, confirm_ticks: 200 }));
 		log.agent(record("turn", 6250, { speaking: true, media_ticks: 5240 }));
 		expect(log.statement(5500)).toEqual({ start: 5000, end: 5500 });
 		log.agent(record("vad", 7210, { speaking: false, media_ticks: 6200, confirm_ticks: 200 }));
 		log.agent(record("turn", 7300, { speaking: false, media_ticks: 6290 }));
-		expect(log.statement(9000)).toEqual({ start: 5000, end: 6300 });
+		expect(log.statement(9000)).toEqual({ start: 5000, end: 6000 });
+	});
+
+	test("a reply to words the VAD missed starts a statement of its own", () => {
+		const log = synced();
+		log.agent(record("vad", 6210, { speaking: true, media_ticks: 5200, confirm_ticks: 200 }));
+		log.agent(record("turn", 6250, { speaking: true, media_ticks: 5240 }));
+		log.agent(record("vad", 7210, { speaking: false, media_ticks: 6200, confirm_ticks: 200 }));
+		log.agent(record("turn", 7300, { speaking: false, media_ticks: 6290 }));
+		// A short "okay" after the agent's reply: STT hears it, the VAD does not.
+		const word = { speaker: "user", track: "mic", text: "okay", start_ticks: 12_000, end_ticks: 12_300 };
+		log.agent(record("word", 13_350, word));
+		log.agent(record("turn", 13_400, { speaking: true, media_ticks: 12_390 }));
+		expect(log.statement(12_500)).toEqual({ start: 12_000, end: 12_300 });
 	});
 
 	test("speech after the agent's turn is the next statement", () => {
@@ -183,15 +196,6 @@ describe("statement", () => {
 		log.agent(record("turn", 7300, { speaking: false, media_ticks: 6290 }));
 		log.agent(record("vad", 9210, { speaking: true, media_ticks: 8200, confirm_ticks: 200 }));
 		expect(log.statement(8500)).toEqual({ start: 8000, end: 8500 });
-	});
-
-	test("pruning keeps a statement longer than the window whole", () => {
-		const log = synced();
-		log.agent(record("vad", 6210, { speaking: true, media_ticks: 5200, confirm_ticks: 200 }));
-		for (let capture = 5000; capture < 75_000; capture += 20) log.agent(arrival(capture, capture + 1010));
-		log.prune(76_000);
-		expect(log.statement(76_000)?.start).toBe(5000);
-		expect(log.mic[0]?.capture).toBe(5000);
 	});
 });
 
@@ -210,15 +214,5 @@ describe("answer", () => {
 		log.agent(record("llm", 7000, { event: "request" }));
 		log.agent(publish("bot-audio-1", 2000, 3000, 7100));
 		expect(log.answer()).toEqual({ track: "bot-audio-1", start: 2000, end: 3000 });
-	});
-
-	test("pruning keeps the request that bounds the reply on screen", () => {
-		const log = synced();
-		log.agent(record("llm", 7000, { event: "request" }));
-		log.agent(record("llm", 7050, { event: "end" }));
-		log.agent(publish("bot-audio", 5000, 6000, 7100));
-		log.received(0, 110, false);
-		log.prune(70_000);
-		expect(log.answer()).toEqual({ track: "bot-audio", start: 5000, end: 6000 });
 	});
 });

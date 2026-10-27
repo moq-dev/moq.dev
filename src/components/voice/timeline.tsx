@@ -7,6 +7,9 @@ import { type CallLog, FRAME_MS, type Word } from "./call";
 import { COLOR } from "./diagram";
 
 const WORDS_H = 24;
+// Words that would overprint each other stack into more rows above the bar, up to MAX_LANES.
+const LANE_H = 18;
+const MAX_LANES = 3;
 const BAR_H = 22;
 const AXIS_H = 16;
 const BAR_Y = WORDS_H;
@@ -25,7 +28,16 @@ const PALETTE = {
 const FONT = "14px 'JetBrains Mono', ui-monospace, monospace";
 const AXIS_FONT = "11px 'JetBrains Mono', ui-monospace, monospace";
 
-type Draw = (ctx: CanvasRenderingContext2D, width: number, call: CallLog, now: number) => string;
+// Draws at the given lane count and returns the caption and the lanes its words need.
+type Draw = (
+	ctx: CanvasRenderingContext2D,
+	width: number,
+	call: CallLog,
+	now: number,
+	lanes: number,
+) => { caption: string; lanes: number };
+
+const height = (lanes: number) => H + (lanes - 1) * LANE_H;
 
 export default function Timeline(props: { call: CallLog }) {
 	const [heard, setHeard] = createSignal("");
@@ -35,25 +47,41 @@ export default function Timeline(props: { call: CallLog }) {
 
 	onMount(() => {
 		let frame = 0;
-		const charts: { canvas: HTMLCanvasElement; draw: Draw; caption: (s: string) => void }[] = [
-			{ canvas: stt, draw: drawStatement, caption: setHeard },
-			{ canvas: tts, draw: drawReply, caption: setCached },
+		const charts: { canvas: HTMLCanvasElement; draw: Draw; caption: (s: string) => void; lanes: number }[] = [
+			{ canvas: stt, draw: drawStatement, caption: setHeard, lanes: 1 },
+			{ canvas: tts, draw: drawReply, caption: setCached, lanes: 1 },
 		];
+		const fit = (chart: (typeof charts)[number]) => {
+			const dpr = window.devicePixelRatio || 1;
+			const { canvas } = chart;
+			canvas.style.height = `${height(chart.lanes)}px`;
+			canvas.width = Math.round(canvas.clientWidth * dpr);
+			canvas.height = Math.round(height(chart.lanes) * dpr);
+			canvas.getContext("2d")?.setTransform(dpr, 0, 0, dpr, 0, 0);
+		};
 		const render = () => {
 			const call = props.call;
 			const now = call.ended ?? performance.now();
 			for (const chart of charts) {
 				const ctx = chart.canvas.getContext("2d");
-				if (ctx) chart.caption(chart.draw(ctx, chart.canvas.clientWidth, call, now));
+				if (!ctx) continue;
+				const width = chart.canvas.clientWidth;
+				ctx.clearRect(0, 0, width, height(chart.lanes));
+				// The extra lanes sit above the single-lane layout.
+				ctx.save();
+				ctx.translate(0, (chart.lanes - 1) * LANE_H);
+				const { caption, lanes } = chart.draw(ctx, width, call, now, chart.lanes);
+				ctx.restore();
+				chart.caption(caption);
+				if (lanes !== chart.lanes) {
+					// The resize observer redraws a finished call at the new height.
+					chart.lanes = lanes;
+					fit(chart);
+				}
 			}
 		};
 		const resize = () => {
-			const dpr = window.devicePixelRatio || 1;
-			for (const { canvas } of charts) {
-				canvas.width = Math.round(canvas.clientWidth * dpr);
-				canvas.height = Math.round(H * dpr);
-				canvas.getContext("2d")?.setTransform(dpr, 0, 0, dpr, 0, 0);
-			}
+			for (const chart of charts) fit(chart);
 			// Resizing clears the canvas, so a finished call whose loop has stopped draws again.
 			if (frame === 0) render();
 		};
@@ -61,14 +89,8 @@ export default function Timeline(props: { call: CallLog }) {
 		for (const { canvas } of charts) observer.observe(canvas);
 		resize();
 
-		let pruned = 0;
 		const tick = () => {
 			const call = props.call;
-			const now = call.ended ?? performance.now();
-			if (now - pruned > 1000) {
-				call.prune(now);
-				pruned = now;
-			}
 			render();
 			frame = call.ended === undefined || performance.now() - call.ended < 2000 ? requestAnimationFrame(tick) : 0;
 		};
@@ -119,10 +141,9 @@ const seconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
 
 // Your statement in capture time, growing while you speak: every frame turns green as the agent
 // receives it, and the slider marks how far it has heard without a gap.
-const drawStatement: Draw = (ctx, width, call, now) => {
-	ctx.clearRect(0, 0, width, H);
+const drawStatement: Draw = (ctx, width, call, now, lanes) => {
 	const said = call.statement(now);
-	if (!said) return "waiting for you to speak";
+	if (!said) return { caption: "waiting for you to speak", lanes: 1 };
 	const edge = Math.min(now, said.end);
 	const bar = scale(width, said.start, edge);
 
@@ -155,21 +176,27 @@ const drawStatement: Draw = (ctx, width, call, now) => {
 	}
 	slider(ctx, bar.x(Math.min(contiguous, edge)));
 
-	words(ctx, call.interims, bar, PALETTE.faint, (w) => w.start);
-	words(ctx, call.userWords, bar, PALETTE.text, (w) => w.start);
+	const needed = words(
+		ctx,
+		[
+			...call.interims.map((word) => ({ word, color: PALETTE.faint })),
+			...call.userWords.map((word) => ({ word, color: PALETTE.text })),
+		],
+		bar,
+		lanes,
+	);
 	axis(ctx, bar, said.start);
 
 	const parts = [`${seconds(Math.max(0, contiguous - said.start))} of ${seconds(edge - said.start)} heard`];
 	if (recovered.size > 0) parts.push(`${recovered.size} frames out of order`);
-	return parts.join(" · ");
+	return { caption: parts.join(" · "), lanes: needed };
 };
 
 // The reply in media time, as far as the agent has published it: frames land in your buffer long
 // before the playhead reaches them, so the cache runs ahead of the slider.
-const drawReply: Draw = (ctx, width, call, now) => {
-	ctx.clearRect(0, 0, width, H);
+const drawReply: Draw = (ctx, width, call, now, lanes) => {
 	const reply = call.answer();
-	if (!reply) return "waiting for a reply";
+	if (!reply) return { caption: "waiting for a reply", lanes: 1 };
 	const bar = scale(width, reply.start, reply.end);
 
 	// Published, not here yet.
@@ -211,17 +238,19 @@ const drawReply: Draw = (ctx, width, call, now) => {
 
 	const position = head === undefined ? reply.start : Math.min(Math.max(head, reply.start), reply.end);
 	slider(ctx, bar.x(position));
-	words(
+	const needed = words(
 		ctx,
-		call.agentWords.filter((w) => w.track === undefined || w.track === reply.track),
+		call.agentWords
+			.filter((w) => w.track === undefined || w.track === reply.track)
+			.map((word) => ({ word, color: PALETTE.text })),
 		bar,
-		PALETTE.text,
-		(w) => w.start,
+		lanes,
 	);
 	axis(ctx, bar, reply.start);
 
 	const total = reply.end - reply.start;
-	return `${seconds(covered(held))} of ${seconds(total)} cached · ${seconds(position - reply.start)} played`;
+	const caption = `${seconds(covered(held))} of ${seconds(total)} cached · ${seconds(position - reply.start)} played`;
+	return { caption, lanes: needed };
 };
 
 // The length of a set of spans, counting overlaps once.
@@ -273,19 +302,27 @@ function axis(ctx: CanvasRenderingContext2D, bar: Scale, origin: number) {
 	}
 }
 
-// Words above the bar at their media time, skipping one that would overprint the previous.
-function words(ctx: CanvasRenderingContext2D, list: Word[], bar: Scale, color: string, at: (w: Word) => number) {
+// Words above the bar at their start, each in the first lane it fits without overprinting, the
+// first lane on top. Draws `lanes` of them and returns how many all the words need.
+function words(ctx: CanvasRenderingContext2D, list: { word: Word; color: string }[], bar: Scale, lanes: number) {
 	ctx.font = FONT;
-	ctx.fillStyle = color;
 	ctx.textAlign = "left";
 	ctx.textBaseline = "middle";
-	let edge = Number.NEGATIVE_INFINITY;
-	for (const w of list) {
-		const t = at(w);
-		if (t + (w.end - w.start) < bar.left || t > bar.right) continue;
-		const px = Math.max(0, bar.x(t));
-		if (px < edge) continue;
-		ctx.fillText(w.text, px, WORDS_H / 2);
-		edge = px + ctx.measureText(w.text).width + 6;
+	const edges: number[] = [];
+	for (const { word: w, color } of list.sort((a, b) => a.word.start - b.word.start)) {
+		if (w.end < bar.left || w.start > bar.right) continue;
+		const width = ctx.measureText(w.text).width;
+		// A word near the end slides left to stay on the canvas.
+		const px = Math.max(0, Math.min(bar.x(w.start), bar.x(bar.right) - width));
+		let lane = edges.findIndex((edge) => px >= edge);
+		if (lane < 0) {
+			if (edges.length === MAX_LANES) continue;
+			lane = edges.length;
+		}
+		edges[lane] = px + width + 6;
+		if (lane >= lanes) continue;
+		ctx.fillStyle = color;
+		ctx.fillText(w.text, px, WORDS_H / 2 - (lanes - 1 - lane) * LANE_H);
 	}
+	return Math.max(1, edges.length);
 }

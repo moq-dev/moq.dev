@@ -13,9 +13,6 @@
 // The agent's Opus frames, and the duration drawn for a reply frame.
 export const FRAME_MS = 20;
 
-// How much history to keep, in milliseconds.
-const KEEP_MS = 60_000;
-
 /** A `voice.json` record. Unknown types are skipped; see moq.pro agent/VOICE.md. */
 export type AgentRecord = { version?: number; type?: string; [key: string]: unknown };
 
@@ -352,19 +349,35 @@ export class CallLog {
 		return media;
 	}
 
-	/** Your latest statement on the local clock: from its speech until the agent took its turn, or now. */
+	/**
+	 * Your latest statement on the local clock: what you said since the agent's previous turn, until
+	 * you stopped or it took its next one.
+	 */
 	statement(now: number): { start: number; end: number } | undefined {
 		const latest = this.speech.at(-1);
 		const yours = this.marks.findLast((m) => m.kind === "turn" && m.label === "your turn");
-		const heard = yours?.media;
-		if (!yours || heard === undefined) return latest && { start: latest.start, end: latest.end ?? now };
-		// The turn is decided a little into the statement, so it starts with the speech before it.
-		const start = this.speech.findLast((s) => s.start <= heard)?.start ?? heard;
-		const mine = this.marks.find((m) => m.kind === "turn" && m.label === "my turn" && m.at > yours.at);
-		const end = (mine && this.local(mine.at)) ?? now;
+		if (!yours) return latest && { start: latest.start, end: latest.end ?? now };
+		const mine = (m: Mark) => m.kind === "turn" && m.label === "my turn";
+		const before = this.marks.findLast((m) => mine(m) && m.at < yours.at);
+		const after = this.marks.find((m) => mine(m) && m.at > yours.at);
+		const from = (before && this.local(before.at)) ?? Number.NEGATIVE_INFINITY;
+		const until = after && this.local(after.at);
 		// Speech after the agent took its turn is the next statement.
-		if (latest && latest.start > end) return { start: latest.start, end: latest.end ?? now };
-		return { start, end };
+		if (latest && until !== undefined && latest.start > until) return { start: latest.start, end: latest.end ?? now };
+
+		// Words count as well as speech: the agent can answer one too short for the VAD to hear.
+		const to = until ?? Number.POSITIVE_INFINITY;
+		let start = Number.POSITIVE_INFINITY;
+		let end = Number.NEGATIVE_INFINITY;
+		for (const s of [...this.speech, ...this.userWords, ...this.interims]) {
+			const stop = s.end ?? now;
+			if (stop <= from || s.start >= to) continue;
+			start = Math.min(start, s.start);
+			end = Math.max(end, stop);
+		}
+		if (start <= end) return { start, end };
+		const heard = yours.media;
+		return heard === undefined ? undefined : { start: heard, end: Math.max(heard, until ?? now) };
 	}
 
 	/**
@@ -372,48 +385,17 @@ export class CallLog {
 	 * first publish since the request that led to it. A track carries every reply until a barge-in.
 	 */
 	answer(): { track: string; start: number; end: number } | undefined {
-		const latest = this.#latest();
+		let latest: Publish | undefined;
+		for (const p of this.publishes) if (!latest || p.at > latest.at) latest = p;
 		if (!latest) return undefined;
-		const { newest, asked } = latest;
+		const newest = latest;
+		const asked = this.spans.findLast((s) => s.kind === "llm" && s.start <= newest.at)?.start;
 		let { start, end } = newest;
 		for (const p of this.publishes) {
-			if (p.track !== newest.track || (asked !== undefined && p.at < asked.start)) continue;
+			if (p.track !== newest.track || (asked !== undefined && p.at < asked)) continue;
 			start = Math.min(start, p.start);
 			end = Math.max(end, p.end);
 		}
 		return { track: newest.track, start, end };
-	}
-
-	// The newest publish, and the request that led to it.
-	#latest(): { newest: Publish; asked?: Span } | undefined {
-		let newest: Publish | undefined;
-		for (const p of this.publishes) if (!newest || p.at > newest.at) newest = p;
-		if (!newest) return undefined;
-		const at = newest.at;
-		return { newest, asked: this.spans.findLast((s) => s.kind === "llm" && s.start <= at) };
-	}
-
-	/** Drop what has scrolled far out of view. */
-	prune(now: number) {
-		const cut = now - KEEP_MS;
-		const offset = this.offset ?? 0;
-		// The statement on screen stays whole, however long it runs.
-		const said = Math.min(cut, this.statement(now)?.start ?? cut);
-		this.mic = this.mic.filter((f) => f.capture >= said);
-		this.userWords = this.userWords.filter((w) => w.end >= said);
-		this.interims = this.interims.filter((w) => w.end >= said);
-		this.speech = this.speech.filter((s) => s.end === undefined || s.end >= said);
-		this.marks = this.marks.filter((m) => m.at - offset >= cut);
-		// So does the request that bounds the reply on screen.
-		const asked = this.#latest()?.asked;
-		this.spans = this.spans.filter((s) => s === asked || s.end === undefined || s.end - offset >= cut);
-		this.reply = this.reply.filter((f) => f.play === undefined || f.play >= cut);
-		const media = this.mediaNow(now);
-		if (media !== undefined) {
-			const mediaCut = media - KEEP_MS;
-			this.agentWords = this.agentWords.filter((w) => w.end >= mediaCut);
-			this.publishes = this.publishes.filter((p) => p.end >= mediaCut);
-			this.gaps = this.gaps.filter((g) => g.media + g.duration >= mediaCut);
-		}
 	}
 }
