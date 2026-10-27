@@ -1,8 +1,9 @@
 // Both sides' words, each underlined by its own audio: one segment per 20 ms packet, colored by how
-// far it got. Your words fill in as the agent receives them; its words land in your buffer well
-// ahead of the playhead and turn solid as you hear them.
+// far it got. Your words fill in as the agent receives them, behind a bar of the speech it has not
+// recognized yet; its words land in your buffer well ahead of the playhead and turn solid as you
+// hear them.
 import { createEffect, createMemo, createSignal, For, Index, type JSX, onCleanup, Show } from "solid-js";
-import { align, type CallLog, type Packet } from "./call";
+import { align, type CallLog, FRAME_MS, type Packet } from "./call";
 
 // A run of speech by one side. `interim` is your words the recognizer may still revise.
 export type Turn = { who: "you" | "ai"; text: string; interim: string };
@@ -27,6 +28,9 @@ const LEGEND: [Packet, string][] = [
 
 const REDRAW_MS = 100;
 
+// About the width the words take to say, so the bar gives way to them without a jump.
+const PX_PER_MS = 0.12;
+
 function words(text: string): string[] {
 	return text.split(/\s+/).filter(Boolean);
 }
@@ -48,7 +52,7 @@ function underline(packets: Packet[]): JSX.CSSProperties {
 		"background-repeat": "no-repeat",
 		"padding-bottom": "3px",
 		// A word a barge-in cut off entirely was never said. Only the agent's words are cut off.
-		color: packets.every((p) => p === "interrupted") ? "rgba(74, 222, 128, 0.4)" : undefined,
+		color: packets.every((p) => p === "interrupted") ? "rgba(203, 213, 225, 0.4)" : undefined,
 	};
 }
 
@@ -74,25 +78,44 @@ export default function Transcript(props: { turns: Turn[]; log?: CallLog; live: 
 		const spoken = (who: Turn["who"]) => turns.filter((t) => t.who === who).flatMap((t) => words(t.text));
 		const matched = { you: align(spoken("you"), log.userWords), ai: align(spoken("ai"), log.agentWords) };
 		const next = { you: 0, ai: 0 };
-		return turns.map((turn) =>
-			words(turn.text).map(() => {
+		return turns.map((turn) => ({
+			text: words(turn.text).map(() => {
 				const word = matched[turn.who][next[turn.who]++];
 				if (!word) return undefined;
 				return underline(turn.who === "you" ? log.sent(word) : log.heard(word));
 			}),
-		);
+			interim: align(words(turn.interim), log.interims).map((word) => word && underline(log.sent(word))),
+		}));
 	});
+
+	// Your speech the agent has heard but not made words of, while the call is up.
+	const pending = createMemo(() => {
+		tick();
+		return props.live ? props.log?.pending(performance.now()) : undefined;
+	});
+	const bar = (packets: Packet[]) => (
+		<span
+			aria-hidden="true"
+			style={{ ...underline(packets), width: `${packets.length * FRAME_MS * PX_PER_MS}px`, "max-width": "100%" }}
+		>
+			{/* A line of height, so it sits under the words even alone. */}
+			{"\u200b"}
+		</span>
+	);
+	// The bar trails your current turn, or starts one before its first word.
+	const opening = () => props.turns.at(-1)?.who !== "you";
 
 	// The transcript follows new words unless the reader has scrolled up to reread.
 	let list: HTMLOListElement | undefined;
 	let following = true;
 	createEffect(() => {
 		void props.turns;
+		void pending();
 		if (list && following) list.scrollTop = list.scrollHeight;
 	});
 
 	return (
-		<Show when={props.turns.length > 0}>
+		<Show when={props.turns.length > 0 || pending()}>
 			<ol
 				ref={(el) => {
 					list = el;
@@ -115,18 +138,33 @@ export default function Transcript(props: { turns: Turn[]; log?: CallLog; live: 
 								<Index each={words(turn.text)}>
 									{(word, i) => (
 										<span
-											class={turn.who === "ai" ? "text-green-400" : "text-slate-100"}
-											style={underlines()[t()]?.[i]}
+											class={turn.who === "ai" ? "text-slate-300" : "text-slate-100"}
+											style={underlines()[t()]?.text[i]}
 										>
 											{word()}
 										</span>
 									)}
 								</Index>
-								<Index each={words(turn.interim)}>{(word) => <span class="text-slate-500">{word()}</span>}</Index>
+								<Index each={words(turn.interim)}>
+									{(word, i) => (
+										<span class="text-slate-500" style={underlines()[t()]?.interim[i]}>
+											{word()}
+										</span>
+									)}
+								</Index>
+								<Show when={t() === props.turns.length - 1 && !opening() && pending()}>{(p) => bar(p())}</Show>
 							</p>
 						</li>
 					)}
 				</For>
+				<Show when={opening() && pending()}>
+					{(p) => (
+						<li class="flex gap-3">
+							<span class="w-8 shrink-0 pt-0.5 text-right font-mono text-xs text-slate-500">you</span>
+							<p class="m-0 flex flex-wrap gap-x-1.5 font-bold">{bar(p())}</p>
+						</li>
+					)}
+				</Show>
 			</ol>
 			<Show when={props.log}>
 				<ul

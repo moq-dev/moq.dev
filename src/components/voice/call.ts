@@ -103,6 +103,13 @@ export class CallLog {
 	// In the order the agent settled on them, which is the order they were said.
 	userWords: Word[] = [];
 	agentWords: Word[] = [];
+	// The STT's latest interim result for your words since its last final ones.
+	interims: Word[] = [];
+	#interimAt?: number;
+	// Your latest stretch of speech as the agent's VAD heard it, on your capture clock.
+	#speech?: { start: number; end?: number };
+	// The request audio heard when your last turn ended.
+	#turnEnd?: number;
 	publishes: Publish[] = [];
 	// The longest publish, which bounds how far back one can still hold a media time.
 	#longest = 0;
@@ -155,8 +162,39 @@ export class CallLog {
 				if (this.#seen.has(key)) return;
 				this.#seen.add(key);
 				const word = { text: record.text, start, end, track };
-				if (record.speaker === "user") this.userWords.push(word);
-				else if (record.speaker === "agent") this.agentWords.push(word);
+				if (record.speaker === "user") {
+					this.userWords.push(word);
+					// A final result settles the interims it covers.
+					this.interims = this.interims.filter((w) => w.start >= end);
+				} else if (record.speaker === "agent") this.agentWords.push(word);
+				return;
+			}
+			case "interim": {
+				const start = ms(record, "start_ticks");
+				const end = ms(record, "end_ticks");
+				const at = agentMs(record, "at_ns");
+				if (typeof record.text !== "string" || start === undefined || end === undefined || at === undefined) return;
+				// One result's words share its time, and each result restates the words since the last final.
+				if (at !== this.#interimAt) {
+					this.#interimAt = at;
+					this.interims = [];
+				}
+				this.interims.push({ text: record.text, start, end });
+				return;
+			}
+			case "vad": {
+				const heard = ms(record, "media_ticks");
+				const confirm = ms(record, "confirm_ticks");
+				if (typeof record.speaking !== "boolean" || heard === undefined || confirm === undefined) return;
+				// The VAD waited out `confirm` before deciding, so the change came that much earlier.
+				const at = heard - confirm;
+				if (record.speaking) this.#speech = { start: at };
+				else if (this.#speech) this.#speech.end = at;
+				return;
+			}
+			case "turn": {
+				const heard = ms(record, "media_ticks");
+				if (record.speaking === false && heard !== undefined) this.#turnEnd = heard;
 				return;
 			}
 			case "publish": {
@@ -261,6 +299,20 @@ export class CallLog {
 			if (!frame || frame.capture > t) return "flight";
 			return frame.reordered ? "reordered" : "delivered";
 		});
+	}
+
+	/**
+	 * Your speech the STT has not made words of yet, up to `now` while you are still talking: its
+	 * frames, as far as they have got. Nothing once your turn has ended.
+	 */
+	pending(now: number): Packet[] | undefined {
+		const speech = this.#speech;
+		if (!speech || (this.#turnEnd !== undefined && this.#turnEnd >= speech.start)) return undefined;
+		let start = Math.max(speech.start, this.userWords.at(-1)?.end ?? Number.NEGATIVE_INFINITY);
+		for (const word of this.interims) start = Math.max(start, word.end);
+		const end = speech.end ?? now;
+		if (end - start < FRAME_MS) return undefined;
+		return this.sent({ text: "", start, end });
 	}
 
 	/** The agent's word's frames, one per FRAME_MS, as they reached you. */
