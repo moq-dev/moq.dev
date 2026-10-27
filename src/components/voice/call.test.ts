@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { CallLog } from "./call";
+import { align, CallLog } from "./call";
 
 // Millisecond ticks, so media times read as written.
 const arrival = (capture: number, arrive: number) => ({
@@ -107,7 +107,7 @@ describe("publish", () => {
 		expect(old?.discarded).toBe(true);
 		expect(claimed?.track).toBe("bot-audio-1");
 		expect(claimed?.discarded).toBeFalsy();
-		expect(claimed?.play).toBeUndefined();
+		expect(claimed?.played).toBeFalsy();
 	});
 
 	test("a frame of a track retired before it arrived never plays", () => {
@@ -125,10 +125,9 @@ describe("publish", () => {
 		const late = log.reply.find((f) => f.media === 3000);
 		expect(late?.track).toBe("bot-audio");
 		expect(late?.discarded).toBe(true);
-		expect(late?.play).toBeDefined();
 	});
 
-	test("a frame of a track retired before any reply arrived is placed at the retirement", () => {
+	test("a frame of a track retired before any reply arrived never plays", () => {
 		const log = new CallLog();
 		log.agent(arrival(0, 1010));
 		log.agent(publish("bot-audio", 0, 5000, 1100));
@@ -144,7 +143,6 @@ describe("publish", () => {
 
 		const frame = log.reply.find((f) => f.media === 0);
 		expect(frame?.discarded).toBe(true);
-		expect(frame?.play).toBeDefined();
 	});
 
 	test("an older publish still holds media past a newer, shorter one", () => {
@@ -156,63 +154,94 @@ describe("publish", () => {
 	});
 });
 
-const record = (type: string, at: number, fields: object) => ({
+const word = (speaker: string, text: string, start: number, end: number, track = "mic") => ({
 	version: 2,
-	type,
+	type: "word",
+	speaker,
+	track,
+	text,
 	timescale: 1000,
-	at_ns: at * 1e6,
-	...fields,
+	start_ticks: start,
+	end_ticks: end,
 });
 
-describe("statement", () => {
-	test("runs from your speech until you stop", () => {
-		const log = synced();
-		log.agent(record("vad", 6210, { speaking: true, media_ticks: 5200, confirm_ticks: 200 }));
-		log.agent(record("turn", 6250, { speaking: true, media_ticks: 5240 }));
-		expect(log.statement(5500)).toEqual({ start: 5000, end: 5500 });
-		log.agent(record("vad", 7210, { speaking: false, media_ticks: 6200, confirm_ticks: 200 }));
-		log.agent(record("turn", 7300, { speaking: false, media_ticks: 6290 }));
-		expect(log.statement(9000)).toEqual({ start: 5000, end: 6000 });
+describe("sent", () => {
+	test("marks a frame that reached the agent after a later one", () => {
+		const log = new CallLog();
+		log.agent(arrival(0, 1010));
+		log.agent(arrival(40, 1050));
+		// Retransmitted: captured before the frame that beat it.
+		log.agent(arrival(20, 1200));
+
+		expect(log.sent({ text: "hi", start: 0, end: 60 })).toEqual(["delivered", "reordered", "delivered"]);
 	});
 
-	test("a reply to words the VAD missed starts a statement of its own", () => {
-		const log = synced();
-		log.agent(record("vad", 6210, { speaking: true, media_ticks: 5200, confirm_ticks: 200 }));
-		log.agent(record("turn", 6250, { speaking: true, media_ticks: 5240 }));
-		log.agent(record("vad", 7210, { speaking: false, media_ticks: 6200, confirm_ticks: 200 }));
-		log.agent(record("turn", 7300, { speaking: false, media_ticks: 6290 }));
-		// A short "okay" after the agent's reply: STT hears it, the VAD does not.
-		const word = { speaker: "user", track: "mic", text: "okay", start_ticks: 12_000, end_ticks: 12_300 };
-		log.agent(record("word", 13_350, word));
-		log.agent(record("turn", 13_400, { speaking: true, media_ticks: 12_390 }));
-		expect(log.statement(12_500)).toEqual({ start: 12_000, end: 12_300 });
-	});
+	test("a frame the agent has not heard yet is in flight", () => {
+		const log = new CallLog();
+		log.agent(arrival(0, 1010));
+		log.agent(arrival(40, 1050));
 
-	test("speech after the agent's turn is the next statement", () => {
-		const log = synced();
-		log.agent(record("vad", 6210, { speaking: true, media_ticks: 5200, confirm_ticks: 200 }));
-		log.agent(record("turn", 6250, { speaking: true, media_ticks: 5240 }));
-		log.agent(record("vad", 7210, { speaking: false, media_ticks: 6200, confirm_ticks: 200 }));
-		log.agent(record("turn", 7300, { speaking: false, media_ticks: 6290 }));
-		log.agent(record("vad", 9210, { speaking: true, media_ticks: 8200, confirm_ticks: 200 }));
-		expect(log.statement(8500)).toEqual({ start: 8000, end: 8500 });
+		expect(log.sent({ text: "hi", start: 0, end: 60 })).toEqual(["delivered", "flight", "delivered"]);
 	});
 });
 
-describe("answer", () => {
-	test("spans the newest track's publishes since the request that led to them", () => {
+describe("heard", () => {
+	test("buffered ahead of the playhead, delivered once played", () => {
 		const log = synced();
-		// The first reply rides bot-audio from 0. The next, on the same track, starts at 5000.
-		log.agent(record("llm", 7000, { event: "request" }));
-		log.agent(publish("bot-audio", 5000, 6000, 7100));
-		log.agent(publish("bot-audio", 6000, 8000, 7200));
-		expect(log.answer()).toEqual({ track: "bot-audio", start: 5000, end: 8000 });
+		log.received(20, 120, false);
+		log.buffer([{ start: 40, end: 80 }]);
+		log.playhead(0);
+
+		expect(log.heard({ text: "hi", start: 0, end: 100, track: "bot-audio" })).toEqual([
+			"delivered",
+			"buffered",
+			"buffered",
+			"buffered",
+			"flight",
+		]);
 	});
 
-	test("a barge-in's track replaces the interrupted reply", () => {
+	test("a retired track's word is interrupted, arrived or not", () => {
 		const log = synced();
-		log.agent(record("llm", 7000, { event: "request" }));
-		log.agent(publish("bot-audio-1", 2000, 3000, 7100));
-		expect(log.answer()).toEqual({ track: "bot-audio-1", start: 2000, end: 3000 });
+		log.received(20, 120, false);
+		log.agent({
+			version: 2,
+			type: "retire",
+			track: "bot-audio",
+			timescale: 1000,
+			unplayed_ticks: 5000,
+			at_ns: 1200 * 1e6,
+		});
+
+		expect(log.heard({ text: "hi", start: 20, end: 60, track: "bot-audio" })).toEqual(["interrupted", "interrupted"]);
+	});
+
+	test("ignores another track's frame at the same media time", () => {
+		const log = synced();
+		log.received(2000, 2500, false);
+		log.agent(publish("bot-audio-1", 2000, 3000, 4000));
+
+		expect(log.heard({ text: "hi", start: 2000, end: 2020, track: "bot-audio-1" })).toEqual(["flight"]);
+	});
+});
+
+describe("align", () => {
+	test("matches across case and punctuation, and skips words either side left out", () => {
+		const log = new CallLog();
+		for (const [i, text] of ["hello", "there", "how", "are", "you"].entries()) {
+			log.agent(word("user", text, i * 100, i * 100 + 80));
+		}
+		// The transcript has "um", which was never timed; `voice.json` has "there", which the transcript lost.
+		const matched = align(["Hello,", "um", "how", "are", "you?"], log.userWords);
+
+		expect(matched.map((w) => w?.text)).toEqual(["hello", undefined, "how", "are", "you"]);
+	});
+
+	test("a restated window does not repeat a word", () => {
+		const log = new CallLog();
+		log.agent(word("user", "hello", 0, 80));
+		log.agent(word("user", "hello", 0, 80));
+
+		expect(log.userWords).toHaveLength(1);
 	});
 });

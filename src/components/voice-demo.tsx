@@ -8,10 +8,10 @@ import "@moq/publish/element";
 import type MoqPublish from "@moq/publish/element";
 import "@moq/watch/element";
 import type MoqWatch from "@moq/watch/element";
-import { createEffect, createSignal, For, Index, onCleanup, Show } from "solid-js";
+import { createSignal, onCleanup, Show } from "solid-js";
 import { type AgentRecord, CallLog } from "./voice/call";
 import Cat from "./voice/cat";
-import Timeline from "./voice/timeline";
+import Transcript, { type Turn } from "./voice/transcript";
 
 type Turnstile = {
 	render: (
@@ -115,9 +115,6 @@ const REFUSALS = new Set<string>(["disabled", "unavailable", "challenge", "rate_
 
 type Phase = "idle" | "checking" | "challenge" | "admitting" | "connecting" | "live";
 
-// A run of speech by one side. `interim` is your words the recognizer may still revise.
-type Turn = { who: "you" | "ai"; text: string; interim: string };
-
 // Everything one call holds, so teardown is one place.
 type Call = {
 	gen: number;
@@ -187,10 +184,6 @@ function refusal(body: unknown): Outcome {
 	return typeof code === "string" && REFUSALS.has(code) ? (code as Outcome) : "unavailable";
 }
 
-function words(text: string): string[] {
-	return text.split(/\s+/).filter(Boolean);
-}
-
 function clock(secs: number): string {
 	return `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
 }
@@ -205,7 +198,7 @@ export default function VoiceDemo() {
 	// The agent's decoded audio, before volume, for the cat to lip-sync to.
 	const [voice, setVoice] = createSignal<AudioNode>();
 	// The last call's measurements, kept after it ends so the reader can look them over.
-	const [timeline, setTimeline] = createSignal<CallLog>();
+	const [log, setLog] = createSignal<CallLog>();
 
 	// Bumped by every start and teardown, so an await that resumes after Stop sees it is stale
 	// and backs out instead of resurrecting the call.
@@ -213,14 +206,6 @@ export default function VoiceDemo() {
 	let current: Call | undefined;
 	let widget: { api: Turnstile; id: string } | undefined;
 	let turnstileContainer!: HTMLDivElement;
-
-	// The transcript follows new words unless the reader has scrolled up to reread.
-	let transcriptList: HTMLOListElement | undefined;
-	let following = true;
-	createEffect(() => {
-		transcript();
-		if (transcriptList && following) transcriptList.scrollTop = transcriptList.scrollHeight;
-	});
 
 	const removeWidget = () => {
 		widget?.api.remove(widget.id);
@@ -243,7 +228,6 @@ export default function VoiceDemo() {
 		if (call) {
 			for (const timer of call.timers) clearTimeout(timer);
 			clearInterval(call.ticker);
-			call.log.ended = performance.now();
 			// The agent hangs up at once on this, instead of waiting for us to redial.
 			send(call, { label: "moq-transport", type: "session-ending" });
 			const unmount = () => setMounted((m) => (m === call ? undefined : m));
@@ -317,7 +301,7 @@ export default function VoiceDemo() {
 			"",
 		);
 		const call: Call = { gen, session, timers: [], epoch, messages: [], log: new CallLog() };
-		setTimeline(call.log);
+		setLog(call.log);
 		current = call;
 		// Queued until the publisher's broadcast exists, so the agent reads it first.
 		send(call, {
@@ -448,9 +432,7 @@ export default function VoiceDemo() {
 			effect.cleanup(() => setVoice((v) => (v === root ? undefined : v)));
 		});
 		effects.run((effect) => {
-			const media = effect.get(el.audio.out.timestamp);
-			const playing = !effect.get(el.audio.out.stalled);
-			call.log.playhead(performance.now(), media, playing);
+			call.log.playhead(effect.get(el.audio.out.timestamp));
 		});
 		// The decoder reports a frame only once playback nears it, so a reply streamed ahead shows up
 		// here first: the frames are already in the buffer.
@@ -563,40 +545,7 @@ export default function VoiceDemo() {
 
 			<div ref={turnstileContainer} classList={{ "mt-4": phase() === "challenge" }} />
 
-			<Show when={transcript().length > 0}>
-				<ol
-					ref={(el) => {
-						transcriptList = el;
-						following = true;
-					}}
-					onScroll={(e) => {
-						const el = e.currentTarget;
-						following = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
-					}}
-					class="mt-4 mb-0 max-h-80 list-none space-y-3 overflow-y-auto p-0"
-					aria-label="Transcript"
-				>
-					<For each={transcript()}>
-						{(turn) => (
-							<li class="flex gap-3">
-								<span class="w-8 shrink-0 pt-0.5 text-right font-mono text-xs text-slate-500">
-									{turn.who === "ai" ? "AI" : "you"}
-								</span>
-								<p class="m-0 flex flex-wrap gap-x-1.5 font-bold">
-									<Index each={words(turn.text)}>
-										{(word) => <span class={turn.who === "ai" ? "text-green-400" : "text-slate-100"}>{word()}</span>}
-									</Index>
-									<Index each={words(turn.interim)}>{(word) => <span class="text-slate-500">{word()}</span>}</Index>
-								</p>
-							</li>
-						)}
-					</For>
-				</ol>
-			</Show>
-
-			<Show when={timeline()} keyed>
-				{(log) => <Timeline call={log} />}
-			</Show>
+			<Transcript turns={transcript()} log={log()} live={mounted() !== undefined} />
 
 			<Show when={mounted()} keyed>
 				{(call) => {

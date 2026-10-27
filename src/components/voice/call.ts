@@ -1,4 +1,4 @@
-// Everything measured about one live call, on this page's clock (`performance.now()` milliseconds).
+// Everything measured about one live call's audio, on this page's clock (`performance.now()` ms).
 //
 // Three sources feed it:
 // - Your mic frames: `@moq/publish` stamps each with its capture time on this clock, so the media
@@ -10,15 +10,22 @@
 // The agent's clock is placed on ours NTP-style, from the fastest transit each way: request frames
 // bound the offset from one side and reply frames from the other, so it needs no clock agreement.
 
-// The agent's Opus frames, and the duration drawn for a reply frame.
+// The agent's Opus frames, and the span each packet of a word covers.
 export const FRAME_MS = 20;
 
 /** A `voice.json` record. Unknown types are skipped; see moq.pro agent/VOICE.md. */
 export type AgentRecord = { version?: number; type?: string; [key: string]: unknown };
 
+/**
+ * One frame of a word, as far as it has travelled. `delivered` is at the agent for your words and
+ * played for its own; `buffered` is a reply frame here ahead of the playhead.
+ */
+export type Packet = "delivered" | "buffered" | "reordered" | "flight" | "interrupted" | "lost";
+
 export interface MicFrame {
 	capture: number; // local
 	arrive: number; // agent
+	reordered: boolean; // reached the agent after a frame captured later: retransmitted or reordered
 }
 
 export interface ReplyFrame {
@@ -29,30 +36,15 @@ export interface ReplyFrame {
 	// playhead was, so two tracks can hold the same media time.
 	track?: string;
 	published?: number; // agent
-	play?: number; // local, frozen once it played or was interrupted
+	played?: boolean;
 	discarded?: boolean;
 }
 
 export interface Word {
 	text: string;
-	start: number;
+	start: number; // local capture time for yours, reply media time for the agent's
 	end: number;
-	at?: number; // agent, when STT settled on it
 	track?: string;
-}
-
-export interface Mark {
-	at: number; // agent
-	kind: "vad" | "turn" | "llm" | "tts" | "retire";
-	label: string;
-	media?: number; // local, for user-side marks: what the agent had heard
-}
-
-export interface Span {
-	start: number; // agent
-	end?: number; // agent, open while running
-	kind: "llm" | "tts";
-	first?: number; // agent: first text or audio
 }
 
 interface Publish {
@@ -76,10 +68,30 @@ function agentMs(record: AgentRecord, field: string): number | undefined {
 }
 
 // Insert keeping `list` sorted by `key`. Records arrive in about time order, so scan from the back.
-function insert<T>(list: T[], item: T, key: (t: T) => number) {
+// Returns where it went.
+function insert<T>(list: T[], item: T, key: (t: T) => number): number {
 	let i = list.length;
 	while (i > 0 && key(list[i - 1]) > key(item)) i--;
 	list.splice(i, 0, item);
+	return i;
+}
+
+// The first index whose key is at least `value`, in a list sorted by `key`.
+function lowerBound<T>(list: T[], value: number, key: (t: T) => number): number {
+	let lo = 0;
+	let hi = list.length;
+	while (lo < hi) {
+		const mid = (lo + hi) >> 1;
+		if (key(list[mid]) < value) lo = mid + 1;
+		else hi = mid;
+	}
+	return lo;
+}
+
+// Each FRAME_MS of a word, the middle of the frame it should fall in.
+function slots(word: Word): number[] {
+	const count = Math.max(1, Math.round((word.end - word.start) / FRAME_MS));
+	return Array.from({ length: count }, (_, i) => word.start + (i + 0.5) * FRAME_MS);
 }
 
 export class CallLog {
@@ -88,29 +100,22 @@ export class CallLog {
 	gaps: { media: number; duration: number }[] = [];
 	// Reply media the player holds but has not played: received, decoded or not.
 	buffered: { start: number; end: number }[] = [];
+	// In the order the agent settled on them, which is the order they were said.
 	userWords: Word[] = [];
-	interims: Word[] = [];
 	agentWords: Word[] = [];
-	marks: Mark[] = [];
-	spans: Span[] = [];
-	// User speech as the VAD decided it, in local capture time.
-	speech: { start: number; end?: number }[] = [];
 	publishes: Publish[] = [];
 	// The longest publish, which bounds how far back one can still hold a media time.
 	#longest = 0;
-	// Retired tracks and when they retired, on the local clock: their later arrivals never play.
-	#retired = new Map<string, number>();
+	// Tracks a barge-in retired: their later arrivals never play.
+	#retired = new Set<string>();
+	// A reconnect restates the window, so a word can come twice.
+	#seen = new Set<string>();
+	// The reply's media time only moves forward, across track changes too.
+	#head?: number;
 
 	// The fastest transit each way, each including the clock offset.
 	minUp?: number; // agent - local
 	minDown?: number; // local - agent
-
-	// Where the reply's playhead was, and when.
-	#anchor?: { local: number; media: number };
-	#playing = false;
-	#head?: { now: number; media: number | undefined };
-
-	ended?: number; // local
 
 	/** Agent time minus local time, once both directions have been measured. */
 	get offset(): number | undefined {
@@ -124,12 +129,6 @@ export class CallLog {
 		return (this.minUp + this.minDown) / 2;
 	}
 
-	/** An agent time on the local clock, once the offset is known. */
-	local(agent: number): number | undefined {
-		const offset = this.offset;
-		return offset === undefined ? undefined : agent - offset;
-	}
-
 	/** Ingest one `voice.json` record. */
 	agent(record: AgentRecord) {
 		if (record.version !== 2) return;
@@ -138,58 +137,26 @@ export class CallLog {
 				const capture = ms(record, "media_ticks");
 				const arrive = agentMs(record, "arrival_ns");
 				if (capture === undefined || arrive === undefined) return;
-				insert(this.mic, { capture, arrive }, (f) => f.capture);
+				const frame = { capture, arrive, reordered: false };
+				const at = insert(this.mic, frame, (f) => f.capture);
+				for (let i = at + 1; i < this.mic.length && !frame.reordered; i++) {
+					frame.reordered = this.mic[i].arrive < arrive;
+				}
 				const up = arrive - capture;
 				if (this.minUp === undefined || up < this.minUp) this.minUp = up;
 				return;
 			}
 			case "word": {
-				const word = this.#word(record);
-				if (!word) return;
-				if (record.speaker === "user") {
-					insert(this.userWords, word, (w) => w.start);
-					// The final word supersedes what the interims heard there.
-					this.interims = this.interims.filter((i) => i.end <= word.start || i.start >= word.end);
-				} else if (record.speaker === "agent") {
-					insert(this.agentWords, word, (w) => w.start);
-				}
-				return;
-			}
-			case "interim": {
-				const word = this.#word(record);
-				if (!word) return;
-				// A later interim revises the ones it overlaps.
-				this.interims = this.interims.filter((i) => i.end <= word.start || i.start >= word.end);
-				if (!this.userWords.some((w) => w.start < word.end && w.end > word.start)) {
-					insert(this.interims, word, (w) => w.start);
-				}
-				return;
-			}
-			case "vad": {
-				const at = agentMs(record, "at_ns");
-				const media = ms(record, "media_ticks");
-				const confirm = ms(record, "confirm_ticks") ?? 0;
-				if (at === undefined || media === undefined) return;
-				const speaking = record.speaking === true;
-				const change = media - confirm;
-				const open = this.speech.at(-1);
-				if (speaking && (!open || open.end !== undefined)) this.speech.push({ start: change });
-				if (!speaking && open && open.end === undefined) open.end = change;
-				this.marks.push({ at, kind: "vad", label: speaking ? "speech" : "silence", media });
-				return;
-			}
-			case "turn": {
-				const at = agentMs(record, "at_ns");
-				if (at === undefined) return;
-				const media = ms(record, "media_ticks");
-				this.marks.push({ at, kind: "turn", label: record.speaking === true ? "your turn" : "my turn", media });
-				return;
-			}
-			case "llm":
-			case "tts": {
-				const at = agentMs(record, "at_ns");
-				if (at === undefined) return;
-				this.#span(record.type, record.event, at);
+				const start = ms(record, "start_ticks");
+				const end = ms(record, "end_ticks");
+				if (typeof record.text !== "string" || start === undefined || end === undefined) return;
+				const track = typeof record.track === "string" ? record.track : undefined;
+				const key = `${record.speaker}:${track}:${start}:${record.text}`;
+				if (this.#seen.has(key)) return;
+				this.#seen.add(key);
+				const word = { text: record.text, start, end, track };
+				if (record.speaker === "user") this.userWords.push(word);
+				else if (record.speaker === "agent") this.agentWords.push(word);
 				return;
 			}
 			case "publish": {
@@ -211,42 +178,13 @@ export class CallLog {
 				return;
 			}
 			case "retire": {
-				const at = agentMs(record, "at_ns");
-				const unplayed = ms(record, "unplayed_ticks");
-				if (at === undefined) return;
-				const label = unplayed ? `barge-in, dropped ${(unplayed / 1000).toFixed(1)}s` : "barge-in";
-				this.marks.push({ at, kind: "retire", label });
-				// What the retired track still held never plays; draw it where it would have.
 				if (typeof record.track !== "string") return;
-				const now = this.local(at) ?? performance.now();
-				this.#retired.set(record.track, now);
+				this.#retired.add(record.track);
 				for (const frame of this.reply) {
-					if (frame.track === record.track) this.#discard(frame, now);
+					if (frame.track === record.track) this.#discard(frame);
 				}
 				return;
 			}
-		}
-	}
-
-	#word(record: AgentRecord): Word | undefined {
-		const start = ms(record, "start_ticks");
-		const end = ms(record, "end_ticks");
-		if (typeof record.text !== "string" || start === undefined || end === undefined) return undefined;
-		const track = typeof record.track === "string" ? record.track : undefined;
-		return { text: record.text, start, end, at: agentMs(record, "at_ns"), track };
-	}
-
-	#span(kind: "llm" | "tts", event: unknown, at: number) {
-		const open = this.spans.findLast((s) => s.kind === kind && s.end === undefined);
-		if (event === "request") {
-			// TTS requests each sentence; one span covers the whole reply until it ends. Each LLM request
-			// is a new statement, and supersedes one an interruption left without an end.
-			if (open && kind === "llm") open.end = at;
-			if (!open || kind === "llm") this.spans.push({ kind, start: at });
-		} else if (event === "first_text" || event === "first_audio") {
-			if (open && open.first === undefined) open.first = at;
-		} else if (event === "end") {
-			if (open) open.end = at;
 		}
 	}
 
@@ -260,10 +198,7 @@ export class CallLog {
 
 	#published(frame: ReplyFrame, publish: Publish) {
 		// A frame claimed from a retired track is not what that retirement discarded.
-		if (frame.track !== undefined && frame.track !== publish.track && frame.discarded) {
-			frame.discarded = false;
-			frame.play = undefined;
-		}
+		if (frame.track !== undefined && frame.track !== publish.track) frame.discarded = false;
 		frame.track = publish.track;
 		frame.published = publish.at;
 		// Between overlapping publishes the pick is only as good as the clock, and the wrong one could
@@ -271,16 +206,12 @@ export class CallLog {
 		const down = frame.arrive - publish.at;
 		const holders = this.publishes.filter((p) => frame.media >= p.start && frame.media < p.end).length;
 		if (holders === 1 && (this.minDown === undefined || down < this.minDown)) this.minDown = down;
-		const retired = this.#retired.get(publish.track);
-		if (retired !== undefined) this.#discard(frame, retired);
+		if (this.#retired.has(publish.track)) this.#discard(frame);
 	}
 
-	/** What a retired track still held never plays; draw it where it would have. */
-	#discard(frame: ReplyFrame, retired: number) {
-		if (frame.play !== undefined) return;
-		// Before any playhead there is nowhere it would have played, so it ends where it was retired.
-		frame.play = this.playAt(frame, retired) ?? retired;
-		frame.discarded = true;
+	/** What a retired track still held never plays. */
+	#discard(frame: ReplyFrame) {
+		if (!frame.played) frame.discarded = true;
 	}
 
 	/** A reply frame as `@moq/watch` received it. */
@@ -311,91 +242,73 @@ export class CallLog {
 		this.buffered = ranges.map(({ start, end }) => ({ start, end }));
 	}
 
-	/** The reply's playhead: media `media` is playing at local time `now`, or nothing is. */
-	playhead(now: number, media: number | undefined, playing: boolean) {
-		// The reply's media time only moves forward, across track changes too; an idle player
-		// reports zero.
-		if (media === undefined || (this.#anchor && media < this.#anchor.media)) {
-			this.#playing = false;
-			return;
-		}
-		this.#playing = playing;
-		this.#anchor = { local: now, media };
+	/** The reply's playhead is at `media`, or nothing is playing. */
+	playhead(media: number | undefined) {
+		// An idle player reports zero.
+		if (media === undefined || (this.#head !== undefined && media < this.#head)) return;
+		this.#head = media;
 		for (const frame of this.reply) {
-			if (frame.play === undefined && frame.media <= media) frame.play = now - (media - frame.media);
+			if (!frame.played && !frame.discarded && frame.media <= media) frame.played = true;
 		}
 	}
 
-	/** When a reply frame plays (or played) on the local clock, if it can be placed. */
-	playAt(frame: ReplyFrame, now: number): number | undefined {
-		if (frame.play !== undefined) return frame.play;
-		const head = this.mediaNow(now);
-		return head === undefined ? undefined : now + Math.max(0, frame.media - head);
+	/** Your word's frames, one per FRAME_MS, as the agent received them. */
+	sent(word: Word): Packet[] {
+		return slots(word).map((t) => {
+			// The frame whose 20 ms holds this slot's middle.
+			const i = lowerBound(this.mic, t - FRAME_MS, (f) => f.capture);
+			const frame = this.mic[i];
+			if (!frame || frame.capture > t) return "flight";
+			return frame.reordered ? "reordered" : "delivered";
+		});
 	}
 
-	/** Media time of the reply's playhead now, extrapolated between updates. */
-	mediaNow(now: number): number | undefined {
-		if (this.#head?.now === now) return this.#head.media;
-		const anchor = this.#anchor;
-		let media: number | undefined;
-		if (anchor && this.#playing) {
-			media = anchor.media + (now - anchor.local);
-		} else {
-			// A stalled player starts the next utterance from its own first frame, about now.
-			const next = this.reply.find((f) => f.play === undefined && !f.discarded);
-			media = next ? Math.max(next.media, anchor?.media ?? 0) : anchor?.media;
+	/** The agent's word's frames, one per FRAME_MS, as they reached you. */
+	heard(word: Word): Packet[] {
+		return slots(word).map((t) => {
+			for (let i = lowerBound(this.reply, t - FRAME_MS, (f) => f.media); i < this.reply.length; i++) {
+				const frame = this.reply[i];
+				if (frame.media > t) break;
+				// A frame can beat the record of the track that carries it.
+				if (frame.track !== undefined && word.track !== undefined && frame.track !== word.track) continue;
+				if (frame.discarded) return "interrupted";
+				if (frame.late) return "lost";
+				return frame.played ? "delivered" : "buffered";
+			}
+			if (word.track !== undefined && this.#retired.has(word.track)) return "interrupted";
+			if (this.gaps.some((g) => t >= g.media && t < g.media + g.duration)) return "lost";
+			// The decoder reports a frame only once playback nears it; the player holds it before that.
+			if (this.buffered.some((r) => t >= r.start && t < r.end)) return "buffered";
+			return "flight";
+		});
+	}
+}
+
+// Words as compared across the transcript and `voice.json`: case and punctuation aside.
+function norm(text: string): string {
+	return text
+		.normalize("NFKD")
+		.toLowerCase()
+		.replace(/[^\p{L}\p{N}]/gu, "");
+}
+
+// How far either side may run ahead: the transcript and `voice.json` each leave words out.
+const SKIP = 4;
+
+/**
+ * Pair each transcript word with the timed word it is, in order. The transcript shows what was
+ * said; `voice.json` leaves out any word it could not time, so a word without a match is undefined.
+ */
+export function align(texts: string[], words: Word[]): (Word | undefined)[] {
+	let next = 0;
+	return texts.map((text) => {
+		const key = norm(text);
+		if (!key) return undefined;
+		for (let i = next; i < Math.min(words.length, next + SKIP); i++) {
+			if (norm(words[i].text) !== key) continue;
+			next = i + 1;
+			return words[i];
 		}
-		this.#head = { now, media };
-		return media;
-	}
-
-	/**
-	 * Your latest statement on the local clock: what you said since the agent's previous turn, until
-	 * you stopped or it took its next one.
-	 */
-	statement(now: number): { start: number; end: number } | undefined {
-		const latest = this.speech.at(-1);
-		const yours = this.marks.findLast((m) => m.kind === "turn" && m.label === "your turn");
-		if (!yours) return latest && { start: latest.start, end: latest.end ?? now };
-		const mine = (m: Mark) => m.kind === "turn" && m.label === "my turn";
-		const before = this.marks.findLast((m) => mine(m) && m.at < yours.at);
-		const after = this.marks.find((m) => mine(m) && m.at > yours.at);
-		const from = (before && this.local(before.at)) ?? Number.NEGATIVE_INFINITY;
-		const until = after && this.local(after.at);
-		// Speech after the agent took its turn is the next statement.
-		if (latest && until !== undefined && latest.start > until) return { start: latest.start, end: latest.end ?? now };
-
-		// Words count as well as speech: the agent can answer one too short for the VAD to hear.
-		const to = until ?? Number.POSITIVE_INFINITY;
-		let start = Number.POSITIVE_INFINITY;
-		let end = Number.NEGATIVE_INFINITY;
-		for (const s of [...this.speech, ...this.userWords, ...this.interims]) {
-			const stop = s.end ?? now;
-			if (stop <= from || s.start >= to) continue;
-			start = Math.min(start, s.start);
-			end = Math.max(end, stop);
-		}
-		if (start <= end) return { start, end };
-		const heard = yours.media;
-		return heard === undefined ? undefined : { start: heard, end: Math.max(heard, until ?? now) };
-	}
-
-	/**
-	 * The agent's latest reply in media time, as far as it has published: its newest track, from the
-	 * first publish since the request that led to it. A track carries every reply until a barge-in.
-	 */
-	answer(): { track: string; start: number; end: number } | undefined {
-		let latest: Publish | undefined;
-		for (const p of this.publishes) if (!latest || p.at > latest.at) latest = p;
-		if (!latest) return undefined;
-		const newest = latest;
-		const asked = this.spans.findLast((s) => s.kind === "llm" && s.start <= newest.at)?.start;
-		let { start, end } = newest;
-		for (const p of this.publishes) {
-			if (p.track !== newest.track || (asked !== undefined && p.at < asked)) continue;
-			start = Math.min(start, p.start);
-			end = Math.max(end, p.end);
-		}
-		return { track: newest.track, start, end };
-	}
+		return undefined;
+	});
 }
