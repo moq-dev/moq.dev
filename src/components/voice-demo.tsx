@@ -439,6 +439,10 @@ export default function VoiceDemo() {
 		effects.run((effect) => {
 			call.log.buffer(effect.get(el.audio.out.buffered));
 		});
+		// The ring stalls before the first reply, when one runs dry, and on a barge-in's reset.
+		effects.run((effect) => {
+			call.log.replying(!effect.get(el.audio.out.stalled), performance.now());
+		});
 		effects.spawn(async () => {
 			const arrivals = el.audio.arrivals();
 			effects.cleanup(() => arrivals.close());

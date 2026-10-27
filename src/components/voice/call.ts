@@ -106,10 +106,9 @@ export class CallLog {
 	// The STT's latest interim result for your words since its last final ones.
 	interims: Word[] = [];
 	#interimAt?: number;
-	// Your latest stretch of speech as the agent's VAD heard it, on your capture clock.
-	#speech?: { start: number; end?: number };
-	// The request audio heard when your last turn ended.
-	#turnEnd?: number;
+	// Whether the reply is playing, and when it last stopped.
+	#replying = false;
+	#replyStopped?: number;
 	publishes: Publish[] = [];
 	// The longest publish, which bounds how far back one can still hold a media time.
 	#longest = 0;
@@ -180,21 +179,6 @@ export class CallLog {
 					this.interims = [];
 				}
 				this.interims.push({ text: record.text, start, end });
-				return;
-			}
-			case "vad": {
-				const heard = ms(record, "media_ticks");
-				const confirm = ms(record, "confirm_ticks");
-				if (typeof record.speaking !== "boolean" || heard === undefined || confirm === undefined) return;
-				// The VAD waited out `confirm` before deciding, so the change came that much earlier.
-				const at = heard - confirm;
-				if (record.speaking) this.#speech = { start: at };
-				else if (this.#speech) this.#speech.end = at;
-				return;
-			}
-			case "turn": {
-				const heard = ms(record, "media_ticks");
-				if (record.speaking === false && heard !== undefined) this.#turnEnd = heard;
 				return;
 			}
 			case "publish": {
@@ -301,18 +285,24 @@ export class CallLog {
 		});
 	}
 
+	/** The reply started or stopped playing at local time `at`. */
+	replying(playing: boolean, at: number) {
+		if (this.#replying && !playing) this.#replyStopped = at;
+		this.#replying = playing;
+	}
+
 	/**
-	 * Your speech the STT has not made words of yet, up to `now` while you are still talking: its
-	 * frames, as far as they have got. Nothing once your turn has ended.
+	 * Your audio the STT has not made words of, up to `now`: its frames, as far as they have got.
+	 * Nothing while the reply plays, and it starts over once it stops.
 	 */
 	pending(now: number): Packet[] | undefined {
-		const speech = this.#speech;
-		if (!speech || (this.#turnEnd !== undefined && this.#turnEnd >= speech.start)) return undefined;
-		let start = Math.max(speech.start, this.userWords.at(-1)?.end ?? Number.NEGATIVE_INFINITY);
+		const first = this.mic[0];
+		if (this.#replying || !first) return undefined;
+		const none = Number.NEGATIVE_INFINITY;
+		let start = Math.max(first.capture, this.#replyStopped ?? none, this.userWords.at(-1)?.end ?? none);
 		for (const word of this.interims) start = Math.max(start, word.end);
-		const end = speech.end ?? now;
-		if (end - start < FRAME_MS) return undefined;
-		return this.sent({ text: "", start, end });
+		if (now - start < FRAME_MS) return undefined;
+		return this.sent({ text: "", start, end: now });
 	}
 
 	/** The agent's word's frames, one per FRAME_MS, as they reached you. */

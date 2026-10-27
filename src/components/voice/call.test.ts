@@ -226,14 +226,6 @@ describe("heard", () => {
 });
 
 describe("pending", () => {
-	const vad = (speaking: boolean, heard: number) => ({
-		version: 2,
-		type: "vad",
-		timescale: 1000,
-		speaking,
-		media_ticks: heard,
-		confirm_ticks: 200,
-	});
 	const word = (type: string, text: string, start: number, end: number, at = 0) => ({
 		version: 2,
 		type,
@@ -245,30 +237,27 @@ describe("pending", () => {
 		at_ns: at * 1e6,
 	});
 
-	// You started talking at 1000; the VAD was sure by 1200.
+	// Your mic from 1000, the agent hearing each frame 10 ms after it was captured, up to 1200.
 	function talking(): CallLog {
 		const log = new CallLog();
-		log.agent(vad(true, 1200));
 		for (let capture = 1000; capture < 1200; capture += 20) log.agent(arrival(capture, capture + 10));
 		return log;
 	}
 
-	test("runs from the start of your speech to now, delivered then in flight", () => {
+	test("runs from your first packet to now, delivered then in flight", () => {
 		const packets = talking().pending(1300);
 		expect(packets?.length).toBe(15);
 		expect(packets?.slice(0, 10).every((p) => p === "delivered")).toBe(true);
 		expect(packets?.slice(10).every((p) => p === "flight")).toBe(true);
 	});
 
-	test("gives way to words, interim or final, and stops where the VAD heard you stop", () => {
+	test("gives way to words, interim or final", () => {
 		const log = talking();
 		log.agent(word("interim", "hel", 1000, 1100, 1));
 		expect(log.pending(1300)?.length).toBe(10);
 		log.agent(word("word", "hello", 1000, 1160));
 		expect(log.interims).toEqual([]);
 		expect(log.pending(1300)?.length).toBe(7);
-		log.agent(vad(false, 1400));
-		expect(log.pending(5000)?.length).toBe(2);
 	});
 
 	test("a newer interim result replaces the last one", () => {
@@ -278,12 +267,13 @@ describe("pending", () => {
 		expect(log.interims.map((w) => w.text)).toEqual(["hello"]);
 	});
 
-	test("ends with your turn, and comes back when you speak again", () => {
+	test("hides while the reply plays, and starts over when it stops", () => {
 		const log = talking();
-		log.agent({ version: 2, type: "turn", timescale: 1000, speaking: false, media_ticks: 1500 });
-		expect(log.pending(1600)).toBeUndefined();
-		log.agent(vad(true, 2200));
-		expect(log.pending(2100)?.length).toBe(5);
+		log.agent(word("word", "hello", 1000, 1160));
+		log.replying(true, 1500);
+		expect(log.pending(2000)).toBeUndefined();
+		log.replying(false, 3000);
+		expect(log.pending(3200)?.length).toBe(10);
 	});
 });
 
