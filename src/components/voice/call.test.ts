@@ -183,6 +183,15 @@ describe("sent", () => {
 
 		expect(log.sent({ text: "hi", start: 0, end: 60 })).toEqual(["delivered", "flight", "delivered"]);
 	});
+
+	test("a frame that ends where a slot falls does not hold it", () => {
+		const log = new CallLog();
+		log.agent(arrival(0, 1010));
+		log.agent(arrival(40, 1050));
+
+		// The slots fall at 20 and 40: the missing frame and the one at 40.
+		expect(log.sent({ text: "hi", start: 10, end: 50 })).toEqual(["flight", "delivered"]);
+	});
 });
 
 describe("heard", () => {
@@ -222,6 +231,24 @@ describe("heard", () => {
 		log.agent(publish("bot-audio-1", 2000, 3000, 4000));
 
 		expect(log.heard({ text: "hi", start: 2000, end: 2020, track: "bot-audio-1" })).toEqual(["flight"]);
+	});
+
+	test("a retired track's gap is not the replacement's loss", () => {
+		const log = synced();
+		log.gap(200, 100, 150);
+		log.agent({
+			version: 2,
+			type: "retire",
+			track: "bot-audio",
+			timescale: 1000,
+			unplayed_ticks: 4800,
+			at_ns: 1200 * 1e6,
+		});
+		log.agent(publish("bot-audio-1", 200, 1000, 1300));
+		log.buffer([{ start: 200, end: 1000 }]);
+
+		expect(log.heard({ text: "hi", start: 200, end: 240, track: "bot-audio-1" })).toEqual(["buffered", "buffered"]);
+		expect(log.heard({ text: "hi", start: 200, end: 240, track: "bot-audio" })).toEqual(["interrupted", "interrupted"]);
 	});
 });
 
@@ -287,6 +314,16 @@ describe("align", () => {
 		const matched = align(["Hello,", "um", "how", "are", "you?"], log.userWords);
 
 		expect(matched.map((w) => w?.text)).toEqual(["hello", undefined, "how", "are", "you"]);
+	});
+
+	test("meets up again past a longer stretch only on two words in a row", () => {
+		const log = new CallLog();
+		for (const [i, text] of ["one", "two", "three", "four", "the", "dog", "hello", "world"].entries()) {
+			log.agent(word("user", text, i * 100, i * 100 + 80));
+		}
+		const matched = align(["the", "cat", "hello", "world"], log.userWords);
+
+		expect(matched.map((w) => w?.text)).toEqual([undefined, undefined, "hello", "world"]);
 	});
 
 	test("a restated window does not repeat a word", () => {

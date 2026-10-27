@@ -450,7 +450,7 @@ export default function VoiceDemo() {
 				const next = await arrivals.next();
 				if (!next) return;
 				if (next.kind === "frame") call.log.received(next.timestamp, next.arrival, next.late);
-				else call.log.gap(next.timestamp, next.duration);
+				else call.log.gap(next.timestamp, next.duration, performance.now());
 			}
 		});
 		effects.run((effect) => {

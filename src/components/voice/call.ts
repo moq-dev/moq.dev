@@ -76,13 +76,13 @@ function insert<T>(list: T[], item: T, key: (t: T) => number): number {
 	return i;
 }
 
-// The first index whose key is at least `value`, in a list sorted by `key`.
-function lowerBound<T>(list: T[], value: number, key: (t: T) => number): number {
+// The first index whose key is above `value`, in a list sorted by `key`.
+function above<T>(list: T[], value: number, key: (t: T) => number): number {
 	let lo = 0;
 	let hi = list.length;
 	while (lo < hi) {
 		const mid = (lo + hi) >> 1;
-		if (key(list[mid]) < value) lo = mid + 1;
+		if (key(list[mid]) <= value) lo = mid + 1;
 		else hi = mid;
 	}
 	return lo;
@@ -97,7 +97,7 @@ function slots(word: Word): number[] {
 export class CallLog {
 	mic: MicFrame[] = [];
 	reply: ReplyFrame[] = [];
-	gaps: { media: number; duration: number }[] = [];
+	gaps: { media: number; duration: number; track?: string }[] = [];
 	// Reply media the player holds but has not played: received, decoded or not.
 	buffered: { start: number; end: number }[] = [];
 	// In the order the agent settled on them, which is the order they were said.
@@ -239,8 +239,16 @@ export class CallLog {
 	/** A reply frame as `@moq/watch` received it. */
 	received(media: number, arrive: number, late: boolean) {
 		const frame: ReplyFrame = { media, arrive, late };
-		// Of the publishes holding this media time, the newest one sent before it arrived. Without a
-		// clock offset yet there has been no barge-in, so there is only one.
+		const publish = this.#holder(media, arrive);
+		if (publish) this.#published(frame, publish);
+		insert(this.reply, frame, (f) => f.media);
+	}
+
+	/**
+	 * Of the publishes holding this media time, the newest one sent before local time `arrive`.
+	 * Without a clock offset yet there has been no barge-in, so there is only one.
+	 */
+	#holder(media: number, arrive: number): Publish | undefined {
 		let best: Publish | undefined;
 		for (let i = this.publishes.length - 1; i >= 0; i--) {
 			const p = this.publishes[i];
@@ -250,13 +258,13 @@ export class CallLog {
 			if (!this.#sentBefore(p.at, arrive)) continue;
 			if (!best || p.at > best.at) best = p;
 		}
-		if (best) this.#published(frame, best);
-		insert(this.reply, frame, (f) => f.media);
+		return best;
 	}
 
-	/** Reply media that will never arrive. */
-	gap(media: number, duration: number) {
-		this.gaps.push({ media, duration });
+	/** Reply media that will never arrive, as found at local time `at`. */
+	gap(media: number, duration: number, at: number) {
+		// A barge-in's track can reuse the media times of the one it replaced, which lost nothing.
+		this.gaps.push({ media, duration, track: this.#holder(media, at)?.track });
 	}
 
 	/** The reply media the player holds, which runs ahead of the arrivals its decoder has reached. */
@@ -278,7 +286,7 @@ export class CallLog {
 	sent(word: Word): Packet[] {
 		return slots(word).map((t) => {
 			// The frame whose 20 ms holds this slot's middle.
-			const i = lowerBound(this.mic, t - FRAME_MS, (f) => f.capture);
+			const i = above(this.mic, t - FRAME_MS, (f) => f.capture);
 			const frame = this.mic[i];
 			if (!frame || frame.capture > t) return "flight";
 			return frame.reordered ? "reordered" : "delivered";
@@ -308,7 +316,7 @@ export class CallLog {
 	/** The agent's word's frames, one per FRAME_MS, as they reached you. */
 	heard(word: Word): Packet[] {
 		return slots(word).map((t) => {
-			for (let i = lowerBound(this.reply, t - FRAME_MS, (f) => f.media); i < this.reply.length; i++) {
+			for (let i = above(this.reply, t - FRAME_MS, (f) => f.media); i < this.reply.length; i++) {
 				const frame = this.reply[i];
 				if (frame.media > t) break;
 				// A frame can beat the record of the track that carries it.
@@ -318,7 +326,13 @@ export class CallLog {
 				return frame.played ? "delivered" : "buffered";
 			}
 			if (word.track !== undefined && this.#retired.has(word.track)) return "interrupted";
-			if (this.gaps.some((g) => t >= g.media && t < g.media + g.duration)) return "lost";
+			const lost = this.gaps.some(
+				(g) =>
+					t >= g.media &&
+					t < g.media + g.duration &&
+					(g.track === undefined || word.track === undefined || g.track === word.track),
+			);
+			if (lost) return "lost";
 			// The decoder reports a frame only once playback nears it; the player holds it before that.
 			if (this.buffered.some((r) => t >= r.start && t < r.end)) return "buffered";
 			return "flight";
@@ -334,7 +348,8 @@ function norm(text: string): string {
 		.replace(/[^\p{L}\p{N}]/gu, "");
 }
 
-// How far either side may run ahead: the transcript and `voice.json` each leave words out.
+// How far either side may run ahead on one matching word: the transcript and `voice.json` each
+// leave words out.
 const SKIP = 4;
 
 /**
@@ -342,12 +357,16 @@ const SKIP = 4;
  * said; `voice.json` leaves out any word it could not time, so a word without a match is undefined.
  */
 export function align(texts: string[], words: Word[]): (Word | undefined)[] {
+	const keys = texts.map(norm);
+	const timed = words.map((w) => norm(w.text));
 	let next = 0;
-	return texts.map((text) => {
-		const key = norm(text);
+	return keys.map((key, k) => {
 		if (!key) return undefined;
-		for (let i = next; i < Math.min(words.length, next + SKIP); i++) {
-			if (norm(words[i].text) !== key) continue;
+		for (let i = next; i < timed.length; i++) {
+			if (timed[i] !== key) continue;
+			// Further ahead, a common word alone could skip a stretch; the next word matching too means
+			// the two sides have met again.
+			if (i >= next + SKIP && (k + 1 >= keys.length || timed[i + 1] !== keys[k + 1])) continue;
 			next = i + 1;
 			return words[i];
 		}
