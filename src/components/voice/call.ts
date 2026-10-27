@@ -372,18 +372,25 @@ export class CallLog {
 	 * first publish since the request that led to it. A track carries every reply until a barge-in.
 	 */
 	answer(): { track: string; start: number; end: number } | undefined {
-		let latest: Publish | undefined;
-		for (const p of this.publishes) if (!latest || p.at > latest.at) latest = p;
+		const latest = this.#latest();
 		if (!latest) return undefined;
-		const newest = latest;
-		const asked = this.spans.findLast((s) => s.kind === "llm" && s.start <= newest.at)?.start;
+		const { newest, asked } = latest;
 		let { start, end } = newest;
 		for (const p of this.publishes) {
-			if (p.track !== newest.track || (asked !== undefined && p.at < asked)) continue;
+			if (p.track !== newest.track || (asked !== undefined && p.at < asked.start)) continue;
 			start = Math.min(start, p.start);
 			end = Math.max(end, p.end);
 		}
 		return { track: newest.track, start, end };
+	}
+
+	// The newest publish, and the request that led to it.
+	#latest(): { newest: Publish; asked?: Span } | undefined {
+		let newest: Publish | undefined;
+		for (const p of this.publishes) if (!newest || p.at > newest.at) newest = p;
+		if (!newest) return undefined;
+		const at = newest.at;
+		return { newest, asked: this.spans.findLast((s) => s.kind === "llm" && s.start <= at) };
 	}
 
 	/** Drop what has scrolled far out of view. */
@@ -397,7 +404,9 @@ export class CallLog {
 		this.interims = this.interims.filter((w) => w.end >= said);
 		this.speech = this.speech.filter((s) => s.end === undefined || s.end >= said);
 		this.marks = this.marks.filter((m) => m.at - offset >= cut);
-		this.spans = this.spans.filter((s) => s.end === undefined || s.end - offset >= cut);
+		// So does the request that bounds the reply on screen.
+		const asked = this.#latest()?.asked;
+		this.spans = this.spans.filter((s) => s === asked || s.end === undefined || s.end - offset >= cut);
 		this.reply = this.reply.filter((f) => f.play === undefined || f.play >= cut);
 		const media = this.mediaNow(now);
 		if (media !== undefined) {

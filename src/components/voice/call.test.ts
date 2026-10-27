@@ -211,4 +211,14 @@ describe("answer", () => {
 		log.agent(publish("bot-audio-1", 2000, 3000, 7100));
 		expect(log.answer()).toEqual({ track: "bot-audio-1", start: 2000, end: 3000 });
 	});
+
+	test("pruning keeps the request that bounds the reply on screen", () => {
+		const log = synced();
+		log.agent(record("llm", 7000, { event: "request" }));
+		log.agent(record("llm", 7050, { event: "end" }));
+		log.agent(publish("bot-audio", 5000, 6000, 7100));
+		log.received(0, 110, false);
+		log.prune(70_000);
+		expect(log.answer()).toEqual({ track: "bot-audio", start: 5000, end: 6000 });
+	});
 });

@@ -203,7 +203,7 @@ const drawReply: Draw = (ctx, width, call, now) => {
 	for (const f of call.reply) {
 		// A frame can beat the record of the track that carries it.
 		if (f.media < reply.start || f.media >= reply.end || (f.track !== undefined && f.track !== reply.track)) continue;
-		held.push({ start: f.media, end: Math.min(f.media + FRAME_MS, reply.end) });
+		if (!f.discarded) held.push({ start: f.media, end: Math.min(f.media + FRAME_MS, reply.end) });
 		const played = f.play !== undefined || (head !== undefined && f.media <= head);
 		ctx.fillStyle = f.discarded ? PALETTE.discarded : f.late ? PALETTE.lost : played ? PALETTE.done : PALETTE.have;
 		ctx.fillRect(bar.x(f.media), BAR_Y, frameW, BAR_H);
