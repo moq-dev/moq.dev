@@ -93,10 +93,10 @@ export default function Transcript(props: { turns: Turn[]; log?: CallLog; live: 
 		tick();
 		return props.live ? props.log?.pending(performance.now()) : undefined;
 	});
-	const bar = (packets: Packet[]) => (
+	const bar = (packets: () => Packet[]) => (
 		<span
 			aria-hidden="true"
-			style={{ ...underline(packets), width: `${packets.length * FRAME_MS * PX_PER_MS}px`, "max-width": "100%" }}
+			style={{ ...underline(packets()), width: `${packets().length * FRAME_MS * PX_PER_MS}px`, "max-width": "100%" }}
 		>
 			{/* A line of height, so it sits under the words even alone. */}
 			{"\u200b"}
@@ -152,7 +152,7 @@ export default function Transcript(props: { turns: Turn[]; log?: CallLog; live: 
 										</span>
 									)}
 								</Index>
-								<Show when={t() === props.turns.length - 1 && !opening() && pending()}>{(p) => bar(p())}</Show>
+								<Show when={t() === props.turns.length - 1 && !opening() && pending()}>{(p) => bar(p)}</Show>
 							</p>
 						</li>
 					)}
@@ -161,7 +161,7 @@ export default function Transcript(props: { turns: Turn[]; log?: CallLog; live: 
 					{(p) => (
 						<li class="flex gap-3">
 							<span class="w-8 shrink-0 pt-0.5 text-right font-mono text-xs text-slate-500">you</span>
-							<p class="m-0 flex flex-wrap gap-x-1.5 font-bold">{bar(p())}</p>
+							<p class="m-0 flex flex-wrap gap-x-1.5 font-bold">{bar(p)}</p>
 						</li>
 					)}
 				</Show>
