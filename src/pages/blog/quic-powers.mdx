@@ -3,7 +3,7 @@ layout: "@/layouts/global.astro"
 title: QUIC's (hidden) Super Powers
 author: kixelated
 description: Most of QUIC's killer features aren't obvious or documented. Time to change that.
-cover: "/blog/quic-powers/vegeta.png"
+cover: "/blog/quic-powers/vegeta.svg"
 date: 2023-12-17
 ---
 
@@ -19,7 +19,7 @@ Time to change that.
 Before we can cover the advanced stuff, we need to cover the basics.
 
 <figure>
-	![tcp is dead](/blog/quic-powers/tcp.png)
+	![tcp is dead](/blog/quic-powers/tcp.svg)
 	<figcaption>rage bait but it's true</figcaption>
 </figure>
 
@@ -36,7 +36,7 @@ Before we can answer the **WHY** let's cover the **HOW**.
 What is the QUIC API? How do I use it?
 
 <figure>
-	![multiple independent streams](/blog/quic-powers/quic.png)
+	![multiple independent streams](/blog/quic-powers/quic.svg)
 	<figcaption>Shamelessly taken from my presentation at MHV 2023</figcaption>
 </figure>
 
@@ -59,7 +59,7 @@ It turns out HTTP suffers from both of these issues depending on the version:
 Delete that shit and use HTTP/3.
 
 <figure>
-	![multiple independent requests](/blog/quic-powers/http.png)
+	![multiple independent requests](/blog/quic-powers/http.svg)
 	<figcaption>Shamelessly vandalized from my presentation at MHV 2023</figcaption>
 </figure>
 
@@ -101,7 +101,7 @@ They're extremely well-written and designed if you're into that sort of thing.
 -   [RFC9002](https://www.rfc-editor.org/rfc/rfc9002.html): QUIC Congestion Control
 
 <figure>
-	![it's over 9000](/blog/quic-powers/vegeta.png)
+	![it's over 9000](/blog/quic-powers/vegeta.svg)
 	<figcaption>
 		yes i did just spend an hour of my rapidly depleting time left on this earth to trace a dead meme about the RFC
 		numbers
@@ -123,7 +123,7 @@ Each IP packet contains the source ip/port and destination ip/port, so you know 
 Kinda like mail if anybody is old enough to remember that.
 
 <figure>
-	![TCP tuples](/blog/quic-powers/tuple-tcp.png)
+	![TCP tuples](/blog/quic-powers/tuple-tcp.svg)
 	<figcaption>A thrilling diagram of a TCP connection.</figcaption>
 </figure>
 
@@ -133,7 +133,7 @@ QUIC connections are instead identified by a [Connection ID](https://www.rfc-edi
 This is an opaque blob of data, chosen by the receiver, sent in the header of every QUIC packet.
 
 <figure>
-	![QUIC tuples](/blog/quic-powers/tuple-quic.png)
+	![QUIC tuples](/blog/quic-powers/tuple-quic.svg)
 	<figcaption>Now each QUIC packet also contains a connection ID</figcaption>
 </figure>
 
@@ -152,7 +152,7 @@ The application needs to detect this and retry, dialing a new connection and rei
 Retry logic is _always_ a pain to get right and often users will just have to refresh manually.
 
 <figure>
-	![TCP failure](/blog/quic-powers/tuple-tcp2.png)
+	![TCP failure](/blog/quic-powers/tuple-tcp2.svg)
 	<figcaption>There's no way to associate the new IP/port. Ripzo your connection</figcaption>
 </figure>
 
@@ -161,7 +161,7 @@ The QUIC stack will transparently [validate the new path](https://www.rfc-editor
 The application doesn't need to do anything, it just works™
 
 <figure>
-	![QUIC success](/blog/quic-powers/tuple-quic2.png)
+	![QUIC success](/blog/quic-powers/tuple-quic2.svg)
 	<figcaption>Wow thanks for identifying yourself, Mr Connection ID.</figcaption>
 </figure>
 
@@ -192,7 +192,7 @@ It's complicated, but WebRTC _actually_ identifies connections based on the 2-tu
 This means the source IP/port can change without severing the connection: ez roaming and NAT rebinding support!
 
 <figure>
-	![WebRTC success](/blog/quic-powers/tuple-webrtc2.png)
+	![WebRTC success](/blog/quic-powers/tuple-webrtc2.svg)
 	<figcaption>
 		The chad 2-tuple doesn't care about the source address. The unique destination port tells us the connection.
 	</figcaption>
@@ -206,7 +206,7 @@ However, corporate firewalls often block all but a handful of ports for "securit
 At one point I probed the Twitch corporate network and found that only around ~30 UDP ports were open; everything else was blocked.
 
 <figure>
-	![WebRTC failure](/blog/quic-powers/tuple-webrtc.png)
+	![WebRTC failure](/blog/quic-powers/tuple-webrtc.svg)
 	<figcaption>
 		The beta 2-tuple failed to connect, oops. Turns out the port was too unique for the firewall.
 	</figcaption>
@@ -243,7 +243,7 @@ This can include routing information, echoed by the client in the header of each
 Basically you can encode whatever load balancing information you want.
 
 <figure>
-	![Connection ID](/blog/quic-powers/tuple-quic3.png)
+	![Connection ID](/blog/quic-powers/tuple-quic3.svg)
 	<figcaption>don't tell the EU that connection IDs are kinda like cookies</figcaption>
 </figure>
 
@@ -273,7 +273,7 @@ This is amazing for global load balancing since it also gives network administra
 The path to the closest server might be congested, so ISPs can choose a different "closest" server instead.
 
 <figure>
-	![Anycast success](/blog/quic-powers/anycast.png)
+	![Anycast success](/blog/quic-powers/anycast.svg)
 	<figcaption>All regions advertise the same address. Your packet gets routed to the closest one.</figcaption>
 </figure>
 
@@ -281,7 +281,7 @@ However, if the "closest" server changes for any reason (flapping), unfortunatel
 Even with QUIC, the new server will discard these unknown packets and the connection is severed.
 
 <figure>
-	![Anycast flapping](/blog/quic-powers/anycast2.png)
+	![Anycast flapping](/blog/quic-powers/anycast2.svg)
 	<figcaption>Who knows why the route changed, but it does happen.</figcaption>
 </figure>
 
@@ -418,7 +418,7 @@ The usage of datagrams is actually a core difference between the [Media over QUI
 Both are trying to improve WebRTC, but I'm on team "make a brand new protocol".
 
 <figure>
-	![](/blog/quic-powers/standards.png)
+	![](/blog/quic-powers/standards.svg)
 	<figcaption>obligatory [XKCD](https://xkcd.com/927/)</figcaption>
 </figure>
 
