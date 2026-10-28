@@ -1,4 +1,5 @@
 // Publish an explicit broadcast, or mint a private try broadcast on a bare URL.
+import { assets } from "@moq/publish";
 import "@moq/publish/element";
 import "@moq/publish/ui";
 
@@ -6,6 +7,9 @@ import * as Broadcast from "../../lib/broadcast";
 import * as Try from "../../lib/try";
 
 const DEFAULT_RELAY = import.meta.env.PUBLIC_RELAY_URL ?? "https://cdn.moq.pro";
+
+// Load the worklets the build emits to /assets/ rather than blob: URLs.
+assets("/assets/");
 
 void start().catch((error) => {
 	document.body.textContent = error.message;
