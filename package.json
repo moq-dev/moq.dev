@@ -17,6 +17,7 @@
 		"moq/js/publish",
 		"moq/js/qmux",
 		"moq/js/signals",
+		"moq/js/ui",
 		"moq/js/video",
 		"moq/js/watch"
 	],
@@ -47,6 +48,7 @@
 		"@astrojs/solid-js": "7.1.0",
 		"@astrojs/ts-content-mapper": "^0.2.0",
 		"@biomejs/biome": "^2.5.15",
+		"@microsoft/api-extractor": "7.59.4",
 		"@tailwindcss/forms": "^0.5.11",
 		"@tailwindcss/typography": "^0.5.20",
 		"@tailwindcss/vite": "^4.3.3",
@@ -55,7 +57,7 @@
 		"rolldown": "^1.2.14",
 		"shiki": "^4.5.0",
 		"tailwindcss": "^4.3.3",
-		"typescript": "^7.1.0-beta",
+		"typescript": "7.1.0-beta",
 		"vite": "^8.3.4",
 		"vite-plugin-static-copy": "^4.1.1",
 		"wrangler": "^4.151.1"

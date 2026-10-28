@@ -8,8 +8,10 @@ import "@moq/publish/element";
 import type MoqPublish from "@moq/publish/element";
 import "@moq/watch/element";
 import type MoqWatch from "@moq/watch/element";
-import { createEffect, createSignal, For, Index, onCleanup, Show } from "solid-js";
+import { createSignal, onCleanup, Show } from "solid-js";
+import { type AgentRecord, CallLog } from "./voice/call";
 import Cat from "./voice/cat";
+import Transcript, { type Turn } from "./voice/transcript";
 
 type Turnstile = {
 	render: (
@@ -63,6 +65,8 @@ const TURNSTILE_SCRIPT = "https://challenges.cloudflare.com/turnstile/v0/api.js?
 // The agent subscribes to this fixed-name track on our broadcast and publishes its own beside
 // its audio. Neither is in the catalog.
 const RTVI_TRACK = "transcript.json.z";
+// The agent's own measurements of the call (moq.pro agent/VOICE.md), a window of records.
+const TIMELINE_TRACK = "voice.json";
 const RTVI_VERSION = "2.1.0";
 
 // How often a caller waiting for pickup asks whether an edge refused it.
@@ -111,9 +115,6 @@ const REFUSALS = new Set<string>(["disabled", "unavailable", "challenge", "rate_
 
 type Phase = "idle" | "checking" | "challenge" | "admitting" | "connecting" | "live";
 
-// A run of speech by one side. `interim` is your words the recognizer may still revise.
-type Turn = { who: "you" | "ai"; text: string; interim: string };
-
 // Everything one call holds, so teardown is one place.
 type Call = {
 	gen: number;
@@ -122,8 +123,9 @@ type Call = {
 	ticker?: ReturnType<typeof setInterval>;
 	liveAt?: number;
 	epoch: string;
-	log: Message[];
+	messages: Message[];
 	producer?: Json.Stream.Producer<Message>;
+	log: CallLog;
 };
 
 let turnstilePromise: Promise<Turnstile> | undefined;
@@ -182,10 +184,6 @@ function refusal(body: unknown): Outcome {
 	return typeof code === "string" && REFUSALS.has(code) ? (code as Outcome) : "unavailable";
 }
 
-function words(text: string): string[] {
-	return text.split(/\s+/).filter(Boolean);
-}
-
 function clock(secs: number): string {
 	return `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
 }
@@ -199,6 +197,8 @@ export default function VoiceDemo() {
 	const [transcript, setTranscript] = createSignal<Turn[]>([]);
 	// The agent's decoded audio, before volume, for the cat to lip-sync to.
 	const [voice, setVoice] = createSignal<AudioNode>();
+	// The last call's measurements, kept after it ends so the reader can look them over.
+	const [log, setLog] = createSignal<CallLog>();
 
 	// Bumped by every start and teardown, so an await that resumes after Stop sees it is stale
 	// and backs out instead of resurrecting the call.
@@ -207,22 +207,14 @@ export default function VoiceDemo() {
 	let widget: { api: Turnstile; id: string } | undefined;
 	let turnstileContainer!: HTMLDivElement;
 
-	// The transcript follows new words unless the reader has scrolled up to reread.
-	let transcriptList: HTMLOListElement | undefined;
-	let following = true;
-	createEffect(() => {
-		transcript();
-		if (transcriptList && following) transcriptList.scrollTop = transcriptList.scrollHeight;
-	});
-
 	const removeWidget = () => {
 		widget?.api.remove(widget.id);
 		widget = undefined;
 	};
 
 	const send = (call: Call, message: Message) => {
-		const record = { ...message, seq: call.log.length, epoch: call.epoch };
-		call.log.push(record);
+		const record = { ...message, seq: call.messages.length, epoch: call.epoch };
+		call.messages.push(record);
 		call.producer?.append({ value: record });
 	};
 
@@ -308,7 +300,8 @@ export default function VoiceDemo() {
 		const epoch = Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, "0")).join(
 			"",
 		);
-		const call: Call = { gen, session, timers: [], epoch, log: [] };
+		const call: Call = { gen, session, timers: [], epoch, messages: [], log: new CallLog() };
+		setLog(call.log);
 		current = call;
 		// Queued until the publisher's broadcast exists, so the agent reads it first.
 		send(call, {
@@ -420,7 +413,7 @@ export default function VoiceDemo() {
 				track: broadcast.createTrack(RTVI_TRACK),
 				compression: "deflate",
 			});
-			for (const record of call.log) producer.append({ value: record });
+			for (const record of call.messages) producer.append({ value: record });
 			call.producer = producer;
 			effect.cleanup(() => {
 				if (call.producer === producer) call.producer = undefined;
@@ -439,9 +432,40 @@ export default function VoiceDemo() {
 			effect.cleanup(() => setVoice((v) => (v === root ? undefined : v)));
 		});
 		effects.run((effect) => {
+			call.log.playhead(effect.get(el.audio.out.timestamp));
+		});
+		// The decoder reports a frame only once playback nears it, so a reply streamed ahead shows up
+		// here first: the frames are already in the buffer.
+		effects.run((effect) => {
+			call.log.buffer(effect.get(el.audio.out.buffered));
+		});
+		// The ring stalls before the first reply, when one runs dry, and on a barge-in's reset.
+		effects.run((effect) => {
+			call.log.replying(!effect.get(el.audio.out.stalled), performance.now());
+		});
+		effects.spawn(async () => {
+			const arrivals = el.audio.arrivals();
+			effects.cleanup(() => arrivals.close());
+			for (;;) {
+				const next = await arrivals.next();
+				if (!next) return;
+				if (next.kind === "frame") call.log.received(next.timestamp, next.arrival, next.late);
+				else call.log.gap(next.timestamp, next.duration, performance.now());
+			}
+		});
+		effects.run((effect) => {
 			const active = effect.get(el.broadcast.out.active);
 			if (!active) return;
 			onPickup(call);
+
+			const timeline = active.track(TIMELINE_TRACK).subscribe();
+			effect.cleanup(() => timeline.close());
+			const records = new Json.Window.Consumer<AgentRecord>({ track: timeline });
+			effect.spawn(async () => {
+				for await (const { value } of records) {
+					if ("push" in value) call.log.agent(value.push.value);
+				}
+			});
 
 			const track = active.track(RTVI_TRACK).subscribe();
 			effect.cleanup(() => track.close());
@@ -525,36 +549,7 @@ export default function VoiceDemo() {
 
 			<div ref={turnstileContainer} classList={{ "mt-4": phase() === "challenge" }} />
 
-			<Show when={transcript().length > 0}>
-				<ol
-					ref={(el) => {
-						transcriptList = el;
-						following = true;
-					}}
-					onScroll={(e) => {
-						const el = e.currentTarget;
-						following = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
-					}}
-					class="mt-4 mb-0 max-h-80 list-none space-y-3 overflow-y-auto p-0"
-					aria-label="Transcript"
-				>
-					<For each={transcript()}>
-						{(turn) => (
-							<li class="flex gap-3">
-								<span class="w-8 shrink-0 pt-0.5 text-right font-mono text-xs text-slate-500">
-									{turn.who === "ai" ? "AI" : "you"}
-								</span>
-								<p class="m-0 flex flex-wrap gap-x-1.5 font-bold">
-									<Index each={words(turn.text)}>
-										{(word) => <span class={turn.who === "ai" ? "text-green-400" : "text-slate-100"}>{word()}</span>}
-									</Index>
-									<Index each={words(turn.interim)}>{(word) => <span class="text-slate-500">{word()}</span>}</Index>
-								</p>
-							</li>
-						)}
-					</For>
-				</ol>
-			</Show>
+			<Transcript turns={transcript()} log={log()} live={mounted() !== undefined} />
 
 			<Show when={mounted()} keyed>
 				{(call) => {
