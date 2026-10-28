@@ -56,7 +56,7 @@ Each subscriber decides how long it's willing to wait:
 The result is a lossy live feed AND a pristine VOD from the same stream, as long as the link recovers before the recorder's deadline.
 
 <figure>
-	![Realtime vs Backfill](/blog/cars2/backfill.png)
+	![Realtime vs Backfill](/blog/cars2/backfill.svg)
 	<figcaption>If I ever own a racing team, it's going to be called The Backfill Boyes</figcaption>
 </figure>
 
@@ -71,7 +71,7 @@ The robot announces its broadcasts on all of them, and every subscription takes 
 Idle connections cost nothing, because nothing flows until somebody subscribes.
 
 <figure>
-	![bonded pairs](/blog/on-a-boat/multipath.png)
+	![bonded pairs](/blog/on-a-boat/multipath.svg)
 	<figcaption>Like kittens, these pairs are bonded.</figcaption>
 </figure>
 
@@ -84,7 +84,7 @@ Self-host a relay on the robot or the base station to keep everything on your ne
 Then cluster it with a public CDN like [moq.pro](https://moq.pro) or [Cloudflare](/blog/first-cdn) when the whole world wants to watch.
 
 <figure>
-	![relay fanout](/blog/on-a-boat/fanout.png)
+	![relay fanout](/blog/on-a-boat/fanout.svg)
 	<figcaption>One uplink from the boat, any number of viewers.</figcaption>
 </figure>
 
@@ -106,7 +106,7 @@ Lockout, handoff, or anarchy is your application's call, not the relay's.
 The [MoQ Boy](/blog/moq-boy) demo does exactly this, with a GameBoy standing in for the robot.
 
 <figure>
-	![MoQ Boy](/blog/moq-boy/moqboy.png)
+	![MoQ Boy](/blog/moq-boy/moqboy.svg)
 	<figcaption>weapon of mass destruction?</figcaption>
 </figure>
 

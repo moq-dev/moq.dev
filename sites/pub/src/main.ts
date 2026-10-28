@@ -54,6 +54,8 @@ function mount(broadcast: Broadcast.Broadcast, params: URLSearchParams) {
 	const ui = document.createElement("moq-publish-ui");
 	ui.appendChild(publish);
 
+	// Only here does moq.watch mint its own subscribe token. Share the bare path:
+	// this page's ?jwt= is a publish token, and would let anyone publish.
 	if (broadcast.project === "try" && !params.has("relay") && !params.has("cloudflare")) {
 		const share = new URL(import.meta.env.PUBLIC_WATCH_URL);
 		share.pathname = Broadcast.path(broadcast);

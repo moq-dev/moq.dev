@@ -9,7 +9,7 @@ This directory holds the traced SVGs used by moq.dev:
 | `social/` | Author links on the site |
 | `use-case/` | Homepage use case cards |
 
-Use `#4dc515` for the main silhouettes and strokes, with `#fcfcfc` for small recognizable accents: lettering, eyes, leaves, controls, and signal details. Keep large openings such as screens transparent. Simple silhouettes can stay entirely green. The homepage feature icons in `public/drawn/icon-*.svg` follow the same palette. Run new traces through `tools/icons/smooth.sh` to take out the tracer's nicks and bumps and crop them to the drawing; the homepage feature and use-case icons already have been. Ferris keeps his green body and white eye highlights; the IETF and QUIC marks keep their original artwork colors with white lettering.
+Use `#4dc515` for the main silhouettes and strokes, with `#fcfcfc` for small recognizable accents: lettering, eyes, leaves, controls, and signal details. Keep large openings such as screens transparent. Simple silhouettes can stay entirely green. The homepage feature icons in `public/drawn/icon-*.svg` follow the same palette. Run new traces through `SIGMA=12 just trace --crop` to take out the tracer's nicks and bumps and crop them to the drawing; the homepage feature and use-case icons already have been. Ferris keeps his green body and white eye highlights; the IETF and QUIC marks keep their original artwork colors with white lettering.
 
 The arrows in `public/drawn/arrow-*.svg` are copies of moq.pro's drawn arrows (`app/static/drawn/`), recoloured from `#00bf2d` to `#4dc515` to match the icons they point at.
 

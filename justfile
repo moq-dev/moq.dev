@@ -40,6 +40,11 @@ cards *args:
 	bun i
 	bun tools/cards/render.ts {{args}}
 
+# Trace hand-drawn PNGs into SVGs beside them (tools/drawn/trace.ts). Then delete
+# each PNG and point its references at the SVG; a cover still gets a PNG og:image.
+trace *args:
+	bun tools/drawn/trace.ts {{args}}
+
 # Upgrade any tooling
 upgrade:
 	# Update the NPM dependencies
