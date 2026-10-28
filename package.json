@@ -29,7 +29,7 @@
 		"preview": "wrangler pages dev ./dist",
 		"deploy": "wrangler deploy",
 		"prod": "astro build --production && wrangler pages dev ./dist --open",
-		"check": "biome ci && tsc --noEmit",
+		"check": "biome ci && tsc --noEmit --runExternalCode",
 		"fix": "biome check --write && bun audit fix",
 		"postinstall": "bun run --cwd moq/js/libav build"
 	},
@@ -46,6 +46,7 @@
 		"@astrojs/mdx": "8.1.0",
 		"@astrojs/rss": "^4.0.19",
 		"@astrojs/solid-js": "7.1.0",
+		"@astrojs/ts-content-mapper": "^0.2.0",
 		"@biomejs/biome": "^2.5.15",
 		"@microsoft/api-extractor": "7.59.4",
 		"@tailwindcss/forms": "^0.5.11",
@@ -57,7 +58,7 @@
 		"sharp": "^0.35.5",
 		"shiki": "^4.5.0",
 		"tailwindcss": "^4.3.3",
-		"typescript": "^7.0.2",
+		"typescript": "7.1.0-beta",
 		"vite": "^8.3.4",
 		"wrangler": "^4.151.1"
 	},
