@@ -17,6 +17,7 @@
 		"moq/js/publish",
 		"moq/js/qmux",
 		"moq/js/signals",
+		"moq/js/ui",
 		"moq/js/video",
 		"moq/js/watch"
 	],
@@ -46,6 +47,7 @@
 		"@astrojs/rss": "^4.0.19",
 		"@astrojs/solid-js": "7.1.0",
 		"@biomejs/biome": "^2.5.15",
+		"@microsoft/api-extractor": "7.59.4",
 		"@tailwindcss/forms": "^0.5.11",
 		"@tailwindcss/typography": "^0.5.20",
 		"@tailwindcss/vite": "^4.3.3",

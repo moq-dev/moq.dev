@@ -38,4 +38,4 @@ PRs target `main`. Before starting, `git fetch origin` and set the upstream to t
 `git stash` is one stack shared by every worktree; set work aside with a commit instead.
 Use the Nix dev shell (direnv, or `nix develop --command just ...`) so tooling matches CI.
 Run `just fix` before committing. `just check` alone is not verification: look at the change in the dev server (`just dev`, `just dev-pub`, or `just dev-watch`).
-Quests: when work mentions a quest, run `quest guide` and follow it. The `quest` binary comes from the kixelated/quest flake input and serves the quest skills; change them upstream and bump the input.
+Quests: before starting work, run `quest guide` and follow it. The `quest` binary comes from the kixelated/quest flake input and serves the quest skills; change them upstream and bump the input.

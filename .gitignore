@@ -11,6 +11,9 @@ tools/cards/out/
 .astro/
 tsconfig.tsbuildinfo
 
+# Agent scratch
+/.tmp/
+
 # Nix / direnv
 .direnv/
 result
