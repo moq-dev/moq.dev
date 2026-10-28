@@ -3,17 +3,27 @@
 ## Goal
 
 When a `/voice` call ends, the page's final `session-ending` record reaches
-the agent because the connection drains on close, not because the page waits
-a fixed 250 ms (`GOODBYE_MS` in `src/components/voice-demo.tsx`) before
-unmounting `<moq-publish>`.
+the agent because the connection drains on close, not because of a fixed
+wait.
 
 ## Plan
 
-Decided 2026-10-19: once `@moq/net`'s draining `close()` is available, drop
-the wait and close through it. The `moq` submodule now provides it.
+The page no longer waits before unmounting `<moq-publish>`. Unmounting only
+releases the element's pooled connection handle, and the shared session keeps
+sending the cleanly finished transcript track until the pool's 2 s linger
+(`LINGER_MS` in `moq/js/net/src/connection/pool.ts`) expires. A local relay
+test with the real element delivered the record every time; closing the
+connection at once lost it every time.
 
-Check how `<moq-publish>` closes its connection before relying on it: the
-element holds a pooled connection handle, and the pool lingers before
-closing, so unmounting may not drain the broadcast's last frames the way an
-explicit `close()` does. Prove it with a real call: hang up and confirm the
-agent logs the `session-ending` record rather than a timeout.
+Remaining:
+
+- Upstream in moq-dev/moq: when the linger expires, `Reload`'s teardown
+  (`moq/js/net/src/connection/reload.ts`) calls `Established.abort()`, so the
+  draining `close()` never runs on this path and the linger is still a fixed
+  wait. Swapping it for `close()` delivered the record with the connection
+  closed at once. Bump the `moq` submodule once that lands, and reword the
+  comment in `voice-demo.tsx`'s `finish()` to say the connection drains
+  rather than lingers.
+- A real call on new.moq.dev/voice: hang up and confirm the agent logs the
+  `session-ending` record rather than a timeout. Needs a maintainer (Turnstile
+  and a mic).

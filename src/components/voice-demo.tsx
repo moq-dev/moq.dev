@@ -3,15 +3,20 @@
 // Pipecat client: <moq-publish> sends the mic, <moq-watch> plays the reply, and the page speaks
 // the slice of RTVI the agent needs over a `transcript.json.z` side track in each direction.
 import * as Json from "@moq/json";
-import { Clock, Net, Signals } from "@moq/publish";
+import { Clock, Net, assets as publishAssets, Signals } from "@moq/publish";
 import "@moq/publish/element";
 import type MoqPublish from "@moq/publish/element";
+import { assets as watchAssets } from "@moq/watch";
 import "@moq/watch/element";
 import type MoqWatch from "@moq/watch/element";
 import { createSignal, onCleanup, Show } from "solid-js";
 import { type AgentRecord, CallLog } from "./voice/call";
 import Cat from "./voice/cat";
 import Transcript, { type Turn } from "./voice/transcript";
+
+// Load the worklets the build emits to /assets/ rather than blob: URLs.
+publishAssets("/assets/");
+watchAssets("/assets/");
 
 type Turnstile = {
 	render: (
@@ -75,10 +80,6 @@ const POLL_MS = 2_000;
 // A hangup this close to the limit is the limit: the agent stops at its own claim time, which
 // lands a little before our pickup.
 const LIMIT_SLACK_SECS = 15;
-
-// Closing the connection drops whatever has not reached the wire, so the goodbye gets a moment
-// first, the same as @pipecat-ai/moq-transport.
-const GOODBYE_MS = 250;
 
 // The API's refusal codes plus the ones only the page can see. Copy comes from here, never from
 // the API's error string.
@@ -191,7 +192,7 @@ function clock(secs: number): string {
 export default function VoiceDemo() {
 	const [phase, setPhase] = createSignal<Phase>("idle");
 	const [outcome, setOutcome] = createSignal<Outcome>();
-	// Mounts the publisher and player; it outlives `current` by the goodbye.
+	// Mounts the publisher and player.
 	const [mounted, setMounted] = createSignal<Call>();
 	const [remaining, setRemaining] = createSignal<number>();
 	const [transcript, setTranscript] = createSignal<Turn[]>([]);
@@ -228,11 +229,11 @@ export default function VoiceDemo() {
 		if (call) {
 			for (const timer of call.timers) clearTimeout(timer);
 			clearInterval(call.ticker);
-			// The agent hangs up at once on this, instead of waiting for us to redial.
+			// The agent hangs up at once on this, instead of waiting for us to redial. Unmounting
+			// right after is safe: <moq-publish> only releases its pooled connection, which keeps
+			// sending the cleanly finished track until the pool's linger closes it.
 			send(call, { label: "moq-transport", type: "session-ending" });
-			const unmount = () => setMounted((m) => (m === call ? undefined : m));
-			if (call.producer) setTimeout(unmount, GOODBYE_MS);
-			else unmount();
+			setMounted(undefined);
 		}
 		setRemaining(undefined);
 		setOutcome(why);

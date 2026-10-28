@@ -4,7 +4,10 @@ import * as Try from "@/lib/try";
 import "@moq/publish/support/element";
 import "@moq/publish/element";
 import "@moq/publish/ui";
-import { Net } from "@moq/publish";
+import { assets, Net } from "@moq/publish";
+
+// Load the worklets the build emits to /assets/ rather than blob: URLs.
+assets("/assets/");
 
 export default function Publish() {
 	const [session] = createResource(Try.publish);
