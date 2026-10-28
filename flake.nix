@@ -60,6 +60,11 @@
 
                   # `quest check` and the quest-* skills; see the input.
                   quest-cli
+
+                  # `just trace`, which turns hand-drawn art into SVG.
+                  imagemagick
+                  librsvg
+                  potrace
                 ];
 
                 # `just cards` imports Playwright from here rather than node_modules,

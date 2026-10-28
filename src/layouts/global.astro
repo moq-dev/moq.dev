@@ -27,7 +27,9 @@ const fullTitle = title ? `${title} - Media over QUIC` : "Media over QUIC";
 const fullDescription = description
 	? `Media over QUIC: ${description}`
 	: "Media over QUIC is a new live media protocol designed for simplicity and scale. It uses new browser technologies like WebTransport and WebCodecs to deliver media with latency that rivals WebRTC.";
-const ogImage = new URL(frontmatter?.cover ?? "/layout/og.png", siteUrl).toString();
+// An SVG cover is served as the PNG that pages/og renders from it.
+const cover = frontmatter?.cover?.replace(/^(.*)\.svg$/, "/og$1.png");
+const ogImage = new URL(cover ?? "/layout/og.png", siteUrl).toString();
 
 // moq.wtf for staging builds, moq.pro for live (and local dev).
 const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https://moq.pro";
