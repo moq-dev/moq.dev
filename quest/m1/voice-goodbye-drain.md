@@ -21,7 +21,9 @@ Remaining:
   (`moq/js/net/src/connection/reload.ts`) calls `Established.abort()`, so the
   draining `close()` never runs on this path and the linger is still a fixed
   wait. Swapping it for `close()` delivered the record with the connection
-  closed at once. Bump the `moq` submodule once that lands.
+  closed at once. Bump the `moq` submodule once that lands, and reword the
+  comment in `voice-demo.tsx`'s `finish()` to say the connection drains
+  rather than lingers.
 - A real call on new.moq.dev/voice: hang up and confirm the agent logs the
   `session-ending` record rather than a timeout. Needs a maintainer (Turnstile
   and a mic).
