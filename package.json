@@ -54,6 +54,7 @@
 		"@types/bun": "^1.4.3",
 		"@types/node": "^26.6.5",
 		"rolldown": "^1.2.14",
+		"sharp": "^0.35.5",
 		"shiki": "^4.5.0",
 		"tailwindcss": "^4.3.3",
 		"typescript": "^7.0.2",

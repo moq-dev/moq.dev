@@ -3,7 +3,7 @@ layout: "@/layouts/global.astro"
 title: The MoQ Onion
 author: kixelated
 description: Media over Transfork over WebTransport over QUIC over UDP over IP over Ethernet over Fiber over Light over Space over Time
-cover: "/blog/moq-onion/onion.png"
+cover: "/blog/moq-onion/onion.svg"
 date: 2024-11-17
 ---
 
@@ -56,7 +56,7 @@ What?
 How?
 
 <figure>
-	![TCP is dead](/blog/quic-powers/tcp.png)
+	![TCP is dead](/blog/quic-powers/tcp.svg)
 	<figcaption>Rage-bait stolen from another blog stolen from another presentation.</figcaption>
 </figure>
 
@@ -108,7 +108,7 @@ Obviously this falls down as the number of participants grows, so the usual solu
 Our server can then use the power of DATA CENTERS and PEERING to fan the content out to viewers.
 
 <figure>
-	![P2P SFUs](/blog/moq-onion/sfu.png)
+	![P2P SFUs](/blog/moq-onion/sfu.svg)
 	<figcaption>A comprehensive diagram of the differences between P2P and SFU.</figcaption>
 </figure>
 
@@ -170,7 +170,7 @@ Unlike the IETF draft, Transfork maps a GoP _directly_ to a __QUIC Stream__ whic
 There's no need for a reassembly buffer in our application; QUIC will make sure that every frame is delivered and in the correct order.
 
 <figure>
-	![track of groups of frames](/blog/moq-onion/track.png)
+	![track of groups of frames](/blog/moq-onion/track.svg)
 	<figcaption>Some visuals always help.</figcaption>
 </figure>
 
@@ -180,7 +180,7 @@ The most important groups are delivered (ex. newer audio) while the least import
 And if any group is starved for too long, either side can explicitly cancel it and move on.
 
 <figure>
-	![track of groups of frames during congestion](/blog/moq-onion/cancel.png)
+	![track of groups of frames during congestion](/blog/moq-onion/cancel.svg)
 	<figcaption>Some visuals might help?</figcaption>
 </figure>
 
@@ -218,7 +218,7 @@ It's also the simplest.
 Wowee.
 
 <figure>
-	![fish](/blog/moq-onion/karp.png)
+	![fish](/blog/moq-onion/karp.svg)
 	<figcaption>WIP Logo</figcaption>
 </figure>
 
