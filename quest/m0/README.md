@@ -9,6 +9,5 @@ The checks cover what they claim, passing on a developer's machine.
 
 ## Required
 
-- [Biome passes locally](/quest/m0/biome-local.md) - `just check` passes with Claude Code's local files present
 - [Type-check .astro files](/quest/m0/astro-typecheck.md) - `just check` covers `.astro` via the TypeScript 7.1 content mapper
 - [Dogfood hosted worklets](/quest/m0/dogfood-assets.md) - the sites serve the @moq worklets and workers themselves
