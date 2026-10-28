@@ -40,7 +40,7 @@
           devShells.default =
             assert pkgs.lib.assertMsg
               ((builtins.fromJSON (builtins.readFile ./package.json)).packageManager == "bun@${pkgs.bun.version}")
-              "Update package.json to match Nix Bun ${pkgs.bun.version}";
+              "Bun pins disagree: packageManager in package.json must be bun@${pkgs.bun.version}, the Bun in the pinned nixpkgs. Update them together.";
             pkgs.mkShell (
               {
                 packages = with pkgs; [
