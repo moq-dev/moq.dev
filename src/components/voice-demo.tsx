@@ -230,8 +230,8 @@ export default function VoiceDemo() {
 			for (const timer of call.timers) clearTimeout(timer);
 			clearInterval(call.ticker);
 			// The agent hangs up at once on this, instead of waiting for us to redial. Unmounting
-			// right after is safe: <moq-publish> only releases its pooled connection, which keeps
-			// sending the cleanly finished track until the pool's linger closes it.
+			// right after is safe: the cleanly finished track still goes out, since closing the
+			// connection drains it rather than cutting it off.
 			send(call, { label: "moq-transport", type: "session-ending" });
 			setMounted(undefined);
 		}
