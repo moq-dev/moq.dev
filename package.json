@@ -4,8 +4,8 @@
 	"version": "0.0.1",
 	"private": true,
 	"workspaces": [
+		"moq/demo/carla/web",
 		"moq/js/clock",
-		"moq/js/flate",
 		"moq/js/hang",
 		"moq/js/json",
 		"moq/js/libav",
@@ -35,6 +35,7 @@
 	},
 	"dependencies": {
 		"@moq/boy": "workspace:*",
+		"@moq/demo-carla": "workspace:*",
 		"@moq/json": "workspace:*",
 		"@moq/publish": "workspace:*",
 		"@moq/watch": "workspace:*",

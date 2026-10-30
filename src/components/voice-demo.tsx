@@ -411,8 +411,7 @@ export default function VoiceDemo() {
 			const broadcast = effect.get(el.broadcast.net);
 			if (!broadcast) return;
 			const producer = new Json.Stream.Producer<Message>({
-				track: broadcast.createTrack(RTVI_TRACK),
-				compression: "deflate",
+				track: broadcast.createTrack(RTVI_TRACK, { compress: true }),
 			});
 			for (const record of call.messages) producer.append({ value: record });
 			call.producer = producer;
@@ -470,7 +469,7 @@ export default function VoiceDemo() {
 
 			const track = active.track(RTVI_TRACK).subscribe();
 			effect.cleanup(() => track.close());
-			const consumer = new Json.Stream.Consumer<Message>({ track, compression: "deflate" });
+			const consumer = new Json.Stream.Consumer<Message>({ track });
 			effect.spawn(async () => {
 				for await (const {
 					value: { seq, epoch, ...message },
