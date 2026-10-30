@@ -3,7 +3,11 @@ import { readdir, readFile } from "node:fs/promises";
 import { createServer } from "vite";
 
 test("the voice archive includes the complete source and URL of every blog post", async () => {
-	const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" });
+	const vite = await createServer({
+		server: { middlewareMode: true, watch: null },
+		appType: "custom",
+		optimizeDeps: { noDiscovery: true },
+	});
 	try {
 		const { GET } = await vite.ssrLoadModule("/src/pages/blog.json.ts");
 		const response: Response = GET();
