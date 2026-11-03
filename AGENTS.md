@@ -11,5 +11,5 @@ PRs target `main`.
 Run `just fix` before committing. `just check` alone is not verification: look at the change in the dev server (`just dev`, `just dev-pub`, or `just dev-watch`).
 Hand-drawn art ships as SVG: `just trace` the drawn PNG, compare the two, then commit only the SVG.
 
-Quests: before starting work, run `quest context` and `quest guide`, and follow both.
+Quests: before any work, run `quest context` and follow it.
 The `quest` binary comes from the moq-dev/quest flake input and serves the quest skills; change them upstream and bump the input.
