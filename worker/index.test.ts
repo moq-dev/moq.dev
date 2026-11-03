@@ -29,9 +29,11 @@ describe("fetch", () => {
 		expect(env.seen).toEqual([]);
 	});
 
-	test("passes anything else to the assets", async () => {
+	test("answers a missing asset with the 404 page", async () => {
 		const env = assets();
-		await send("https://moq.dev/blog/", env);
-		expect(env.seen).toEqual(["/blog/"]);
+		const res = await send("https://moq.dev/_astro/missing.js", env);
+		expect(res.status).toBe(404);
+		expect(await res.text()).toBe("/404");
+		expect(env.seen).toEqual(["/404"]);
 	});
 });
