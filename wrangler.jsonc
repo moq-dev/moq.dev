@@ -11,15 +11,8 @@
 
 	"assets": {
 		"directory": "./dist",
-		"not_found_handling": "404-page",
-		"binding": "ASSETS",
-
-		// Static assets are normally served before the Worker ever runs, which would
-		// answer the Go vanity paths (worker/vanity.ts) with the 404 page, since a
-		// miss lands there rather than falling through. The /moq* wildcard covers
-		// every module, so adding one to that table doesn't mean editing this list.
-		// Everything else short-circuits to assets.
-		"run_worker_first": ["/moq*"]
+		"not_found_handling": "none",
+		"binding": "ASSETS"
 	},
 
 	// Environment-specific configurations
