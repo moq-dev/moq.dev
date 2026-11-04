@@ -221,6 +221,20 @@ table td:first-child {
 	@apply inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/60 py-1.5 pl-2 pr-4 text-sm text-slate-200 transition-colors hover:border-green-500 hover:text-white;
 }
 
+/* The CARLA player reads these through its shadow DOM. */
+moq-carla {
+	--panel: var(--color-slate-800);
+	--line: var(--color-slate-700);
+	--text: var(--color-slate-200);
+	--muted: var(--color-slate-400);
+	--accent: var(--color-green-500);
+	--accent-hover: var(--color-green-400);
+	--ok: var(--color-green-500);
+	--on-accent: var(--color-slate-950);
+	--map-bg: var(--color-slate-950);
+	--scrim: rgb(15 23 42 / 80%);
+}
+
 /* The typography plugin's colors for a dark page. */
 @utility prose-moq {
 	--tw-prose-body: var(--color-slate-200);
