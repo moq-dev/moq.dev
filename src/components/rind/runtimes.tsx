@@ -69,8 +69,8 @@ export default function Runtimes() {
 					<a class="underline" href={data.source.bun.prototype}>
 						the rind prototype
 					</a>
-					, which moves Ed25519 and P-384 onto rind; X25519, P-256, and key import still run BoringSSL.{" "}
-					{data.source.note}
+					, which moves Ed25519, X25519, P-384, and their key import and export onto rind; P-256 still runs BoringSSL in
+					both, since rind isn't clearly ahead on it. {data.source.note}
 				</>
 			}
 		>
