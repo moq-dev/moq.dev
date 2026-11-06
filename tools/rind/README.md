@@ -14,6 +14,8 @@ bun tools/rind/refresh.ts proofs <rind>   # proofs.json: README's Algorithms, ve
 bun tools/rind/refresh.ts build <rind>    # build.json: benchmarks/data/<host>.json's build_cost
 ```
 
+`refresh.ts`'s `ROUTINE` marks cells that run a proven routine README's table doesn't mark, such as AES-GCM on VAES CPUs; drop an entry once README covers it.
+
 ## QUIC
 
 rind's bench-report doesn't time QUIC's sizes, so `quic.sh` does, on one pinned core of an idle host.
@@ -27,6 +29,13 @@ Copy `<out>` back, then:
 
 ```bash
 bun tools/rind/refresh.ts quic "Arrow Lake" <out> <out>/rounds/*/criterion
+```
+
+Neoverse N2 comes from rind's bench workflow instead, since no one can pin a GitHub runner's core.
+Download a run's `bench-aarch64-unknown-linux-gnu` artifact, one at or after the aarch64 short-message AES-GCM quest so it times ACK-sized seals, then:
+
+```bash
+bun tools/rind/refresh.ts quic-run "Neoverse N2" <rind> <artifact>/bench-results.json <run-id>
 ```
 
 ## Runtimes
@@ -46,5 +55,5 @@ bun tools/rind/refresh.ts runtimes <out> <out>/*.tsv
 
 ## AI tally
 
-`tally.json` is placeholder data until rind's `quest/m1/ai-usage` lands.
-Copy its numbers in by hand and set `placeholder` to false.
+`tally.json` is the chart JSON from rind's `quest/m1/ai-usage` tally ([moq-dev/rind#400](https://github.com/moq-dev/rind/pull/400)), with a `source` naming where it came from.
+That quest reruns the tally just before the post goes out; paste its new chart JSON in by hand and update `source`.

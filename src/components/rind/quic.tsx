@@ -16,11 +16,14 @@ interface Host {
 		ring: string;
 		rustls: string;
 		cpu: string;
-		core: number;
 		date: string;
-		load: number[]; // the 1-minute load average before and after
-		logical_cpus: number;
 		rounds: number;
+		// quic.sh's, on a host we pin
+		core?: number;
+		load?: number[]; // the 1-minute load average before and after
+		logical_cpus?: number;
+		// rind's bench workflow's, on a GitHub runner
+		run?: string;
 		note: string;
 	};
 	rows: Row[];
@@ -97,8 +100,19 @@ export default function Quic() {
 			source={
 				<>
 					{current().source.cpu}, rind {commit(current().source.rind)}, aws-lc-rs {current().source["aws-lc-rs"]}, ring{" "}
-					{current().source.ring}, rustls {current().source.rustls}. rind-bench on one pinned core, the median of{" "}
-					{current().source.rounds} criterion rounds, {day(current().source.date)}. {current().source.note}
+					{current().source.ring}, rustls {current().source.rustls}.{" "}
+					{current().source.run ? (
+						<>
+							rind-bench in rind's{" "}
+							<a class="underline" href={current().source.run}>
+								bench workflow
+							</a>
+							, one criterion round
+						</>
+					) : (
+						<>rind-bench on one pinned core, the median of {current().source.rounds} criterion rounds</>
+					)}
+					, {day(current().source.date)}. {current().source.note}
 				</>
 			}
 		>

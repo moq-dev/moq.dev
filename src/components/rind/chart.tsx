@@ -84,7 +84,7 @@ export function Chart(props: Props) {
 				<Show when={props.tip()}>
 					{(tip) => (
 						<div
-							class="pointer-events-none absolute z-10 max-w-72 -translate-x-1/2 -translate-y-full rounded-md border px-2.5 py-1.5 text-xs shadow-lg"
+							class="pointer-events-none absolute z-10 w-max max-w-72 -translate-x-1/2 -translate-y-full rounded-md border px-2.5 py-1.5 text-xs shadow-lg"
 							style={{
 								left: `${(tip().x / props.width) * 100}%`,
 								top: `calc(${(tip().y / props.height) * 100}% - 6px)`,

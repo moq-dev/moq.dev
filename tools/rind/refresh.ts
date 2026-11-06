@@ -4,6 +4,7 @@
 //   bun tools/rind/refresh.ts proofs <rind>                      verified.toml + README + tiers.json
 //   bun tools/rind/refresh.ts build <rind>                       benchmarks/data/*.json build_cost
 //   bun tools/rind/refresh.ts quic <host> <out> <criterion>...   quic.sh's rounds, one per criterion dir
+//   bun tools/rind/refresh.ts quic-run <host> <rind> <json> <id>  a bench workflow run's artifact
 //   bun tools/rind/refresh.ts runtimes <out> <out>/*.tsv          runtimes.sh's rounds
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -68,6 +69,14 @@ const ROWS = [
 	{ name: "ML-KEM-768", readme: "ML-KEM-768", pattern: /^mlkem768-/ },
 	{ name: "RSA", readme: "RSA", pattern: /^rsa\d+-(pkcs1|pss|load)/ },
 ];
+
+// Cells that run a proven routine README's table doesn't mark, by "<row>/<tier>", with what's proven.
+const ROUTINE: Record<string, { proof: string; note: string }> = {
+	"AES-GCM/x86_64": {
+		proof: "Vale (F*)",
+		note: "Since moq-dev/rind#391, short messages run Vale's proven kernel; the VAES path and the dispatch are unproven.",
+	},
+};
 
 // Each tier's cell text in README's two Algorithms tables; an empty cell repeats the one to its left.
 function algorithms(readme: string): Map<string, string[]> {
@@ -135,11 +144,12 @@ function proofs(rind: string) {
 					return ours && theirs ? [theirs / ours] : [];
 				});
 
+			const routine = proven ? undefined : ROUTINE[`${row.name}/${tier.name}`];
 			return {
-				status: proven ? "e2e" : text[i].includes("✓") ? "routine" : "none",
+				status: proven ? "e2e" : routine || text[i].includes("✓") ? "routine" : "none",
 				code: text[i],
-				proof: proven ? sources(proven.proof) : undefined,
-				note: proven?.cpu?.includes("intel") ? "Intel CPUs only" : undefined,
+				proof: proven ? sources(proven.proof) : routine?.proof,
+				note: proven?.cpu?.includes("intel") ? "Intel CPUs only" : routine?.note,
 				link: proven?.link,
 				// aws-lc-rs's time over rind's: above 1, rind is faster.
 				speedup: ratios.length
@@ -240,15 +250,11 @@ const QUIC = [
 ];
 const LIBS = ["rind", "aws-lc-rs", "ring"];
 
-// `out` is quic.sh's output directory: its rounds/, the source it recorded, and its load.
-function quic(host: string, out: string, rounds: string[]) {
-	const times = rounds.map(criterion);
-	const meta = read(join(out, "source.json"));
-	const rows = QUIC.map((row) => ({
-		op: row.op,
-		size: row.size,
-		// The median of the rounds, in ns. ring has no X25519MLKEM768, so a library may be missing.
-		ns: Object.fromEntries(
+// The QUIC chart's rows from rounds of benchmark times, each library's the median of the rounds, in ns.
+// A row no library has (a run older than the bench that times it) is left out and named.
+function quicRows(times: Map<string, number>[]) {
+	return QUIC.flatMap((row) => {
+		const ns = Object.fromEntries(
 			LIBS.flatMap((lib) => {
 				const xs = times
 					.map((t) => t.get(row.id.replace("{lib}", lib)))
@@ -257,12 +263,57 @@ function quic(host: string, out: string, rounds: string[]) {
 				if (xs.length && xs.length !== times.length) throw new Error(`${row.id} for ${lib} is missing a round`);
 				return xs.length ? [[lib, xs[xs.length >> 1]]] : [];
 			}),
-		),
-	}));
+		);
+		if (!Object.keys(ns).length) {
+			console.log(`skipped ${row.id}: not timed`);
+			return [];
+		}
+		// ring has no X25519MLKEM768, so only ring may be missing.
+		if (!ns.rind || !ns["aws-lc-rs"]) throw new Error(`${row.id} lacks rind or aws-lc-rs`);
+		return [{ op: row.op, size: row.size, ns }];
+	});
+}
+
+function writeQuic(host: string, source: Record<string, unknown>, rows: ReturnType<typeof quicRows>) {
 	const path = join(DATA, "quic.json");
 	const existing = existsSync(path) ? read(path) : { hosts: [] };
 	const hosts = existing.hosts.filter((h: { name: string }) => h.name !== host);
-	write("quic.json", { hosts: [...hosts, { name: host, source: { ...meta, rounds: rounds.length }, rows }] });
+	write("quic.json", { hosts: [...hosts, { name: host, source, rows }] });
+}
+
+// `out` is quic.sh's output directory: its rounds/, the source it recorded, and its load.
+function quic(host: string, out: string, rounds: string[]) {
+	const meta = read(join(out, "source.json"));
+	writeQuic(host, { ...meta, rounds: rounds.length }, quicRows(rounds.map(criterion)));
+}
+
+// A host no one can pin, such as a GitHub arm64 runner: one round from rind's bench workflow, from
+// its `bench-<target>` artifact's bench-results.json and the run's ID. `rind` is a rind checkout
+// that has the run's commit, for the library versions it locked.
+function quicRun(host: string, rind: string, results: string, id: string) {
+	const bench = read(results);
+	const run = JSON.parse(
+		execFileSync("gh", ["api", `repos/moq-dev/rind/actions/runs/${id}`], { encoding: "utf8" }),
+	) as { head_sha: string; html_url: string; created_at: string };
+	if (run.head_sha !== bench.commit) throw new Error(`run ${id} is ${run.head_sha}, the results ${bench.commit}`);
+	const lock = execFileSync("git", ["-C", rind, "show", `${bench.commit}:Cargo.lock`], { encoding: "utf8" });
+	const version = (name: string) => lock.match(new RegExp(`name = "${name}"\nversion = "([^"]+)"`))?.[1];
+	const times = new Map<string, number>(bench.results.map((r: { id: string; ns: number }) => [r.id, r.ns]));
+	writeQuic(
+		host,
+		{
+			rind: bench.commit,
+			"aws-lc-rs": version("aws-lc-rs"),
+			ring: version("ring"),
+			rustls: version("rustls"),
+			cpu: bench.cpu,
+			date: run.created_at,
+			run: run.html_url,
+			note: "",
+			rounds: 1,
+		},
+		quicRows([times]),
+	);
 }
 
 // runtimes.mjs prints `# <label>\t<version>`, then `<op>\t<us>` per line. Each file is one round of one
@@ -298,6 +349,7 @@ const [cmd, ...args] = process.argv.slice(2);
 if (cmd === "proofs" && args.length === 1) proofs(args[0]);
 else if (cmd === "build" && args.length === 1) build(args[0]);
 else if (cmd === "quic" && args.length >= 3) quic(args[0], args[1], args.slice(2));
+else if (cmd === "quic-run" && args.length === 4) quicRun(args[0], args[1], args[2], args[3]);
 else if (cmd === "runtimes" && args.length >= 2) runtimes(args[0], args.slice(1));
 else {
 	console.error("usage: see the top of tools/rind/refresh.ts");

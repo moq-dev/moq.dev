@@ -1,26 +1,159 @@
 {
-	"placeholder": true,
-	"todo": "TODO(kixelated): every number here is a placeholder. Replace them with the tally from rind's quest/m1/ai-usage (https://github.com/moq-dev/rind/pull/400) and set placeholder to false.",
 	"source": {
-		"quest": "https://github.com/moq-dev/rind/blob/main/quest/m1/ai-usage.md",
-		"span": { "from": "2026-10-27", "to": "TODO" },
-		"method": "TODO: Claude Code and Codex logs by working directory, each message counted once, priced at API list prices as of TODO; maintainer hours from prompt timestamps, gaps over 15 minutes counted as away.",
-		"generated": "TODO"
+		"pr": "https://github.com/moq-dev/rind/pull/400",
+		"copied": "2026-11-06"
 	},
-	"lines": [
+	"as_of": "2026-11-06T10:00-08:00",
+	"scope": "Sessions working in a rind checkout, or whose task names moq-dev/rind, from the graviola bootstrap on 2026-10-27",
+	"calendar_span": {
+		"first": "2026-10-27",
+		"last": "2026-11-06",
+		"count": 11
+	},
+	"agent_hours": {
+		"Claude Code": 469.2,
+		"Codex": 9.6,
+		"total": 478.8
+	},
+	"maintainer_hours": 22.9,
+	"tokens_total": 9012973585,
+	"tokens_by_model": {
+		"Claude Haiku 5.5": {
+			"input": 1250926,
+			"cache_write_5m": 23964695,
+			"cache_write_1h": 0,
+			"cache_read": 51162627,
+			"output": 140236
+		},
+		"Claude Opus 5.5": {
+			"input": 485073,
+			"cache_write_5m": 89635249,
+			"cache_write_1h": 100990785,
+			"cache_read": 8489818353,
+			"output": 29635117
+		},
+		"GPT-6 Astra": {
+			"input": 16158454,
+			"cache_write_5m": 0,
+			"cache_write_1h": 0,
+			"cache_read": 72646528,
+			"output": 361086
+		},
+		"GPT-6.1 Sol": {
+			"input": 14201844,
+			"cache_write_5m": 0,
+			"cache_write_1h": 0,
+			"cache_read": 81854336,
+			"output": 450332
+		},
+		"GPT-5.6 Sol (Daybreak Blue)": {
+			"input": 1384888,
+			"cache_write_5m": 0,
+			"cache_write_1h": 0,
+			"cache_read": 38684160,
+			"output": 148896
+		}
+	},
+	"cost_usd_by_model": {
+		"Claude Haiku 5.5": 4,
+		"Claude Opus 5.5": 3549,
+		"GPT-6 Astra": 252,
+		"GPT-6.1 Sol": 41,
+		"GPT-5.6 Sol (Daybreak Blue)": 24
+	},
+	"cost_usd_total": 3870,
+	"per_day": [
 		{
-			"name": "rind",
-			"tokens": { "input": 1000000, "cache_write": 10000000, "cache_read": 1000000000, "output": 10000000 },
-			"cost_usd": 10000,
-			"agent_hours": 1000,
-			"maintainer_hours": 100
+			"date": "2026-10-27",
+			"cost_usd": 179.96,
+			"tokens": 319694746,
+			"agent_hours": 20.5,
+			"maintainer_hours": 1.5
 		},
 		{
-			"name": "migrations",
-			"tokens": { "input": 100000, "cache_write": 1000000, "cache_read": 100000000, "output": 1000000 },
-			"cost_usd": 1000,
-			"agent_hours": 100,
-			"maintainer_hours": 10
+			"date": "2026-10-28",
+			"cost_usd": 363.32,
+			"tokens": 406832471,
+			"agent_hours": 56.8,
+			"maintainer_hours": 1.5
+		},
+		{
+			"date": "2026-10-29",
+			"cost_usd": 318.7,
+			"tokens": 501824671,
+			"agent_hours": 65.6,
+			"maintainer_hours": 1.5
+		},
+		{
+			"date": "2026-10-30",
+			"cost_usd": 453.1,
+			"tokens": 1145344877,
+			"agent_hours": 44.5,
+			"maintainer_hours": 1.3
+		},
+		{
+			"date": "2026-10-31",
+			"cost_usd": 338.72,
+			"tokens": 863860465,
+			"agent_hours": 29.6,
+			"maintainer_hours": 1.6
+		},
+		{
+			"date": "2026-11-01",
+			"cost_usd": 445.6,
+			"tokens": 1094307860,
+			"agent_hours": 58.3,
+			"maintainer_hours": 3.2
+		},
+		{
+			"date": "2026-11-02",
+			"cost_usd": 380.3,
+			"tokens": 872948188,
+			"agent_hours": 52.8,
+			"maintainer_hours": 3.2
+		},
+		{
+			"date": "2026-11-03",
+			"cost_usd": 349.27,
+			"tokens": 821861199,
+			"agent_hours": 37.6,
+			"maintainer_hours": 3.9
+		},
+		{
+			"date": "2026-11-04",
+			"cost_usd": 581.91,
+			"tokens": 1719819938,
+			"agent_hours": 54.4,
+			"maintainer_hours": 1.8
+		},
+		{
+			"date": "2026-11-05",
+			"cost_usd": 415.75,
+			"tokens": 1096155366,
+			"agent_hours": 44.8,
+			"maintainer_hours": 2.6
+		},
+		{
+			"date": "2026-11-06",
+			"cost_usd": 39.45,
+			"tokens": 93805320,
+			"agent_hours": 13.9,
+			"maintainer_hours": 0.7
 		}
-	]
+	],
+	"migrations": {
+		"what": "MoQ's rind epic in moq-dev/moq and the Bun fork",
+		"cost_usd": 87,
+		"tokens_total": 225947219,
+		"agent_hours": 15.1
+	},
+	"bots_rough_estimate": {
+		"cost_usd_by_bot": {
+			"Pullfrog": 112.0,
+			"CodeRabbit": 175.0,
+			"Codex cloud review": 45.0,
+			"CodSpeed": 42.0
+		},
+		"cost_usd_total": 370.0
+	}
 }

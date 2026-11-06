@@ -231,6 +231,102 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "Neoverse N2",
+			"source": {
+				"rind": "174fa88969e8d4452ea89a41837125a5681792fe",
+				"aws-lc-rs": "1.19.0",
+				"ring": "0.17.14",
+				"rustls": "0.23.46",
+				"cpu": "Neoverse-N2",
+				"date": "2026-11-06T07:29:36Z",
+				"run": "https://github.com/moq-dev/rind/actions/runs/42181215662",
+				"note": "One round on a shared GitHub runner. The run's commit, from moq-dev/rind#391's branch, has 59f50f21's aarch64 AES-GCM and header protection, but timed no ACK-sized seals; through rustls's QUIC traits, moq-dev/rind#387 measured a 32 B send (seal and header protection) here at 0.91x aws-lc-rs. Rerun once the aarch64 short-message AES-GCM quest lands.",
+				"rounds": 1
+			},
+			"rows": [
+				{
+					"op": "open",
+					"size": "quic-32B",
+					"ns": {
+						"rind": 79.0960887602599,
+						"aws-lc-rs": 84.36173630373357,
+						"ring": 81.25869697889726
+					}
+				},
+				{
+					"op": "open",
+					"size": "quic-64B",
+					"ns": {
+						"rind": 82.75384885740323,
+						"aws-lc-rs": 88.34586952898033,
+						"ring": 84.46970542915197
+					}
+				},
+				{
+					"op": "seal",
+					"size": "1200B",
+					"ns": {
+						"rind": 349.21881937434824,
+						"aws-lc-rs": 418.65045475559054,
+						"ring": 398.81557878475496
+					}
+				},
+				{
+					"op": "open",
+					"size": "1200B",
+					"ns": {
+						"rind": 366.3474459692395,
+						"aws-lc-rs": 408.32196661334234,
+						"ring": 417.5966773606962
+					}
+				},
+				{
+					"op": "seal",
+					"size": "1350B",
+					"ns": {
+						"rind": 406.68081833038895,
+						"aws-lc-rs": 476.8562219552466,
+						"ring": 464.06852284991146
+					}
+				},
+				{
+					"op": "open",
+					"size": "1350B",
+					"ns": {
+						"rind": 415.9184363065055,
+						"aws-lc-rs": 466.61742206694237,
+						"ring": 474.03063719584844
+					}
+				},
+				{
+					"op": "header protection",
+					"size": "",
+					"ns": {
+						"rind": 7.390938196464831,
+						"aws-lc-rs": 5.484581063681089,
+						"ring": 10.7979778915298
+					}
+				},
+				{
+					"op": "handshake",
+					"size": "X25519",
+					"ns": {
+						"rind": 286976.10421309294,
+						"aws-lc-rs": 332827.06847840006,
+						"ring": 344815.3748780848
+					}
+				},
+				{
+					"op": "handshake",
+					"size": "X25519MLKEM768",
+					"ns": {
+						"rind": 349674.890492094,
+						"aws-lc-rs": 411120.5051485149
+					}
+				}
+			]
 		}
 	]
 }
