@@ -1,66 +1,73 @@
 {
 	"source": {
-		"host": "local smoke test, replace",
-		"cpu": "TODO",
-		"method": "taskset -c 7, three alternating rounds, each cell their median",
-		"note": "",
-		"generated": "2026-11-06"
+		"cpu": "AMD Ryzen 9 5900XT 16-Core Processor",
+		"core": 7,
+		"date": "2026-11-06T18:55:38Z",
+		"load": [14.11, 15.98],
+		"logical_cpus": 32,
+		"note": "Taken on a busy host (load 14 to 16 on 32 CPUs); rerun on an idle one before posting.",
+		"bun": {
+			"base": "b1007f1177",
+			"prototype": "https://github.com/kixelated/bun/compare/b1007f1177...2108889c91805ff50fd945eb9c95067b888b8e5b",
+			"rind": "0.1.13"
+		},
+		"rounds": 3
 	},
 	"runs": [
 		{
-			"runtime": "Node",
-			"version": "node v24.21.0",
+			"runtime": "Bun",
+			"version": "bun 1.4.4 (b1007f117)",
 			"us": {
-				"Ed25519 sign": 50.88,
-				"Ed25519 verify": 139.66,
-				"X25519 deriveBits": 57.29,
-				"P-256 sign": 81.06,
-				"P-256 verify": 127.36,
-				"P-384 sign": 335.68,
-				"P-384 verify": 548.6,
-				"P-384 importKey pkcs8": 245.56
+				"Ed25519 sign": 23.48,
+				"Ed25519 verify": 53.73,
+				"X25519 deriveBits": 42.92,
+				"P-256 sign": 27.69,
+				"P-256 verify": 55.2,
+				"P-384 sign": 457.54,
+				"P-384 verify": 485.77,
+				"P-384 importKey pkcs8": 849.56
 			}
 		},
 		{
 			"runtime": "Deno",
 			"version": "deno 2.9.7",
 			"us": {
-				"Ed25519 sign": 29.14,
-				"Ed25519 verify": 45.31,
-				"X25519 deriveBits": 79.6,
-				"P-256 sign": 674.99,
-				"P-256 verify": 817.66,
-				"P-384 sign": 1659.05,
-				"P-384 verify": 2126.06,
-				"P-384 importKey pkcs8": 13.17
+				"Ed25519 sign": 29.19,
+				"Ed25519 verify": 52.22,
+				"X25519 deriveBits": 107.35,
+				"P-256 sign": 594.63,
+				"P-256 verify": 753.03,
+				"P-384 sign": 1547.85,
+				"P-384 verify": 2062.24,
+				"P-384 importKey pkcs8": 14.26
 			}
 		},
 		{
-			"runtime": "Bun",
-			"version": "bun 1.4.2",
+			"runtime": "Node",
+			"version": "node v24.21.0",
 			"us": {
-				"Ed25519 sign": 24.19,
-				"Ed25519 verify": 63.59,
-				"X25519 deriveBits": 44.27,
-				"P-256 sign": 40.52,
-				"P-256 verify": 65.41,
-				"P-384 sign": 512.19,
-				"P-384 verify": 484.79,
-				"P-384 importKey pkcs8": 715.14
+				"Ed25519 sign": 46.08,
+				"Ed25519 verify": 103.01,
+				"X25519 deriveBits": 59.03,
+				"P-256 sign": 74.91,
+				"P-256 verify": 118.64,
+				"P-384 sign": 284.83,
+				"P-384 verify": 514.69,
+				"P-384 importKey pkcs8": 300.95
 			}
 		},
 		{
 			"runtime": "Bun on rind",
-			"version": "TODO",
+			"version": "bun 1.4.4 (2108889c9)",
 			"us": {
-				"Ed25519 sign": 17,
-				"Ed25519 verify": 40,
-				"X25519 deriveBits": 44,
-				"P-256 sign": 40,
-				"P-256 verify": 65,
-				"P-384 sign": 47,
-				"P-384 verify": 172,
-				"P-384 importKey pkcs8": 700
+				"Ed25519 sign": 18.77,
+				"Ed25519 verify": 44.01,
+				"X25519 deriveBits": 38.17,
+				"P-256 sign": 27.4,
+				"P-256 verify": 51.52,
+				"P-384 sign": 48.49,
+				"P-384 verify": 176.46,
+				"P-384 importKey pkcs8": 726.75
 			}
 		}
 	]

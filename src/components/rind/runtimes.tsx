@@ -1,10 +1,26 @@
 // WebCrypto's asymmetric operations in Node, Deno, and Bun, against a prototype Bun that runs them on rind.
 import { createSignal, For } from "solid-js";
 import { Chart, createTip, day, Toggle } from "./chart";
-import data from "./data/runtimes.json";
+import json from "./data/runtimes.json";
 
-const OPS = Object.keys(data.runs[0].us);
+interface Run {
+	runtime: string;
+	version: string;
+	us: Record<string, number>; // microseconds per call, by operation
+}
+const data = json as {
+	source: { cpu: string; date: string; rounds: number; bun: { base: string; prototype: string }; note: string };
+	runs: Run[];
+};
+
 const RIND = "Bun on rind";
+// Stock runtimes first, then the one that differs from stock Bun only by rind.
+const RUNS = ["Node", "Deno", "Bun", RIND].map((name) => {
+	const run = data.runs.find((r) => r.runtime === name);
+	if (!run) throw new Error(`runtimes.json has no ${name}`);
+	return run;
+});
+const OPS = Object.keys(RUNS[0].us);
 
 const W = 640;
 const LABEL = 104;
@@ -18,15 +34,15 @@ export default function Runtimes() {
 	const [op, setOp] = createSignal(OPS.includes("P-384 sign") ? "P-384 sign" : OPS[0]);
 	const { tip, on } = createTip();
 
-	const max = () => Math.max(...data.runs.map((r) => r.us[op() as keyof typeof r.us]));
+	const max = () => Math.max(...RUNS.map((r) => r.us[op()]));
 	const width = (v: number) => (v / max()) * (W - LABEL - RIGHT);
-	const value = (run: (typeof data.runs)[number]) => run.us[op() as keyof typeof run.us];
+	const value = (run: Run) => run.us[op()];
 	// Bun on rind's speed over stock Bun's, the same Bun commit without rind.
-	const gain = (run: (typeof data.runs)[number]) => {
-		const bun = data.runs.find((r) => r.runtime === "Bun");
+	const gain = (run: Run) => {
+		const bun = RUNS.find((r) => r.runtime === "Bun");
 		return run.runtime === RIND && bun ? value(bun) / value(run) : undefined;
 	};
-	const H = data.runs.length * ROW + 4;
+	const H = RUNS.length * ROW + 4;
 
 	return (
 		<Chart
@@ -38,14 +54,14 @@ export default function Runtimes() {
 			tip={tip}
 			label={`Time per WebCrypto ${op()} in Node, Deno, Bun, and Bun on rind.`}
 			table={{
-				head: ["Operation", ...data.runs.map((r) => r.runtime)],
-				rows: OPS.map((o) => [o, ...data.runs.map((r) => us(r.us[o as keyof typeof r.us]))]),
+				head: ["Operation", ...RUNS.map((r) => r.runtime)],
+				rows: OPS.map((o) => [o, ...RUNS.map((r) => us(r.us[o]))]),
 			}}
 			source={
 				<>
 					{data.source.cpu}, one pinned core, the median of {data.source.rounds} alternating rounds,{" "}
-					{day(data.source.date)}. {data.runs.map((r) => `${r.runtime}: ${r.version}`).join("; ")}. Bun and Bun on rind
-					are release builds of Bun{" "}
+					{day(data.source.date)}. {RUNS.map((r) => `${r.runtime}: ${r.version}`).join("; ")}. Bun and Bun on rind are
+					release builds of Bun{" "}
 					<a class="underline" href={`https://github.com/oven-sh/bun/commit/${data.source.bun.base}`}>
 						{data.source.bun.base.slice(0, 9)}
 					</a>
@@ -58,7 +74,7 @@ export default function Runtimes() {
 				</>
 			}
 		>
-			<For each={data.runs}>
+			<For each={RUNS}>
 				{(run, i) => {
 					const y = i() * ROW + 4;
 					const rind = run.runtime === RIND;
