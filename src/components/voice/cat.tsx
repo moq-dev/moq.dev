@@ -25,7 +25,8 @@ const BLINK_MS = 120;
 type Tap = { analyser: AnalyserNode; samples: Float32Array<ArrayBuffer>; spectrum: Float32Array<ArrayBuffer> };
 
 // With no voice, `babble` makes up speech: bursts of syllables, each a random loudness and
-// brightness, through the same lip sync as the real thing.
+// brightness, through the same lip sync as the real thing. Reduced motion keeps the cat still,
+// apart from lip sync to a real voice.
 export default function Cat(props: { voice?: AudioNode; babble?: boolean; class?: string }) {
 	const [shape, setShape] = createSignal<Shape>("rest");
 	const [blink, setBlink] = createSignal(false);
@@ -59,7 +60,8 @@ export default function Cat(props: { voice?: AudioNode; babble?: boolean; class?
 		let mouthAt = 0;
 		let blinkAt = last + 2500;
 		let frame = 0;
-		const babble = props.babble && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+		const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+		const babble = props.babble && !still;
 		let syllable = { open: 0, tone: 1, closeAt: 0, endAt: 0 };
 		let syllables = 0;
 
@@ -103,7 +105,7 @@ export default function Cat(props: { voice?: AudioNode; babble?: boolean; class?
 				mouthAt = now;
 				setShape(pick(open, tone));
 			}
-			setBlink(now >= blinkAt);
+			setBlink(!still && now >= blinkAt);
 			if (now >= blinkAt + BLINK_MS) blinkAt = now + 2000 + Math.random() * 4000;
 
 			frame = requestAnimationFrame(tick);
