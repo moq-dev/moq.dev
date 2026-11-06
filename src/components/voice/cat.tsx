@@ -24,7 +24,9 @@ const BLINK_MS = 120;
 
 type Tap = { analyser: AnalyserNode; samples: Float32Array<ArrayBuffer>; spectrum: Float32Array<ArrayBuffer> };
 
-export default function Cat(props: { voice?: AudioNode; class?: string }) {
+// With no voice, `babble` makes up speech: bursts of syllables, each a random loudness and
+// brightness, through the same lip sync as the real thing.
+export default function Cat(props: { voice?: AudioNode; babble?: boolean; class?: string }) {
 	const [shape, setShape] = createSignal<Shape>("rest");
 	const [blink, setBlink] = createSignal(false);
 	let tap: Tap | undefined;
@@ -57,13 +59,33 @@ export default function Cat(props: { voice?: AudioNode; class?: string }) {
 		let mouthAt = 0;
 		let blinkAt = last + 2500;
 		let frame = 0;
+		const babble = props.babble && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+		let syllable = { open: 0, tone: 1, closeAt: 0, endAt: 0 };
+		let syllables = 0;
 
 		const tick = (now: number) => {
 			const dt = now - last;
 			last = now;
 
 			let target = 0;
-			if (tap) {
+			let tone = 1;
+			if (babble && !tap) {
+				if (now >= syllable.endAt) {
+					// Between phrases, a breath.
+					const pause = syllables-- <= 0;
+					if (pause) syllables = 3 + Math.floor(Math.random() * 8);
+					const ms = pause ? 700 + Math.random() * 1500 : 140 + Math.random() * 120;
+					syllable = {
+						open: pause ? 0 : 0.2 + Math.random() * 0.8,
+						tone: 0.7 + Math.random() * 0.5,
+						// Close a little before the next one so syllables read apart.
+						closeAt: now + ms * 0.65,
+						endAt: now + ms,
+					};
+				}
+				target = now < syllable.closeAt ? syllable.open : 0;
+				tone = syllable.tone;
+			} else if (tap) {
 				const { analyser, samples, spectrum } = tap;
 				analyser.getFloatTimeDomainData(samples);
 				target = level(samples);
@@ -73,12 +95,13 @@ export default function Cat(props: { voice?: AudioNode; class?: string }) {
 					bright = bright ? ease(bright, hz, 0.3, dt) : hz;
 					usual = usual ? ease(usual, hz, 0.02, dt) : hz;
 				}
+				if (usual) tone = bright / usual;
 			}
 			open = follow(open, target, dt);
 
 			if (now - mouthAt >= MOUTH_MS) {
 				mouthAt = now;
-				setShape(pick(open, usual ? bright / usual : 1));
+				setShape(pick(open, tone));
 			}
 			setBlink(now >= blinkAt);
 			if (now >= blinkAt + BLINK_MS) blinkAt = now + 2000 + Math.random() * 4000;
