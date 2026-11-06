@@ -1,0 +1,26 @@
+{
+	"placeholder": true,
+	"todo": "TODO(kixelated): every number here is a placeholder. Replace them with the tally from rind's quest/m1/ai-usage (https://github.com/moq-dev/rind/pull/400) and set placeholder to false.",
+	"source": {
+		"quest": "https://github.com/moq-dev/rind/blob/main/quest/m1/ai-usage.md",
+		"span": { "from": "2026-10-27", "to": "TODO" },
+		"method": "TODO: Claude Code and Codex logs by working directory, each message counted once, priced at API list prices as of TODO; maintainer hours from prompt timestamps, gaps over 15 minutes counted as away.",
+		"generated": "TODO"
+	},
+	"lines": [
+		{
+			"name": "rind",
+			"tokens": { "input": 1000000, "cache_write": 10000000, "cache_read": 1000000000, "output": 10000000 },
+			"cost_usd": 10000,
+			"agent_hours": 1000,
+			"maintainer_hours": 100
+		},
+		{
+			"name": "migrations",
+			"tokens": { "input": 100000, "cache_write": 1000000, "cache_read": 100000000, "output": 1000000 },
+			"cost_usd": 1000,
+			"agent_hours": 100,
+			"maintainer_hours": 10
+		}
+	]
+}

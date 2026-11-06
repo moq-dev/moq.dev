@@ -1,0 +1,45 @@
+/* The rind post's charts. The site is dark, so dark is the default; an ancestor with
+   data-theme="light" swaps in the light steps, for screenshots and embeds. */
+.rind-chart {
+	--surface: #172033;
+	--ink: #f1f5f9;
+	--ink-2: #94a3b8;
+	--ink-3: #64748b;
+	--grid: rgb(148 163 184 / 18%);
+	--rind: #22c55e;
+	--aws-lc-rs: #94a3b8;
+	--ring: #475569;
+	--other: #64748b;
+	--e2e: #4ade80;
+	--e2e-ink: #052e16;
+	--routine: #15803d;
+	--none: #475569;
+	--button: rgb(51 65 85 / 60%);
+	--button-on: #22c55e;
+	--button-on-ink: #052e16;
+
+	background: var(--surface);
+	color: var(--ink);
+}
+
+[data-theme="light"] .rind-chart {
+	--surface: #ffffff;
+	--ink: #0f172a;
+	--ink-2: #475569;
+	--ink-3: #64748b;
+	--grid: rgb(100 116 139 / 20%);
+	--rind: #16a34a;
+	--aws-lc-rs: #64748b;
+	--ring: #94a3b8;
+	--other: #64748b;
+	--e2e: #15803d;
+	--e2e-ink: #ffffff;
+	--routine: #22c55e;
+	--none: #94a3b8;
+	--button: #e2e8f0;
+	--button-on: #16a34a;
+	--button-on-ink: #ffffff;
+
+	border-color: #cbd5e1;
+	box-shadow: 5px 5px 0 0 rgb(15 23 42 / 12%);
+}

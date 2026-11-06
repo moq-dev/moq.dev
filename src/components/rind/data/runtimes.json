@@ -1,0 +1,67 @@
+{
+	"source": {
+		"host": "local smoke test, replace",
+		"cpu": "TODO",
+		"method": "taskset -c 7, three alternating rounds, each cell their median",
+		"note": "",
+		"generated": "2026-11-06"
+	},
+	"runs": [
+		{
+			"runtime": "Node",
+			"version": "node v24.21.0",
+			"us": {
+				"Ed25519 sign": 50.88,
+				"Ed25519 verify": 139.66,
+				"X25519 deriveBits": 57.29,
+				"P-256 sign": 81.06,
+				"P-256 verify": 127.36,
+				"P-384 sign": 335.68,
+				"P-384 verify": 548.6,
+				"P-384 importKey pkcs8": 245.56
+			}
+		},
+		{
+			"runtime": "Deno",
+			"version": "deno 2.9.7",
+			"us": {
+				"Ed25519 sign": 29.14,
+				"Ed25519 verify": 45.31,
+				"X25519 deriveBits": 79.6,
+				"P-256 sign": 674.99,
+				"P-256 verify": 817.66,
+				"P-384 sign": 1659.05,
+				"P-384 verify": 2126.06,
+				"P-384 importKey pkcs8": 13.17
+			}
+		},
+		{
+			"runtime": "Bun",
+			"version": "bun 1.4.2",
+			"us": {
+				"Ed25519 sign": 24.19,
+				"Ed25519 verify": 63.59,
+				"X25519 deriveBits": 44.27,
+				"P-256 sign": 40.52,
+				"P-256 verify": 65.41,
+				"P-384 sign": 512.19,
+				"P-384 verify": 484.79,
+				"P-384 importKey pkcs8": 715.14
+			}
+		},
+		{
+			"runtime": "Bun on rind",
+			"version": "TODO",
+			"us": {
+				"Ed25519 sign": 17,
+				"Ed25519 verify": 40,
+				"X25519 deriveBits": 44,
+				"P-256 sign": 40,
+				"P-256 verify": 65,
+				"P-384 sign": 47,
+				"P-384 verify": 172,
+				"P-384 importKey pkcs8": 700
+			}
+		}
+	]
+}
