@@ -1,6 +1,6 @@
 {
 	"source": {
-		"rind": "c2b76e9c85ce70a13bdad5a4911518510265b871",
+		"rind": "165545ef7c068cd67ef68919701de5439e030a73",
 		"files": ["ALGORITHMS.md", "benchmarks/verified.toml", "benchmarks/data/tiers.json"],
 		"nightly": {
 			"run": "https://github.com/moq-dev/rind/actions/runs/41932862737",
@@ -36,7 +36,7 @@
 				},
 				{
 					"status": "e2e",
-					"code": "HACL* ✓ + rind",
+					"code": "HACL* ✓ + Graviola ⚡ + rind",
 					"proof": "rind (Lean, via Aeneas) + Vale (F*)",
 					"link": "https://github.com/moq-dev/rind/blob/main/proofs/Rind/X86_64/AesGcm.lean",
 					"speedup": {

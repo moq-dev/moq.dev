@@ -134,6 +134,9 @@ export function Bands() {
 }
 
 export const day = (iso: string) => iso.slice(0, 10);
+// The days a set of hosts ran, since each host's report can come from a different run.
+export const days = (hosts: { source: { date: string } }[]) =>
+	[...new Set(hosts.map((h) => day(h.source.date)))].sort().join(" and ");
 
 export const commit = (sha: string) => <a href={`https://github.com/moq-dev/rind/commit/${sha}`}>{sha.slice(0, 8)}</a>;
 

@@ -174,20 +174,27 @@ function proofs(rind: string) {
 	});
 }
 
-// rind's report hosts, named by CPU since the hostnames mean nothing outside.
+// rind's report hosts, named by CPU since the hostnames mean nothing outside. The library charts
+// leave out Apple M4 until PARTIAL is checked against each library's aarch64 source.
 const HOSTS: Record<string, string> = {
 	desktop: "Arrow Lake",
 	nixos: "Zen 3",
 	nixos2: "Coffee Lake",
+	kixtop: "Apple M4",
 };
+const X86_HOSTS = ["desktop", "nixos", "nixos2"];
 
+// A host whose report skipped its build cost, as a busy one does, is left out and named.
 function build(rind: string) {
 	const hosts = Object.keys(HOSTS)
 		.filter((host) => existsSync(join(rind, `benchmarks/data/${host}.json`)))
-		.map((host) => {
+		.flatMap((host) => {
 			const data = read(join(rind, `benchmarks/data/${host}.json`));
 			const cost = data.build_cost;
-			if (cost.status !== "ok") throw new Error(`${host}'s build cost is ${cost.status}`);
+			if (cost.status !== "ok") {
+				console.warn(`left out ${host}: its build cost is ${cost.status} (${cost.reason ?? cost.error})`);
+				return [];
+			}
 			return {
 				name: HOSTS[host],
 				source: {
@@ -307,7 +314,8 @@ function libraries(rind: string) {
 			if (!LIBRARIES.includes(lib) || !COVERAGE.some((c) => c.name === row))
 				throw new Error(`PARTIAL names ${lib}'s ${row}, which the heatmap lacks`);
 
-	const hosts = Object.entries(HOSTS).map(([host, name]) => {
+	const hosts = X86_HOSTS.map((host) => {
+		const name = HOSTS[host];
 		const data = read(join(rind, `benchmarks/data/${host}.json`));
 		if (data.status !== "ok") throw new Error(`${host}'s report is ${data.status}`);
 		const cpu = data.rind_cpu.cpuid as Record<string, number>;

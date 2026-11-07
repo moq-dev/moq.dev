@@ -1,7 +1,7 @@
 // How much of each primitive every library proves, per CPU: end to end, a proven core under unproven glue,
 // or nothing; blank where the library doesn't offer it.
 import { For } from "solid-js";
-import { commit, day, Figure, name } from "./chart";
+import { commit, days, Figure, name } from "./chart";
 import json from "./data/libraries.json";
 
 type Status = "e2e" | "routine" | "none";
@@ -47,7 +47,7 @@ export default function Coverage() {
 					End to end: rind's benchmarks/verified.toml at {commit(data.source.rind)}, whose ✓ needs a machine-checked
 					proof of all the code, glue included. Proven core: a proven routine does the whole cipher, block function,
 					scalar multiplication, or NTT for at least some of the row's operations; field arithmetic alone doesn't count.
-					Checked against each library's source at the versions rind's report locks, {day(data.hosts[0].source.date)}.
+					Checked against each library's source at the versions rind's report locks, run {days(data.hosts)}.
 				</>
 			}
 		>

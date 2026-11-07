@@ -83,10 +83,13 @@ export default function Build() {
 				<>
 					rind's admin/build-cost: the median of {h.source.runs} cold builds with an empty target directory and a warm
 					download cache.{" "}
-					{data.hosts
-						.map((x) => `${x.name}: ${cpu(x.source.cpu)}, ${x.source.jobs} jobs, ${day(x.source.date)}`)
-						.join("; ")}
-					. At {commit(h.source.rind)}. A tool counts when the build fails without it.
+					{data.hosts.map((x, i) => (
+						<>
+							{i ? "; " : ""}
+							{x.name}: {cpu(x.source.cpu)}, {x.source.jobs} jobs, {day(x.source.date)}, at {commit(x.source.rind)}
+						</>
+					))}
+					. A tool counts when the build fails without it.
 				</>
 			}
 		>

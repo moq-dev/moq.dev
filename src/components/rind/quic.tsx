@@ -1,7 +1,7 @@
 // QUIC's per-packet crypto: every library's AES-128-GCM seal, as a ball bouncing once per packet, and
 // rind against aws-lc-rs on each CPU.
 import { createSignal, For, onCleanup, onMount } from "solid-js";
-import { commit, cpu, day, Figure, frames, midscreen, name, reduced, time, times } from "./chart";
+import { commit, cpu, days, Figure, frames, midscreen, name, reduced, time, times } from "./chart";
 import data from "./data/libraries.json";
 
 type Host = (typeof data.hosts)[number];
@@ -23,8 +23,8 @@ const table = {
 
 const source = (
 	<>
-		AES-128-GCM seal, criterion's estimate from rind's benchmark report at {commit(data.hosts[0].source.rind)},{" "}
-		{day(data.hosts[0].source.date)}: {data.hosts.map((h) => `${h.name} is ${h.source.cpu}`).join(", ")}.
+		AES-128-GCM seal, criterion's estimate from rind's benchmark report at {commit(data.source.rind)}, run{" "}
+		{days(data.hosts)}: {data.hosts.map((h) => `${h.name} is ${h.source.cpu}`).join(", ")}.
 	</>
 );
 

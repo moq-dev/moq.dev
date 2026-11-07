@@ -1,7 +1,7 @@
 // Every operation rind's report times, for every library, colored by its time over the fastest
 // library's on each CPU: green is fastest, red is slowest.
 import { For } from "solid-js";
-import { Bands, band, commit, day, Figure, name, time, times } from "./chart";
+import { Bands, band, commit, days, Figure, name, time, times } from "./chart";
 import json from "./data/libraries.json";
 
 const data = json as unknown as {
@@ -47,9 +47,8 @@ export default function Timings() {
 			}}
 			source={
 				<>
-					Criterion's estimates from rind's benchmark report at {commit(data.source.rind)},{" "}
-					{day(data.hosts[0].source.date)}, as {data.hosts.map((h) => h.name).join(" / ")}. Every library runs its
-					native path on each CPU.
+					Criterion's estimates from rind's benchmark report at {commit(data.source.rind)}, run {days(data.hosts)}, as{" "}
+					{data.hosts.map((h) => h.name).join(" / ")}. Every library runs its native path on each CPU.
 				</>
 			}
 		>
