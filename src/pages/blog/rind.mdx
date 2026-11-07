@@ -78,7 +78,8 @@ I pulled a 9-year old gaming PC out of the closet, installed Claude, and ran `/g
 	
 	AI is **really fucking good** at benchmarks.
 	It's terrifying.
-	`rind` only loses on a few benchmarks for security reasons.
+	`rind` only loses on a few benchmarks, almost all for security reasons: on Apple's M4 it turns on DIT (constant-time mode) around every call.
+	Hold DIT across a batch of calls, as MoQ does, and all but one of those losses go away.
 	
 	Moments like this fill me with dread as a professional software engineer.
 	I **wasted weeks** speeding up some Go crypto library (contributor btw) when I could have just waited a decade for Opus 5.5 to release instead.

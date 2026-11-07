@@ -342,7 +342,7 @@
 }
 .rind-fig .heat {
 	display: grid;
-	grid-template-columns: auto repeat(7, 54px);
+	grid-template-columns: auto repeat(var(--libs), 54px);
 	justify-content: start;
 	align-items: center;
 	min-width: 560px;

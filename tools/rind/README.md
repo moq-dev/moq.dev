@@ -16,8 +16,8 @@ bun tools/rind/refresh.ts libraries <rind>   # libraries.json: every library's t
 ```
 
 `build` leaves out a host whose report skipped its build cost (a busy host does) and says so; rerun that host's report to bring it back.
-`libraries` charts the three x86_64 hosts only: Apple M4 joins once `PARTIAL` is checked against each library's aarch64 source.
-`libraries` reads end-to-end proofs from `verified.toml`. Partial proofs, where a proven routine does the core math under unproven glue, live in `refresh.ts`'s `PARTIAL`; recheck them against each library's source when a locked version changes.
+`libraries` charts the four hosts in `refresh.ts`'s `HOSTS`, Apple M4 included, with rind (DIT held) as a variant column that never counts as the fastest.
+`libraries` reads end-to-end proofs from `verified.toml`. Partial proofs, where a proven routine does the core math under unproven glue, live in `refresh.ts`'s `PARTIAL`, by architecture; recheck them against each library's source for each architecture when a locked version changes.
 
 ## Runtimes
 

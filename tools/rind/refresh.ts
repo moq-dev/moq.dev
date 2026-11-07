@@ -174,15 +174,13 @@ function proofs(rind: string) {
 	});
 }
 
-// rind's report hosts, named by CPU since the hostnames mean nothing outside. The library charts
-// leave out Apple M4 until PARTIAL is checked against each library's aarch64 source.
+// rind's report hosts, named by CPU since the hostnames mean nothing outside.
 const HOSTS: Record<string, string> = {
 	desktop: "Arrow Lake",
 	nixos: "Zen 3",
 	nixos2: "Coffee Lake",
 	kixtop: "Apple M4",
 };
-const X86_HOSTS = ["desktop", "nixos", "nixos2"];
 
 // A host whose report skipped its build cost, as a busy one does, is left out and named.
 function build(rind: string) {
@@ -223,7 +221,11 @@ function build(rind: string) {
 }
 
 // The libraries rind's report times, by its names for them.
-const LIBRARIES = ["rind", "aws-lc-rs", "ring", "rustcrypto", "graviola", "libcrux", "openssl"];
+const LIBRARIES = ["rind", "rind-dit-held", "aws-lc-rs", "ring", "rustcrypto", "graviola", "libcrux", "openssl"];
+// Columns that time a library's own code another way, as admin/bench-report's VARIANTS: shown beside
+// it, never the fastest, and without coverage of their own. rind (DIT held) holds DIT across the timed
+// loop rather than setting it around each call, and only a CPU with DIT times it.
+const VARIANTS: Record<string, string> = { "rind-dit-held": "rind" };
 
 // The coverage heatmap's rows, matched against report operations without their library.
 const COVERAGE = [
@@ -246,46 +248,94 @@ const COVERAGE = [
 	{ name: "ML-KEM-768", pattern: /^mlkem768-/ },
 ];
 
-// Cells where a proven routine does the core math for at least some of the row's operations, on all
-// three hosts, under unproven glue, so verified.toml's ✓ doesn't count them. The core is the whole
-// cipher, block function, scalar multiplication, NTT, or exponentiation; field arithmetic under
-// unproven point formulas, or multiplications under an unproven exponentiation, isn't. Checked
-// against each library's source at the version rind's report locks.
-const S2N = "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs";
+// Cells where a proven routine does the core math for at least some of the row's operations, on every
+// host of that architecture, under unproven glue, so verified.toml's ✓ doesn't count them. The core is
+// the whole cipher, block function, scalar multiplication, NTT, or exponentiation; field arithmetic
+// under unproven point formulas, or multiplications under an unproven exponentiation, isn't. Checked
+// against each library's source at the version rind's report locks:
+//
+// - rind: ALGORITHMS.md's tables and Sources, and rind/src/low/mod.rs's per-arch imports. x86_64 runs
+//   Vale's AES-GCM; aarch64 runs s2n-bignum's AES-GCM kernels in place, outside their proofs, so gets
+//   none. Both run s2n-bignum's scalar multiplications (p384_montjscalarmul, p521_jscalarmul,
+//   edwards25519_scalarmul*) and ML-KEM NTT and rejection sampling. aarch64 P-256 and X25519 are ✓.
+// - aws-lc-rs (aws-lc-sys 0.47): ec_nistp.h's EC_NISTP_USE_S2N_BIGNUM and curve25519/internal.h's
+//   CURVE25519_S2N_BIGNUM_CAPABLE take s2n-bignum's X25519, Ed25519, and P-256/384/521 scalar
+//   multiplications on Linux and Apple, x86_64 and aarch64 alike; mlkem_native_backend.h takes
+//   mlkem-native's AVX2 or aarch64 backend. aws-lc-verification proves AES-GCM and the AES block on
+//   x86_64 only, and on aarch64 only SHA-2, whose routine for the SHA-512 instructions (the M4's) ends
+//   before its store, so neither AES row nor SHA-512 gets credit there.
+// - graviola 0.4.4: src/low/mod.rs takes s2n-bignum's X25519, Ed25519, and ML-KEM NTT and base
+//   multiplication on both architectures.
+// - libcrux: portable Rust from HACL*, with no CPU dispatch, so the same on both.
+// - ring, RustCrypto, and OpenSSL: none, as verified.toml says.
+//
+// s2n-bignum's HOL Light proofs cover each of these routines on both architectures (x86/proofs,
+// arm/proofs), as do mlkem-native's for its AVX2 and aarch64 backends (proofs/hol_light/<arch>).
+type Partial = Record<string, Record<string, { proof: string; link: string }>>;
+const S2N_X86 = "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs";
+const S2N_ARM = "https://github.com/awslabs/s2n-bignum/tree/main/arm/proofs";
 const SAW = "https://github.com/awslabs/aws-lc-verification/blob/797302470c1703cbb1a3a6fa98daffef0bfd3d80/README.md";
-const MLKEM = "https://github.com/pq-code-package/mlkem-native/tree/main/proofs/hol_light/x86_64/proofs";
-const PARTIAL: Record<string, Record<string, { proof: string; link: string }>> = {
-	rind: {
-		"AES-GCM": {
-			proof: "Vale's F* AES-GCM, for every message without VAES but only short ones with it",
-			link: "https://github.com/moq-dev/rind/blob/main/ALGORITHMS.md",
-		},
-		Ed25519: { proof: "s2n-bignum's HOL Light scalar multiplications", link: S2N },
-		"P-256": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N },
-		"P-384": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N },
-		"P-521": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N },
-		"ML-KEM-768": { proof: "s2n-bignum's and mlkem-native's HOL Light NTT and sampling", link: MLKEM },
-	},
-	"aws-lc-rs": {
-		"AES-GCM": { proof: "aws-lc-verification's SAW AES-GCM, for AES-256 only", link: SAW },
-		"AES header protection": { proof: "aws-lc-verification's SAW AES block, for AES-256 only", link: SAW },
-		X25519: { proof: "s2n-bignum's HOL Light X25519 ladder", link: S2N },
-		Ed25519: { proof: "s2n-bignum's HOL Light scalar multiplications", link: S2N },
-		"P-256": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N },
-		"P-384": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N },
-		"P-521": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N },
-		"ML-KEM-768": { proof: "mlkem-native's HOL Light AVX2 NTT and sampling", link: MLKEM },
-	},
-	graviola: {
-		X25519: { proof: "s2n-bignum's HOL Light X25519 ladder", link: S2N },
-		Ed25519: { proof: "s2n-bignum's HOL Light scalar multiplications", link: S2N },
-		"ML-KEM-768": { proof: "s2n-bignum's HOL Light NTT and base multiplication", link: S2N },
-	},
+const MLKEM_X86 = "https://github.com/pq-code-package/mlkem-native/tree/main/proofs/hol_light/x86_64/proofs";
+const MLKEM_ARM = "https://github.com/pq-code-package/mlkem-native/tree/main/proofs/hol_light/aarch64/proofs";
+const LIBCRUX: Partial = {
 	libcrux: {
 		"XChaCha20-Poly1305": {
 			proof: "HACL*'s F* ChaCha20-Poly1305, under an unverified HChaCha20",
 			link: "https://github.com/hacl-star/hacl-star/tree/main/code/chacha20poly1305",
 		},
+	},
+};
+const PARTIAL: Record<string, Partial> = {
+	x86_64: {
+		rind: {
+			"AES-GCM": {
+				proof: "Vale's F* AES-GCM, for every message without VAES but only short ones with it",
+				link: "https://github.com/moq-dev/rind/blob/main/ALGORITHMS.md",
+			},
+			Ed25519: { proof: "s2n-bignum's HOL Light scalar multiplications", link: S2N_X86 },
+			"P-256": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N_X86 },
+			"P-384": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N_X86 },
+			"P-521": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N_X86 },
+			"ML-KEM-768": { proof: "s2n-bignum's and mlkem-native's HOL Light NTT and sampling", link: MLKEM_X86 },
+		},
+		"aws-lc-rs": {
+			"AES-GCM": { proof: "aws-lc-verification's SAW AES-GCM, for AES-256 only", link: SAW },
+			"AES header protection": { proof: "aws-lc-verification's SAW AES block, for AES-256 only", link: SAW },
+			X25519: { proof: "s2n-bignum's HOL Light X25519 ladder", link: S2N_X86 },
+			Ed25519: { proof: "s2n-bignum's HOL Light scalar multiplications", link: S2N_X86 },
+			"P-256": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N_X86 },
+			"P-384": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N_X86 },
+			"P-521": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N_X86 },
+			"ML-KEM-768": { proof: "mlkem-native's HOL Light AVX2 NTT and sampling", link: MLKEM_X86 },
+		},
+		graviola: {
+			X25519: { proof: "s2n-bignum's HOL Light X25519 ladder", link: S2N_X86 },
+			Ed25519: { proof: "s2n-bignum's HOL Light scalar multiplications", link: S2N_X86 },
+			"ML-KEM-768": { proof: "s2n-bignum's HOL Light NTT and base multiplication", link: S2N_X86 },
+		},
+		...LIBCRUX,
+	},
+	aarch64: {
+		rind: {
+			Ed25519: { proof: "s2n-bignum's HOL Light scalar multiplications", link: S2N_ARM },
+			"P-384": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N_ARM },
+			"P-521": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N_ARM },
+			"ML-KEM-768": { proof: "s2n-bignum's HOL Light NTT and sampling", link: S2N_ARM },
+		},
+		"aws-lc-rs": {
+			X25519: { proof: "s2n-bignum's HOL Light X25519 ladder", link: S2N_ARM },
+			Ed25519: { proof: "s2n-bignum's HOL Light scalar multiplications", link: S2N_ARM },
+			"P-256": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N_ARM },
+			"P-384": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N_ARM },
+			"P-521": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N_ARM },
+			"ML-KEM-768": { proof: "mlkem-native's HOL Light aarch64 NTT and sampling", link: MLKEM_ARM },
+		},
+		graviola: {
+			X25519: { proof: "s2n-bignum's HOL Light X25519 ladder", link: S2N_ARM },
+			Ed25519: { proof: "s2n-bignum's HOL Light scalar multiplications", link: S2N_ARM },
+			"ML-KEM-768": { proof: "s2n-bignum's HOL Light NTT and base multiplication", link: S2N_ARM },
+		},
+		...LIBCRUX,
 	},
 };
 
@@ -302,22 +352,26 @@ print(json.dumps([
 }
 
 // Every library on rind's report hosts: every operation's time, and how much of each coverage row is
-// proven: end to end by verified.toml's ✓, a proven core by PARTIAL, or neither. A library without the
-// row's operations gets null.
+// proven: end to end by verified.toml's ✓, a proven core by the host's arch's PARTIAL, or neither. A
+// library without the row's operations gets null; a variant gets no coverage, as it runs its library's code.
 function libraries(rind: string) {
 	const report = sections(rind);
 	const verified = Bun.TOML.parse(readFileSync(join(rind, "benchmarks/verified.toml"), "utf8")) as {
 		verified: { library: string; operations: string[]; arch?: string; cpu?: string[] }[];
 	};
-	for (const [lib, rows] of Object.entries(PARTIAL))
-		for (const row of Object.keys(rows))
-			if (!LIBRARIES.includes(lib) || !COVERAGE.some((c) => c.name === row))
-				throw new Error(`PARTIAL names ${lib}'s ${row}, which the heatmap lacks`);
+	for (const [arch, libs] of Object.entries(PARTIAL))
+		for (const [lib, rows] of Object.entries(libs))
+			for (const row of Object.keys(rows))
+				if (!LIBRARIES.includes(lib) || lib in VARIANTS || !COVERAGE.some((c) => c.name === row))
+					throw new Error(`PARTIAL names ${arch} ${lib}'s ${row}, which the heatmap lacks`);
+	const proving = LIBRARIES.filter((lib) => !(lib in VARIANTS));
 
-	const hosts = X86_HOSTS.map((host) => {
-		const name = HOSTS[host];
+	const hosts = Object.entries(HOSTS).map(([host, name]) => {
 		const data = read(join(rind, `benchmarks/data/${host}.json`));
 		if (data.status !== "ok") throw new Error(`${host}'s report is ${data.status}`);
+		// The report records arm64 as uname says it on macOS; verified.toml and PARTIAL say aarch64.
+		const arch = ({ arm64: "aarch64", aarch64: "aarch64", x86_64: "x86_64" } as Record<string, string>)[data.cpu.arch];
+		if (!PARTIAL[arch]) throw new Error(`${host}'s arch ${data.cpu.arch} has no PARTIAL`);
 		const cpu = data.rind_cpu.cpuid as Record<string, number>;
 		const results = data.results as { operation: string; library: string; ns: number }[];
 		// A report operation as verified.toml names it: "aes128-gcm/{lib}/32B" is "aes128-gcm/32B".
@@ -331,7 +385,7 @@ function libraries(rind: string) {
 			verified.verified.some(
 				(v) =>
 					v.library === lib &&
-					(!v.arch || v.arch === data.cpu.arch) &&
+					(!v.arch || v.arch === arch) &&
 					(v.cpu ?? []).every(has) &&
 					v.operations.some((p) => (p.endsWith("/*") ? o.startsWith(p.slice(0, -1)) : o === p)),
 			);
@@ -350,18 +404,19 @@ function libraries(rind: string) {
 		);
 		return {
 			name,
+			arch,
 			source: { rind: data.commit, cpu: data.cpu.model, date: data.started, versions: data.libraries },
 			times,
 			coverage: Object.fromEntries(
 				COVERAGE.map((row) => [
 					row.name,
 					Object.fromEntries(
-						LIBRARIES.map((lib) => {
+						proving.map((lib) => {
 							const ops = results.filter((r) => r.library === lib && row.pattern.test(op(r.operation)));
 							if (!ops.length) return [lib, null];
 							if (ops.every((r) => proven(lib, op(r.operation)))) return [lib, "e2e"];
 							const some = ops.some((r) => proven(lib, op(r.operation)));
-							return [lib, some || PARTIAL[lib]?.[row.name] ? "routine" : "none"];
+							return [lib, some || PARTIAL[arch][lib]?.[row.name] ? "routine" : "none"];
 						}),
 					),
 				]),
@@ -375,6 +430,7 @@ function libraries(rind: string) {
 			generated: today(),
 		},
 		libraries: LIBRARIES,
+		variants: VARIANTS,
 		sections: report,
 		rows: COVERAGE.map((c) => c.name),
 		partial: PARTIAL,

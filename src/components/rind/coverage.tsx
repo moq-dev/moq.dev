@@ -8,10 +8,20 @@ type Status = "e2e" | "routine" | "none";
 const data = json as unknown as {
 	source: { rind: string; generated: string };
 	libraries: string[];
+	variants: Record<string, string>;
 	rows: string[];
-	partial: Record<string, Record<string, { proof: string; link: string }>>;
-	hosts: { name: string; source: { date: string }; coverage: Record<string, Record<string, Status | null>> }[];
+	// By arch, then library, then row.
+	partial: Record<string, Record<string, Record<string, { proof: string; link: string }>>>;
+	hosts: {
+		name: string;
+		arch: string;
+		source: { date: string };
+		coverage: Record<string, Record<string, Status | null>>;
+	}[];
 };
+// A variant runs its library's code, so it has no coverage of its own.
+const libraries = data.libraries.filter((lib) => !(lib in data.variants));
+const arches = [...new Set(data.hosts.map((h) => h.arch))];
 
 const WORDS: Record<Status, string> = { e2e: "proven end to end", routine: "proven core", none: "unproven" };
 
@@ -28,17 +38,22 @@ export default function Coverage() {
 					their crypto
 				</>
 			}
-			label="Which primitives each Rust crypto library proves, end to end or only at its core, on each of three CPUs."
+			label="Which primitives each Rust crypto library proves, end to end or only at its core, on each CPU."
 			table={{
-				head: ["Primitive", ...data.libraries.map(name)],
+				head: ["Primitive", ...libraries.map(name)],
 				rows: data.rows.map((row) => [
 					row,
-					...data.libraries.map((lib) => {
+					...libraries.map((lib) => {
 						const s = statuses(row, lib);
 						if (s.every((x) => x === null)) return "";
 						const text = data.hosts.map((h, i) => `${h.name}: ${s[i] ? WORDS[s[i]] : "none"}`).join(", ");
-						const partial = data.partial[lib]?.[row];
-						return partial ? { text: `${text} (${partial.proof})`, href: partial.link } : text;
+						return [
+							text,
+							...arches.flatMap((arch) => {
+								const partial = data.partial[arch][lib]?.[row];
+								return partial ? [" · ", { text: `${arch}: ${partial.proof}`, href: partial.link }] : [];
+							}),
+						];
 					}),
 				]),
 			}}
@@ -47,19 +62,20 @@ export default function Coverage() {
 					End to end: rind's benchmarks/verified.toml at {commit(data.source.rind)}, whose ✓ needs a machine-checked
 					proof of all the code, glue included. Proven core: a proven routine does the whole cipher, block function,
 					scalar multiplication, or NTT for at least some of the row's operations; field arithmetic alone doesn't count.
-					Checked against each library's source at the versions rind's report locks, run {days(data.hosts)}.
+					Checked against each library's source for each CPU's architecture, at the versions rind's report locks, run{" "}
+					{days(data.hosts)}.
 				</>
 			}
 		>
 			<div class="scroll">
-				<div class="heat">
+				<div class="heat" style={{ "--libs": libraries.length }}>
 					<div />
-					<For each={data.libraries}>{(lib) => <div class={`lib${lib === "rind" ? " me" : ""}`}>{name(lib)}</div>}</For>
+					<For each={libraries}>{(lib) => <div class={`lib${lib === "rind" ? " me" : ""}`}>{name(lib)}</div>}</For>
 					<For each={data.rows}>
 						{(row) => (
 							<>
 								<div class="row">{row}</div>
-								<For each={data.libraries}>
+								<For each={libraries}>
 									{(lib) => (
 										<div class={`cell${lib === "rind" ? " me" : ""}`}>
 											<span class="trio">

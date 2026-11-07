@@ -3,8 +3,11 @@
 import { For, type JSX, onCleanup, Show } from "solid-js";
 import "./chart.css";
 
-// A table cell: data, not JSX, so the frame builds each element once, in render order.
-export type Cell = string | number | { text: string; href: string };
+// A table cell: data, not JSX, so the frame builds each element once, in render order. An array is
+// one cell of several parts.
+type Part = string | { text: string; href: string };
+export type Cell = number | Part | Part[];
+const part = (p: Part) => (typeof p === "object" ? <a href={p.href}>{p.text}</a> : p);
 
 export interface Props {
 	kicker?: string;
@@ -47,7 +50,9 @@ export function Figure(props: Props) {
 								{(row) => (
 									<tr>
 										<For each={row}>
-											{(cell) => <td>{typeof cell === "object" ? <a href={cell.href}>{cell.text}</a> : cell}</td>}
+											{(cell) => (
+												<td>{typeof cell === "number" ? cell : Array.isArray(cell) ? cell.map(part) : part(cell)}</td>
+											)}
 										</For>
 									</tr>
 								)}
@@ -141,5 +146,9 @@ export const days = (hosts: { source: { date: string } }[]) =>
 export const commit = (sha: string) => <a href={`https://github.com/moq-dev/rind/commit/${sha}`}>{sha.slice(0, 8)}</a>;
 
 // rind's report names for libraries, as the post spells them.
-export const NAMES: Record<string, string> = { rustcrypto: "RustCrypto", openssl: "OpenSSL" };
+export const NAMES: Record<string, string> = {
+	"rind-dit-held": "rind (DIT held)",
+	rustcrypto: "RustCrypto",
+	openssl: "OpenSSL",
+};
 export const name = (lib: string) => NAMES[lib] ?? lib;

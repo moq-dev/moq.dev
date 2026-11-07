@@ -1,6 +1,6 @@
 // QUIC's per-packet crypto: every library's AES-128-GCM seal, as a ball bouncing once per packet, and
 // rind against aws-lc-rs on each CPU.
-import { createSignal, For, onCleanup, onMount } from "solid-js";
+import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { commit, cpu, days, Figure, frames, midscreen, name, reduced, time, times } from "./chart";
 import data from "./data/libraries.json";
 
@@ -17,14 +17,17 @@ const table = {
 	head: ["Library", ...data.hosts.flatMap((h) => [`${h.name}, 32 B`, `${h.name}, 1350 B`])],
 	rows: data.libraries.map((lib) => [
 		name(lib),
-		...data.hosts.flatMap((h) => (["32B", "1350B"] as const).map((size) => time(seal(h, size)[lib]))),
+		...data.hosts.flatMap((h) =>
+			(["32B", "1350B"] as const).map((size) => (lib in seal(h, size) ? time(seal(h, size)[lib]) : "-")),
+		),
 	]),
 };
 
 const source = (
 	<>
 		AES-128-GCM seal, criterion's estimate from rind's benchmark report at {commit(data.source.rind)}, run{" "}
-		{days(data.hosts)}: {data.hosts.map((h) => `${h.name} is ${h.source.cpu}`).join(", ")}.
+		{days(data.hosts)}: {data.hosts.map((h) => `${h.name} is ${h.source.cpu}`).join(", ")}. On a CPU with DIT, rind sets
+		it around every call; rind (DIT held) sets it once across the timed loop, as a caller batching packets does.
 	</>
 );
 
@@ -146,15 +149,14 @@ export default function Quic() {
 	);
 }
 
-// rind against aws-lc-rs on each CPU: a full packet as the headline, an ACK-sized one beneath.
+// rind against aws-lc-rs on each CPU: a full packet as the headline, an ACK-sized one beneath, and with
+// DIT held where the CPU has it.
 export function QuicScore() {
-	const ratio = (h: Host, size: Size) => seal(h, size)["aws-lc-rs"] / seal(h, size).rind;
+	const ratio = (h: Host, size: Size, lib = "rind") => seal(h, size)["aws-lc-rs"] / seal(h, size)[lib];
 	return (
 		<Figure
 			kicker="Sealing one QUIC packet, vs aws-lc-rs"
-			headline={
-				data.hosts.every((h) => ratio(h, "1350B") > 1) ? "Faster on all three of our CPUs" : "rind vs aws-lc-rs"
-			}
+			headline={data.hosts.every((h) => ratio(h, "1350B") > 1) ? "Faster on every CPU we timed" : "rind vs aws-lc-rs"}
 			label="rind's speed over aws-lc-rs's sealing a 1350 B and a 32 B QUIC packet, on each CPU."
 			table={table}
 			source={source}
@@ -175,6 +177,12 @@ export function QuicScore() {
 							<div class="ack">
 								32 B ACK: <b>{times(ratio(h, "32B"))}</b>
 							</div>
+							<Show when={"rind-dit-held" in seal(h, "1350B")}>
+								<div class="ack">
+									DIT held: <b>{times(ratio(h, "1350B", "rind-dit-held"))}</b>, ACK{" "}
+									<b>{times(ratio(h, "32B", "rind-dit-held"))}</b>
+								</div>
+							</Show>
 						</div>
 					)}
 				</For>
