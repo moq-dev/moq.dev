@@ -37,5 +37,6 @@ bun tools/rind/refresh.ts runtimes <out> <out>/*.tsv
 
 ## AI tally
 
-`tally.json` is the chart JSON from rind's `quest/m1/ai-usage` tally ([moq-dev/rind#400](https://github.com/moq-dev/rind/pull/400)), with a `source` naming where it came from.
-That quest reruns the tally just before the post goes out; paste its new chart JSON in by hand and update `source`.
+`tally.json` is the final chart JSON from [moq-dev/rind#499](https://github.com/moq-dev/rind/pull/499), with a `source` naming where it came from.
+The maintainer fixed November 7, 2026, at 14:32:11 PT as the stopping point. Keep that cutoff when refreshing the other charts.
+The receipt displays Claude usage and selected review bots; the JSON also retains Codex usage and downstream migrations separately.

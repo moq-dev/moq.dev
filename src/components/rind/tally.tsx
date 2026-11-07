@@ -45,11 +45,12 @@ export default function Tally() {
 			}}
 			source={
 				<>
-					From the tally in <a href={data.source.pr}>moq-dev/rind#400</a>, as of {data.as_of.slice(0, 10)}. {data.scope}
-					. Claude Code logs, each API message counted once, priced at each model's standard API rate. Review bots:{" "}
-					{BOTS.map(([bot, cost]) => `${bot} ${usd(cost)}`).join(", ")}, a rough estimate. Paid:{" "}
+					From the final tally in <a href={data.source.pr}>moq-dev/rind#499</a>, through November 7, 2026, at 14:32 PT.{" "}
+					{data.scope}. Claude Code logs, each API message counted once, priced at each model's standard API rate.
+					Review bots: {BOTS.map(([bot, cost]) => `${bot} ${usd(cost)}`).join(", ")}, a rough estimate. Paid:{" "}
 					{data.calendar_span.count} days of a {usd(PLAN)} a month plan. Human hours are the maintainer's prompts, with
-					gaps over 15 minutes counted as away.
+					gaps over 15 minutes counted as away. Summary-only Haiku usage uses short-prompt prices and 5-minute prices
+					for writes whose TTL is unknown, so its cost is a lower bound.
 				</>
 			}
 		>
