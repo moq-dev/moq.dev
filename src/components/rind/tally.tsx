@@ -1,4 +1,4 @@
-// What building rind cost in Claude, as a till receipt: list price, then the subscription that paid for it.
+// What building rind cost in Opus, as a till receipt: list price, then the subscription that paid for it.
 import { For } from "solid-js";
 import { Figure } from "./chart";
 import data from "./data/tally.json";
@@ -6,17 +6,11 @@ import data from "./data/tally.json";
 // The Claude subscription that ran every session, in US dollars a month.
 const PLAN = 100;
 
-type Model = keyof typeof data.cost_usd_by_model;
-const CLAUDE = (Object.keys(data.cost_usd_by_model) as Model[])
-	.filter((m) => m.startsWith("Claude"))
-	.sort((a, b) => data.cost_usd_by_model[b] - data.cost_usd_by_model[a]);
-// Review bots also run on subscriptions; the tally only estimates what they'd cost at list.
-const BOTS = Object.entries(data.bots_rough_estimate.cost_usd_by_bot).filter(([bot]) => !bot.startsWith("Codex"));
+const MODEL = "Claude Opus 5.5";
 
-const tokens = CLAUDE.flatMap((m) => Object.values(data.tokens_by_model[m])).reduce((a, n) => a + n, 0);
-const reads = CLAUDE.reduce((a, m) => a + data.tokens_by_model[m].cache_read, 0) / tokens;
-const bots = BOTS.reduce((a, [, cost]) => a + cost, 0);
-const list = CLAUDE.reduce((a, m) => a + data.cost_usd_by_model[m], 0) + bots;
+const tokens = data.tokens_total;
+const reads = data.tokens_by_model[MODEL].cache_read / tokens;
+const list = data.cost_usd_total;
 const paid = (PLAN * data.calendar_span.count) / 30;
 
 const usd = (n: number, cents = false) =>
@@ -25,10 +19,7 @@ const date = (iso: string) =>
 	new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "2-digit", timeZone: "UTC" });
 
 export default function Tally() {
-	const lines: [string, string][] = [
-		...CLAUDE.map((m): [string, string] => [m, usd(data.cost_usd_by_model[m])]),
-		["Review bots (est.)", usd(bots)],
-	];
+	const lines: [string, string][] = [[MODEL, usd(list)]];
 	const stats: [string, string][] = [
 		["Tokens", `${(tokens / 1e9).toFixed(2)}B`],
 		["Cache reads", `${Math.round(reads * 100)}%`],
@@ -38,7 +29,7 @@ export default function Tally() {
 
 	return (
 		<Figure
-			label={`A receipt: ${usd(list)} of Claude and review bots at list prices, paid ${usd(paid, true)} through a ${usd(PLAN)} a month subscription.`}
+			label={`A receipt: ${usd(list)} of ${MODEL} at list prices, paid ${usd(paid, true)} through a ${usd(PLAN)} a month subscription.`}
 			table={{
 				head: ["Line", "Amount"],
 				rows: [...lines, ...stats, ["List price", usd(list, true)], ["Paid", usd(paid, true)]],
@@ -46,11 +37,9 @@ export default function Tally() {
 			source={
 				<>
 					From the final tally in <a href={data.source.pr}>moq-dev/rind#499</a>, through November 7, 2026, at 14:32 PT.{" "}
-					{data.scope}. Claude Code logs, each API message counted once, priced at each model's standard API rate.
-					Review bots: {BOTS.map(([bot, cost]) => `${bot} ${usd(cost)}`).join(", ")}, a rough estimate. Paid:{" "}
-					{data.calendar_span.count} days of a {usd(PLAN)} a month plan. Human hours are the maintainer's prompts, with
-					gaps over 15 minutes counted as away. Summary-only Haiku usage uses short-prompt prices and 5-minute prices
-					for writes whose TTL is unknown, so its cost is a lower bound.
+					{data.scope}. Opus usage from Claude Code logs, each API message counted once, priced at its standard API
+					rate. Paid: {data.calendar_span.count} days of a {usd(PLAN)} a month plan. Human hours are the maintainer's
+					prompts, with gaps over 15 minutes counted as away. Agent hours cover Claude Code sessions.
 				</>
 			}
 		>

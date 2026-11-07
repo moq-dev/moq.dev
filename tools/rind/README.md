@@ -37,6 +37,6 @@ bun tools/rind/refresh.ts runtimes <out> <out>/*.tsv
 
 ## AI tally
 
-`tally.json` is the final chart JSON from [moq-dev/rind#499](https://github.com/moq-dev/rind/pull/499), with a `source` naming where it came from.
+`tally.json` contains the Opus-only subset of the final tally in [moq-dev/rind#499](https://github.com/moq-dev/rind/pull/499), with a `source` naming where it came from.
 The maintainer fixed November 7, 2026, at 14:32:11 PT as the stopping point. Keep that cutoff when refreshing the other charts.
-The receipt displays Claude usage and selected review bots; the JSON also retains Codex usage and downstream migrations separately.
+The receipt's usage, tokens, and list-price total cover only Claude Opus 5.5. Agent hours cover Claude Code sessions; human hours retain the tally's maintainer estimate.
