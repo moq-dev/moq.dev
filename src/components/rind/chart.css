@@ -410,27 +410,48 @@
 	text-transform: uppercase;
 	color: var(--ink);
 }
+.rind-fig .heat.runtimes {
+	grid-template-columns: auto repeat(4, 104px);
+}
+.rind-fig .heat.runtimes .lib:not(.me) {
+	font-size: 11px;
+}
+.rind-fig .tile {
+	display: block;
+	width: 92px;
+	padding-block: 2px;
+	border-radius: 4px;
+	font-family: var(--mono);
+	font-size: 11px;
+	font-weight: 600;
+	text-align: center;
+	color: var(--frame);
+}
 /* Speed bands, green at fastest to red at over 8×. */
-.rind-fig .trio .s0 {
+.rind-fig .s0 {
 	background: #22c55e;
 }
-.rind-fig .trio .s1 {
+.rind-fig .s1 {
 	background: #84cc16;
 }
-.rind-fig .trio .s2 {
+.rind-fig .s2 {
 	background: #eab308;
 }
-.rind-fig .trio .s3 {
+.rind-fig .s3 {
 	background: #f59e0b;
 }
-.rind-fig .trio .s4 {
+.rind-fig .s4 {
 	background: #f97316;
 }
-.rind-fig .trio .s5 {
+.rind-fig .s5 {
 	background: #ef4444;
 }
-.rind-fig .trio .s6 {
+.rind-fig .s6 {
 	background: #b91c1c;
+}
+.rind-fig .tile.s5,
+.rind-fig .tile.s6 {
+	color: var(--ink);
 }
 .rind-fig .key {
 	display: flex;

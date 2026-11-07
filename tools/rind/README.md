@@ -20,6 +20,7 @@ bun tools/rind/refresh.ts libraries <rind>   # libraries.json: every library's t
 ## Runtimes
 
 Release-build Bun twice from the same commit, without and with rind (the prototype branch), on an idle host.
+Bun's flake ships a rustc whose LLVM trails its clang, and no `nasm`; inside `nix develop`, set `BUN_TOOLCHAIN_RUST` to the nightly in Bun's `rust-toolchain.toml` (rust-overlay has it) and put `nasm` on `PATH` before `bun run build:release`.
 Then, there, from this repository:
 
 ```bash

@@ -8,7 +8,7 @@ date: 2026-12-01
 ---
 
 import Quic, { QuicScore } from "@/components/rind/quic";
-import Runtimes from "@/components/rind/runtimes";
+import Runtimes, { RuntimeHeat } from "@/components/rind/runtimes";
 import Build from "@/components/rind/build";
 import Coverage from "@/components/rind/coverage";
 import Speed from "@/components/rind/speed";
@@ -43,6 +43,11 @@ I frankensteined parts from a 9-year old gaming PC, installed Claude, and ran `/
 
 <figure>
 	<Runtimes client:visible />
+	<figcaption>TODO(kixelated): caption</figcaption>
+</figure>
+
+<figure>
+	<RuntimeHeat client:visible />
 	<figcaption>TODO(kixelated): caption</figcaption>
 </figure>
 

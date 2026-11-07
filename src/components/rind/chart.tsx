@@ -107,6 +107,32 @@ export function time(ns: number) {
 
 export const times = (x: number) => `${x.toFixed(2)}×`;
 
+// admin/bench-report's speed bands, by time over the fastest's; a heatmap colors each as .s<band>.
+const EDGES = [1.1, 1.25, 1.5, 2, 4, 8];
+export const BANDS = ["fastest, or within 10%", "to 1.25×", "to 1.5×", "to 2×", "to 4×", "to 8×", "over 8×"];
+export const band = (ratio: number) => {
+	const i = EDGES.findIndex((edge) => ratio <= edge);
+	return i < 0 ? EDGES.length : i;
+};
+
+// The speed key under a heatmap.
+export function Bands() {
+	return (
+		<div class="key">
+			<For each={BANDS}>
+				{(label, i) => (
+					<span>
+						<span class="trio">
+							<i class={`s${i()}`} />
+						</span>
+						{label}
+					</span>
+				)}
+			</For>
+		</div>
+	);
+}
+
 export const day = (iso: string) => iso.slice(0, 10);
 
 export const commit = (sha: string) => <a href={`https://github.com/moq-dev/rind/commit/${sha}`}>{sha.slice(0, 8)}</a>;

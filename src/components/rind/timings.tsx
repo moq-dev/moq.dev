@@ -1,7 +1,7 @@
 // Every operation rind's report times, for every library, colored by its time over the fastest
 // library's on each CPU: green is fastest, red is slowest.
 import { For } from "solid-js";
-import { commit, day, Figure, name, time, times } from "./chart";
+import { Bands, band, commit, day, Figure, name, time, times } from "./chart";
 import json from "./data/libraries.json";
 
 const data = json as unknown as {
@@ -9,14 +9,6 @@ const data = json as unknown as {
 	libraries: string[];
 	sections: { name: string; operations: { id: string; label: string }[] }[];
 	hosts: { name: string; source: { date: string }; times: Record<string, Record<string, number>> }[];
-};
-
-// admin/bench-report's bands, by the time over the fastest library's.
-const EDGES = [1.1, 1.25, 1.5, 2, 4, 8];
-const BANDS = ["fastest, or within 10%", "to 1.25×", "to 1.5×", "to 2×", "to 4×", "to 8×", "over 8×"];
-const band = (ratio: number) => {
-	const i = EDGES.findIndex((edge) => ratio <= edge);
-	return i < 0 ? EDGES.length : i;
 };
 
 const ratio = (op: string, lib: string, h: (typeof data.hosts)[number]) => {
@@ -27,7 +19,7 @@ const ratio = (op: string, lib: string, h: (typeof data.hosts)[number]) => {
 export default function Timings() {
 	const operations = data.sections.flatMap((s) => s.operations);
 	const rind = data.hosts.flatMap((h) => operations.map((o) => ratio(o.id, "rind", h)).filter((r) => r !== undefined));
-	const close = rind.filter((r) => r <= EDGES[0]).length;
+	const close = rind.filter((r) => band(r) === 0).length;
 
 	return (
 		<Figure
@@ -102,18 +94,7 @@ export default function Timings() {
 					</For>
 				</div>
 			</div>
-			<div class="key">
-				<For each={BANDS}>
-					{(label, i) => (
-						<span>
-							<span class="trio">
-								<i class={`s${i()}`} />
-							</span>
-							{label}
-						</span>
-					)}
-				</For>
-			</div>
+			<Bands />
 			<p class="fine">Squares: {data.hosts.map((h) => h.name).join(", ")}. Blank: not offered.</p>
 		</Figure>
 	);
