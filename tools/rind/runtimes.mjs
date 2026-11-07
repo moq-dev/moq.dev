@@ -4,7 +4,7 @@
 // runtime refuses is left out, and its error goes to stderr.
 //
 //   node tools/rind/runtimes.mjs Node
-//   deno run -A tools/rind/runtimes.mjs Deno
+//   deno run tools/rind/runtimes.mjs Deno
 //   bun tools/rind/runtimes.mjs Bun
 import crypto from "node:crypto";
 
