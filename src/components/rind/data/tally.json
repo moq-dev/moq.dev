@@ -1,0 +1,80 @@
+{
+	"source": {
+		"pr": "https://github.com/moq-dev/rind/pull/400",
+		"copied": "2026-11-06"
+	},
+	"as_of": "2026-11-06T10:00-08:00",
+	"scope": "Sessions working in a rind checkout, or whose task names moq-dev/rind, from the graviola bootstrap on 2026-10-27",
+	"calendar_span": {
+		"first": "2026-10-27",
+		"last": "2026-11-06",
+		"count": 11
+	},
+	"agent_hours": {
+		"Claude Code": 469.2,
+		"Codex": 9.6,
+		"total": 478.8
+	},
+	"maintainer_hours": 22.9,
+	"tokens_total": 9012973585,
+	"tokens_by_model": {
+		"Claude Haiku 5.5": {
+			"input": 1250926,
+			"cache_write_5m": 23964695,
+			"cache_write_1h": 0,
+			"cache_read": 51162627,
+			"output": 140236
+		},
+		"Claude Opus 5.5": {
+			"input": 485073,
+			"cache_write_5m": 89635249,
+			"cache_write_1h": 100990785,
+			"cache_read": 8489818353,
+			"output": 29635117
+		},
+		"GPT-6 Astra": {
+			"input": 16158454,
+			"cache_write_5m": 0,
+			"cache_write_1h": 0,
+			"cache_read": 72646528,
+			"output": 361086
+		},
+		"GPT-6.1 Sol": {
+			"input": 14201844,
+			"cache_write_5m": 0,
+			"cache_write_1h": 0,
+			"cache_read": 81854336,
+			"output": 450332
+		},
+		"GPT-5.6 Sol (Daybreak Blue)": {
+			"input": 1384888,
+			"cache_write_5m": 0,
+			"cache_write_1h": 0,
+			"cache_read": 38684160,
+			"output": 148896
+		}
+	},
+	"cost_usd_by_model": {
+		"Claude Haiku 5.5": 4,
+		"Claude Opus 5.5": 3549,
+		"GPT-6 Astra": 252,
+		"GPT-6.1 Sol": 41,
+		"GPT-5.6 Sol (Daybreak Blue)": 24
+	},
+	"cost_usd_total": 3870,
+	"migrations": {
+		"what": "MoQ's rind epic in moq-dev/moq and the Bun fork",
+		"cost_usd": 87,
+		"tokens_total": 225947219,
+		"agent_hours": 15.1
+	},
+	"bots_rough_estimate": {
+		"cost_usd_by_bot": {
+			"Pullfrog": 112.0,
+			"CodeRabbit": 175.0,
+			"Codex cloud review": 45.0,
+			"CodSpeed": 42.0
+		},
+		"cost_usd_total": 370.0
+	}
+}
