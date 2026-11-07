@@ -1,130 +1,107 @@
-// What building rind cost in AI: total tokens and API-price dollars by model, and agent hours against the maintainer's.
+// What building rind cost in Claude, as a till receipt: list price, then the subscription that paid for it.
 import { For } from "solid-js";
-import { Chart, createTip } from "./chart";
+import { Figure } from "./chart";
 import data from "./data/tally.json";
 
-type Model = keyof typeof data.tokens_by_model;
+// The Claude subscription that ran every session, in US dollars a month.
+const PLAN = 100;
 
-const MODELS = (Object.keys(data.cost_usd_by_model) as Model[]).sort(
-	(a, b) => data.cost_usd_by_model[b] - data.cost_usd_by_model[a],
-);
-const TOKENS: Record<keyof (typeof data.tokens_by_model)[Model], string> = {
-	input: "input",
-	cache_write_5m: "5m cache writes",
-	cache_write_1h: "1h cache writes",
-	cache_read: "cache reads",
-	output: "output",
-};
-const TYPES = Object.keys(TOKENS) as (keyof typeof TOKENS)[];
+type Model = keyof typeof data.cost_usd_by_model;
+const CLAUDE = (Object.keys(data.cost_usd_by_model) as Model[])
+	.filter((m) => m.startsWith("Claude"))
+	.sort((a, b) => data.cost_usd_by_model[b] - data.cost_usd_by_model[a]);
+// Review bots also run on subscriptions; the tally only estimates what they'd cost at list.
+const BOTS = Object.entries(data.bots_rough_estimate.cost_usd_by_bot).filter(([bot]) => !bot.startsWith("Codex"));
 
-const count = (n: number) =>
-	n >= 1e9 ? `${(n / 1e9).toPrecision(3)}B` : n >= 1e6 ? `${(n / 1e6).toPrecision(3)}M` : n.toLocaleString("en-US");
-const usd = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
+const tokens = CLAUDE.flatMap((m) => Object.values(data.tokens_by_model[m])).reduce((a, n) => a + n, 0);
+const reads = CLAUDE.reduce((a, m) => a + data.tokens_by_model[m].cache_read, 0) / tokens;
+const bots = BOTS.reduce((a, [, cost]) => a + cost, 0);
+const list = CLAUDE.reduce((a, m) => a + data.cost_usd_by_model[m], 0) + bots;
+const paid = (PLAN * data.calendar_span.count) / 30;
 
-const W = 640;
-const LABEL = 196;
-const RIGHT = 64;
-const ROW = 28;
-const BAR = 16;
-
-const reads = MODELS.reduce((a, m) => a + data.tokens_by_model[m].cache_read, 0) / data.tokens_total;
+const usd = (n: number, cents = false) =>
+	`$${n.toLocaleString("en-US", { minimumFractionDigits: cents ? 2 : 0, maximumFractionDigits: cents ? 2 : 0 })}`;
+const date = (iso: string) =>
+	new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "2-digit", timeZone: "UTC" });
 
 export default function Tally() {
-	const { tip, on } = createTip();
-	const costMax = data.cost_usd_by_model[MODELS[0]];
-
-	const stats = [
-		{ label: "at API list prices", value: usd(data.cost_usd_total) },
-		{ label: `tokens, ${(reads * 100).toFixed(0)}% cache reads`, value: count(data.tokens_total) },
-		{
-			label: `agent hours (Claude Code ${data.agent_hours["Claude Code"]}, Codex ${data.agent_hours.Codex})`,
-			value: data.agent_hours.total.toLocaleString("en-US"),
-		},
-		{ label: "maintainer hours, a lower bound", value: data.maintainer_hours.toLocaleString("en-US") },
+	const lines: [string, string][] = [
+		...CLAUDE.map((m): [string, string] => [m, usd(data.cost_usd_by_model[m])]),
+		["Review bots (est.)", usd(bots)],
 	];
-	const bots = data.bots_rough_estimate;
+	const stats: [string, string][] = [
+		["Tokens", `${(tokens / 1e9).toFixed(2)}B`],
+		["Cache reads", `${Math.round(reads * 100)}%`],
+		["Agent hrs", data.agent_hours["Claude Code"].toFixed(1)],
+		["Human hrs", data.maintainer_hours.toFixed(1)],
+	];
 
 	return (
-		<Chart
-			title="The AI tally"
-			subtitle={`rind, ${data.calendar_span.first} to ${data.calendar_span.last} (${data.calendar_span.count} days)`}
-			stats={
-				<>
-					<div class="mb-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
-						<For each={stats}>
-							{(s) => (
-								<div class="rounded-lg border p-3" style={{ "border-color": "var(--grid)" }}>
-									<div class="text-2xl font-bold tabular-nums">{s.value}</div>
-									<div class="text-xs" style={{ color: "var(--ink-2)" }}>
-										{s.label}
-									</div>
-								</div>
-							)}
-						</For>
-					</div>
-					<p class="mb-4 text-xs" style={{ color: "var(--ink-2)" }}>
-						Not in these totals: moving MoQ and Bun onto rind, {usd(data.migrations.cost_usd)},{" "}
-						{count(data.migrations.tokens_total)} tokens, and {data.migrations.agent_hours} agent hours; and third-party
-						review bots, roughly {usd(bots.cost_usd_total)} (
-						{Object.entries(bots.cost_usd_by_bot)
-							.map(([bot, cost]) => `${bot} ${usd(cost)}`)
-							.join(", ")}
-						), a rough estimate.
-					</p>
-				</>
-			}
-			width={W}
-			height={MODELS.length * ROW + 4}
-			tip={tip}
-			label="rind's API-price cost by model."
+		<Figure
+			label={`A receipt: ${usd(list)} of Claude and review bots at list prices, paid ${usd(paid, true)} through a ${usd(PLAN)} a month subscription.`}
 			table={{
-				head: ["Model", ...TYPES.map((t) => TOKENS[t]), "Cost"],
-				rows: MODELS.map((m) => [
-					m,
-					...TYPES.map((t) => count(data.tokens_by_model[m][t])),
-					usd(data.cost_usd_by_model[m]),
-				]),
+				head: ["Line", "Amount"],
+				rows: [...lines, ...stats, ["List price", usd(list, true)], ["Paid", usd(paid, true)]],
 			}}
 			source={
 				<>
-					From the tally in{" "}
-					<a class="underline" href={data.source.pr}>
-						moq-dev/rind#400
-					</a>
-					, as of {data.as_of.slice(0, 10)}; it reruns just before this post goes out. {data.scope}. Claude Code and
-					Codex logs, each API message counted once, priced at each model's standard API rate; maintainer hours are
-					their own prompts, with gaps over 15 minutes counted as away.
+					From the tally in <a href={data.source.pr}>moq-dev/rind#400</a>, as of {data.as_of.slice(0, 10)}. {data.scope}
+					. Claude Code logs, each API message counted once, priced at each model's standard API rate. Review bots:{" "}
+					{BOTS.map(([bot, cost]) => `${bot} ${usd(cost)}`).join(", ")}, a rough estimate. Paid:{" "}
+					{data.calendar_span.count} days of a {usd(PLAN)} a month plan. Human hours are the maintainer's prompts, with
+					gaps over 15 minutes counted as away.
 				</>
 			}
 		>
-			<For each={MODELS}>
-				{(model, i) => {
-					const cost = data.cost_usd_by_model[model];
-					const w = (cost / costMax) * (W - LABEL - RIGHT);
-					const top = i() * ROW + 4;
-					return (
-						<g
-							{...on(() => ({
-								x: LABEL + w / 2,
-								y: top,
-								lines: [
-									`${model}: ${usd(cost)}`,
-									...TYPES.map((t) => `${count(data.tokens_by_model[model][t])} ${TOKENS[t]}`),
-								],
-							}))}
-						>
-							<rect x={0} y={top} width={W} height={ROW} fill="transparent" />
-							<text x={LABEL - 10} y={top + BAR - 2} text-anchor="end" fill="var(--ink)">
-								{model}
-							</text>
-							<rect x={LABEL} y={top + 2} width={Math.max(2, w)} height={BAR} rx="4" fill="var(--rind)" />
-							<text x={LABEL + w + 6} y={top + BAR - 1} fill="var(--ink-2)">
-								{usd(cost)}
-							</text>
-						</g>
-					);
-				}}
-			</For>
-		</Chart>
+			<div class="till">
+				<div class="receipt">
+					<div class="c">
+						<div class="store">RIND</div>
+						{date(data.calendar_span.first).toUpperCase()} → {date(data.calendar_span.last).toUpperCase()}{" "}
+						{data.calendar_span.last.slice(0, 4)}
+						<br />
+						{data.calendar_span.count} DAYS · TERMINAL /goal
+					</div>
+					<hr />
+					<For each={lines}>
+						{([item, cost]) => (
+							<div class="li">
+								<span>{item.toUpperCase()}</span>
+								<span>{cost}</span>
+							</div>
+						)}
+					</For>
+					<hr />
+					<For each={stats}>
+						{([item, value]) => (
+							<div class="li">
+								<span>{item.toUpperCase()}</span>
+								<span>{value}</span>
+							</div>
+						)}
+					</For>
+					<hr />
+					<div class="li list">
+						<span>LIST PRICE</span>
+						<span>{usd(list, true)}</span>
+					</div>
+					<div class="li">
+						<span>SUBSIDIES</span>
+						<span>−{usd(list - paid, true)}</span>
+					</div>
+					<hr />
+					<div class="li paid">
+						<span>PAID</span>
+						<span>{usd(paid, true)}</span>
+					</div>
+					<div class="c">
+						{data.calendar_span.count} DAYS OF {usd(PLAN)}/MO · YOU SAVED {Math.floor((1 - paid / list) * 100)}%
+					</div>
+					<hr />
+					<div class="c">THANK YOU FOR VIBING</div>
+					<div class="barcode" />
+				</div>
+			</div>
+		</Figure>
 	);
 }

@@ -1,0 +1,822 @@
+{
+	"source": {
+		"rind": "c2b76e9c85ce70a13bdad5a4911518510265b871",
+		"files": ["benchmarks/data/<host>.json", "benchmarks/verified.toml"],
+		"generated": "2026-11-07"
+	},
+	"libraries": ["rind", "aws-lc-rs", "ring", "rustcrypto", "graviola", "libcrux", "openssl"],
+	"rows": [
+		"AES-GCM",
+		"ChaCha20-Poly1305",
+		"XChaCha20-Poly1305",
+		"AES header protection",
+		"ChaCha20 header protection",
+		"SHA-256",
+		"SHA-512",
+		"HMAC-SHA256",
+		"HKDF-SHA256",
+		"X25519",
+		"Ed25519",
+		"P-256",
+		"P-384",
+		"P-521",
+		"RSA-2048 PSS",
+		"RSA-2048 PKCS#1",
+		"ML-KEM-768"
+	],
+	"partial": {
+		"rind": {
+			"AES-GCM": {
+				"proof": "Vale's F* AES-GCM, for every message without VAES but only short ones with it",
+				"link": "https://github.com/moq-dev/rind/blob/main/ALGORITHMS.md"
+			},
+			"Ed25519": {
+				"proof": "s2n-bignum's HOL Light scalar multiplications",
+				"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+			},
+			"P-256": {
+				"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+				"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+			},
+			"P-384": {
+				"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+				"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+			},
+			"P-521": {
+				"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+				"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+			},
+			"ML-KEM-768": {
+				"proof": "s2n-bignum's and mlkem-native's HOL Light NTT and sampling",
+				"link": "https://github.com/pq-code-package/mlkem-native/tree/main/proofs/hol_light/x86_64/proofs"
+			}
+		},
+		"aws-lc-rs": {
+			"AES-GCM": {
+				"proof": "aws-lc-verification's SAW AES-GCM, for AES-256 only",
+				"link": "https://github.com/awslabs/aws-lc-verification/blob/797302470c1703cbb1a3a6fa98daffef0bfd3d80/README.md"
+			},
+			"AES header protection": {
+				"proof": "aws-lc-verification's SAW AES block, for AES-256 only",
+				"link": "https://github.com/awslabs/aws-lc-verification/blob/797302470c1703cbb1a3a6fa98daffef0bfd3d80/README.md"
+			},
+			"X25519": {
+				"proof": "s2n-bignum's HOL Light X25519 ladder",
+				"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+			},
+			"Ed25519": {
+				"proof": "s2n-bignum's HOL Light scalar multiplications",
+				"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+			},
+			"P-256": {
+				"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+				"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+			},
+			"P-384": {
+				"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+				"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+			},
+			"P-521": {
+				"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+				"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+			},
+			"ML-KEM-768": {
+				"proof": "mlkem-native's HOL Light AVX2 NTT and sampling",
+				"link": "https://github.com/pq-code-package/mlkem-native/tree/main/proofs/hol_light/x86_64/proofs"
+			}
+		},
+		"graviola": {
+			"X25519": {
+				"proof": "s2n-bignum's HOL Light X25519 ladder",
+				"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+			},
+			"Ed25519": {
+				"proof": "s2n-bignum's HOL Light scalar multiplications",
+				"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+			},
+			"ML-KEM-768": {
+				"proof": "s2n-bignum's HOL Light NTT and base multiplication",
+				"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+			}
+		},
+		"libcrux": {
+			"XChaCha20-Poly1305": {
+				"proof": "HACL*'s F* ChaCha20-Poly1305, under an unverified HChaCha20",
+				"link": "https://github.com/hacl-star/hacl-star/tree/main/code/chacha20poly1305"
+			}
+		}
+	},
+	"hosts": [
+		{
+			"name": "Arrow Lake",
+			"source": {
+				"rind": "f95b91da886bee265dbd836192a7ade2f9158c47",
+				"cpu": "Intel(R) Core(TM) Ultra 7 270K Plus",
+				"date": "2026-11-06T15:07:11+00:00",
+				"versions": {
+					"rind": {
+						"rind": "0.1.13",
+						"rind-rustls": "0.1.13"
+					},
+					"aws-lc-rs": {
+						"aws-lc-rs": "1.19.0",
+						"aws-lc-sys": "0.47.0"
+					},
+					"ring": {
+						"ring": "0.17.14"
+					},
+					"rustcrypto": {
+						"aes-gcm": "0.11.1",
+						"chacha20poly1305": "0.11.0",
+						"sha2": "0.11.1",
+						"sha3": "0.12.0",
+						"hmac": "0.13.0",
+						"hkdf": "0.13.0",
+						"p256": "0.14.0",
+						"p384": "0.14.0",
+						"p521": "0.14.0",
+						"rsa": "0.10.0-rc.19",
+						"ml-kem": "0.3.4",
+						"ed25519-dalek": "3.0.0",
+						"x25519-dalek": "3.0.0"
+					},
+					"graviola": {
+						"graviola": "0.4.3",
+						"rustls-graviola": "0.4.0"
+					},
+					"libcrux": {
+						"libcrux-aes": "0.0.10",
+						"libcrux-chacha20poly1305": "0.0.10",
+						"libcrux-ecdh": "0.0.9",
+						"libcrux-ecdsa": "0.0.9",
+						"libcrux-ed25519": "0.0.10",
+						"libcrux-hkdf": "0.0.9",
+						"libcrux-hmac": "0.0.9",
+						"libcrux-ml-kem": "0.0.11",
+						"libcrux-rsa": "0.0.9",
+						"libcrux-sha2": "0.0.9",
+						"libcrux-sha3": "0.0.11"
+					},
+					"openssl": {
+						"openssl": "0.10.82",
+						"openssl-sys": "0.9.118",
+						"rustls-openssl": "0.4.2",
+						"linked": "OpenSSL 3.5.9 29 Sep 2026 (Library: OpenSSL 3.5.9 29 Sep 2026)"
+					},
+					"tls": {
+						"rustls": "0.23.46"
+					}
+				}
+			},
+			"seal": {
+				"32B": {
+					"rind": 18.23970143589417,
+					"aws-lc-rs": 36.98073557384887,
+					"ring": 41.924871268651515,
+					"rustcrypto": 72.57994609216502,
+					"graviola": 42.4748874952904,
+					"libcrux": 167.71237466382428,
+					"openssl": 55.16575239651397
+				},
+				"1350B": {
+					"rind": 93.7683903601383,
+					"aws-lc-rs": 149.17591551734716,
+					"ring": 118.19124436215918,
+					"rustcrypto": 272.2636773502971,
+					"graviola": 226.7114720955343,
+					"libcrux": 1944.6926140986054,
+					"openssl": 162.82610073434634
+				}
+			},
+			"coverage": {
+				"AES-GCM": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "none",
+					"openssl": "none"
+				},
+				"ChaCha20-Poly1305": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"XChaCha20-Poly1305": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "routine",
+					"openssl": null
+				},
+				"AES header protection": {
+					"rind": "none",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": null,
+					"graviola": null,
+					"libcrux": null,
+					"openssl": null
+				},
+				"ChaCha20 header protection": {
+					"rind": "e2e",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": null,
+					"graviola": null,
+					"libcrux": null,
+					"openssl": null
+				},
+				"SHA-256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"SHA-512": {
+					"rind": "none",
+					"aws-lc-rs": "e2e",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"HMAC-SHA256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"HKDF-SHA256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": null,
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"X25519": {
+					"rind": "e2e",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"Ed25519": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"P-256": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"P-384": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"P-521": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": null,
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"RSA-2048 PSS": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"RSA-2048 PKCS#1": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"ML-KEM-768": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "none",
+					"openssl": "none"
+				}
+			}
+		},
+		{
+			"name": "Zen 3",
+			"source": {
+				"rind": "f95b91da886bee265dbd836192a7ade2f9158c47",
+				"cpu": "AMD Ryzen 9 5900XT 16-Core Processor",
+				"date": "2026-11-06T16:32:11+00:00",
+				"versions": {
+					"rind": {
+						"rind": "0.1.13",
+						"rind-rustls": "0.1.13"
+					},
+					"aws-lc-rs": {
+						"aws-lc-rs": "1.19.0",
+						"aws-lc-sys": "0.47.0"
+					},
+					"ring": {
+						"ring": "0.17.14"
+					},
+					"rustcrypto": {
+						"aes-gcm": "0.11.1",
+						"chacha20poly1305": "0.11.0",
+						"sha2": "0.11.1",
+						"sha3": "0.12.0",
+						"hmac": "0.13.0",
+						"hkdf": "0.13.0",
+						"p256": "0.14.0",
+						"p384": "0.14.0",
+						"p521": "0.14.0",
+						"rsa": "0.10.0-rc.19",
+						"ml-kem": "0.3.4",
+						"ed25519-dalek": "3.0.0",
+						"x25519-dalek": "3.0.0"
+					},
+					"graviola": {
+						"graviola": "0.4.3",
+						"rustls-graviola": "0.4.0"
+					},
+					"libcrux": {
+						"libcrux-aes": "0.0.10",
+						"libcrux-chacha20poly1305": "0.0.10",
+						"libcrux-ecdh": "0.0.9",
+						"libcrux-ecdsa": "0.0.9",
+						"libcrux-ed25519": "0.0.10",
+						"libcrux-hkdf": "0.0.9",
+						"libcrux-hmac": "0.0.9",
+						"libcrux-ml-kem": "0.0.11",
+						"libcrux-rsa": "0.0.9",
+						"libcrux-sha2": "0.0.9",
+						"libcrux-sha3": "0.0.11"
+					},
+					"openssl": {
+						"openssl": "0.10.82",
+						"openssl-sys": "0.9.118",
+						"rustls-openssl": "0.4.2",
+						"linked": "OpenSSL 3.5.9 29 Sep 2026 (Library: OpenSSL 3.5.9 29 Sep 2026)"
+					},
+					"tls": {
+						"rustls": "0.23.46"
+					}
+				}
+			},
+			"seal": {
+				"32B": {
+					"rind": 38.71781004146106,
+					"aws-lc-rs": 78.18123602992911,
+					"ring": 56.29595468671775,
+					"rustcrypto": 96.96354522191186,
+					"graviola": 69.64893975805013,
+					"libcrux": 321.1510688259032,
+					"openssl": 115.16628382591279
+				},
+				"1350B": {
+					"rind": 164.7907743033959,
+					"aws-lc-rs": 291.45977784805507,
+					"ring": 191.30515759333656,
+					"rustcrypto": 433.59781089432875,
+					"graviola": 294.544534988775,
+					"libcrux": 4718.6859278643815,
+					"openssl": 326.496180077384
+				}
+			},
+			"coverage": {
+				"AES-GCM": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "none",
+					"openssl": "none"
+				},
+				"ChaCha20-Poly1305": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"XChaCha20-Poly1305": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "routine",
+					"openssl": null
+				},
+				"AES header protection": {
+					"rind": "none",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": null,
+					"graviola": null,
+					"libcrux": null,
+					"openssl": null
+				},
+				"ChaCha20 header protection": {
+					"rind": "e2e",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": null,
+					"graviola": null,
+					"libcrux": null,
+					"openssl": null
+				},
+				"SHA-256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"SHA-512": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"HMAC-SHA256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"HKDF-SHA256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": null,
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"X25519": {
+					"rind": "e2e",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"Ed25519": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"P-256": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"P-384": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"P-521": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": null,
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"RSA-2048 PSS": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"RSA-2048 PKCS#1": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"ML-KEM-768": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "none",
+					"openssl": "none"
+				}
+			}
+		},
+		{
+			"name": "Coffee Lake",
+			"source": {
+				"rind": "f95b91da886bee265dbd836192a7ade2f9158c47",
+				"cpu": "Intel(R) Core(TM) i7-8700 CPU @ 3.20GHz",
+				"date": "2026-11-06T15:35:40+00:00",
+				"versions": {
+					"rind": {
+						"rind": "0.1.13",
+						"rind-rustls": "0.1.13"
+					},
+					"aws-lc-rs": {
+						"aws-lc-rs": "1.19.0",
+						"aws-lc-sys": "0.47.0"
+					},
+					"ring": {
+						"ring": "0.17.14"
+					},
+					"rustcrypto": {
+						"aes-gcm": "0.11.1",
+						"chacha20poly1305": "0.11.0",
+						"sha2": "0.11.1",
+						"sha3": "0.12.0",
+						"hmac": "0.13.0",
+						"hkdf": "0.13.0",
+						"p256": "0.14.0",
+						"p384": "0.14.0",
+						"p521": "0.14.0",
+						"rsa": "0.10.0-rc.19",
+						"ml-kem": "0.3.4",
+						"ed25519-dalek": "3.0.0",
+						"x25519-dalek": "3.0.0"
+					},
+					"graviola": {
+						"graviola": "0.4.3",
+						"rustls-graviola": "0.4.0"
+					},
+					"libcrux": {
+						"libcrux-aes": "0.0.10",
+						"libcrux-chacha20poly1305": "0.0.10",
+						"libcrux-ecdh": "0.0.9",
+						"libcrux-ecdsa": "0.0.9",
+						"libcrux-ed25519": "0.0.10",
+						"libcrux-hkdf": "0.0.9",
+						"libcrux-hmac": "0.0.9",
+						"libcrux-ml-kem": "0.0.11",
+						"libcrux-rsa": "0.0.9",
+						"libcrux-sha2": "0.0.9",
+						"libcrux-sha3": "0.0.11"
+					},
+					"openssl": {
+						"openssl": "0.10.82",
+						"openssl-sys": "0.9.118",
+						"rustls-openssl": "0.4.2",
+						"linked": "OpenSSL 3.5.9 29 Sep 2026 (Library: OpenSSL 3.5.9 29 Sep 2026)"
+					},
+					"tls": {
+						"rustls": "0.23.46"
+					}
+				}
+			},
+			"seal": {
+				"32B": {
+					"rind": 43.15916603583141,
+					"aws-lc-rs": 88.83327042566431,
+					"ring": 70.7040432637589,
+					"rustcrypto": 100.4982078797696,
+					"graviola": 71.39229992693309,
+					"libcrux": 281.52643199369265,
+					"openssl": 156.06502569144425
+				},
+				"1350B": {
+					"rind": 246.02047383389657,
+					"aws-lc-rs": 284.68424193053846,
+					"ring": 277.1718537592373,
+					"rustcrypto": 547.3359684291029,
+					"graviola": 400.38547959209893,
+					"libcrux": 3492.0898421216825,
+					"openssl": 352.0939685158669
+				}
+			},
+			"coverage": {
+				"AES-GCM": {
+					"rind": "e2e",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "none",
+					"openssl": "none"
+				},
+				"ChaCha20-Poly1305": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"XChaCha20-Poly1305": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "routine",
+					"openssl": null
+				},
+				"AES header protection": {
+					"rind": "none",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": null,
+					"graviola": null,
+					"libcrux": null,
+					"openssl": null
+				},
+				"ChaCha20 header protection": {
+					"rind": "e2e",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": null,
+					"graviola": null,
+					"libcrux": null,
+					"openssl": null
+				},
+				"SHA-256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"SHA-512": {
+					"rind": "none",
+					"aws-lc-rs": "e2e",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"HMAC-SHA256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"HKDF-SHA256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": null,
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"X25519": {
+					"rind": "e2e",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"Ed25519": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"P-256": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"P-384": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"P-521": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": null,
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"RSA-2048 PSS": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"RSA-2048 PKCS#1": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"ML-KEM-768": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "none",
+					"openssl": "none"
+				}
+			}
+		}
+	]
+}

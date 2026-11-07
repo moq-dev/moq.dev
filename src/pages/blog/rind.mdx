@@ -1,13 +1,13 @@
 ---
 layout: "@/layouts/global.astro"
-title: "TODO(kixelated): rind"
+title: "Secure Vibe Slop"
 author: kixelated
 description: TODO(kixelated) a one-liner about rind.
 cover: "/blog/rind/cover.svg"
 date: 2026-12-01
 ---
 
-import Quic from "@/components/rind/quic";
+import Quic, { QuicScore } from "@/components/rind/quic";
 import Runtimes from "@/components/rind/runtimes";
 import Build from "@/components/rind/build";
 import Coverage from "@/components/rind/coverage";
@@ -15,36 +15,35 @@ import Speed from "@/components/rind/speed";
 import Tally from "@/components/rind/tally";
 import Author from "@/components/author.astro";
 
-# TODO(kixelated): rind
-TODO(kixelated): the hook.
+# Secure Vibe Slop
+I'm one of the OG "rewrite it in Rust" guys.
+**I love Rust**, but I wrote my last line of Rust 6 months ago, and it was only because the interview banned AI tools.
 
-TODO(kixelated): what [rind](https://github.com/moq-dev/rind) is, in one line.
+Btw if you interview for Anthropic, **BROWN NOSE THE MISSION**. They be serious.
 
-## TODO(kixelated): Why Write Our Own Crypto
-TODO(kixelated): why not just use aws-lc-rs or ring.
+Anyway, I got fed up with `aws-lc-rs` taking 60s+ to build.
+I got fed up with projects that pretend to be written in Rust but shell out to C via `build.rs`.
+I did what any sane software engineer does in `current_year`...
 
-## TODO(kixelated): QUIC Go Brrr
-TODO(kixelated): every packet MoQ sends is encrypted, so crypto is a big chunk of the CPU.
+I frankensteined parts from a 9-year old gaming PC, installed Claude, and ran `/goal`.
+
+## WOW NUMBERS
+[rind](https://github.com/moq-dev/rind) is faster crypto.
 
 <figure>
 	<Quic client:visible />
 	<figcaption>TODO(kixelated): caption</figcaption>
 </figure>
 
-TODO(kixelated): the takeaway for a relay.
-
-## TODO(kixelated): Moving the Needle
-TODO(kixelated): we don't care about crypto in JavaScript, but rind makes a dent anyway.
+<figure>
+	<QuicScore client:visible />
+	<figcaption>TODO(kixelated): caption</figcaption>
+</figure>
 
 <figure>
 	<Runtimes client:visible />
 	<figcaption>TODO(kixelated): caption</figcaption>
 </figure>
-
-TODO(kixelated): what Bun on rind is, and that it's a prototype.
-
-## TODO(kixelated): No C Compiler Required
-TODO(kixelated): build cost.
 
 <figure>
 	<Build client:visible />

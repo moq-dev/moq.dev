@@ -4,39 +4,18 @@ The charts in `src/pages/blog/rind.mdx` read `src/components/rind/data/*.json`.
 Each file records its source: the rind commit, host, CPU, and date.
 Refresh them all just before posting, after rind 0.2.0 and its QUIC quests land, then run `just fix`.
 
-## Proofs and build cost
+## Proofs, build cost, and libraries
 
-Both come from a rind checkout at the commit being announced, after its nightly
+All three come from a rind checkout at the commit being announced, after its nightly
 `bench` run and `admin/bench-report` collection:
 
 ```bash
-bun tools/rind/refresh.ts proofs <rind>   # proofs.json: README's Algorithms, verified.toml, tiers.json
-bun tools/rind/refresh.ts build <rind>    # build.json: benchmarks/data/<host>.json's build_cost
+bun tools/rind/refresh.ts proofs <rind>      # proofs.json: ALGORITHMS.md, verified.toml, tiers.json
+bun tools/rind/refresh.ts build <rind>       # build.json: benchmarks/data/<host>.json's build_cost
+bun tools/rind/refresh.ts libraries <rind>   # libraries.json: every library's QUIC seal times and proofs
 ```
 
-`refresh.ts`'s `ROUTINE` marks cells that run a proven routine README's table doesn't mark, such as AES-GCM on VAES CPUs; drop an entry once README covers it.
-
-## QUIC
-
-rind's bench-report doesn't time QUIC's sizes, so `quic.sh` does, on one pinned core of an idle host.
-On each host:
-
-```bash
-tools/rind/quic.sh <rind> <core> <out>
-```
-
-Copy `<out>` back, then:
-
-```bash
-bun tools/rind/refresh.ts quic "Arrow Lake" <out> <out>/rounds/*/criterion
-```
-
-Neoverse N2 comes from rind's bench workflow instead, since no one can pin a GitHub runner's core.
-Download a run's `bench-aarch64-unknown-linux-gnu` artifact, one at or after the aarch64 short-message AES-GCM quest so it times ACK-sized seals, then:
-
-```bash
-bun tools/rind/refresh.ts quic-run "Neoverse N2" <rind> <artifact>/bench-results.json <run-id>
-```
+`libraries` reads end-to-end proofs from `verified.toml`. Partial proofs, where a proven routine does the core math under unproven glue, live in `refresh.ts`'s `PARTIAL`; recheck them against each library's source when a locked version changes.
 
 ## Runtimes
 

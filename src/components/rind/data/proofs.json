@@ -1,7 +1,7 @@
 {
 	"source": {
-		"rind": "59f50f21c3f6cac4ca317c5490cafb831cbfe0d2",
-		"files": ["README.md#algorithms", "benchmarks/verified.toml", "benchmarks/data/tiers.json"],
+		"rind": "c2b76e9c85ce70a13bdad5a4911518510265b871",
+		"files": ["ALGORITHMS.md", "benchmarks/verified.toml", "benchmarks/data/tiers.json"],
 		"nightly": {
 			"run": "https://github.com/moq-dev/rind/actions/runs/41932862737",
 			"commit": "33bcf0e9fcbca76c991cee74ae6be0b31408902d",
@@ -17,7 +17,7 @@
 			"no crypto": "Neoverse-N2",
 			"armv7": "Neoverse-N2"
 		},
-		"generated": "2026-11-06"
+		"generated": "2026-11-07"
 	},
 	"tiers": ["x86_64", "no AVX2", "no AVX", "no AES-NI", "SSE2", "aarch64", "no crypto", "armv7"],
 	"rows": [
@@ -26,9 +26,7 @@
 			"cells": [
 				{
 					"status": "routine",
-					"code": "BoringSSL ⚡ + Graviola",
-					"proof": "Vale (F*)",
-					"note": "Since moq-dev/rind#391, short messages run Vale's proven kernel; the VAES path and the dispatch are unproven.",
+					"code": "BoringSSL ⚡ + HACL* ✓ + Graviola",
 					"speedup": {
 						"geomean": 1.3831424055000499,
 						"min": 1.0683039140445125,
@@ -80,7 +78,7 @@
 				},
 				{
 					"status": "none",
-					"code": "s2n-bignum + Graviola",
+					"code": "s2n-bignum + Graviola + rind",
 					"speedup": {
 						"geomean": 1.1764263646417765,
 						"min": 1.059195547685302,
@@ -1099,7 +1097,7 @@
 			"name": "RSA",
 			"cells": [
 				{
-					"status": "routine",
+					"status": "none",
 					"code": "s2n-bignum ✓ + aws-lc ⚡ + rind ⚡",
 					"speedup": {
 						"geomean": 1.183663079347063,
@@ -1109,7 +1107,7 @@
 					}
 				},
 				{
-					"status": "routine",
+					"status": "none",
 					"code": "s2n-bignum ✓ + aws-lc ⚡",
 					"speedup": {
 						"geomean": 1.152204085174512,
@@ -1119,19 +1117,19 @@
 					}
 				},
 				{
-					"status": "routine",
+					"status": "none",
 					"code": "s2n-bignum ✓ + aws-lc ⚡"
 				},
 				{
-					"status": "routine",
+					"status": "none",
 					"code": "s2n-bignum ✓ + aws-lc ⚡"
 				},
 				{
-					"status": "routine",
+					"status": "none",
 					"code": "s2n-bignum ✓ + aws-lc ⚡"
 				},
 				{
-					"status": "routine",
+					"status": "none",
 					"code": "s2n-bignum ✓ + aws-lc ⚡ + Graviola ⚡",
 					"speedup": {
 						"geomean": 1.682234849418117,
@@ -1141,7 +1139,7 @@
 					}
 				},
 				{
-					"status": "routine",
+					"status": "none",
 					"code": "s2n-bignum ✓ + aws-lc ⚡ + Graviola ⚡",
 					"speedup": {
 						"geomean": 1.682342768270677,

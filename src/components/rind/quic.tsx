@@ -1,193 +1,185 @@
-// QUIC's per-packet crypto and handshakes: rind against aws-lc-rs (MoQ's old default) and ring, per CPU.
-import { createSignal, For } from "solid-js";
-import { Chart, commit, createTip, day, Toggle, time, times } from "./chart";
-import json from "./data/quic.json";
+// QUIC's per-packet crypto: every library's AES-128-GCM seal, as a ball bouncing once per packet, and
+// rind against aws-lc-rs on each CPU.
+import { createSignal, For, onCleanup, onMount } from "solid-js";
+import { commit, cpu, day, Figure, frames, midscreen, name, reduced, time, times } from "./chart";
+import data from "./data/libraries.json";
 
-interface Row {
-	op: string;
-	size: string;
-	ns: Partial<Record<(typeof LIBS)[number], number>> & { rind: number; "aws-lc-rs": number };
-}
-interface Host {
-	name: string;
-	source: {
-		rind: string;
-		"aws-lc-rs": string;
-		ring: string;
-		rustls: string;
-		cpu: string;
-		date: string;
-		rounds: number;
-		// quic.sh's, on a host we pin
-		core?: number;
-		load?: number[]; // the 1-minute load average before and after
-		logical_cpus?: number;
-		// rind's bench workflow's, on a GitHub runner
-		run?: string;
-		note: string;
-	};
-	rows: Row[];
-}
-const data = json as { hosts: Host[] };
+type Host = (typeof data.hosts)[number];
+type Size = "32B" | "1350B";
+const seal = (host: Host, size: Size) => host.seal[size] as Record<string, number>;
 
-const LIBS = ["rind", "aws-lc-rs", "ring"] as const;
-const OPS = ["seal", "open", "header protection", "handshake"] as const;
-type Op = (typeof OPS)[number];
+// The CPU the bouncing balls run on.
+const HERO = "Zen 3";
+// One bounce is one packet sealed, slowed this much so the eye can follow.
+const SLOW = 2e6;
 
-// QUIC's sizes are whole datagrams; the two smallest are ACK-sized packets under a 13 B short header.
-const SIZES: Record<string, string> = {
-	"quic-32B": "32 B",
-	"quic-64B": "64 B",
-	"1200B": "1200 B",
-	"1350B": "1350 B",
-	"": "AES-128",
-	X25519: "X25519",
-	X25519MLKEM768: "X25519MLKEM768",
+const table = {
+	head: ["Library", ...data.hosts.flatMap((h) => [`${h.name}, 32 B`, `${h.name}, 1350 B`])],
+	rows: data.libraries.map((lib) => [
+		name(lib),
+		...data.hosts.flatMap((h) => (["32B", "1350B"] as const).map((size) => time(seal(h, size)[lib]))),
+	]),
 };
 
-const NOTES: Record<Op, string> = {
-	seal: "AES-128-GCM, encrypting one packet",
-	open: "AES-128-GCM, decrypting one packet",
-	"header protection": "masking one packet's header",
-	handshake: "a full TLS 1.3 handshake through rustls, both peers",
-};
-
-const W = 640;
-const LABEL = 112;
-const RIGHT = 120;
-const BAR = 9;
-const STEP = BAR + 3;
-const GROUP = LIBS.length * STEP + 14;
+const source = (
+	<>
+		AES-128-GCM seal, criterion's estimate from rind's benchmark report at {commit(data.hosts[0].source.rind)},{" "}
+		{day(data.hosts[0].source.date)}: {data.hosts.map((h) => `${h.name} is ${h.source.cpu}`).join(", ")}.
+	</>
+);
 
 export default function Quic() {
-	const [host, setHost] = createSignal(data.hosts[0].name);
-	const [op, setOp] = createSignal<Op>("open");
-	const { tip, on } = createTip();
+	const host = data.hosts.find((h) => h.name === HERO);
+	if (!host) throw new Error(`libraries.json has no ${HERO}`);
+	const lanes = Object.entries(seal(host, "1350B")).sort((a, b) => a[1] - b[1]);
+	const [counts, setCounts] = createSignal(lanes.map(() => 0));
+	const canvases: HTMLCanvasElement[] = [];
+	let figure: HTMLElement | undefined;
 
-	const current = () => data.hosts.find((h) => h.name === host()) ?? data.hosts[0];
-	const rows = () => current().rows.filter((r) => r.op === op());
-	const max = () => Math.max(...rows().flatMap((r) => LIBS.map((l) => r.ns[l] ?? 0)));
-	const width = (ns: number) => (ns / max()) * (W - LABEL - RIGHT);
-	const height = () => rows().length * GROUP + 4;
+	// Where a ball sits after `bounces` wall-to-wall trips: 0 at the left wall, 1 at the right.
+	const at = (bounces: number) => {
+		const n = Math.floor(bounces);
+		return n % 2 ? 1 - (bounces - n) : bounces - n;
+	};
+	let elapsed = 0;
+	const draw = (seconds: number) => {
+		if (!figure) return;
+		const style = getComputedStyle(figure);
+		setCounts(
+			lanes.map(([lib, ns], i) => {
+				const canvas = canvases[i];
+				const ctx = canvas.getContext("2d");
+				const hz = 1e9 / ns / SLOW;
+				const bounces = seconds * hz;
+				const n = Math.floor(bounces);
+				if (!ctx) return n;
+				const d = devicePixelRatio;
+				const { width: w, height: h } = canvas;
+				const wall = 4 * d;
+				const r = 6 * d;
+				const x = (p: number) => wall + r + p * (w - 2 * wall - 2 * r);
+				ctx.clearRect(0, 0, w, h);
+				ctx.fillStyle = style.getPropertyValue(lib === "rind" ? "--rind" : "--ink-2");
+				// A wall flashes for 150 ms after the ball leaves it.
+				const glow = n > 0 ? Math.max(0, 1 - (bounces - n) / hz / 0.15) : 0;
+				const hit = n % 2 ? w - wall : 0;
+				for (const side of [0, w - wall]) {
+					ctx.globalAlpha = 0.25 + (side === hit ? 0.75 * glow : 0);
+					ctx.fillRect(side, 0, wall, h);
+				}
+				// A short motion trail, then the ball.
+				for (let k = 6; k >= 0; k--) {
+					ctx.globalAlpha = k ? (0.3 * (7 - k)) / 7 : 1;
+					ctx.beginPath();
+					ctx.arc(x(at(Math.max(0, bounces - k * hz * 0.018))), h / 2, r * (k ? 0.8 : 1), 0, 2 * Math.PI);
+					ctx.fill();
+				}
+				ctx.globalAlpha = 1;
+				return n;
+			}),
+		);
+	};
+
+	onMount(() => {
+		const size = () => {
+			for (const canvas of canvases) {
+				canvas.width = canvas.clientWidth * devicePixelRatio;
+				canvas.height = canvas.clientHeight * devicePixelRatio;
+			}
+			draw(elapsed);
+		};
+		size();
+		addEventListener("resize", size);
+		let cancel = () => {};
+		onCleanup(() => {
+			removeEventListener("resize", size);
+			cancel();
+		});
+		if (figure && !reduced())
+			midscreen(figure, () => {
+				cancel = frames((seconds) => {
+					elapsed = seconds;
+					draw(seconds);
+					return true;
+				});
+			});
+	});
 
 	return (
-		<Chart
-			title="QUIC's crypto"
-			subtitle={`${NOTES[op()]}; shorter is faster`}
-			controls={
-				<>
-					<Toggle label="CPU" options={data.hosts.map((h) => h.name)} value={host()} onChange={setHost} />
-					<Toggle label="Operation" options={OPS} value={op()} onChange={setOp} />
-				</>
-			}
-			legend={LIBS.map((lib) => ({
-				color: `var(--${lib})`,
-				label: lib === "aws-lc-rs" ? "aws-lc-rs (MoQ's old default)" : lib,
-			}))}
-			width={W}
-			height={height()}
-			tip={tip}
-			label={`Time per ${op()} on ${host()} for rind, aws-lc-rs, and ring.`}
-			table={{
-				head: ["Operation", "Size", ...LIBS, "rind vs aws-lc-rs"],
-				rows: current().rows.map((r) => [
-					r.op,
-					SIZES[r.size],
-					...LIBS.map((l) => (r.ns[l] ? time(r.ns[l]) : "none")),
-					times(r.ns["aws-lc-rs"] / r.ns.rind),
-				]),
+		<Figure
+			ref={(el) => {
+				figure = el;
 			}}
-			source={
+			kicker={`Sealing 1350 B QUIC packets · one ${HERO} core`}
+			number={times(seal(host, "1350B")["aws-lc-rs"] / seal(host, "1350B").rind)}
+			headline={
 				<>
-					{current().source.cpu}, rind {commit(current().source.rind)}, aws-lc-rs {current().source["aws-lc-rs"]}, ring{" "}
-					{current().source.ring}, rustls {current().source.rustls}.{" "}
-					{current().source.run ? (
-						<>
-							rind-bench in rind's{" "}
-							<a class="underline" href={current().source.run}>
-								bench workflow
-							</a>
-							, one criterion round
-						</>
-					) : (
-						<>rind-bench on one pinned core, the median of {current().source.rounds} criterion rounds</>
-					)}
-					, {day(current().source.date)}. {current().source.note}
+					aws-lc-rs's
+					<br />
+					packets per core
 				</>
 			}
+			label={`Packets sealed per second by each library on ${HERO}, drawn as balls bouncing once per packet.`}
+			table={table}
+			source={source}
 		>
-			<For each={rows()}>
-				{(row, i) => {
-					const y = i() * GROUP + 4;
-					const speedup = () => row.ns["aws-lc-rs"] / row.ns.rind;
-					return (
-						<>
-							<text x={LABEL - 10} y={y + (LIBS.length * STEP) / 2 + 3} text-anchor="end" fill="var(--ink)">
-								{SIZES[row.size]}
-							</text>
-							<For each={LIBS}>
-								{(lib, j) => {
-									const ns = row.ns[lib];
-									if (ns === undefined)
-										return (
-											<text x={LABEL + 4} y={y + j() * STEP + BAR - 1} fill="var(--ink-3)" font-size="10">
-												{lib} doesn't offer it
-											</text>
-										);
-									return (
-										<g
-											{...on(() => ({
-												x: LABEL + width(ns),
-												y: y + j() * STEP,
-												lines: [
-													`${lib}: ${time(ns)}`,
-													lib === "aws-lc-rs"
-														? `${SIZES[row.size]} ${op()}`
-														: `${times(row.ns["aws-lc-rs"] / ns)} aws-lc-rs's speed`,
-												],
-											}))}
-										>
-											<rect
-												x={LABEL}
-												y={y + j() * STEP - 1}
-												width={W - LABEL - RIGHT}
-												height={STEP}
-												fill="transparent"
-											/>
-											<rect
-												x={LABEL}
-												y={y + j() * STEP}
-												width={Math.max(2, width(ns))}
-												height={BAR}
-												rx="3"
-												fill={`var(--${lib})`}
-											/>
-											{lib === "rind" && (
-												<text x={LABEL + width(ns) + 6} y={y + j() * STEP + BAR - 1} fill="var(--ink-2)">
-													{time(ns)}
-												</text>
-											)}
-										</g>
-									);
+			<div class="lanes">
+				<For each={lanes}>
+					{([lib, ns], i) => (
+						<div class={`lane${lib === "rind" ? " me" : ""}`}>
+							<div class="who">
+								{name(lib)}
+								<small>{time(ns)}</small>
+							</div>
+							<canvas
+								ref={(el) => {
+									canvases[i()] = el;
 								}}
-							</For>
-							<text
-								x={W - 4}
-								y={y + (LIBS.length * STEP) / 2 + 4}
-								text-anchor="end"
-								fill={speedup() >= 1 ? "var(--rind)" : "var(--ink-2)"}
-								font-weight="700"
-								font-size="14"
-							>
-								{times(speedup())}
-							</text>
-						</>
-					);
-				}}
-			</For>
-			<text x={W - 4} y={height() - 1} text-anchor="end" fill="var(--ink-3)" font-size="10">
-				vs aws-lc-rs
-			</text>
-		</Chart>
+							/>
+							<div class="count">{counts()[i()].toLocaleString("en-US")}</div>
+						</div>
+					)}
+				</For>
+			</div>
+			<p class="fine">AES-128-GCM. aws-lc is Amazon's BoringSSL fork.</p>
+		</Figure>
+	);
+}
+
+// rind against aws-lc-rs on each CPU: a full packet as the headline, an ACK-sized one beneath.
+export function QuicScore() {
+	const ratio = (h: Host, size: Size) => seal(h, size)["aws-lc-rs"] / seal(h, size).rind;
+	return (
+		<Figure
+			kicker="Sealing one QUIC packet, vs aws-lc-rs"
+			headline={
+				data.hosts.every((h) => ratio(h, "1350B") > 1) ? "Faster on all three of our CPUs" : "rind vs aws-lc-rs"
+			}
+			label="rind's speed over aws-lc-rs's sealing a 1350 B and a 32 B QUIC packet, on each CPU."
+			table={table}
+			source={source}
+		>
+			<div class="score">
+				<For each={data.hosts}>
+					{(h) => (
+						<div>
+							<div class="cpu">
+								{h.name}
+								<small>{cpu(h.source.cpu)}</small>
+							</div>
+							<div class={`big${ratio(h, "1350B") < 1.25 ? " meh" : ""}`}>{times(ratio(h, "1350B"))}</div>
+							<div class="duel">
+								<i class="me" style={{ width: `${100 / ratio(h, "1350B")}%` }} />
+								<i style={{ width: "100%" }} />
+							</div>
+							<div class="ack">
+								32 B ACK: <b>{times(ratio(h, "32B"))}</b>
+							</div>
+						</div>
+					)}
+				</For>
+			</div>
+			<p class="fine">Big number: a full 1350 B packet. Green is rind, grey aws-lc-rs; shorter is faster.</p>
+		</Figure>
 	);
 }

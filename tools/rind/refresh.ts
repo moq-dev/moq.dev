@@ -1,13 +1,12 @@
 // Regenerates the rind post's chart data (src/components/rind/data/) from a rind checkout and
 // fresh measurements. See README.md beside this file for when to run each step.
 //
-//   bun tools/rind/refresh.ts proofs <rind>                      verified.toml + README + tiers.json
-//   bun tools/rind/refresh.ts build <rind>                       benchmarks/data/*.json build_cost
-//   bun tools/rind/refresh.ts quic <host> <out> <criterion>...   quic.sh's rounds, one per criterion dir
-//   bun tools/rind/refresh.ts quic-run <host> <rind> <json> <id>  a bench workflow run's artifact
-//   bun tools/rind/refresh.ts runtimes <out> <out>/*.tsv          runtimes.sh's rounds
+//   bun tools/rind/refresh.ts proofs <rind>               verified.toml + ALGORITHMS.md + tiers.json
+//   bun tools/rind/refresh.ts build <rind>                benchmarks/data/*.json build_cost
+//   bun tools/rind/refresh.ts libraries <rind>            benchmarks/data/*.json times + verified.toml
+//   bun tools/rind/refresh.ts runtimes <out> <out>/*.tsv  runtimes.sh's rounds
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const DATA = join(import.meta.dir, "../../src/components/rind/data");
@@ -21,7 +20,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 const commit = (rind: string) => execFileSync("git", ["-C", rind, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
 const geomean = (xs: number[]) => Math.exp(xs.reduce((a, x) => a + Math.log(x), 0) / xs.length);
 
-// rind's CPU tiers, as bench.yml denies features and README's Algorithms tables name them.
+// rind's CPU tiers, as bench.yml denies features and ALGORITHMS.md's tables name them.
 // `features` is what rind can use on that tier, for matching verified.toml's `cpu` lists.
 const X86 = ["aes", "pclmulqdq", "ssse3", "sse4.1", "avx", "movbe"];
 const TIERS = [
@@ -50,38 +49,35 @@ const TIERS = [
 	{ name: "armv7", arch: "armv7", nightly: ["armv7-unknown-linux-gnueabihf", false, ""], features: [] },
 ] as const;
 
-// The primitives charted, as README's Algorithms rows (by prefix) and nightly benchmark IDs
-// (admin/bench-report's TIER_ROWS).
+// The primitives charted, as ALGORITHMS.md's rows (by prefix) and nightly benchmark IDs
+// (admin/bench-report's TIER_ROWS). `helpers` marks a row whose ✓ covers only helpers, such as
+// RSA's s2n-bignum multiplications under rind's own exponentiation, which isn't a proven core.
 const ROWS = [
-	{ name: "AES-GCM", readme: "AES-GCM", pattern: /^aes(128|256)-gcm(-open)?\// },
-	{ name: "AES header protection", readme: "AES block", pattern: /^quic-header-protection\/aes(128|256)\// },
-	{ name: "ChaCha20 header protection", readme: "ChaCha20 (header", pattern: /^quic-header-protection\/chacha20\// },
-	{ name: "ChaCha20-Poly1305", readme: "ChaCha20-Poly1305", pattern: /^x?chacha20poly1305\// },
-	{ name: "SHA-256", readme: "SHA-256", pattern: /^sha256(-updates)?\// },
-	{ name: "SHA-384, SHA-512", readme: "SHA-384", pattern: /^sha(384|512|512-256)\// },
-	{ name: "HMAC", readme: "HMAC", pattern: /^hmac-/ },
-	{ name: "HKDF", readme: "HKDF", pattern: /^hkdf-/ },
-	{ name: "X25519", readme: "X25519", pattern: /^x25519-/ },
-	{ name: "Ed25519", readme: "Ed25519", pattern: /^ed25519-/ },
-	{ name: "P-256", readme: "P-256", pattern: /^p256-/ },
-	{ name: "P-384", readme: "P-384", pattern: /^p384-/ },
-	{ name: "P-521", readme: "P-521", pattern: /^p521-/ },
-	{ name: "ML-KEM-768", readme: "ML-KEM-768", pattern: /^mlkem768-/ },
-	{ name: "RSA", readme: "RSA", pattern: /^rsa\d+-(pkcs1|pss|load)/ },
+	{ name: "AES-GCM", algorithms: "AES-GCM", pattern: /^aes(128|256)-gcm(-open)?\// },
+	{ name: "AES header protection", algorithms: "AES block", pattern: /^quic-header-protection\/aes(128|256)\// },
+	{
+		name: "ChaCha20 header protection",
+		algorithms: "ChaCha20 (header",
+		pattern: /^quic-header-protection\/chacha20\//,
+	},
+	{ name: "ChaCha20-Poly1305", algorithms: "ChaCha20-Poly1305", pattern: /^x?chacha20poly1305\// },
+	{ name: "SHA-256", algorithms: "SHA-256", pattern: /^sha256(-updates)?\// },
+	{ name: "SHA-384, SHA-512", algorithms: "SHA-384", pattern: /^sha(384|512|512-256)\// },
+	{ name: "HMAC", algorithms: "HMAC", pattern: /^hmac-/ },
+	{ name: "HKDF", algorithms: "HKDF", pattern: /^hkdf-/ },
+	{ name: "X25519", algorithms: "X25519", pattern: /^x25519-/ },
+	{ name: "Ed25519", algorithms: "Ed25519", pattern: /^ed25519-/ },
+	{ name: "P-256", algorithms: "P-256", pattern: /^p256-/ },
+	{ name: "P-384", algorithms: "P-384", pattern: /^p384-/ },
+	{ name: "P-521", algorithms: "P-521", pattern: /^p521-/ },
+	{ name: "ML-KEM-768", algorithms: "ML-KEM-768", pattern: /^mlkem768-/ },
+	{ name: "RSA", algorithms: "RSA", pattern: /^rsa\d+-(pkcs1|pss|load)/, helpers: true },
 ];
 
-// Cells that run a proven routine README's table doesn't mark, by "<row>/<tier>", with what's proven.
-const ROUTINE: Record<string, { proof: string; note: string }> = {
-	"AES-GCM/x86_64": {
-		proof: "Vale (F*)",
-		note: "Since moq-dev/rind#391, short messages run Vale's proven kernel; the VAES path and the dispatch are unproven.",
-	},
-};
-
-// Each tier's cell text in README's two Algorithms tables; an empty cell repeats the one to its left.
-function algorithms(readme: string): Map<string, string[]> {
+// Each tier's cell text in ALGORITHMS.md's two tables; an empty cell repeats the one to its left.
+function algorithms(markdown: string): Map<string, string[]> {
 	const cells = new Map<string, string[]>();
-	for (const line of readme.split("\n")) {
+	for (const line of markdown.split("\n")) {
 		if (!line.startsWith("| ") || line.startsWith("| Algorithm") || line.startsWith("|---")) continue;
 		const [name, ...rest] = line
 			.split("|")
@@ -113,12 +109,12 @@ function proofs(rind: string) {
 	const verified = Bun.TOML.parse(readFileSync(join(rind, "benchmarks/verified.toml"), "utf8")) as {
 		verified: { library: string; operations: string[]; arch?: string; cpu?: string[]; proof: string; link: string }[];
 	};
-	const readme = algorithms(readFileSync(join(rind, "README.md"), "utf8"));
+	const table = algorithms(readFileSync(join(rind, "ALGORITHMS.md"), "utf8"));
 	const nightly = read(join(rind, "benchmarks/data/tiers.json"));
 
 	const cells = ROWS.map((row) => {
-		const text = [...readme].find(([name]) => name.startsWith(row.readme))?.[1];
-		if (!text || text.length !== TIERS.length) throw new Error(`README has no full Algorithms row for ${row.readme}`);
+		const text = [...table].find(([name]) => name.startsWith(row.algorithms))?.[1];
+		if (!text || text.length !== TIERS.length) throw new Error(`ALGORITHMS.md has no full row for ${row.algorithms}`);
 
 		return TIERS.map((tier, i) => {
 			const proven = verified.verified.find(
@@ -144,12 +140,11 @@ function proofs(rind: string) {
 					return ours && theirs ? [theirs / ours] : [];
 				});
 
-			const routine = proven ? undefined : ROUTINE[`${row.name}/${tier.name}`];
 			return {
-				status: proven ? "e2e" : routine || text[i].includes("✓") ? "routine" : "none",
+				status: proven ? "e2e" : !("helpers" in row) && text[i].includes("✓") ? "routine" : "none",
 				code: text[i],
-				proof: proven ? sources(proven.proof) : routine?.proof,
-				note: proven?.cpu?.includes("intel") ? "Intel CPUs only" : routine?.note,
+				proof: proven ? sources(proven.proof) : undefined,
+				note: proven?.cpu?.includes("intel") ? "Intel CPUs only" : undefined,
 				link: proven?.link,
 				// aws-lc-rs's time over rind's: above 1, rind is faster.
 				speedup: ratios.length
@@ -162,7 +157,7 @@ function proofs(rind: string) {
 	write("proofs.json", {
 		source: {
 			rind: commit(rind),
-			files: ["README.md#algorithms", "benchmarks/verified.toml", "benchmarks/data/tiers.json"],
+			files: ["ALGORITHMS.md", "benchmarks/verified.toml", "benchmarks/data/tiers.json"],
 			nightly: { run: nightly.url, commit: nightly.commit, date: nightly.date },
 			cpus: Object.fromEntries(
 				TIERS.map((tier) => [
@@ -220,100 +215,143 @@ function build(rind: string) {
 	});
 }
 
-// criterion's estimate for each benchmark under `dir`, by its full ID.
-function criterion(dir: string): Map<string, number> {
-	const out = new Map<string, number>();
-	const walk = (d: string) => {
-		for (const entry of readdirSync(d, { withFileTypes: true })) {
-			const path = join(d, entry.name);
-			if (!entry.isDirectory()) continue;
-			if (entry.name === "new" && existsSync(join(path, "benchmark.json"))) {
-				const { full_id } = read(join(path, "benchmark.json"));
-				const est = read(join(path, "estimates.json"));
-				out.set(full_id, (est.slope ?? est.mean).point_estimate);
-			} else walk(path);
-		}
-	};
-	walk(dir);
-	return out;
-}
+// The libraries rind's report times, by its names for them.
+const LIBRARIES = ["rind", "aws-lc-rs", "ring", "rustcrypto", "graviola", "libcrux", "openssl"];
 
-// The QUIC chart's rows, as rind-bench IDs with `{lib}` in the library's place.
-const QUIC = [
-	...["quic-32B", "quic-64B", "1200B", "1350B"].flatMap((size) => [
-		{ op: "seal", size, id: `aes128-gcm/{lib}/${size}` },
-		{ op: "open", size, id: `aes128-gcm-open/{lib}/${size}` },
-	]),
-	{ op: "header protection", size: "", id: "quic-header-protection/aes128/{lib}" },
-	{ op: "handshake", size: "X25519", id: "rustls-full-handshake-group/x25519/{lib}" },
-	{ op: "handshake", size: "X25519MLKEM768", id: "rustls-full-handshake-group/x25519mlkem768/{lib}" },
+// The coverage heatmap's rows, matched against report operations without their library.
+const COVERAGE = [
+	{ name: "AES-GCM", pattern: /^aes(128|256)-gcm(-open)?\// },
+	{ name: "ChaCha20-Poly1305", pattern: /^chacha20poly1305\// },
+	{ name: "XChaCha20-Poly1305", pattern: /^xchacha20poly1305\// },
+	{ name: "AES header protection", pattern: /^quic-header-protection\/aes(128|256)$/ },
+	{ name: "ChaCha20 header protection", pattern: /^quic-header-protection\/chacha20$/ },
+	{ name: "SHA-256", pattern: /^sha256\// },
+	{ name: "SHA-512", pattern: /^sha512\// },
+	{ name: "HMAC-SHA256", pattern: /^hmac-sha256\// },
+	{ name: "HKDF-SHA256", pattern: /^hkdf-sha256\// },
+	{ name: "X25519", pattern: /^x25519-/ },
+	{ name: "Ed25519", pattern: /^ed25519-/ },
+	{ name: "P-256", pattern: /^p256-/ },
+	{ name: "P-384", pattern: /^p384-/ },
+	{ name: "P-521", pattern: /^p521-/ },
+	{ name: "RSA-2048 PSS", pattern: /^rsa2048-pss-/ },
+	{ name: "RSA-2048 PKCS#1", pattern: /^rsa2048-pkcs1-/ },
+	{ name: "ML-KEM-768", pattern: /^mlkem768-/ },
 ];
-const LIBS = ["rind", "aws-lc-rs", "ring"];
 
-// The QUIC chart's rows from rounds of benchmark times, each library's the median of the rounds, in ns.
-// A row no library has (a run older than the bench that times it) is left out and named.
-function quicRows(times: Map<string, number>[]) {
-	return QUIC.flatMap((row) => {
-		const ns = Object.fromEntries(
-			LIBS.flatMap((lib) => {
-				const xs = times
-					.map((t) => t.get(row.id.replace("{lib}", lib)))
-					.filter((x) => x !== undefined)
-					.sort((a, b) => a - b);
-				if (xs.length && xs.length !== times.length) throw new Error(`${row.id} for ${lib} is missing a round`);
-				return xs.length ? [[lib, xs[xs.length >> 1]]] : [];
-			}),
-		);
-		if (!Object.keys(ns).length) {
-			console.log(`skipped ${row.id}: not timed`);
-			return [];
-		}
-		// ring has no X25519MLKEM768, so only ring may be missing.
-		if (!ns.rind || !ns["aws-lc-rs"]) throw new Error(`${row.id} lacks rind or aws-lc-rs`);
-		return [{ op: row.op, size: row.size, ns }];
-	});
-}
-
-function writeQuic(host: string, source: Record<string, unknown>, rows: ReturnType<typeof quicRows>) {
-	const path = join(DATA, "quic.json");
-	const existing = existsSync(path) ? read(path) : { hosts: [] };
-	const hosts = existing.hosts.filter((h: { name: string }) => h.name !== host);
-	write("quic.json", { hosts: [...hosts, { name: host, source, rows }] });
-}
-
-// `out` is quic.sh's output directory: its rounds/, the source it recorded, and its load.
-function quic(host: string, out: string, rounds: string[]) {
-	const meta = read(join(out, "source.json"));
-	writeQuic(host, { ...meta, rounds: rounds.length }, quicRows(rounds.map(criterion)));
-}
-
-// A host no one can pin, such as a GitHub arm64 runner: one round from rind's bench workflow, from
-// its `bench-<target>` artifact's bench-results.json and the run's ID. `rind` is a rind checkout
-// that has the run's commit, for the library versions it locked.
-function quicRun(host: string, rind: string, results: string, id: string) {
-	const bench = read(results);
-	const run = JSON.parse(
-		execFileSync("gh", ["api", `repos/moq-dev/rind/actions/runs/${id}`], { encoding: "utf8" }),
-	) as { head_sha: string; html_url: string; created_at: string };
-	if (run.head_sha !== bench.commit) throw new Error(`run ${id} is ${run.head_sha}, the results ${bench.commit}`);
-	const lock = execFileSync("git", ["-C", rind, "show", `${bench.commit}:Cargo.lock`], { encoding: "utf8" });
-	const version = (name: string) => lock.match(new RegExp(`name = "${name}"\nversion = "([^"]+)"`))?.[1];
-	const times = new Map<string, number>(bench.results.map((r: { id: string; ns: number }) => [r.id, r.ns]));
-	writeQuic(
-		host,
-		{
-			rind: bench.commit,
-			"aws-lc-rs": version("aws-lc-rs"),
-			ring: version("ring"),
-			rustls: version("rustls"),
-			cpu: bench.cpu,
-			date: run.created_at,
-			run: run.html_url,
-			note: "",
-			rounds: 1,
+// Cells where a proven routine does the core math for at least some of the row's operations, on all
+// three hosts, under unproven glue, so verified.toml's ✓ doesn't count them. The core is the whole
+// cipher, block function, scalar multiplication, NTT, or exponentiation; field arithmetic under
+// unproven point formulas, or multiplications under an unproven exponentiation, isn't. Checked
+// against each library's source at the version rind's report locks.
+const S2N = "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs";
+const SAW = "https://github.com/awslabs/aws-lc-verification/blob/797302470c1703cbb1a3a6fa98daffef0bfd3d80/README.md";
+const MLKEM = "https://github.com/pq-code-package/mlkem-native/tree/main/proofs/hol_light/x86_64/proofs";
+const PARTIAL: Record<string, Record<string, { proof: string; link: string }>> = {
+	rind: {
+		"AES-GCM": {
+			proof: "Vale's F* AES-GCM, for every message without VAES but only short ones with it",
+			link: "https://github.com/moq-dev/rind/blob/main/ALGORITHMS.md",
 		},
-		quicRows([times]),
-	);
+		Ed25519: { proof: "s2n-bignum's HOL Light scalar multiplications", link: S2N },
+		"P-256": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N },
+		"P-384": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N },
+		"P-521": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N },
+		"ML-KEM-768": { proof: "s2n-bignum's and mlkem-native's HOL Light NTT and sampling", link: MLKEM },
+	},
+	"aws-lc-rs": {
+		"AES-GCM": { proof: "aws-lc-verification's SAW AES-GCM, for AES-256 only", link: SAW },
+		"AES header protection": { proof: "aws-lc-verification's SAW AES block, for AES-256 only", link: SAW },
+		X25519: { proof: "s2n-bignum's HOL Light X25519 ladder", link: S2N },
+		Ed25519: { proof: "s2n-bignum's HOL Light scalar multiplications", link: S2N },
+		"P-256": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N },
+		"P-384": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N },
+		"P-521": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N },
+		"ML-KEM-768": { proof: "mlkem-native's HOL Light AVX2 NTT and sampling", link: MLKEM },
+	},
+	graviola: {
+		X25519: { proof: "s2n-bignum's HOL Light X25519 ladder", link: S2N },
+		Ed25519: { proof: "s2n-bignum's HOL Light scalar multiplications", link: S2N },
+		"ML-KEM-768": { proof: "s2n-bignum's HOL Light NTT and base multiplication", link: S2N },
+	},
+	libcrux: {
+		"XChaCha20-Poly1305": {
+			proof: "HACL*'s F* ChaCha20-Poly1305, under an unverified HChaCha20",
+			link: "https://github.com/hacl-star/hacl-star/tree/main/code/chacha20poly1305",
+		},
+	},
+};
+
+// Every library on rind's report hosts: AES-128-GCM seal times at QUIC's sizes, and how much of each
+// coverage row is proven: end to end by verified.toml's ✓, a proven core by PARTIAL, or neither.
+// A library without the row's operations gets null.
+function libraries(rind: string) {
+	const verified = Bun.TOML.parse(readFileSync(join(rind, "benchmarks/verified.toml"), "utf8")) as {
+		verified: { library: string; operations: string[]; arch?: string; cpu?: string[] }[];
+	};
+	for (const [lib, rows] of Object.entries(PARTIAL))
+		for (const row of Object.keys(rows))
+			if (!LIBRARIES.includes(lib) || !COVERAGE.some((c) => c.name === row))
+				throw new Error(`PARTIAL names ${lib}'s ${row}, which the heatmap lacks`);
+
+	const hosts = Object.entries(HOSTS).map(([host, name]) => {
+		const data = read(join(rind, `benchmarks/data/${host}.json`));
+		if (data.status !== "ok") throw new Error(`${host}'s report is ${data.status}`);
+		const cpu = data.rind_cpu.cpuid as Record<string, number>;
+		const results = data.results as { operation: string; library: string; ns: number }[];
+		// A report operation as verified.toml names it: "aes128-gcm/{lib}/32B" is "aes128-gcm/32B".
+		const op = (operation: string) => operation.replace("/{lib}", "").replace("{lib}/", "");
+		const has = (feature: string) => {
+			const flag = feature.replace(/^!/, "");
+			if (!(flag in cpu)) throw new Error(`${host} doesn't report CPU feature ${flag}`);
+			return feature.startsWith("!") ? !cpu[flag] : !!cpu[flag];
+		};
+		const proven = (lib: string, o: string) =>
+			verified.verified.some(
+				(v) =>
+					v.library === lib &&
+					(!v.arch || v.arch === data.cpu.arch) &&
+					(v.cpu ?? []).every(has) &&
+					v.operations.some((p) => (p.endsWith("/*") ? o.startsWith(p.slice(0, -1)) : o === p)),
+			);
+		const seal = (size: string) =>
+			Object.fromEntries(
+				LIBRARIES.flatMap((lib) => {
+					const r = results.find((r) => r.library === lib && r.operation === `aes128-gcm/{lib}/${size}`);
+					return r ? [[lib, r.ns]] : [];
+				}),
+			);
+		return {
+			name,
+			source: { rind: data.commit, cpu: data.cpu.model, date: data.started, versions: data.libraries },
+			seal: { "32B": seal("32B"), "1350B": seal("1350B") },
+			coverage: Object.fromEntries(
+				COVERAGE.map((row) => [
+					row.name,
+					Object.fromEntries(
+						LIBRARIES.map((lib) => {
+							const ops = results.filter((r) => r.library === lib && row.pattern.test(op(r.operation)));
+							if (!ops.length) return [lib, null];
+							if (ops.every((r) => proven(lib, op(r.operation)))) return [lib, "e2e"];
+							const some = ops.some((r) => proven(lib, op(r.operation)));
+							return [lib, some || PARTIAL[lib]?.[row.name] ? "routine" : "none"];
+						}),
+					),
+				]),
+			),
+		};
+	});
+	write("libraries.json", {
+		source: {
+			rind: commit(rind),
+			files: ["benchmarks/data/<host>.json", "benchmarks/verified.toml"],
+			generated: today(),
+		},
+		libraries: LIBRARIES,
+		rows: COVERAGE.map((c) => c.name),
+		partial: PARTIAL,
+		hosts,
+	});
 }
 
 // runtimes.mjs prints `# <label>\t<version>`, then `<op>\t<us>` per line. Each file is one round of one
@@ -348,8 +386,7 @@ function runtimes(out: string, files: string[]) {
 const [cmd, ...args] = process.argv.slice(2);
 if (cmd === "proofs" && args.length === 1) proofs(args[0]);
 else if (cmd === "build" && args.length === 1) build(args[0]);
-else if (cmd === "quic" && args.length >= 3) quic(args[0], args[1], args.slice(2));
-else if (cmd === "quic-run" && args.length === 4) quicRun(args[0], args[1], args[2], args[3]);
+else if (cmd === "libraries" && args.length === 1) libraries(args[0]);
 else if (cmd === "runtimes" && args.length >= 2) runtimes(args[0], args.slice(1));
 else {
 	console.error("usage: see the top of tools/rind/refresh.ts");
