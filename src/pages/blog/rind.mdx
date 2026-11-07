@@ -16,79 +16,172 @@ import Tally from "@/components/rind/tally";
 import Timings from "@/components/rind/timings";
 import Author from "@/components/author.astro";
 
-# Secure Vibe Slop
+# Encrypting Vibe Slop
 I'm one of the OG "rewrite it in Rust" guys.
-**I love Rust**, but I wrote my last line of Rust 6 months ago, and it was only because the interview banned AI tools.
+**I love Rust**, but I wrote my last line of Rust 6 months ago.
+Hell, I read my last line of Rust 3 months ago.
 
-Btw if you interview for Anthropic, **BROWN NOSE THE MISSION**. They be serious.
+The consensus **worst part about Rust** is the **compile time**.
+I think **async** is worse, but `target` is a close second.
+My desktop PC was on fire even with [mbx](https://mr-boxington.jdx.dev/) (highly recommend).
 
-Anyway, I got fed up with `aws-lc-rs` taking 60s+ to build.
-I got fed up with projects that pretend to be written in Rust but shell out to C via `build.rs`.
-I did what any sane software engineer does in `current_year`...
+~I~ Claude traced some of it down to `aws-lc-rs` taking 60s+ to build.
+Why does a single crate take a full minute to build?
 
-I frankensteined parts from a 9-year old gaming PC, installed Claude, and ran `/goal`.
+Despite the suffix, `aws-lc-rs` is actually a `C` library in disguise.
+Same with the next best crypto library: `ring`.
 
-## WOW NUMBERS
-[rind](https://github.com/moq-dev/rind) is faster crypto.
+wtf is C doing in my Rust library.
+**THIS WILL NOT STAND.**
 
-<figure>
-	<Quic client:visible />
-	<figcaption>TODO(kixelated): caption</figcaption>
-</figure>
+I did what any sane software engineer does in `current_year`,
+I pulled a 9-year old gaming PC out of the closet, installed Claude, and ran `/goal rewrite it in rust`.
 
-<figure>
-	<QuicScore client:visible />
-	<figcaption>TODO(kixelated): caption</figcaption>
-</figure>
+## WOW FAST
+[rind](https://github.com/moq-dev/rind) is vibe slopped crypto.
 
-<figure>
-	<Runtimes client:visible />
-	<figcaption>TODO(kixelated): caption</figcaption>
-</figure>
+	It started as fork of [Graviola](https://github.com/ctz/graviola) and quickly morphed into a monsterish combination of [ring](https://github.com/briansmith/ring) and [aws-lc-rs](https://github.com/aws/aws-lc-rs) and [libcrux](https://github.com/celabshq/libcrux).
+	
+	<figure>
+		<Quic client:visible />
+		<figcaption>Media over QUIC sends a lot of QUIC packets btw</figcaption>
+	</figure>
+	
+	^ This is a **big deal** because AES-128-GCM is the most popular TLS cipher suite by far.
+	Even a tiny reduction in CPU usage has huge impact when multiplied across **every HTTPS request in the world**\*.
+	
+	\* this benchmark is HTTP/3 specific. HTTP/1 and HTTP/2 use different payload sizes.
+	
+	## WOW FAST
+	Rust takes a while to compile but nerds online forget that C/C++ can also be slow.
+	
+	<figure>
+		<Build client:visible />
+		<figcaption>i'm a purist</figcaption>
+	</figure>
+	
+	I wish there was some way to disable `build.rs`. 
+	Then you couldn't sneak other languages into my Rust sanctuary.
+	
+	Why?
+	IDK for the meme I guess.
+	
+	## Optimize EVERYTHING
+	Having accomplished my goal of making MoQ faster, I let my old gaming PC take a vacation.
+	
+	lul jk I ran: **/goal**: Support every algorithm, and make it the fastest.
+	
+	<figure>
+		<Timings client:visible />
+		<figcaption></figcaption>
+	</figure>
+	
+	AI is **really fucking good** at benchmarks.
+	It's terrifying.
+	`rind` only loses on a few benchmarks for security reasons.
+	
+	Moments like this fill me with dread as a professional software engineer.
+	I **wasted weeks** speeding up some Go crypto library (contributor btw) when I could have just waited a decade for Opus 5.5 to release instead.
+	
+	## Lean into Lean
+I saw an [Anthropic blog post about formal verification](https://www.anthropic.com/research/formal-verification).
+Like most programmers, I don't even test my code, let alone formally verify it.
+But I figured I'd play along and waste a few more tokens chasing the dragon.
 
-<figure>
-	<RuntimeHeat client:visible />
-	<figcaption>TODO(kixelated): caption</figcaption>
-</figure>
-
-<figure>
-	<Build client:visible />
-	<figcaption>TODO(kixelated): caption</figcaption>
-</figure>
-
-## TODO(kixelated): Lean Into Lean
-TODO(kixelated): the proofs, Aeneas to Lean, composed with s2n-bignum's HOL Light and Vale's F*.
-
-TODO(kixelated): link Anthropic's [LLMs are making formal software verification feasible at a much larger scale](https://www.anthropic.com/research/formal-verification).
+Because like, if you can **prove the vibe slop is correct**, it's no longer vibe slop right?
 
 <figure>
 	<Coverage client:visible />
-	<figcaption>TODO(kixelated): caption</figcaption>
+	<figcaption>donate some tokens and make every box green</figcaption>
 </figure>
 
-TODO(kixelated): proofs didn't cost speed.
+Green boxes are formally verified, dashed are *mostly* formally verified.
+
+`libcrux` is cool because they try to formally verify everything, but if you saw the last grid, it's super slow.
+`rind` will only use a formal proof if the performance was within 10%, and there's surprisingly decent coverage.
 
 <figure>
 	<Speed client:visible />
-	<figcaption>TODO(kixelated): caption</figcaption>
+	<figcaption>always the fastest implementation when formally proven</figcaption>
 </figure>
 
-## TODO(kixelated): The Bill
-TODO(kixelated): what it cost in tokens, hours, and dollars.
+I'm sure we could get **every algorithm formally proven**.
+If only there was somebody in the audience works for a **frontier lab** and wants some easy marketting piece instead of stealing all of the glory from the mathematicians.
+
+Hypothetically, that audience member could run `/spawn-quest` to work on [the milestones](https://github.com/moq-dev/rind/tree/main/quest) that are queued up. Hypothetically.
+
+## Please Donate Tokens
+If it sounds like I'm desparate and begging for more tokens, **ur right**.
+
+So I came up with a plan.
+I decided the best way to get tokens is to **rage bait**.
+
+**Bun is SUPER SLOW**.\
+Holy shit it's like **REALLY SLOW**.\
+Imagine doing common stuff like **TLS certificate generation** in Bun.\
+**Super SLOW**.
+
+<figure>
+	<Runtimes client:visible />
+	<figcaption>rip dino</figcaption>
+</figure>
+
+I threw Deprecated Deno in just because it uses RustCrypto.
+Oh man, I used to hate RustCrypto back when I was a programmer.
+
+<figure>
+	<RuntimeHeat client:visible />
+	<figcaption>Imagine being marginally slower than Node</figcaption>
+</figure>
+
+## try it?
+IDK it depends on your tolerance for vibe slop.
+This is cryptography so it's dangerous to get wrong.
+
+But as Sun Tzu once said: **yolo**
+
+```toml
+# safer/faster API
+rind = "0.2"
+
+# if you use ring
+ring = { package = "rind-ring", version = "0.17" }
+
+# if you use rustls
+rustls = { version = "0.23", default-features = false, features = ["std", "tls12"] }
+rind-rustls = "0.23"
+
+# TODO: if you use aws-lc-rs
+```
+
+There's other adapters too if you're lazy.
+Or just tell Mr AI to migrate to the `rind` API.
+
+## The Bill
+All of this crypto jizz, it must have been expensive, right?
+
+This took my 9-year old desktop PC **11 days**.
+And much of that was waiting for a usage reset.
+
+The grand total was just under $4k at **API pricing**.
+But API pricing is a meme, if you're not rocking 3+ Claude subscriptions then you're doing it wrong.
 
 <figure>
 	<Tally client:visible />
-	<figcaption>TODO(kixelated): caption</figcaption>
+	<figcaption>Thanks god for the upcoming IPO</figcaption>
 </figure>
+
+That's right, **I** made the internet a better place for $36.
+**It's ridiculous**.
 
 ## FIN
-TODO(kixelated): sign-off.
+**Real talk**: This is the end of programming.
+We had a good run.
 
-## Every Benchmark
+Many of these crypto libraries have been hand optimized by some of the smartest people I know (cryptography nerds).
+And they get completely **blown out of the water** by a vibe coder with a credit card.
 
-<figure>
-	<Timings client:visible />
-	<figcaption>TODO(kixelated): caption</figcaption>
-</figure>
+We still need humans to tell the AI to do dumb shit like rewrite `openssl` in Rust.
+But like, for how much longer?
 
 <Author />
