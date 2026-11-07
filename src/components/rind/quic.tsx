@@ -6,7 +6,7 @@ import data from "./data/libraries.json";
 
 type Host = (typeof data.hosts)[number];
 type Size = "32B" | "1350B";
-const seal = (host: Host, size: Size) => host.seal[size] as Record<string, number>;
+const seal = (host: Host, size: Size) => host.times[`aes128-gcm/${size}`] as Record<string, number>;
 
 // The CPU the bouncing balls run on.
 const HERO = "Zen 3";

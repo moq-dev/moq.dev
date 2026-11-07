@@ -3,7 +3,7 @@
 //
 //   bun tools/rind/refresh.ts proofs <rind>               verified.toml + ALGORITHMS.md + tiers.json
 //   bun tools/rind/refresh.ts build <rind>                benchmarks/data/*.json build_cost
-//   bun tools/rind/refresh.ts libraries <rind>            benchmarks/data/*.json times + verified.toml
+//   bun tools/rind/refresh.ts libraries <rind>            benchmarks/data/*.json times + verified.toml + admin/bench-report
 //   bun tools/rind/refresh.ts runtimes <out> <out>/*.tsv  runtimes.sh's rounds
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
@@ -282,10 +282,23 @@ const PARTIAL: Record<string, Record<string, { proof: string; link: string }>> =
 	},
 };
 
-// Every library on rind's report hosts: AES-128-GCM seal times at QUIC's sizes, and how much of each
-// coverage row is proven: end to end by verified.toml's ✓, a proven core by PARTIAL, or neither.
-// A library without the row's operations gets null.
+// The report's operations by section, with their labels, from admin/bench-report itself.
+function sections(rind: string): { name: string; operations: { id: string; label: string }[] }[] {
+	const script = `
+import json, runpy, sys
+m = runpy.run_path(sys.argv[1])
+print(json.dumps([
+    {"name": name, "operations": [{"id": m["row_name"](op), "label": m["label"](m["row_name"](op))} for op in ops]}
+    for name, ops in m["SECTIONS"]
+]))`;
+	return JSON.parse(execFileSync("python3", ["-c", script, join(rind, "admin/bench-report")], { encoding: "utf8" }));
+}
+
+// Every library on rind's report hosts: every operation's time, and how much of each coverage row is
+// proven: end to end by verified.toml's ✓, a proven core by PARTIAL, or neither. A library without the
+// row's operations gets null.
 function libraries(rind: string) {
+	const report = sections(rind);
 	const verified = Bun.TOML.parse(readFileSync(join(rind, "benchmarks/verified.toml"), "utf8")) as {
 		verified: { library: string; operations: string[]; arch?: string; cpu?: string[] }[];
 	};
@@ -314,17 +327,23 @@ function libraries(rind: string) {
 					(v.cpu ?? []).every(has) &&
 					v.operations.some((p) => (p.endsWith("/*") ? o.startsWith(p.slice(0, -1)) : o === p)),
 			);
-		const seal = (size: string) =>
-			Object.fromEntries(
-				LIBRARIES.flatMap((lib) => {
-					const r = results.find((r) => r.library === lib && r.operation === `aes128-gcm/{lib}/${size}`);
-					return r ? [[lib, r.ns]] : [];
-				}),
-			);
+		const times = Object.fromEntries(
+			report
+				.flatMap((s) => s.operations)
+				.map(({ id }) => [
+					id,
+					Object.fromEntries(
+						LIBRARIES.flatMap((lib) => {
+							const r = results.find((r) => r.library === lib && op(r.operation) === id);
+							return r ? [[lib, r.ns]] : [];
+						}),
+					),
+				]),
+		);
 		return {
 			name,
 			source: { rind: data.commit, cpu: data.cpu.model, date: data.started, versions: data.libraries },
-			seal: { "32B": seal("32B"), "1350B": seal("1350B") },
+			times,
 			coverage: Object.fromEntries(
 				COVERAGE.map((row) => [
 					row.name,
@@ -344,10 +363,11 @@ function libraries(rind: string) {
 	write("libraries.json", {
 		source: {
 			rind: commit(rind),
-			files: ["benchmarks/data/<host>.json", "benchmarks/verified.toml"],
+			files: ["benchmarks/data/<host>.json", "benchmarks/verified.toml", "admin/bench-report"],
 			generated: today(),
 		},
 		libraries: LIBRARIES,
+		sections: report,
 		rows: COVERAGE.map((c) => c.name),
 		partial: PARTIAL,
 		hosts,

@@ -13,6 +13,7 @@ import Build from "@/components/rind/build";
 import Coverage from "@/components/rind/coverage";
 import Speed from "@/components/rind/speed";
 import Tally from "@/components/rind/tally";
+import Timings from "@/components/rind/timings";
 import Author from "@/components/author.astro";
 
 # Secure Vibe Slop
@@ -77,5 +78,12 @@ TODO(kixelated): what it cost in tokens, hours, and dollars.
 
 ## FIN
 TODO(kixelated): sign-off.
+
+## Every Benchmark
+
+<figure>
+	<Timings client:visible />
+	<figcaption>TODO(kixelated): caption</figcaption>
+</figure>
 
 <Author />

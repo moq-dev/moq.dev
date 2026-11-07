@@ -12,7 +12,7 @@ All three come from a rind checkout at the commit being announced, after its nig
 ```bash
 bun tools/rind/refresh.ts proofs <rind>      # proofs.json: ALGORITHMS.md, verified.toml, tiers.json
 bun tools/rind/refresh.ts build <rind>       # build.json: benchmarks/data/<host>.json's build_cost
-bun tools/rind/refresh.ts libraries <rind>   # libraries.json: every library's QUIC seal times and proofs
+bun tools/rind/refresh.ts libraries <rind>   # libraries.json: every library's times and proofs, labeled by admin/bench-report (needs python3)
 ```
 
 `libraries` reads end-to-end proofs from `verified.toml`. Partial proofs, where a proven routine does the core math under unproven glue, live in `refresh.ts`'s `PARTIAL`; recheck them against each library's source when a locked version changes.

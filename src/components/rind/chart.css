@@ -342,7 +342,7 @@
 }
 .rind-fig .heat {
 	display: grid;
-	grid-template-columns: auto repeat(7, 58px);
+	grid-template-columns: auto repeat(7, 54px);
 	justify-content: start;
 	align-items: center;
 	min-width: 560px;
@@ -359,10 +359,13 @@
 	color: var(--ink-2);
 }
 .rind-fig .heat .lib {
+	display: flex;
+	justify-content: center;
 	padding-bottom: 8px;
 	font-family: var(--mono);
-	font-size: 10px;
-	text-align: center;
+	font-size: 9px;
+	letter-spacing: -0.02em; /* so "RustCrypto" fits its column unbroken */
+	white-space: nowrap;
 	color: var(--ink-2);
 }
 .rind-fig .heat .me {
@@ -396,6 +399,38 @@
 }
 .rind-fig .trio .none {
 	background: var(--rival-2);
+}
+.rind-fig .heat .section {
+	grid-column: 1 / -1;
+	padding-top: 14px;
+	font-family: var(--display);
+	font-size: 15px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--ink);
+}
+/* Speed bands, green at fastest to red at over 8×. */
+.rind-fig .trio .s0 {
+	background: #22c55e;
+}
+.rind-fig .trio .s1 {
+	background: #84cc16;
+}
+.rind-fig .trio .s2 {
+	background: #eab308;
+}
+.rind-fig .trio .s3 {
+	background: #f59e0b;
+}
+.rind-fig .trio .s4 {
+	background: #f97316;
+}
+.rind-fig .trio .s5 {
+	background: #ef4444;
+}
+.rind-fig .trio .s6 {
+	background: #b91c1c;
 }
 .rind-fig .key {
 	display: flex;
