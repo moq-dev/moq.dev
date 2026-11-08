@@ -66,7 +66,7 @@ function build(rind: string) {
 
 // The libraries rind's report times, by its names for them.
 const LIBRARIES = ["rind", "aws-lc-rs", "ring", "rustcrypto", "graviola", "libcrux", "openssl"];
-// The post assumes callers hold DIT across a batch, so on a CPU with DIT, rind's time is the report's
+// The post assumes callers hold DIT across a batch, so on Mac, rind's time is the report's
 // rind-dit-held, which holds it across the timed loop rather than setting it around each call.
 const timed = (lib: string) => (lib === "rind" ? ["rind-dit-held", "rind"] : [lib]);
 
