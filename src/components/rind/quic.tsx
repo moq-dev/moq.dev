@@ -8,8 +8,10 @@ type Host = (typeof data.hosts)[number];
 type Size = "32B" | "1350B";
 const seal = (host: Host, size: Size) => host.times[`aes128-gcm/${size}`] as Record<string, number>;
 
-// The CPU the bouncing balls run on.
-const HERO = "Zen 3";
+// rind's speedup over aws-lc-rs sealing a full packet.
+const lead = (h: Host) => seal(h, "1350B")["aws-lc-rs"] / seal(h, "1350B").rind;
+// The balls run on the CPU where rind leads most, which the headline's "up to" refers to.
+const host = data.hosts.reduce((a, b) => (lead(b) > lead(a) ? b : a));
 // One bounce is one packet sealed, slowed this much so the eye can follow.
 const SLOW = 2e6;
 
@@ -26,14 +28,12 @@ const table = {
 const source = (
 	<>
 		AES-128-GCM seal, criterion's estimate from rind's benchmark report at {commit(data.source.rind)}, run{" "}
-		{days(data.hosts)}: {data.hosts.map((h) => `${h.name} is ${h.source.cpu}`).join(", ")}. On a CPU with DIT, rind sets
-		it around every call; rind (DIT held) sets it once across the timed loop, as a caller batching packets does.
+		{days(data.hosts)}: {data.hosts.map((h) => `${h.name} is ${h.source.cpu}`).join(", ")}. On a CPU with DIT, rind
+		holds it across the timed loop, as a caller batching packets does.
 	</>
 );
 
 export default function Quic() {
-	const host = data.hosts.find((h) => h.name === HERO);
-	if (!host) throw new Error(`libraries.json has no ${HERO}`);
 	const lanes = Object.entries(seal(host, "1350B")).sort((a, b) => a[1] - b[1]);
 	const [counts, setCounts] = createSignal(lanes.map(() => 0));
 	const canvases: HTMLCanvasElement[] = [];
@@ -113,8 +113,9 @@ export default function Quic() {
 			ref={(el) => {
 				figure = el;
 			}}
-			kicker={`Sealing 1350 B QUIC packets · one ${HERO} core`}
-			number={times(seal(host, "1350B")["aws-lc-rs"] / seal(host, "1350B").rind)}
+			kicker={`Sealing 1350 B QUIC packets · one ${host.name} core`}
+			qualifier="up to"
+			number={times(lead(host))}
 			headline={
 				<>
 					aws-lc-rs's
@@ -122,7 +123,7 @@ export default function Quic() {
 					packets per core
 				</>
 			}
-			label={`Packets sealed per second by each library on ${HERO}, drawn as balls bouncing once per packet.`}
+			label={`Packets sealed per second by each library on ${host.name}, drawn as balls bouncing once per packet.`}
 			table={table}
 			source={source}
 		>
@@ -149,10 +150,9 @@ export default function Quic() {
 	);
 }
 
-// rind against aws-lc-rs on each CPU: a full packet as the headline, an ACK-sized one beneath, and with
-// DIT held where the CPU has it.
+// rind against aws-lc-rs on each CPU: a full packet as the headline, an ACK-sized one beneath.
 export function QuicScore() {
-	const ratio = (h: Host, size: Size, lib = "rind") => seal(h, size)["aws-lc-rs"] / seal(h, size)[lib];
+	const ratio = (h: Host, size: Size) => seal(h, size)["aws-lc-rs"] / seal(h, size).rind;
 	return (
 		<Figure
 			kicker="Sealing one QUIC packet, vs aws-lc-rs"
@@ -177,12 +177,6 @@ export function QuicScore() {
 							<div class="ack">
 								32 B ACK: <b>{times(ratio(h, "32B"))}</b>
 							</div>
-							<Show when={"rind-dit-held" in seal(h, "1350B")}>
-								<div class="ack">
-									DIT held: <b>{times(ratio(h, "1350B", "rind-dit-held"))}</b>, ACK{" "}
-									<b>{times(ratio(h, "32B", "rind-dit-held"))}</b>
-								</div>
-							</Show>
 						</div>
 					)}
 				</For>

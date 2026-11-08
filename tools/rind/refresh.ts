@@ -221,11 +221,10 @@ function build(rind: string) {
 }
 
 // The libraries rind's report times, by its names for them.
-const LIBRARIES = ["rind", "rind-dit-held", "aws-lc-rs", "ring", "rustcrypto", "graviola", "libcrux", "openssl"];
-// Columns that time a library's own code another way, as admin/bench-report's VARIANTS: shown beside
-// it, never the fastest, and without coverage of their own. rind (DIT held) holds DIT across the timed
-// loop rather than setting it around each call, and only a CPU with DIT times it.
-const VARIANTS: Record<string, string> = { "rind-dit-held": "rind" };
+const LIBRARIES = ["rind", "aws-lc-rs", "ring", "rustcrypto", "graviola", "libcrux", "openssl"];
+// The post assumes callers hold DIT across a batch, so on a CPU with DIT, rind's time is the report's
+// rind-dit-held, which holds it across the timed loop rather than setting it around each call.
+const timed = (lib: string) => (lib === "rind" ? ["rind-dit-held", "rind"] : [lib]);
 
 // The coverage heatmap's rows, matched against report operations without their library.
 const COVERAGE = [
@@ -353,7 +352,7 @@ print(json.dumps([
 
 // Every library on rind's report hosts: every operation's time, and how much of each coverage row is
 // proven: end to end by verified.toml's ✓, a proven core by the host's arch's PARTIAL, or neither. A
-// library without the row's operations gets null; a variant gets no coverage, as it runs its library's code.
+// library without the row's operations gets null.
 function libraries(rind: string) {
 	const report = sections(rind);
 	const verified = Bun.TOML.parse(readFileSync(join(rind, "benchmarks/verified.toml"), "utf8")) as {
@@ -362,9 +361,8 @@ function libraries(rind: string) {
 	for (const [arch, libs] of Object.entries(PARTIAL))
 		for (const [lib, rows] of Object.entries(libs))
 			for (const row of Object.keys(rows))
-				if (!LIBRARIES.includes(lib) || lib in VARIANTS || !COVERAGE.some((c) => c.name === row))
+				if (!LIBRARIES.includes(lib) || !COVERAGE.some((c) => c.name === row))
 					throw new Error(`PARTIAL names ${arch} ${lib}'s ${row}, which the heatmap lacks`);
-	const proving = LIBRARIES.filter((lib) => !(lib in VARIANTS));
 
 	const hosts = Object.entries(HOSTS).map(([host, name]) => {
 		const data = read(join(rind, `benchmarks/data/${host}.json`));
@@ -396,7 +394,9 @@ function libraries(rind: string) {
 					id,
 					Object.fromEntries(
 						LIBRARIES.flatMap((lib) => {
-							const r = results.find((r) => r.library === lib && op(r.operation) === id);
+							const r = timed(lib)
+								.map((name) => results.find((r) => r.library === name && op(r.operation) === id))
+								.find((r) => r);
 							return r ? [[lib, r.ns]] : [];
 						}),
 					),
@@ -411,7 +411,7 @@ function libraries(rind: string) {
 				COVERAGE.map((row) => [
 					row.name,
 					Object.fromEntries(
-						proving.map((lib) => {
+						LIBRARIES.map((lib) => {
 							const ops = results.filter((r) => r.library === lib && row.pattern.test(op(r.operation)));
 							if (!ops.length) return [lib, null];
 							if (ops.every((r) => proven(lib, op(r.operation)))) return [lib, "e2e"];
@@ -430,7 +430,6 @@ function libraries(rind: string) {
 			generated: today(),
 		},
 		libraries: LIBRARIES,
-		variants: VARIANTS,
 		sections: report,
 		rows: COVERAGE.map((c) => c.name),
 		partial: PARTIAL,

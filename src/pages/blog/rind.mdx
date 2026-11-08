@@ -40,6 +40,8 @@ I pulled a 9-year old gaming PC out of the closet, installed Claude, and ran `/g
 ## WOW FAST
 [rind](https://github.com/moq-dev/rind) is vibe slopped crypto.
 
+<img src="/blog/rind/rind.svg" alt="rind" class="mx-auto w-80" />
+
 	It started as fork of [Graviola](https://github.com/ctz/graviola) and quickly morphed into a monsterish combination of [ring](https://github.com/briansmith/ring) and [aws-lc-rs](https://github.com/aws/aws-lc-rs) and [libcrux](https://github.com/celabshq/libcrux).
 	
 	<figure>
@@ -78,8 +80,6 @@ I pulled a 9-year old gaming PC out of the closet, installed Claude, and ran `/g
 	
 	AI is **really fucking good** at benchmarks.
 	It's terrifying.
-	`rind` only loses on a few benchmarks, almost all for security reasons: on Apple's M4 it turns on DIT (constant-time mode) around every call.
-	Hold DIT across a batch of calls, as MoQ does, and all but one of those losses go away.
 	
 	Moments like this fill me with dread as a professional software engineer.
 	I **wasted weeks** speeding up some Go crypto library (contributor btw) when I could have just waited a decade for Opus 5.5 to release instead.
@@ -153,6 +153,13 @@ rustls = { version = "0.23", default-features = false, features = ["std", "tls12
 rind-rustls = "0.23"
 
 # TODO: if you use aws-lc-rs
+```
+
+On Apple silicon, hold DIT (constant-time mode) across each batch of crypto calls.
+Otherwise `rind` toggles it around every call, which costs ~40ns each.
+
+```rust
+let _dit = rind::cpu::Dit::hold();
 ```
 
 There's other adapters too if you're lazy.
