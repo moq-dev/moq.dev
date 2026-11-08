@@ -1,0 +1,3242 @@
+{
+	"source": {
+		"rind": "00610affb74b8c64113c824d7ab1745c33e5650a",
+		"files": ["benchmarks/data/<host>.json", "benchmarks/verified.toml", "admin/bench-report"],
+		"generated": "2026-11-07"
+	},
+	"libraries": ["rind", "aws-lc-rs", "ring", "rustcrypto", "graviola", "libcrux", "openssl"],
+	"sections": [
+		{
+			"name": "TLS 1.3 with rustls",
+			"operations": [
+				{
+					"id": "rustls-full-handshake-group/x25519mlkem768",
+					"label": "full handshake, X25519MLKEM768"
+				},
+				{
+					"id": "rustls-full-handshake-group/x25519",
+					"label": "full handshake, X25519"
+				},
+				{
+					"id": "rustls-full-handshake-group/secp256r1",
+					"label": "full handshake, P-256"
+				},
+				{
+					"id": "rustls-full-handshake-key/ed25519",
+					"label": "full handshake, Ed25519 certificate"
+				},
+				{
+					"id": "rustls-full-handshake-key/rsa-2048",
+					"label": "full handshake, RSA-2048 certificate"
+				},
+				{
+					"id": "rustls-resumed-handshake/x25519",
+					"label": "resumed handshake, X25519"
+				},
+				{
+					"id": "rustls-bulk/aes128-gcm",
+					"label": "1 MB transfer, AES-128-GCM"
+				},
+				{
+					"id": "rustls-bulk/aes256-gcm",
+					"label": "1 MB transfer, AES-256-GCM"
+				},
+				{
+					"id": "rustls-bulk/chacha20poly1305",
+					"label": "1 MB transfer, ChaCha20-Poly1305"
+				}
+			]
+		},
+		{
+			"name": "AEADs",
+			"operations": [
+				{
+					"id": "aes128-gcm/32B",
+					"label": "AES-128-GCM seal, 32 B"
+				},
+				{
+					"id": "aes128-gcm/1350B",
+					"label": "AES-128-GCM seal, 1350 B"
+				},
+				{
+					"id": "aes128-gcm/16KB",
+					"label": "AES-128-GCM seal, 16 KB"
+				},
+				{
+					"id": "aes128-gcm-open/32B",
+					"label": "AES-128-GCM open, 32 B"
+				},
+				{
+					"id": "aes128-gcm-open/1350B",
+					"label": "AES-128-GCM open, 1350 B"
+				},
+				{
+					"id": "aes128-gcm-open/16KB",
+					"label": "AES-128-GCM open, 16 KB"
+				},
+				{
+					"id": "aes256-gcm/32B",
+					"label": "AES-256-GCM seal, 32 B"
+				},
+				{
+					"id": "aes256-gcm/1350B",
+					"label": "AES-256-GCM seal, 1350 B"
+				},
+				{
+					"id": "aes256-gcm/16KB",
+					"label": "AES-256-GCM seal, 16 KB"
+				},
+				{
+					"id": "aes256-gcm-open/32B",
+					"label": "AES-256-GCM open, 32 B"
+				},
+				{
+					"id": "aes256-gcm-open/1350B",
+					"label": "AES-256-GCM open, 1350 B"
+				},
+				{
+					"id": "aes256-gcm-open/16KB",
+					"label": "AES-256-GCM open, 16 KB"
+				},
+				{
+					"id": "chacha20poly1305/32B",
+					"label": "ChaCha20-Poly1305 seal, 32 B"
+				},
+				{
+					"id": "chacha20poly1305/1350B",
+					"label": "ChaCha20-Poly1305 seal, 1350 B"
+				},
+				{
+					"id": "chacha20poly1305/16KB",
+					"label": "ChaCha20-Poly1305 seal, 16 KB"
+				},
+				{
+					"id": "xchacha20poly1305/32B",
+					"label": "XChaCha20-Poly1305 seal, 32 B"
+				},
+				{
+					"id": "xchacha20poly1305/1350B",
+					"label": "XChaCha20-Poly1305 seal, 1350 B"
+				},
+				{
+					"id": "xchacha20poly1305/16KB",
+					"label": "XChaCha20-Poly1305 seal, 16 KB"
+				}
+			]
+		},
+		{
+			"name": "QUIC header protection",
+			"operations": [
+				{
+					"id": "quic-header-protection/aes128",
+					"label": "AES-128 header protection"
+				},
+				{
+					"id": "quic-header-protection/aes256",
+					"label": "AES-256 header protection"
+				},
+				{
+					"id": "quic-header-protection/chacha20",
+					"label": "ChaCha20 header protection"
+				}
+			]
+		},
+		{
+			"name": "Key agreement",
+			"operations": [
+				{
+					"id": "x25519-ecdh",
+					"label": "X25519"
+				},
+				{
+					"id": "p256-ecdh",
+					"label": "P-256 ECDH"
+				}
+			]
+		},
+		{
+			"name": "Signatures",
+			"operations": [
+				{
+					"id": "ed25519-sign",
+					"label": "Ed25519 sign"
+				},
+				{
+					"id": "ed25519-verify",
+					"label": "Ed25519 verify"
+				},
+				{
+					"id": "p256-ecdsa-sign",
+					"label": "P-256 ECDSA sign"
+				},
+				{
+					"id": "p256-ecdsa-verify",
+					"label": "P-256 ECDSA verify"
+				}
+			]
+		},
+		{
+			"name": "Hashes and KDFs",
+			"operations": [
+				{
+					"id": "sha256/64B",
+					"label": "SHA-256, 64 B"
+				},
+				{
+					"id": "sha256/1350B",
+					"label": "SHA-256, 1350 B"
+				},
+				{
+					"id": "sha256/16KB",
+					"label": "SHA-256, 16 KB"
+				},
+				{
+					"id": "sha512/64B",
+					"label": "SHA-512, 64 B"
+				},
+				{
+					"id": "sha512/1350B",
+					"label": "SHA-512, 1350 B"
+				},
+				{
+					"id": "sha512/16KB",
+					"label": "SHA-512, 16 KB"
+				},
+				{
+					"id": "hmac-sha256/64B",
+					"label": "HMAC-SHA256, 64 B"
+				},
+				{
+					"id": "hmac-sha256/1350B",
+					"label": "HMAC-SHA256, 1350 B"
+				},
+				{
+					"id": "hkdf-sha256/extract-expand",
+					"label": "HKDF-SHA256 extract and expand"
+				},
+				{
+					"id": "hkdf-sha256/expand",
+					"label": "HKDF-SHA256 expand"
+				}
+			]
+		},
+		{
+			"name": "RSA",
+			"operations": [
+				{
+					"id": "rsa2048-pkcs1-sha256-sign",
+					"label": "RSA-2048 PKCS#1 sign"
+				},
+				{
+					"id": "rsa2048-pkcs1-sha256-verify",
+					"label": "RSA-2048 PKCS#1 verify"
+				},
+				{
+					"id": "rsa2048-pss-sha256-sign",
+					"label": "RSA-2048 PSS sign"
+				},
+				{
+					"id": "rsa2048-pss-sha256-verify",
+					"label": "RSA-2048 PSS verify"
+				}
+			]
+		},
+		{
+			"name": "ML-KEM",
+			"operations": [
+				{
+					"id": "mlkem768-keygen",
+					"label": "ML-KEM-768 key generation"
+				},
+				{
+					"id": "mlkem768-encaps",
+					"label": "ML-KEM-768 encapsulate"
+				},
+				{
+					"id": "mlkem768-decaps",
+					"label": "ML-KEM-768 decapsulate"
+				}
+			]
+		},
+		{
+			"name": "P-384 and P-521",
+			"operations": [
+				{
+					"id": "p384-ecdh",
+					"label": "P-384 ECDH"
+				},
+				{
+					"id": "p384-ecdsa-sign",
+					"label": "P-384 ECDSA sign"
+				},
+				{
+					"id": "p384-ecdsa-verify",
+					"label": "P-384 ECDSA verify"
+				},
+				{
+					"id": "p521-ecdh",
+					"label": "P-521 ECDH"
+				},
+				{
+					"id": "p521-ecdsa-sign",
+					"label": "P-521 ECDSA sign"
+				},
+				{
+					"id": "p521-ecdsa-verify",
+					"label": "P-521 ECDSA verify"
+				}
+			]
+		}
+	],
+	"rows": [
+		"AES-GCM",
+		"ChaCha20-Poly1305",
+		"XChaCha20-Poly1305",
+		"AES header protection",
+		"ChaCha20 header protection",
+		"SHA-256",
+		"SHA-512",
+		"HMAC-SHA256",
+		"HKDF-SHA256",
+		"X25519",
+		"Ed25519",
+		"P-256",
+		"P-384",
+		"P-521",
+		"RSA-2048 PSS",
+		"RSA-2048 PKCS#1",
+		"ML-KEM-768"
+	],
+	"partial": {
+		"x86_64": {
+			"rind": {
+				"AES-GCM": {
+					"proof": "Vale's F* AES-GCM, for every message without VAES but only short ones with it",
+					"link": "https://github.com/moq-dev/rind/blob/main/ALGORITHMS.md"
+				},
+				"Ed25519": {
+					"proof": "s2n-bignum's HOL Light scalar multiplications",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+				},
+				"P-256": {
+					"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+				},
+				"P-384": {
+					"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+				},
+				"P-521": {
+					"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+				},
+				"ML-KEM-768": {
+					"proof": "s2n-bignum's and mlkem-native's HOL Light NTT and sampling",
+					"link": "https://github.com/pq-code-package/mlkem-native/tree/main/proofs/hol_light/x86_64/proofs"
+				}
+			},
+			"aws-lc-rs": {
+				"AES-GCM": {
+					"proof": "aws-lc-verification's SAW AES-GCM, for AES-256 only",
+					"link": "https://github.com/awslabs/aws-lc-verification/blob/797302470c1703cbb1a3a6fa98daffef0bfd3d80/README.md"
+				},
+				"AES header protection": {
+					"proof": "aws-lc-verification's SAW AES block, for AES-256 only",
+					"link": "https://github.com/awslabs/aws-lc-verification/blob/797302470c1703cbb1a3a6fa98daffef0bfd3d80/README.md"
+				},
+				"X25519": {
+					"proof": "s2n-bignum's HOL Light X25519 ladder",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+				},
+				"Ed25519": {
+					"proof": "s2n-bignum's HOL Light scalar multiplications",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+				},
+				"P-256": {
+					"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+				},
+				"P-384": {
+					"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+				},
+				"P-521": {
+					"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+				},
+				"ML-KEM-768": {
+					"proof": "mlkem-native's HOL Light AVX2 NTT and sampling",
+					"link": "https://github.com/pq-code-package/mlkem-native/tree/main/proofs/hol_light/x86_64/proofs"
+				}
+			},
+			"graviola": {
+				"X25519": {
+					"proof": "s2n-bignum's HOL Light X25519 ladder",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+				},
+				"Ed25519": {
+					"proof": "s2n-bignum's HOL Light scalar multiplications",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+				},
+				"ML-KEM-768": {
+					"proof": "s2n-bignum's HOL Light NTT and base multiplication",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/x86/proofs"
+				}
+			},
+			"libcrux": {
+				"XChaCha20-Poly1305": {
+					"proof": "HACL*'s F* ChaCha20-Poly1305, under an unverified HChaCha20",
+					"link": "https://github.com/hacl-star/hacl-star/tree/main/code/chacha20poly1305"
+				}
+			}
+		},
+		"aarch64": {
+			"rind": {
+				"Ed25519": {
+					"proof": "s2n-bignum's HOL Light scalar multiplications",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/arm/proofs"
+				},
+				"P-384": {
+					"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/arm/proofs"
+				},
+				"P-521": {
+					"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/arm/proofs"
+				},
+				"ML-KEM-768": {
+					"proof": "s2n-bignum's HOL Light NTT and sampling",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/arm/proofs"
+				}
+			},
+			"aws-lc-rs": {
+				"X25519": {
+					"proof": "s2n-bignum's HOL Light X25519 ladder",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/arm/proofs"
+				},
+				"Ed25519": {
+					"proof": "s2n-bignum's HOL Light scalar multiplications",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/arm/proofs"
+				},
+				"P-256": {
+					"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/arm/proofs"
+				},
+				"P-384": {
+					"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/arm/proofs"
+				},
+				"P-521": {
+					"proof": "s2n-bignum's HOL Light scalar multiplication, for ECDH",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/arm/proofs"
+				},
+				"ML-KEM-768": {
+					"proof": "mlkem-native's HOL Light aarch64 NTT and sampling",
+					"link": "https://github.com/pq-code-package/mlkem-native/tree/main/proofs/hol_light/aarch64/proofs"
+				}
+			},
+			"graviola": {
+				"X25519": {
+					"proof": "s2n-bignum's HOL Light X25519 ladder",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/arm/proofs"
+				},
+				"Ed25519": {
+					"proof": "s2n-bignum's HOL Light scalar multiplications",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/arm/proofs"
+				},
+				"ML-KEM-768": {
+					"proof": "s2n-bignum's HOL Light NTT and base multiplication",
+					"link": "https://github.com/awslabs/s2n-bignum/tree/main/arm/proofs"
+				}
+			},
+			"libcrux": {
+				"XChaCha20-Poly1305": {
+					"proof": "HACL*'s F* ChaCha20-Poly1305, under an unverified HChaCha20",
+					"link": "https://github.com/hacl-star/hacl-star/tree/main/code/chacha20poly1305"
+				}
+			}
+		}
+	},
+	"hosts": [
+		{
+			"name": "Arrow Lake",
+			"arch": "x86_64",
+			"source": {
+				"rind": "9e7f6a5a9ea59a0cf1251c24af6c5d4f21c2b0fd",
+				"cpu": "Intel(R) Core(TM) Ultra 7 270K Plus",
+				"date": "2026-11-07T13:37:17+00:00",
+				"versions": {
+					"rind": {
+						"rind": "0.2.1",
+						"rind-rustls": "0.23.0"
+					},
+					"aws-lc-rs": {
+						"aws-lc-rs": "1.19.0",
+						"aws-lc-sys": "0.47.0"
+					},
+					"ring": {
+						"ring": "0.17.14"
+					},
+					"rustcrypto": {
+						"aes-gcm": "0.11.1",
+						"chacha20poly1305": "0.11.0",
+						"sha2": "0.11.1",
+						"sha3": "0.12.0",
+						"hmac": "0.13.0",
+						"hkdf": "0.13.0",
+						"p256": "0.14.0",
+						"p384": "0.14.0",
+						"p521": "0.14.0",
+						"rsa": "0.10.0-rc.19",
+						"ml-kem": "0.3.4",
+						"ed25519-dalek": "3.0.0",
+						"x25519-dalek": "3.0.0"
+					},
+					"graviola": {
+						"graviola": "0.4.4",
+						"rustls-graviola": "0.4.0"
+					},
+					"libcrux": {
+						"libcrux-aes": "0.0.10",
+						"libcrux-chacha20poly1305": "0.0.10",
+						"libcrux-ecdh": "0.0.9",
+						"libcrux-ecdsa": "0.0.9",
+						"libcrux-ed25519": "0.0.10",
+						"libcrux-hkdf": "0.0.9",
+						"libcrux-hmac": "0.0.9",
+						"libcrux-ml-kem": "0.0.11",
+						"libcrux-rsa": "0.0.9",
+						"libcrux-sha2": "0.0.9",
+						"libcrux-sha3": "0.0.11"
+					},
+					"openssl": {
+						"openssl": "0.10.82",
+						"openssl-sys": "0.9.118",
+						"rustls-openssl": "0.4.2",
+						"linked": "OpenSSL 3.5.9 29 Sep 2026 (Library: OpenSSL 3.5.9 29 Sep 2026)"
+					},
+					"tls": {
+						"rustls": "0.23.46"
+					}
+				}
+			},
+			"times": {
+				"rustls-full-handshake-group/x25519mlkem768": {
+					"rind": 172303.64461947687,
+					"aws-lc-rs": 233731.1471129501,
+					"graviola": 188190.19006132704,
+					"openssl": 438878.9896601153
+				},
+				"rustls-full-handshake-group/x25519": {
+					"rind": 151321.32192625978,
+					"aws-lc-rs": 201934.30900743805,
+					"ring": 221013.4437594207,
+					"graviola": 161402.26108763114,
+					"openssl": 366379.91121915175
+				},
+				"rustls-full-handshake-group/secp256r1": {
+					"rind": 174551.25904388947,
+					"aws-lc-rs": 227862.49803950544,
+					"ring": 219505.20030638884,
+					"graviola": 191811.12497266143,
+					"openssl": 400763.1065449978
+				},
+				"rustls-full-handshake-key/ed25519": {
+					"rind": 121900.17352800355,
+					"aws-lc-rs": 166630.28164917984,
+					"ring": 202036.64412196443,
+					"graviola": 123710.98283552534,
+					"openssl": 368209.43157233635
+				},
+				"rustls-full-handshake-key/rsa-2048": {
+					"rind": 432829.6602512192,
+					"aws-lc-rs": 480430.2605260825,
+					"ring": 488218.6892699867,
+					"graviola": 440421.7762849121,
+					"openssl": 670543.5991813211
+				},
+				"rustls-resumed-handshake/x25519": {
+					"rind": 54393.840452194476,
+					"aws-lc-rs": 101361.50935865229,
+					"ring": 111286.86569233042,
+					"graviola": 55618.2704378199,
+					"openssl": 232436.5798758682
+				},
+				"rustls-bulk/aes128-gcm": {
+					"rind": 168209.4705319935,
+					"aws-lc-rs": 233340.55045662777,
+					"ring": 170075.07825328803,
+					"graviola": 289614.6726417418,
+					"openssl": 250850.85143293435
+				},
+				"rustls-bulk/aes256-gcm": {
+					"rind": 184540.8985577065,
+					"aws-lc-rs": 265287.4674242648,
+					"ring": 188671.20969410375,
+					"graviola": 337961.7777907492,
+					"openssl": 285785.9151844737
+				},
+				"rustls-bulk/chacha20poly1305": {
+					"rind": 596912.0600916211,
+					"aws-lc-rs": 595414.4498448352,
+					"ring": 590487.3292093986,
+					"graviola": 1160609.3795238093,
+					"openssl": 658480.2192670312
+				},
+				"aes128-gcm/32B": {
+					"rind": 19.746949580422342,
+					"aws-lc-rs": 37.53366868712758,
+					"ring": 41.07747092267411,
+					"rustcrypto": 73.14946279006158,
+					"graviola": 42.14599664492454,
+					"libcrux": 170.64893360294954,
+					"openssl": 56.84287538709346
+				},
+				"aes128-gcm/1350B": {
+					"rind": 92.65762186486914,
+					"aws-lc-rs": 158.6357668453869,
+					"ring": 119.49365006059759,
+					"rustcrypto": 278.3612755111838,
+					"graviola": 225.69116689643127,
+					"libcrux": 1979.9750792859818,
+					"openssl": 160.0054391621612
+				},
+				"aes128-gcm/16KB": {
+					"rind": 799.0393576206395,
+					"aws-lc-rs": 1322.8225328669594,
+					"ring": 817.8716201390074,
+					"rustcrypto": 2488.0224065347893,
+					"graviola": 2054.634860932619,
+					"libcrux": 22046.322340333536,
+					"openssl": 1345.0454593726408
+				},
+				"aes128-gcm-open/32B": {
+					"rind": 15.141390013867618,
+					"aws-lc-rs": 37.81932226175298,
+					"ring": 41.09339760364453,
+					"rustcrypto": 78.00973588687573,
+					"graviola": 36.27044102098532,
+					"libcrux": 161.59763873928435,
+					"openssl": 58.9664843592685
+				},
+				"aes128-gcm-open/1350B": {
+					"rind": 89.45517059259937,
+					"aws-lc-rs": 150.8167040522719,
+					"ring": 113.60432726291496,
+					"rustcrypto": 283.1588719945938,
+					"graviola": 174.78753147011918,
+					"libcrux": 1993.7134171626117,
+					"openssl": 161.67150940709666
+				},
+				"aes128-gcm-open/16KB": {
+					"rind": 792.6638107758239,
+					"aws-lc-rs": 1263.4791311844165,
+					"ring": 814.2382096527748,
+					"rustcrypto": 2505.4509875487834,
+					"graviola": 1398.9231256629973,
+					"libcrux": 21935.383362286477,
+					"openssl": 1286.7861153335605
+				},
+				"aes256-gcm/32B": {
+					"rind": 21.359315212272744,
+					"aws-lc-rs": 39.17103225543588,
+					"ring": 43.17524180628785,
+					"rustcrypto": 78.22023256652304,
+					"graviola": 44.52852253232011,
+					"libcrux": 217.07683353305674,
+					"openssl": 61.24312243208717
+				},
+				"aes256-gcm/1350B": {
+					"rind": 107.22592864239105,
+					"aws-lc-rs": 174.987533132129,
+					"ring": 133.53413554806923,
+					"rustcrypto": 312.7041962871171,
+					"graviola": 257.31636369740664,
+					"libcrux": 2873.809701833559,
+					"openssl": 184.0609176892426
+				},
+				"aes256-gcm/16KB": {
+					"rind": 953.6949999304722,
+					"aws-lc-rs": 1580.2553137848327,
+					"ring": 974.6140575405718,
+					"rustcrypto": 2902.3261399114067,
+					"graviola": 2457.8666247601695,
+					"libcrux": 32858.19057671518,
+					"openssl": 1601.9930557594687
+				},
+				"aes256-gcm-open/32B": {
+					"rind": 16.36006000273459,
+					"aws-lc-rs": 37.760775546967544,
+					"ring": 43.00458440518072,
+					"rustcrypto": 82.27389385816223,
+					"graviola": 37.742579057354384,
+					"libcrux": 214.64644106485576,
+					"openssl": 61.08817197648884
+				},
+				"aes256-gcm-open/1350B": {
+					"rind": 98.86964073378171,
+					"aws-lc-rs": 171.9224988446178,
+					"ring": 121.22066060903276,
+					"rustcrypto": 317.69921186778976,
+					"graviola": 200.9636378776052,
+					"libcrux": 2849.2671763264307,
+					"openssl": 188.69435557663402
+				},
+				"aes256-gcm-open/16KB": {
+					"rind": 899.0658232898955,
+					"aws-lc-rs": 1551.3657814204319,
+					"ring": 932.8564284011692,
+					"rustcrypto": 2920.919122094826,
+					"graviola": 1714.1936696010348,
+					"libcrux": 32612.813677366164,
+					"openssl": 1578.9833448953984
+				},
+				"chacha20poly1305/32B": {
+					"rind": 98.45560185901977,
+					"aws-lc-rs": 103.17589039388896,
+					"ring": 98.87613582529383,
+					"rustcrypto": 1051.3328198924767,
+					"graviola": 177.4796770221076,
+					"libcrux": 156.8485187765772,
+					"openssl": 174.9169810680925
+				},
+				"chacha20poly1305/1350B": {
+					"rind": 440.27024447133556,
+					"aws-lc-rs": 446.29926025543625,
+					"ring": 448.024827836542,
+					"rustcrypto": 1644.0746638625872,
+					"graviola": 889.8492564117242,
+					"libcrux": 1769.6891731230692,
+					"openssl": 586.5285385043761
+				},
+				"chacha20poly1305/16KB": {
+					"rind": 4186.192835508693,
+					"aws-lc-rs": 4129.047837175509,
+					"ring": 4119.637287668859,
+					"rustcrypto": 8031.7869985517955,
+					"graviola": 8290.059216746302,
+					"libcrux": 19308.11023563117,
+					"openssl": 4345.291100413234
+				},
+				"xchacha20poly1305/32B": {
+					"rind": 185.85064466169132,
+					"aws-lc-rs": 198.93098609933983,
+					"rustcrypto": 1154.3210407503002,
+					"graviola": 254.52110751316087,
+					"libcrux": 244.35012286759152
+				},
+				"xchacha20poly1305/1350B": {
+					"rind": 528.6618851485149,
+					"aws-lc-rs": 539.2512707043926,
+					"rustcrypto": 1729.7892493880147,
+					"graviola": 973.6021023966356,
+					"libcrux": 1834.7060447192825
+				},
+				"xchacha20poly1305/16KB": {
+					"rind": 4174.40743916642,
+					"aws-lc-rs": 4234.980958056076,
+					"rustcrypto": 8153.435007648405,
+					"graviola": 8395.075005047278,
+					"libcrux": 19609.596587995824
+				},
+				"quic-header-protection/aes128": {
+					"rind": 1.7057217073437445,
+					"aws-lc-rs": 3.251223987832192,
+					"ring": 3.457281430100614
+				},
+				"quic-header-protection/aes256": {
+					"rind": 2.0766344986236245,
+					"aws-lc-rs": 5.3155687315201225,
+					"ring": 5.132923075251203
+				},
+				"quic-header-protection/chacha20": {
+					"rind": 53.09920597377861,
+					"aws-lc-rs": 68.47819606831247,
+					"ring": 60.39017214914317
+				},
+				"x25519-ecdh": {
+					"rind": 18203.08785397943,
+					"aws-lc-rs": 19244.324777454152,
+					"ring": 35628.691866236666,
+					"rustcrypto": 36059.78595485009,
+					"graviola": 18091.50587243799,
+					"libcrux": 42676.12114575637,
+					"openssl": 33951.030497676635
+				},
+				"p256-ecdh": {
+					"rind": 29523.557551703998,
+					"aws-lc-rs": 31767.263718043447,
+					"ring": 33635.4506456168,
+					"rustcrypto": 121298.242327176,
+					"graviola": 33672.66087893864,
+					"libcrux": 171676.0393837742,
+					"openssl": 52916.597788778876
+				},
+				"ed25519-sign": {
+					"rind": 4111.479154925271,
+					"aws-lc-rs": 4485.754918745606,
+					"ring": 13114.176522831387,
+					"rustcrypto": 9600.99246111029,
+					"graviola": 4398.692000799729,
+					"libcrux": 28537.099566242337,
+					"openssl": 13672.03782756186
+				},
+				"ed25519-verify": {
+					"rind": 21428.515593742744,
+					"aws-lc-rs": 21414.2071281851,
+					"ring": 25925.14302915042,
+					"rustcrypto": 21874.072632417825,
+					"graviola": 21450.223807553462,
+					"libcrux": 41826.85573104773,
+					"openssl": 44788.53066435855
+				},
+				"p256-ecdsa-sign": {
+					"rind": 6738.318760831307,
+					"aws-lc-rs": 12249.17650199196,
+					"ring": 12200.802390894587,
+					"rustcrypto": 31315.209107044248,
+					"graviola": 8968.389966761435,
+					"libcrux": 61813.46097088813,
+					"openssl": 14452.256443173103
+				},
+				"p256-ecdsa-verify": {
+					"rind": 30587.991460174377,
+					"aws-lc-rs": 29751.07217792227,
+					"ring": 33231.94069651741,
+					"rustcrypto": 103239.12943254027,
+					"graviola": 32359.01470588693,
+					"libcrux": 147266.68459760604,
+					"openssl": 46462.86099601005
+				},
+				"sha256/64B": {
+					"rind": 28.172676969162893,
+					"aws-lc-rs": 57.01276505236001,
+					"ring": 56.31874103195594,
+					"rustcrypto": 39.104576234058996,
+					"graviola": 40.08559266443109,
+					"libcrux": 217.50730438169248,
+					"openssl": 158.28726392259222
+				},
+				"sha256/1350B": {
+					"rind": 268.92496881098225,
+					"aws-lc-rs": 306.11777763239104,
+					"ring": 304.3367208034221,
+					"rustcrypto": 295.6638055198604,
+					"graviola": 292.23294489717057,
+					"libcrux": 2286.170527789329,
+					"openssl": 406.15979595595184
+				},
+				"sha256/16KB": {
+					"rind": 3189.9143829800014,
+					"aws-lc-rs": 3231.5506677064527,
+					"ring": 3223.1275321173102,
+					"rustcrypto": 3220.2731376033935,
+					"graviola": 3216.47218129316,
+					"libcrux": 26897.549368225595,
+					"openssl": 3355.415052047688
+				},
+				"sha512/64B": {
+					"rind": 60.090929140141704,
+					"aws-lc-rs": 133.8019829204203,
+					"ring": 139.97080335000595,
+					"rustcrypto": 120.18388287790492,
+					"graviola": 148.4575746586375,
+					"libcrux": 166.17978856992008,
+					"openssl": 225.8325588132335
+				},
+				"sha512/1350B": {
+					"rind": 249.33934868874138,
+					"aws-lc-rs": 1243.4708805469318,
+					"ring": 1258.5604929011652,
+					"rustcrypto": 1168.0090951281636,
+					"graviola": 1486.2947918247253,
+					"libcrux": 1718.1407062259996,
+					"openssl": 1171.3578442313012
+				},
+				"sha512/16KB": {
+					"rind": 2625.8782779607436,
+					"aws-lc-rs": 14115.311413185053,
+					"ring": 14096.542254030332,
+					"rustcrypto": 13511.495519499711,
+					"graviola": 17497.58025191457,
+					"libcrux": 20102.91892271317,
+					"openssl": 12288.512652518373
+				},
+				"hmac-sha256/64B": {
+					"rind": 75.08938428017244,
+					"aws-lc-rs": 179.9443864665826,
+					"ring": 145.19689182382092,
+					"rustcrypto": 103.0704074524284,
+					"graviola": 110.00800428550318,
+					"libcrux": 536.9835110429013,
+					"openssl": 1554.7293078951257
+				},
+				"hmac-sha256/1350B": {
+					"rind": 328.1901390001888,
+					"aws-lc-rs": 434.915899860939,
+					"ring": 397.25244307629634,
+					"rustcrypto": 355.56820828978954,
+					"graviola": 357.83183002336574,
+					"libcrux": 2676.179290993419,
+					"openssl": 1809.5311845415522
+				},
+				"hkdf-sha256/extract-expand": {
+					"rind": 157.76140792685047,
+					"aws-lc-rs": 284.6538582620157,
+					"ring": 302.5501807490982,
+					"rustcrypto": 222.5832828418161,
+					"libcrux": 965.4921747377815,
+					"openssl": 1723.0448556606789
+				},
+				"hkdf-sha256/expand": {
+					"rind": 66.1334910677645,
+					"aws-lc-rs": 124.11689168829068,
+					"ring": 120.39983565531816,
+					"rustcrypto": 83.8216579873762,
+					"libcrux": 480.4296643744097,
+					"openssl": 1233.1469665631623
+				},
+				"rsa2048-pkcs1-sha256-sign": {
+					"rind": 341491.1479976356,
+					"aws-lc-rs": 344239.68309442885,
+					"ring": 336103.55799911334,
+					"rustcrypto": 580178.2960351707,
+					"graviola": 343747.91087631154,
+					"openssl": 393451.76934091916
+				},
+				"rsa2048-pkcs1-sha256-verify": {
+					"rind": 8920.560531187448,
+					"aws-lc-rs": 10955.983230812633,
+					"ring": 12783.959092848285,
+					"rustcrypto": 29013.88050271978,
+					"graviola": 13975.01862307161,
+					"openssl": 15510.445546449018
+				},
+				"rsa2048-pss-sha256-sign": {
+					"rind": 341450.67879858136,
+					"aws-lc-rs": 346554.3083242205,
+					"ring": 342489.2410669425,
+					"rustcrypto": 581164.5041066943,
+					"graviola": 344576.23691443773,
+					"libcrux": 3685243.782222224,
+					"openssl": 390435.895467711
+				},
+				"rsa2048-pss-sha256-verify": {
+					"rind": 9148.607974528797,
+					"aws-lc-rs": 11157.30143244175,
+					"ring": 13192.980341298244,
+					"rustcrypto": 35269.28881440207,
+					"graviola": 14304.829849901835,
+					"libcrux": 251906.13099157676,
+					"openssl": 16246.727593847727
+				},
+				"mlkem768-keygen": {
+					"rind": 6347.784516631085,
+					"aws-lc-rs": 8134.450316908607,
+					"rustcrypto": 39631.83017419092,
+					"graviola": 7373.593997741399,
+					"libcrux": 15015.03885953894,
+					"openssl": 19808.30902310231
+				},
+				"mlkem768-encaps": {
+					"rind": 6501.104132169544,
+					"aws-lc-rs": 8479.00111768587,
+					"rustcrypto": 41379.01761075809,
+					"graviola": 8999.01048040625,
+					"libcrux": 12802.52163521973,
+					"openssl": 18773.77713554751
+				},
+				"mlkem768-decaps": {
+					"rind": 4644.475538517406,
+					"aws-lc-rs": 8897.287862942132,
+					"rustcrypto": 54867.5242572914,
+					"graviola": 6536.591512316559,
+					"libcrux": 13436.761811207987,
+					"openssl": 15774.655110481983
+				},
+				"p384-ecdh": {
+					"rind": 100196.45363184079,
+					"aws-lc-rs": 109335.57772326487,
+					"ring": 369833.1951588592,
+					"rustcrypto": 402094.8987734594,
+					"graviola": 174122.07773163883,
+					"openssl": 265210.4507846904
+				},
+				"p384-ecdsa-sign": {
+					"rind": 23479.4017040843,
+					"aws-lc-rs": 46549.82471905514,
+					"ring": 197307.8084340673,
+					"rustcrypto": 85504.70672760667,
+					"graviola": 90285.52533386814,
+					"openssl": 88979.82968777049
+				},
+				"p384-ecdsa-verify": {
+					"rind": 100098.30340131027,
+					"aws-lc-rs": 115713.21065464756,
+					"ring": 357263.16896704596,
+					"rustcrypto": 359612.70368257724,
+					"graviola": 166485.45916802128,
+					"openssl": 216274.25298359687
+				},
+				"p521-ecdh": {
+					"rind": 159566.10430545293,
+					"aws-lc-rs": 171503.9195825329,
+					"rustcrypto": 428265.5645603665,
+					"openssl": 276636.70270528545
+				},
+				"p521-ecdsa-sign": {
+					"rind": 40088.58121196,
+					"aws-lc-rs": 88283.11231987165,
+					"rustcrypto": 94088.23866832738,
+					"openssl": 127934.59818176445
+				},
+				"p521-ecdsa-verify": {
+					"rind": 145100.1962293483,
+					"aws-lc-rs": 186691.45868774937,
+					"rustcrypto": 352950.0369661593,
+					"openssl": 261102.6577331166
+				}
+			},
+			"coverage": {
+				"AES-GCM": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "none",
+					"openssl": "none"
+				},
+				"ChaCha20-Poly1305": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"XChaCha20-Poly1305": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "routine",
+					"openssl": null
+				},
+				"AES header protection": {
+					"rind": "none",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": null,
+					"graviola": null,
+					"libcrux": null,
+					"openssl": null
+				},
+				"ChaCha20 header protection": {
+					"rind": "e2e",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": null,
+					"graviola": null,
+					"libcrux": null,
+					"openssl": null
+				},
+				"SHA-256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"SHA-512": {
+					"rind": "none",
+					"aws-lc-rs": "e2e",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"HMAC-SHA256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"HKDF-SHA256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": null,
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"X25519": {
+					"rind": "e2e",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"Ed25519": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"P-256": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"P-384": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"P-521": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": null,
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"RSA-2048 PSS": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"RSA-2048 PKCS#1": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"ML-KEM-768": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "none",
+					"openssl": "none"
+				}
+			}
+		},
+		{
+			"name": "Zen 3",
+			"arch": "x86_64",
+			"source": {
+				"rind": "f95b91da886bee265dbd836192a7ade2f9158c47",
+				"cpu": "AMD Ryzen 9 5900XT 16-Core Processor",
+				"date": "2026-11-06T16:32:11+00:00",
+				"versions": {
+					"rind": {
+						"rind": "0.1.13",
+						"rind-rustls": "0.1.13"
+					},
+					"aws-lc-rs": {
+						"aws-lc-rs": "1.19.0",
+						"aws-lc-sys": "0.47.0"
+					},
+					"ring": {
+						"ring": "0.17.14"
+					},
+					"rustcrypto": {
+						"aes-gcm": "0.11.1",
+						"chacha20poly1305": "0.11.0",
+						"sha2": "0.11.1",
+						"sha3": "0.12.0",
+						"hmac": "0.13.0",
+						"hkdf": "0.13.0",
+						"p256": "0.14.0",
+						"p384": "0.14.0",
+						"p521": "0.14.0",
+						"rsa": "0.10.0-rc.19",
+						"ml-kem": "0.3.4",
+						"ed25519-dalek": "3.0.0",
+						"x25519-dalek": "3.0.0"
+					},
+					"graviola": {
+						"graviola": "0.4.3",
+						"rustls-graviola": "0.4.0"
+					},
+					"libcrux": {
+						"libcrux-aes": "0.0.10",
+						"libcrux-chacha20poly1305": "0.0.10",
+						"libcrux-ecdh": "0.0.9",
+						"libcrux-ecdsa": "0.0.9",
+						"libcrux-ed25519": "0.0.10",
+						"libcrux-hkdf": "0.0.9",
+						"libcrux-hmac": "0.0.9",
+						"libcrux-ml-kem": "0.0.11",
+						"libcrux-rsa": "0.0.9",
+						"libcrux-sha2": "0.0.9",
+						"libcrux-sha3": "0.0.11"
+					},
+					"openssl": {
+						"openssl": "0.10.82",
+						"openssl-sys": "0.9.118",
+						"rustls-openssl": "0.4.2",
+						"linked": "OpenSSL 3.5.9 29 Sep 2026 (Library: OpenSSL 3.5.9 29 Sep 2026)"
+					},
+					"tls": {
+						"rustls": "0.23.46"
+					}
+				}
+			},
+			"times": {
+				"rustls-full-handshake-group/x25519mlkem768": {
+					"rind": 260780.4484074676,
+					"aws-lc-rs": 331871.505627309,
+					"graviola": 342679.04537214915,
+					"openssl": 802570.3694517511
+				},
+				"rustls-full-handshake-group/x25519": {
+					"rind": 227823.68336732182,
+					"aws-lc-rs": 292134.0748160189,
+					"ring": 328461.79629673413,
+					"graviola": 238698.70035663267,
+					"openssl": 574279.8404566278
+				},
+				"rustls-full-handshake-group/secp256r1": {
+					"rind": 242758.89868085316,
+					"aws-lc-rs": 304367.3057056303,
+					"ring": 281925.87700113293,
+					"graviola": 270050.4174474164,
+					"openssl": 624351.3549194621
+				},
+				"rustls-full-handshake-key/ed25519": {
+					"rind": 186733.9460713758,
+					"aws-lc-rs": 233429.86192010247,
+					"ring": 292961.966264716,
+					"graviola": 186046.53406605587,
+					"openssl": 640403.1801684647
+				},
+				"rustls-full-handshake-key/rsa-2048": {
+					"rind": 550143.3175838628,
+					"aws-lc-rs": 646281.1263070785,
+					"ring": 647360.2574582533,
+					"graviola": 567912.8249209399,
+					"openssl": 992047.1807063691
+				},
+				"rustls-resumed-handshake/x25519": {
+					"rind": 77192.5918856214,
+					"aws-lc-rs": 132666.7800177331,
+					"ring": 158106.22338850304,
+					"graviola": 77326.99750332496,
+					"openssl": 370514.08009309886
+				},
+				"rustls-bulk/aes128-gcm": {
+					"rind": 289425.64379488694,
+					"aws-lc-rs": 458206.86149992613,
+					"ring": 282217.04155066254,
+					"graviola": 424376.3461341806,
+					"openssl": 469836.607914881
+				},
+				"rustls-bulk/aes256-gcm": {
+					"rind": 292743.5694359884,
+					"aws-lc-rs": 461275.7782636323,
+					"ring": 289903.7481296488,
+					"graviola": 490288.78706812474,
+					"openssl": 533200.6291133441
+				},
+				"rustls-bulk/chacha20poly1305": {
+					"rind": 688782.5718161667,
+					"aws-lc-rs": 687525.271556081,
+					"ring": 693007.3277316388,
+					"graviola": 1372989.95,
+					"openssl": 782981.7795241614
+				},
+				"aes128-gcm/32B": {
+					"rind": 38.71781004146106,
+					"aws-lc-rs": 78.18123602992911,
+					"ring": 56.29595468671775,
+					"rustcrypto": 96.96354522191186,
+					"graviola": 69.64893975805013,
+					"libcrux": 321.1510688259032,
+					"openssl": 115.16628382591279
+				},
+				"aes128-gcm/1350B": {
+					"rind": 164.7907743033959,
+					"aws-lc-rs": 291.45977784805507,
+					"ring": 191.30515759333656,
+					"rustcrypto": 433.59781089432875,
+					"graviola": 294.544534988775,
+					"libcrux": 4718.6859278643815,
+					"openssl": 326.496180077384
+				},
+				"aes128-gcm/16KB": {
+					"rind": 1378.160155639028,
+					"aws-lc-rs": 2631.490105430963,
+					"ring": 1390.5736936742217,
+					"rustcrypto": 4279.150361625876,
+					"graviola": 2568.4700093207616,
+					"libcrux": 53903.71160558593,
+					"openssl": 2606.678917002174
+				},
+				"aes128-gcm-open/32B": {
+					"rind": 44.381446002824276,
+					"aws-lc-rs": 72.39146350246212,
+					"ring": 57.88729926164423,
+					"rustcrypto": 101.77797133462741,
+					"graviola": 64.57911474235208,
+					"libcrux": 317.4279780523032,
+					"openssl": 117.72176747379157
+				},
+				"aes128-gcm-open/1350B": {
+					"rind": 174.3700001910275,
+					"aws-lc-rs": 298.2697346469915,
+					"ring": 184.7831183861872,
+					"rustcrypto": 450.60785256378966,
+					"graviola": 304.66672416137135,
+					"libcrux": 3915.9811960714924,
+					"openssl": 332.94154273480865
+				},
+				"aes128-gcm-open/16KB": {
+					"rind": 1438.5637060330264,
+					"aws-lc-rs": 2721.8399650039632,
+					"ring": 1450.6497199735666,
+					"rustcrypto": 4287.566708001105,
+					"graviola": 2653.369770485444,
+					"libcrux": 44290.48332242606,
+					"openssl": 2771.743101320518
+				},
+				"aes256-gcm/32B": {
+					"rind": 41.12624580804068,
+					"aws-lc-rs": 81.67287715485598,
+					"ring": 56.923970565102294,
+					"rustcrypto": 100.79500719003778,
+					"graviola": 74.40760387950502,
+					"libcrux": 425.5936084666091,
+					"openssl": 118.0071271386442
+				},
+				"aes256-gcm/1350B": {
+					"rind": 184.3356665663656,
+					"aws-lc-rs": 311.3959418305522,
+					"ring": 205.0115597532675,
+					"rustcrypto": 488.6783901794388,
+					"graviola": 337.4235382065502,
+					"libcrux": 6912.772572298535,
+					"openssl": 345.3119771050344
+				},
+				"aes256-gcm/16KB": {
+					"rind": 1509.9385955251023,
+					"aws-lc-rs": 2779.682549439349,
+					"ring": 1530.7028236636559,
+					"rustcrypto": 4778.539619572212,
+					"graviola": 2976.366100147776,
+					"libcrux": 80608.28103221516,
+					"openssl": 2822.3494130380036
+				},
+				"aes256-gcm-open/32B": {
+					"rind": 48.437449813823704,
+					"aws-lc-rs": 78.56685596903668,
+					"ring": 60.78052182940942,
+					"rustcrypto": 108.5477081028688,
+					"graviola": 67.51808037014749,
+					"libcrux": 440.7380738169481,
+					"openssl": 121.93546746055961
+				},
+				"aes256-gcm-open/1350B": {
+					"rind": 191.64544793862083,
+					"aws-lc-rs": 321.7740518643795,
+					"ring": 203.87999068803387,
+					"rustcrypto": 507.53927385472986,
+					"graviola": 341.43634471476116,
+					"libcrux": 6787.904072571437,
+					"openssl": 353.76517782827835
+				},
+				"aes256-gcm-open/16KB": {
+					"rind": 1603.7028921355225,
+					"aws-lc-rs": 2919.0870604764154,
+					"ring": 1617.658888692568,
+					"rustcrypto": 4931.822075141028,
+					"graviola": 3044.9247502887665,
+					"libcrux": 79185.40512782622,
+					"openssl": 2975.6487480581427
+				},
+				"chacha20poly1305/32B": {
+					"rind": 113.65893860745757,
+					"aws-lc-rs": 119.12073258814414,
+					"ring": 112.54149771549098,
+					"rustcrypto": 1179.3188531404753,
+					"graviola": 215.6158614269785,
+					"libcrux": 220.29172298209983,
+					"openssl": 257.3650611662894
+				},
+				"chacha20poly1305/1350B": {
+					"rind": 532.902464971817,
+					"aws-lc-rs": 532.2288036733263,
+					"ring": 527.4927198882623,
+					"rustcrypto": 1927.9016946257525,
+					"graviola": 1081.162616956621,
+					"libcrux": 2335.031270756997,
+					"openssl": 745.3420585861181
+				},
+				"chacha20poly1305/16KB": {
+					"rind": 4675.981236361267,
+					"aws-lc-rs": 4784.972222467859,
+					"ring": 4678.818568932908,
+					"rustcrypto": 10088.715890054676,
+					"graviola": 10145.577916258613,
+					"libcrux": 26699.099586741282,
+					"openssl": 5142.800268695267
+				},
+				"xchacha20poly1305/32B": {
+					"rind": 243.04294919955078,
+					"aws-lc-rs": 266.74500117823146,
+					"rustcrypto": 1361.3235103721327,
+					"graviola": 357.4893359909269,
+					"libcrux": 351.3154649264112
+				},
+				"xchacha20poly1305/1350B": {
+					"rind": 774.9947455618866,
+					"aws-lc-rs": 722.9400653166238,
+					"rustcrypto": 2179.5863545724756,
+					"graviola": 1310.95600824662,
+					"libcrux": 2699.132015854057
+				},
+				"xchacha20poly1305/16KB": {
+					"rind": 5232.509970444806,
+					"aws-lc-rs": 5374.135824035762,
+					"rustcrypto": 11379.844303686046,
+					"graviola": 10803.818398269677,
+					"libcrux": 28662.65571323017
+				},
+				"quic-header-protection/aes128": {
+					"rind": 3.9854584142848997,
+					"aws-lc-rs": 5.786550145537476,
+					"ring": 6.943754895172456
+				},
+				"quic-header-protection/aes256": {
+					"rind": 5.852553637296669,
+					"aws-lc-rs": 7.705988365785333,
+					"ring": 9.58496873322171
+				},
+				"quic-header-protection/chacha20": {
+					"rind": 60.882555909094684,
+					"aws-lc-rs": 81.56651536425535,
+					"ring": 74.1403129677756
+				},
+				"x25519-ecdh": {
+					"rind": 23974.12950589626,
+					"aws-lc-rs": 24608.351602630413,
+					"ring": 46724.662013163426,
+					"rustcrypto": 52089.19438870007,
+					"graviola": 23944.31350317718,
+					"libcrux": 64595.76350879267,
+					"openssl": 49702.71299788188
+				},
+				"p256-ecdh": {
+					"rind": 42818.72608583673,
+					"aws-lc-rs": 42597.45412221073,
+					"ring": 46046.87106932967,
+					"rustcrypto": 268619.79256489826,
+					"graviola": 47865.2822673381,
+					"libcrux": 268702.67360918183,
+					"openssl": 71251.71736774051
+				},
+				"ed25519-sign": {
+					"rind": 5716.140016097538,
+					"aws-lc-rs": 6130.472676494272,
+					"ring": 17232.684260507926,
+					"rustcrypto": 13297.38926696401,
+					"graviola": 5827.021430355503,
+					"libcrux": 41369.354314959855,
+					"openssl": 23382.890414454763
+				},
+				"ed25519-verify": {
+					"rind": 27149.61003347447,
+					"aws-lc-rs": 27028.973508738934,
+					"ring": 34762.58573879776,
+					"rustcrypto": 24826.13810232008,
+					"graviola": 27077.867441460563,
+					"libcrux": 54515.02347889267,
+					"openssl": 79252.95914548544
+				},
+				"p256-ecdsa-sign": {
+					"rind": 9619.94515641163,
+					"aws-lc-rs": 12658.112948192207,
+					"ring": 13677.508216276852,
+					"rustcrypto": 70619.46936801143,
+					"graviola": 11491.743408566459,
+					"libcrux": 95473.90496358377,
+					"openssl": 18039.115113303404
+				},
+				"p256-ecdsa-verify": {
+					"rind": 39246.646351595984,
+					"aws-lc-rs": 40241.05937461209,
+					"ring": 41245.17664801874,
+					"rustcrypto": 226271.69612531402,
+					"graviola": 41915.14557194227,
+					"libcrux": 215833.27364464806,
+					"openssl": 60270.42059642382
+				},
+				"sha256/64B": {
+					"rind": 68.73634309272218,
+					"aws-lc-rs": 95.80266534397508,
+					"ring": 78.4540520093066,
+					"rustcrypto": 58.69692797784799,
+					"graviola": 67.28931677696838,
+					"libcrux": 384.776632123995,
+					"openssl": 243.6488777481512
+				},
+				"sha256/1350B": {
+					"rind": 619.6597566540065,
+					"aws-lc-rs": 739.8342337054496,
+					"ring": 636.9084932117208,
+					"rustcrypto": 618.3011508283098,
+					"graviola": 637.447747052195,
+					"libcrux": 3706.8778584847073,
+					"openssl": 814.5205447900548
+				},
+				"sha256/16KB": {
+					"rind": 6863.9723409473145,
+					"aws-lc-rs": 6880.156307181569,
+					"ring": 6966.206626165104,
+					"rustcrypto": 7223.539010750277,
+					"graviola": 7075.146686288997,
+					"libcrux": 43122.66314509489,
+					"openssl": 7368.629926508486
+				},
+				"sha512/64B": {
+					"rind": 138.13699295366257,
+					"aws-lc-rs": 223.80979537486922,
+					"ring": 197.65406359745845,
+					"rustcrypto": 192.25184954840924,
+					"graviola": 206.12552509449702,
+					"libcrux": 246.23189746083193,
+					"openssl": 354.95453149922724
+				},
+				"sha512/1350B": {
+					"rind": 1773.053884602435,
+					"aws-lc-rs": 1899.6373205428117,
+					"ring": 1868.8132229288826,
+					"rustcrypto": 1916.513011544336,
+					"graviola": 1983.8832375521833,
+					"libcrux": 2942.7170711908766,
+					"openssl": 1758.556852199972
+				},
+				"sha512/16KB": {
+					"rind": 16275.769232284882,
+					"aws-lc-rs": 25170.169524338704,
+					"ring": 25380.403789916305,
+					"rustcrypto": 24121.036569587704,
+					"graviola": 21044.524431590282,
+					"libcrux": 29753.72914085865,
+					"openssl": 15144.828017289788
+				},
+				"hmac-sha256/64B": {
+					"rind": 147.08282542276436,
+					"aws-lc-rs": 264.44167424487074,
+					"ring": 213.84944184392623,
+					"rustcrypto": 155.37738405643572,
+					"graviola": 172.45110715801007,
+					"libcrux": 851.117463309769,
+					"openssl": 2573.506360453146
+				},
+				"hmac-sha256/1350B": {
+					"rind": 692.1655758802217,
+					"aws-lc-rs": 852.8591862622461,
+					"ring": 791.3729510822232,
+					"rustcrypto": 727.8485167892338,
+					"graviola": 731.0746161431505,
+					"libcrux": 4388.70219473396,
+					"openssl": 3114.361936787851
+				},
+				"hkdf-sha256/extract-expand": {
+					"rind": 256.77843103572246,
+					"aws-lc-rs": 369.138751912449,
+					"ring": 398.9136826274903,
+					"rustcrypto": 309.1569061425443,
+					"libcrux": 1372.3372268081312,
+					"openssl": 2715.201762164358
+				},
+				"hkdf-sha256/expand": {
+					"rind": 88.55041973077404,
+					"aws-lc-rs": 178.58412059405498,
+					"ring": 141.81110908086364,
+					"rustcrypto": 102.81758357792387,
+					"libcrux": 713.5695952129832,
+					"openssl": 2000.595353060599
+				},
+				"rsa2048-pkcs1-sha256-sign": {
+					"rind": 523170.16244864784,
+					"aws-lc-rs": 532393.8529599527,
+					"ring": 523115.8678454263,
+					"rustcrypto": 1261022.3800000004,
+					"graviola": 474438.11301019654,
+					"openssl": 520245.4402674745
+				},
+				"rsa2048-pkcs1-sha256-verify": {
+					"rind": 12279.611106776349,
+					"aws-lc-rs": 14595.468250570844,
+					"ring": 16560.009867083725,
+					"rustcrypto": 54057.849893108716,
+					"graviola": 19246.963751046747,
+					"openssl": 23585.407318434485
+				},
+				"rsa2048-pss-sha256-sign": {
+					"rind": 424296.36024530814,
+					"aws-lc-rs": 481001.3493039752,
+					"ring": 471528.3098640461,
+					"rustcrypto": 1060988.326856805,
+					"graviola": 448543.1399748781,
+					"libcrux": 5861217.236666666,
+					"openssl": 474990.5308940446
+				},
+				"rsa2048-pss-sha256-verify": {
+					"rind": 12672.26837110005,
+					"aws-lc-rs": 15944.49731093201,
+					"ring": 18030.772341206026,
+					"rustcrypto": 64699.96485207625,
+					"graviola": 19628.995570057727,
+					"libcrux": 312226.193567312,
+					"openssl": 23601.682021811732
+				},
+				"mlkem768-keygen": {
+					"rind": 8432.66958398953,
+					"aws-lc-rs": 9412.79022225037,
+					"rustcrypto": 60177.92538052313,
+					"graviola": 9280.754776095946,
+					"libcrux": 18145.78183340722,
+					"openssl": 26821.006628973086
+				},
+				"mlkem768-encaps": {
+					"rind": 8529.914702852504,
+					"aws-lc-rs": 10409.815652726467,
+					"rustcrypto": 72031.31047074856,
+					"graviola": 10953.182500105555,
+					"libcrux": 16033.858618015089,
+					"openssl": 30019.45323215605
+				},
+				"mlkem768-decaps": {
+					"rind": 6068.96540151902,
+					"aws-lc-rs": 11961.943678535992,
+					"rustcrypto": 95174.95228440542,
+					"graviola": 7722.310333481109,
+					"libcrux": 16215.85387090948,
+					"openssl": 24635.216524427367
+				},
+				"p384-ecdh": {
+					"rind": 179706.50563174227,
+					"aws-lc-rs": 180488.3124434757,
+					"ring": 601492.1655652431,
+					"rustcrypto": 1042109.2816491799,
+					"graviola": 302571.50348307966,
+					"openssl": 656670.5430234964
+				},
+				"p384-ecdsa-sign": {
+					"rind": 53068.154963526205,
+					"aws-lc-rs": 97469.15438324642,
+					"ring": 474636.42304418504,
+					"rustcrypto": 238313.82929018274,
+					"graviola": 185154.80296438598,
+					"openssl": 235522.13648687257
+				},
+				"p384-ecdsa-verify": {
+					"rind": 157329.8079119255,
+					"aws-lc-rs": 199207.40075513523,
+					"ring": 727104.829428107,
+					"rustcrypto": 872064.4092921531,
+					"graviola": 315986.8514703709,
+					"openssl": 551887.3496098714
+				},
+				"p521-ecdh": {
+					"rind": 283912.5756012019,
+					"aws-lc-rs": 288170.71495049505,
+					"rustcrypto": 868409.3264873652,
+					"openssl": 505618.03551943257
+				},
+				"p521-ecdsa-sign": {
+					"rind": 58316.217007372376,
+					"aws-lc-rs": 152351.90711245753,
+					"rustcrypto": 177472.88751071377,
+					"openssl": 219598.71526525787
+				},
+				"p521-ecdsa-verify": {
+					"rind": 222281.76962809713,
+					"aws-lc-rs": 327351.2493054529,
+					"rustcrypto": 610174.982693956,
+					"openssl": 473663.16028077435
+				}
+			},
+			"coverage": {
+				"AES-GCM": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "none",
+					"openssl": "none"
+				},
+				"ChaCha20-Poly1305": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"XChaCha20-Poly1305": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "routine",
+					"openssl": null
+				},
+				"AES header protection": {
+					"rind": "none",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": null,
+					"graviola": null,
+					"libcrux": null,
+					"openssl": null
+				},
+				"ChaCha20 header protection": {
+					"rind": "e2e",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": null,
+					"graviola": null,
+					"libcrux": null,
+					"openssl": null
+				},
+				"SHA-256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"SHA-512": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"HMAC-SHA256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"HKDF-SHA256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": null,
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"X25519": {
+					"rind": "e2e",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"Ed25519": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"P-256": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"P-384": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"P-521": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": null,
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"RSA-2048 PSS": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"RSA-2048 PKCS#1": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"ML-KEM-768": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "none",
+					"openssl": "none"
+				}
+			}
+		},
+		{
+			"name": "Coffee Lake",
+			"arch": "x86_64",
+			"source": {
+				"rind": "f95b91da886bee265dbd836192a7ade2f9158c47",
+				"cpu": "Intel(R) Core(TM) i7-8700 CPU @ 3.20GHz",
+				"date": "2026-11-06T15:35:40+00:00",
+				"versions": {
+					"rind": {
+						"rind": "0.1.13",
+						"rind-rustls": "0.1.13"
+					},
+					"aws-lc-rs": {
+						"aws-lc-rs": "1.19.0",
+						"aws-lc-sys": "0.47.0"
+					},
+					"ring": {
+						"ring": "0.17.14"
+					},
+					"rustcrypto": {
+						"aes-gcm": "0.11.1",
+						"chacha20poly1305": "0.11.0",
+						"sha2": "0.11.1",
+						"sha3": "0.12.0",
+						"hmac": "0.13.0",
+						"hkdf": "0.13.0",
+						"p256": "0.14.0",
+						"p384": "0.14.0",
+						"p521": "0.14.0",
+						"rsa": "0.10.0-rc.19",
+						"ml-kem": "0.3.4",
+						"ed25519-dalek": "3.0.0",
+						"x25519-dalek": "3.0.0"
+					},
+					"graviola": {
+						"graviola": "0.4.3",
+						"rustls-graviola": "0.4.0"
+					},
+					"libcrux": {
+						"libcrux-aes": "0.0.10",
+						"libcrux-chacha20poly1305": "0.0.10",
+						"libcrux-ecdh": "0.0.9",
+						"libcrux-ecdsa": "0.0.9",
+						"libcrux-ed25519": "0.0.10",
+						"libcrux-hkdf": "0.0.9",
+						"libcrux-hmac": "0.0.9",
+						"libcrux-ml-kem": "0.0.11",
+						"libcrux-rsa": "0.0.9",
+						"libcrux-sha2": "0.0.9",
+						"libcrux-sha3": "0.0.11"
+					},
+					"openssl": {
+						"openssl": "0.10.82",
+						"openssl-sys": "0.9.118",
+						"rustls-openssl": "0.4.2",
+						"linked": "OpenSSL 3.5.9 29 Sep 2026 (Library: OpenSSL 3.5.9 29 Sep 2026)"
+					},
+					"tls": {
+						"rustls": "0.23.46"
+					}
+				}
+			},
+			"times": {
+				"rustls-full-handshake-group/x25519mlkem768": {
+					"rind": 302425.3520526083,
+					"aws-lc-rs": 458055.4030323629,
+					"graviola": 375574.18730899954,
+					"openssl": 830763.5219240432
+				},
+				"rustls-full-handshake-group/x25519": {
+					"rind": 260016.6891345254,
+					"aws-lc-rs": 369738.7065272647,
+					"ring": 337912.23527264665,
+					"graviola": 315727.71180286683,
+					"openssl": 686500.0513698832
+				},
+				"rustls-full-handshake-group/secp256r1": {
+					"rind": 295924.4892655534,
+					"aws-lc-rs": 417284.4076488843,
+					"ring": 327879.23115413036,
+					"graviola": 368788.45385251957,
+					"openssl": 760039.5912516625
+				},
+				"rustls-full-handshake-key/ed25519": {
+					"rind": 213116.54405300232,
+					"aws-lc-rs": 306109.17607359245,
+					"ring": 325290.4925387912,
+					"graviola": 250284.9215959805,
+					"openssl": 747093.0546327768
+				},
+				"rustls-full-handshake-key/rsa-2048": {
+					"rind": 613797.9412501847,
+					"aws-lc-rs": 758169.1258489729,
+					"ring": 678162.519692626,
+					"graviola": 687174.6760218708,
+					"openssl": 1011129.0454706665
+				},
+				"rustls-resumed-handshake/x25519": {
+					"rind": 120947.39610344318,
+					"aws-lc-rs": 229388.21694202255,
+					"ring": 199881.5350332496,
+					"graviola": 159706.19304566277,
+					"openssl": 496911.0267090291
+				},
+				"rustls-bulk/aes128-gcm": {
+					"rind": 440916.7229244865,
+					"aws-lc-rs": 442543.37513964827,
+					"ring": 448761.61808039015,
+					"graviola": 579094.540688636,
+					"openssl": 491378.9746298212
+				},
+				"rustls-bulk/aes256-gcm": {
+					"rind": 544875.5101093543,
+					"aws-lc-rs": 557856.1804994828,
+					"ring": 567271.4298847348,
+					"graviola": 691175.4626954338,
+					"openssl": 596824.6504625388
+				},
+				"rustls-bulk/chacha20poly1305": {
+					"rind": 923821.0274331314,
+					"aws-lc-rs": 928086.0113994385,
+					"ring": 925138.9174523422,
+					"graviola": 1640944.0510526327,
+					"openssl": 983966.4626097237
+				},
+				"aes128-gcm/32B": {
+					"rind": 43.15916603583141,
+					"aws-lc-rs": 88.83327042566431,
+					"ring": 70.7040432637589,
+					"rustcrypto": 100.4982078797696,
+					"graviola": 71.39229992693309,
+					"libcrux": 281.52643199369265,
+					"openssl": 156.06502569144425
+				},
+				"aes128-gcm/1350B": {
+					"rind": 246.02047383389657,
+					"aws-lc-rs": 284.68424193053846,
+					"ring": 277.1718537592373,
+					"rustcrypto": 547.3359684291029,
+					"graviola": 400.38547959209893,
+					"libcrux": 3492.0898421216825,
+					"openssl": 352.0939685158669
+				},
+				"aes128-gcm/16KB": {
+					"rind": 2334.4852217628627,
+					"aws-lc-rs": 2416.7381494140714,
+					"ring": 2381.5094958861264,
+					"rustcrypto": 5623.335686184604,
+					"graviola": 3748.933567012662,
+					"libcrux": 39937.145188229646,
+					"openssl": 2454.775241588877
+				},
+				"aes128-gcm-open/32B": {
+					"rind": 37.590314557027845,
+					"aws-lc-rs": 90.44863651555588,
+					"ring": 97.70471186585438,
+					"rustcrypto": 104.37543397661548,
+					"graviola": 68.74747100748057,
+					"libcrux": 303.00757934857927,
+					"openssl": 159.2243831881219
+				},
+				"aes128-gcm-open/1350B": {
+					"rind": 236.2276564130137,
+					"aws-lc-rs": 284.9516256937142,
+					"ring": 295.7258335667299,
+					"rustcrypto": 564.0055590551492,
+					"graviola": 357.8160965877298,
+					"libcrux": 3483.286123434034,
+					"openssl": 354.91888911958904
+				},
+				"aes128-gcm-open/16KB": {
+					"rind": 2521.71659881339,
+					"aws-lc-rs": 2604.2619170092726,
+					"ring": 2622.3920016863094,
+					"rustcrypto": 5754.303026968398,
+					"graviola": 3385.5325872066082,
+					"libcrux": 41659.90766598408,
+					"openssl": 2850.8591319399025
+				},
+				"aes256-gcm/32B": {
+					"rind": 48.63219847214221,
+					"aws-lc-rs": 95.44827078228063,
+					"ring": 74.78119421202508,
+					"rustcrypto": 107.45554697088258,
+					"graviola": 77.57315444586634,
+					"libcrux": 344.01966521589213,
+					"openssl": 161.41125198066726
+				},
+				"aes256-gcm/1350B": {
+					"rind": 325.04493553587355,
+					"aws-lc-rs": 363.113571055371,
+					"ring": 352.67454892576404,
+					"rustcrypto": 622.7591667492841,
+					"graviola": 475.94126445667405,
+					"libcrux": 4504.816530396635,
+					"openssl": 437.1249104404831
+				},
+				"aes256-gcm/16KB": {
+					"rind": 3220.4592698100114,
+					"aws-lc-rs": 3303.462180270266,
+					"ring": 3246.581706692654,
+					"rustcrypto": 6449.11698026227,
+					"graviola": 4711.296547329873,
+					"libcrux": 50915.71126249938,
+					"openssl": 3337.0739383617342
+				},
+				"aes256-gcm-open/32B": {
+					"rind": 44.725274668504085,
+					"aws-lc-rs": 101.12041459432034,
+					"ring": 106.71272146833994,
+					"rustcrypto": 118.42872126751844,
+					"graviola": 73.13440095495224,
+					"libcrux": 363.1440317607148,
+					"openssl": 171.94263610430872
+				},
+				"aes256-gcm-open/1350B": {
+					"rind": 327.8596975138281,
+					"aws-lc-rs": 422.1055273105423,
+					"ring": 388.39259220860316,
+					"rustcrypto": 676.9219616566731,
+					"graviola": 510.48601034482846,
+					"libcrux": 4739.299394141973,
+					"openssl": 642.5886357604636
+				},
+				"aes256-gcm-open/16KB": {
+					"rind": 3619.9346652513814,
+					"aws-lc-rs": 3689.161510288787,
+					"ring": 3696.405337722827,
+					"rustcrypto": 7228.291771578484,
+					"graviola": 4535.667910134297,
+					"libcrux": 53964.11256859268,
+					"openssl": 3869.7079673321573
+				},
+				"chacha20poly1305/32B": {
+					"rind": 128.96209926130035,
+					"aws-lc-rs": 148.63147552409362,
+					"ring": 129.94495030141425,
+					"rustcrypto": 1207.8771714653647,
+					"graviola": 231.63900936971268,
+					"libcrux": 300.8272717631575,
+					"openssl": 336.90928445056835
+				},
+				"chacha20poly1305/1350B": {
+					"rind": 717.8718362847072,
+					"aws-lc-rs": 754.9897416693576,
+					"ring": 714.3390966733064,
+					"rustcrypto": 2181.462194663496,
+					"graviola": 1292.5933725896593,
+					"libcrux": 3162.701615269974,
+					"openssl": 970.6054980099502
+				},
+				"chacha20poly1305/16KB": {
+					"rind": 6805.886873589515,
+					"aws-lc-rs": 6625.198292465067,
+					"ring": 6602.157467842307,
+					"rustcrypto": 12605.006180697888,
+					"graviola": 12516.052884032806,
+					"libcrux": 35521.47046879754,
+					"openssl": 6639.492579675878
+				},
+				"xchacha20poly1305/32B": {
+					"rind": 255.94624358839874,
+					"aws-lc-rs": 278.28470484591514,
+					"rustcrypto": 1267.7367906342872,
+					"graviola": 335.1466011685066,
+					"libcrux": 399.6099014667957
+				},
+				"xchacha20poly1305/1350B": {
+					"rind": 804.1029905808001,
+					"aws-lc-rs": 830.9307912291324,
+					"rustcrypto": 2199.2737054088734,
+					"graviola": 1320.741652254377,
+					"libcrux": 3155.0801652135365
+				},
+				"xchacha20poly1305/16KB": {
+					"rind": 6384.978947677873,
+					"aws-lc-rs": 6437.390913112496,
+					"rustcrypto": 12036.394600265996,
+					"graviola": 11862.735729037979,
+					"libcrux": 33416.4320580267
+				},
+				"quic-header-protection/aes128": {
+					"rind": 4.729494382784615,
+					"aws-lc-rs": 9.219408573416422,
+					"ring": 8.193595624671879
+				},
+				"quic-header-protection/aes256": {
+					"rind": 8.08945475590564,
+					"aws-lc-rs": 10.151336870963895,
+					"ring": 10.017631695580917
+				},
+				"quic-header-protection/chacha20": {
+					"rind": 84.13623177961884,
+					"aws-lc-rs": 104.426557878368,
+					"ring": 98.10733701442578
+				},
+				"x25519-ecdh": {
+					"rind": 25004.787963523966,
+					"aws-lc-rs": 30892.438580728456,
+					"ring": 53601.40291360479,
+					"rustcrypto": 56594.42607144296,
+					"graviola": 24951.826177774496,
+					"libcrux": 72344.68323596539,
+					"openssl": 55201.871736905036
+				},
+				"p256-ecdh": {
+					"rind": 42803.03416052693,
+					"aws-lc-rs": 51712.30177675976,
+					"ring": 47104.33772129452,
+					"rustcrypto": 233699.63260726072,
+					"graviola": 46439.40340407634,
+					"libcrux": 280516.9395005172,
+					"openssl": 81679.15834712576
+				},
+				"ed25519-sign": {
+					"rind": 7134.682903317125,
+					"aws-lc-rs": 7813.749423772228,
+					"ring": 22257.0981035417,
+					"rustcrypto": 17402.447694495146,
+					"graviola": 7218.980862865723,
+					"libcrux": 53658.31379932023,
+					"openssl": 31012.152060067416
+				},
+				"ed25519-verify": {
+					"rind": 31812.74323551601,
+					"aws-lc-rs": 31621.224349280175,
+					"ring": 42476.113091895546,
+					"rustcrypto": 29876.760500882767,
+					"graviola": 32219.944445567886,
+					"libcrux": 69120.42390128566,
+					"openssl": 93092.35189765459
+				},
+				"p256-ecdsa-sign": {
+					"rind": 13109.417715252122,
+					"aws-lc-rs": 19804.947039751736,
+					"ring": 14859.16178912369,
+					"rustcrypto": 69106.18945897574,
+					"graviola": 19888.31554406187,
+					"libcrux": 102033.7845963253,
+					"openssl": 20354.364226087044
+				},
+				"p256-ecdsa-verify": {
+					"rind": 41564.618612088074,
+					"aws-lc-rs": 43268.239697270365,
+					"ring": 43927.55803310182,
+					"rustcrypto": 197151.10538298605,
+					"graviola": 44303.4026627119,
+					"libcrux": 236872.4229387715,
+					"openssl": 68341.50379193143
+				},
+				"sha256/64B": {
+					"rind": 243.74192885666844,
+					"aws-lc-rs": 306.88188083946824,
+					"ring": 276.6111902610443,
+					"rustcrypto": 473.0203789721238,
+					"graviola": 576.4609541769788,
+					"libcrux": 484.8948729635381,
+					"openssl": 505.1983742111251
+				},
+				"sha256/1350B": {
+					"rind": 2456.375506241718,
+					"aws-lc-rs": 2793.738772876657,
+					"ring": 2819.161774292229,
+					"rustcrypto": 5107.477669659855,
+					"graviola": 6070.69606053635,
+					"libcrux": 5231.582501769422,
+					"openssl": 2683.245534636158
+				},
+				"sha256/16KB": {
+					"rind": 28061.965542270646,
+					"aws-lc-rs": 31462.512705155827,
+					"ring": 32372.720007777683,
+					"rustcrypto": 58165.022731437326,
+					"graviola": 69838.79668128007,
+					"libcrux": 61678.80896497709,
+					"openssl": 28833.94580942529
+				},
+				"sha512/64B": {
+					"rind": 198.4235886351263,
+					"aws-lc-rs": 228.2357968754158,
+					"ring": 202.62710255996095,
+					"rustcrypto": 270.07518962331716,
+					"graviola": 235.54892663234054,
+					"libcrux": 288.64081598747975,
+					"openssl": 430.49633385142823
+				},
+				"sha512/1350B": {
+					"rind": 1654.0081870180652,
+					"aws-lc-rs": 1965.308001445357,
+					"ring": 1927.6424114639608,
+					"rustcrypto": 2667.9525447550086,
+					"graviola": 2348.684070518228,
+					"libcrux": 3080.598209349293,
+					"openssl": 1899.4181435668359
+				},
+				"sha512/16KB": {
+					"rind": 18531.510923241578,
+					"aws-lc-rs": 21923.438802486857,
+					"ring": 21754.002582173995,
+					"rustcrypto": 30726.478286685386,
+					"graviola": 27155.492416137135,
+					"libcrux": 35448.1239756952,
+					"openssl": 18988.894089607656
+				},
+				"hmac-sha256/64B": {
+					"rind": 627.9373574061292,
+					"aws-lc-rs": 810.6146007160961,
+					"ring": 706.7051844742713,
+					"rustcrypto": 1188.229311666718,
+					"graviola": 1443.937191123711,
+					"libcrux": 1202.5040738305506,
+					"openssl": 3689.3177627087334
+				},
+				"hmac-sha256/1350B": {
+					"rind": 2791.077117133618,
+					"aws-lc-rs": 3301.4474802062296,
+					"ring": 3194.7523254376474,
+					"rustcrypto": 5798.140309353932,
+					"graviola": 7050.331034414416,
+					"libcrux": 6018.83742323943,
+					"openssl": 5938.467767223289
+				},
+				"hkdf-sha256/extract-expand": {
+					"rind": 1150.6968659314043,
+					"aws-lc-rs": 1436.1870715568284,
+					"ring": 1312.851635443537,
+					"rustcrypto": 1976.4316503835814,
+					"libcrux": 2038.583230603901,
+					"openssl": 4325.383659961064
+				},
+				"hkdf-sha256/expand": {
+					"rind": 299.73459482997856,
+					"aws-lc-rs": 636.0029119078904,
+					"ring": 336.58370781835646,
+					"rustcrypto": 512.4818134580983,
+					"libcrux": 1010.3524068232288,
+					"openssl": 2871.9409112333074
+				},
+				"rsa2048-pkcs1-sha256-sign": {
+					"rind": 447433.1530116743,
+					"aws-lc-rs": 448678.3166188858,
+					"ring": 434466.45943845133,
+					"rustcrypto": 1144205.9728299098,
+					"graviola": 445923.1877390276,
+					"openssl": 453807.564403724
+				},
+				"rsa2048-pkcs1-sha256-verify": {
+					"rind": 12880.790081716968,
+					"aws-lc-rs": 15882.338212629653,
+					"ring": 16506.21726269642,
+					"rustcrypto": 57814.73669438586,
+					"graviola": 19051.281602630414,
+					"openssl": 24539.279143608688
+				},
+				"rsa2048-pss-sha256-sign": {
+					"rind": 445919.6729629082,
+					"aws-lc-rs": 461869.81302792963,
+					"ring": 437275.89552238805,
+					"rustcrypto": 1149823.5205645042,
+					"graviola": 450243.09732673265,
+					"libcrux": 7220738.335999998,
+					"openssl": 456548.6151174819
+				},
+				"rsa2048-pss-sha256-verify": {
+					"rind": 14358.929428388468,
+					"aws-lc-rs": 17005.0660618548,
+					"ring": 18222.3922694359,
+					"rustcrypto": 70020.2755831404,
+					"graviola": 21846.168672917043,
+					"libcrux": 377869.6554765775,
+					"openssl": 27155.75481803404
+				},
+				"mlkem768-keygen": {
+					"rind": 10239.592799335518,
+					"aws-lc-rs": 18439.015749685976,
+					"rustcrypto": 59969.462998965566,
+					"graviola": 10412.756422628909,
+					"libcrux": 20052.63081404857,
+					"openssl": 40627.31846332693
+				},
+				"mlkem768-encaps": {
+					"rind": 10614.820658711393,
+					"aws-lc-rs": 18733.78880855623,
+					"rustcrypto": 67032.16437810945,
+					"graviola": 11115.51999376057,
+					"libcrux": 18131.12620650125,
+					"openssl": 41180.835585045075
+				},
+				"mlkem768-decaps": {
+					"rind": 7072.3352945315855,
+					"aws-lc-rs": 16014.701270951133,
+					"rustcrypto": 84369.83066942515,
+					"graviola": 7419.617415102704,
+					"libcrux": 19041.955543538497,
+					"openssl": 31666.407422242617
+				},
+				"p384-ecdh": {
+					"rind": 150970.6375018472,
+					"aws-lc-rs": 174616.41882148662,
+					"ring": 645537.9080065022,
+					"rustcrypto": 769611.4819624649,
+					"graviola": 245237.63439337965,
+					"openssl": 483502.75231712725
+				},
+				"p384-ecdsa-sign": {
+					"rind": 39617.083772030936,
+					"aws-lc-rs": 82652.59818050834,
+					"ring": 343155.46700458106,
+					"rustcrypto": 170636.4857588296,
+					"graviola": 128636.28886892271,
+					"openssl": 164533.7649305453
+				},
+				"p384-ecdsa-verify": {
+					"rind": 141437.82502260973,
+					"aws-lc-rs": 175918.628763854,
+					"ring": 622903.6100546771,
+					"rustcrypto": 695043.3032067386,
+					"graviola": 239411.5934003251,
+					"openssl": 399630.5347628196
+				},
+				"p521-ecdh": {
+					"rind": 233755.13159056203,
+					"aws-lc-rs": 262340.4232904783,
+					"rustcrypto": 841499.5514615043,
+					"openssl": 497387.5714969706
+				},
+				"p521-ecdsa-sign": {
+					"rind": 64262.896464903206,
+					"aws-lc-rs": 158671.75802719078,
+					"rustcrypto": 185926.45505541598,
+					"openssl": 221002.93849662578
+				},
+				"p521-ecdsa-verify": {
+					"rind": 214430.25852815132,
+					"aws-lc-rs": 303225.93398551794,
+					"rustcrypto": 636368.6143017586,
+					"openssl": 460019.67937195214
+				}
+			},
+			"coverage": {
+				"AES-GCM": {
+					"rind": "e2e",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "none",
+					"openssl": "none"
+				},
+				"ChaCha20-Poly1305": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"XChaCha20-Poly1305": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "routine",
+					"openssl": null
+				},
+				"AES header protection": {
+					"rind": "none",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": null,
+					"graviola": null,
+					"libcrux": null,
+					"openssl": null
+				},
+				"ChaCha20 header protection": {
+					"rind": "e2e",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": null,
+					"graviola": null,
+					"libcrux": null,
+					"openssl": null
+				},
+				"SHA-256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"SHA-512": {
+					"rind": "none",
+					"aws-lc-rs": "e2e",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"HMAC-SHA256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"HKDF-SHA256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": null,
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"X25519": {
+					"rind": "e2e",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"Ed25519": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"P-256": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"P-384": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"P-521": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": null,
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"RSA-2048 PSS": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"RSA-2048 PKCS#1": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"ML-KEM-768": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "none",
+					"openssl": "none"
+				}
+			}
+		},
+		{
+			"name": "Apple M4",
+			"arch": "aarch64",
+			"source": {
+				"rind": "9e7f6a5a9ea59a0cf1251c24af6c5d4f21c2b0fd",
+				"cpu": "Apple M4",
+				"date": "2026-11-07T14:13:32+00:00",
+				"versions": {
+					"rind": {
+						"rind": "0.2.1",
+						"rind-rustls": "0.23.0"
+					},
+					"aws-lc-rs": {
+						"aws-lc-rs": "1.19.0",
+						"aws-lc-sys": "0.47.0"
+					},
+					"ring": {
+						"ring": "0.17.14"
+					},
+					"rustcrypto": {
+						"aes-gcm": "0.11.1",
+						"chacha20poly1305": "0.11.0",
+						"sha2": "0.11.1",
+						"sha3": "0.12.0",
+						"hmac": "0.13.0",
+						"hkdf": "0.13.0",
+						"p256": "0.14.0",
+						"p384": "0.14.0",
+						"p521": "0.14.0",
+						"rsa": "0.10.0-rc.19",
+						"ml-kem": "0.3.4",
+						"ed25519-dalek": "3.0.0",
+						"x25519-dalek": "3.0.0"
+					},
+					"graviola": {
+						"graviola": "0.4.4",
+						"rustls-graviola": "0.4.0"
+					},
+					"libcrux": {
+						"libcrux-aes": "0.0.10",
+						"libcrux-chacha20poly1305": "0.0.10",
+						"libcrux-ecdh": "0.0.9",
+						"libcrux-ecdsa": "0.0.9",
+						"libcrux-ed25519": "0.0.10",
+						"libcrux-hkdf": "0.0.9",
+						"libcrux-hmac": "0.0.9",
+						"libcrux-ml-kem": "0.0.11",
+						"libcrux-rsa": "0.0.9",
+						"libcrux-sha2": "0.0.9",
+						"libcrux-sha3": "0.0.11"
+					},
+					"openssl": {
+						"openssl": "0.10.82",
+						"openssl-sys": "0.9.118",
+						"rustls-openssl": "0.4.2",
+						"linked": "OpenSSL 3.5.9 29 Sep 2026 (Library: OpenSSL 3.5.9 29 Sep 2026)"
+					},
+					"tls": {
+						"rustls": "0.23.46"
+					}
+				}
+			},
+			"times": {
+				"rustls-full-handshake-group/x25519mlkem768": {
+					"rind": 174033.21890941332,
+					"aws-lc-rs": 212262.18444904193,
+					"graviola": 179369.13915767695,
+					"openssl": 463381.0460529038
+				},
+				"rustls-full-handshake-group/x25519": {
+					"rind": 151020.41778483818,
+					"aws-lc-rs": 183413.85142973252,
+					"ring": 183823.73128491206,
+					"graviola": 159109.4461157086,
+					"openssl": 374683.41672971775
+				},
+				"rustls-full-handshake-group/secp256r1": {
+					"rind": 171986.33371878232,
+					"aws-lc-rs": 205844.57167233143,
+					"ring": 202418.7225171174,
+					"graviola": 189729.42507314912,
+					"openssl": 401286.7365568199
+				},
+				"rustls-full-handshake-key/ed25519": {
+					"rind": 128510.92569587706,
+					"aws-lc-rs": 150186.0182503325,
+					"ring": 154500.49780035467,
+					"graviola": 123587.1002133885,
+					"openssl": 383062.41485444066
+				},
+				"rustls-full-handshake-key/rsa-2048": {
+					"rind": 372918.13626126794,
+					"aws-lc-rs": 409148.6252046697,
+					"ring": 446942.2951440816,
+					"graviola": 674071.2139057189,
+					"openssl": 644460.8051278262
+				},
+				"rustls-resumed-handshake/x25519": {
+					"rind": 65878.3720542502,
+					"aws-lc-rs": 89831.04277734383,
+					"ring": 87174.24632185607,
+					"graviola": 61633.712907640016,
+					"openssl": 253423.33819417763
+				},
+				"rustls-bulk/aes128-gcm": {
+					"rind": 309220.27200384217,
+					"aws-lc-rs": 313177.59536131227,
+					"ring": 372508.70211467415,
+					"graviola": 333720.4794931284,
+					"openssl": 340262.9024619477
+				},
+				"rustls-bulk/aes256-gcm": {
+					"rind": 348826.2975602187,
+					"aws-lc-rs": 347022.7329407418,
+					"ring": 386926.76666469633,
+					"graviola": 400753.09469779814,
+					"openssl": 372289.42911777744
+				},
+				"rustls-bulk/chacha20poly1305": {
+					"rind": 1108861.0560839367,
+					"aws-lc-rs": 1098046.0654322447,
+					"ring": 1096055.1032747156,
+					"graviola": 1733516.064999999,
+					"openssl": 1105978.1896970593
+				},
+				"aes128-gcm/32B": {
+					"rind": 10.821127131276178,
+					"aws-lc-rs": 49.69372809937211,
+					"ring": 41.77351649528646,
+					"rustcrypto": 23.948854736693,
+					"graviola": 78.97332920353509,
+					"libcrux": 51.85918551305852,
+					"openssl": 66.82372152013478
+				},
+				"aes128-gcm/1350B": {
+					"rind": 161.4692060946662,
+					"aws-lc-rs": 181.14486627588735,
+					"ring": 210.49577164208878,
+					"rustcrypto": 212.31663126694232,
+					"graviola": 215.6740227989241,
+					"libcrux": 600.2737791776905,
+					"openssl": 195.70850925735513
+				},
+				"aes128-gcm/16KB": {
+					"rind": 1432.566521599921,
+					"aws-lc-rs": 1443.190547188644,
+					"ring": 1936.6302916368395,
+					"rustcrypto": 2264.6464119768475,
+					"graviola": 1599.8570436429068,
+					"libcrux": 6780.588489580134,
+					"openssl": 1513.8319413310687
+				},
+				"aes128-gcm-open/32B": {
+					"rind": 12.624156350940789,
+					"aws-lc-rs": 47.003136652778146,
+					"ring": 39.2085871220502,
+					"rustcrypto": 27.56240754679712,
+					"graviola": 83.92069452651016,
+					"libcrux": 61.38884540124786,
+					"openssl": 65.60177198686354
+				},
+				"aes128-gcm-open/1350B": {
+					"rind": 177.83539937583888,
+					"aws-lc-rs": 190.64512582261838,
+					"ring": 243.23338506305714,
+					"rustcrypto": 231.7425914327465,
+					"graviola": 224.74059517980626,
+					"libcrux": 617.6156645292963,
+					"openssl": 199.3018164868559
+				},
+				"aes128-gcm-open/16KB": {
+					"rind": 1563.0712752137915,
+					"aws-lc-rs": 1576.9297863990446,
+					"ring": 2159.982375633808,
+					"rustcrypto": 2430.9244152697033,
+					"graviola": 1712.1391089277797,
+					"libcrux": 6819.108200037708,
+					"openssl": 1652.8317757636764
+				},
+				"aes256-gcm/32B": {
+					"rind": 11.880715452945985,
+					"aws-lc-rs": 53.39496385912569,
+					"ring": 44.83910384543195,
+					"rustcrypto": 24.919444617749757,
+					"graviola": 78.9991022185664,
+					"libcrux": 51.81110376903908,
+					"openssl": 67.0972119067129
+				},
+				"aes256-gcm/1350B": {
+					"rind": 188.0371769951236,
+					"aws-lc-rs": 200.97604078913855,
+					"ring": 218.6426749137293,
+					"rustcrypto": 239.1404731163125,
+					"graviola": 258.09425442053987,
+					"libcrux": 629.6147367318457,
+					"openssl": 220.47736031831877
+				},
+				"aes256-gcm/16KB": {
+					"rind": 1686.1855233507147,
+					"aws-lc-rs": 1697.3073911345302,
+					"ring": 2033.1607276881534,
+					"rustcrypto": 2628.3458472577004,
+					"graviola": 2132.9593811962086,
+					"libcrux": 7077.705491882877,
+					"openssl": 1767.2597432128607
+				},
+				"aes256-gcm-open/32B": {
+					"rind": 13.132106547340127,
+					"aws-lc-rs": 48.59086319267663,
+					"ring": 39.39127515955627,
+					"rustcrypto": 40.837209550139896,
+					"graviola": 84.25999275576032,
+					"libcrux": 65.65592334119015,
+					"openssl": 67.59167122786005
+				},
+				"aes256-gcm-open/1350B": {
+					"rind": 196.68958369341146,
+					"aws-lc-rs": 212.84715434676622,
+					"ring": 246.73622717744198,
+					"rustcrypto": 277.79445373680284,
+					"graviola": 263.0104723684277,
+					"libcrux": 663.2257057224188,
+					"openssl": 223.72659071522145
+				},
+				"aes256-gcm-open/16KB": {
+					"rind": 1810.1057757052654,
+					"aws-lc-rs": 1816.3197159097053,
+					"ring": 2226.9540700569632,
+					"rustcrypto": 2774.2571486281004,
+					"graviola": 2194.2861302289434,
+					"libcrux": 7061.0055906605585,
+					"openssl": 1934.9325615429348
+				},
+				"chacha20poly1305/32B": {
+					"rind": 144.99661678277585,
+					"aws-lc-rs": 156.82502414329343,
+					"ring": 144.98987540053835,
+					"rustcrypto": 340.18897981571126,
+					"graviola": 193.4348438899373,
+					"libcrux": 169.92397716752737,
+					"openssl": 216.07736604064993
+				},
+				"chacha20poly1305/1350B": {
+					"rind": 741.085964002363,
+					"aws-lc-rs": 758.6948909874541,
+					"ring": 740.7987260163288,
+					"rustcrypto": 1754.1719231168581,
+					"graviola": 1206.8867446099468,
+					"libcrux": 1938.72502933449,
+					"openssl": 826.046659979804
+				},
+				"chacha20poly1305/16KB": {
+					"rind": 7500.009003435792,
+					"aws-lc-rs": 7498.869139980789,
+					"ring": 7566.627792079208,
+					"rustcrypto": 14970.944335894783,
+					"graviola": 12562.722587372544,
+					"libcrux": 22123.0659329316,
+					"openssl": 7367.829055526821
+				},
+				"xchacha20poly1305/32B": {
+					"rind": 896.8087247809358,
+					"aws-lc-rs": 870.5694572603763,
+					"rustcrypto": 1056.9760977064277,
+					"graviola": 905.4052495597368,
+					"libcrux": 899.69902584193
+				},
+				"xchacha20poly1305/1350B": {
+					"rind": 1474.1792574479089,
+					"aws-lc-rs": 1446.5773162934868,
+					"rustcrypto": 2444.4468967415396,
+					"graviola": 1939.3436331998216,
+					"libcrux": 2707.9441152790046
+				},
+				"xchacha20poly1305/16KB": {
+					"rind": 8230.331355688439,
+					"aws-lc-rs": 8308.035252395115,
+					"rustcrypto": 15592.31772106717,
+					"graviola": 13217.856057672932,
+					"libcrux": 22434.145641101422
+				},
+				"quic-header-protection/aes128": {
+					"rind": 2.8124206844376203,
+					"aws-lc-rs": 2.8224564945106345,
+					"ring": 3.174105868077328
+				},
+				"quic-header-protection/aes256": {
+					"rind": 2.9116757067702506,
+					"aws-lc-rs": 3.002865201930444,
+					"ring": 3.885372834716827
+				},
+				"quic-header-protection/chacha20": {
+					"rind": 57.81215656633907,
+					"aws-lc-rs": 72.45433722586256,
+					"ring": 67.37909630635097
+				},
+				"x25519-ecdh": {
+					"rind": 16534.54398313712,
+					"aws-lc-rs": 18119.87452261644,
+					"ring": 24913.90538684794,
+					"rustcrypto": 29732.679532732378,
+					"graviola": 16574.89651544259,
+					"libcrux": 37295.65352205557,
+					"openssl": 36212.28886673215
+				},
+				"p256-ecdh": {
+					"rind": 26442.616846846267,
+					"aws-lc-rs": 28797.671124434404,
+					"ring": 32157.90606908138,
+					"rustcrypto": 178427.96274124426,
+					"graviola": 31153.248730604402,
+					"libcrux": 182720.63488104034,
+					"openssl": 50383.4029641397
+				},
+				"ed25519-sign": {
+					"rind": 3928.3367340926943,
+					"aws-lc-rs": 4073.116638933698,
+					"ring": 7029.313147645581,
+					"rustcrypto": 8646.604429479195,
+					"graviola": 4206.7317206611915,
+					"libcrux": 22002.144452912242,
+					"openssl": 16559.542641495493
+				},
+				"ed25519-verify": {
+					"rind": 18807.69500729644,
+					"aws-lc-rs": 18480.606487365156,
+					"ring": 20224.85665110093,
+					"rustcrypto": 18596.90135738947,
+					"graviola": 18943.19942191887,
+					"libcrux": 29437.374682598325,
+					"openssl": 41286.17418077927
+				},
+				"p256-ecdsa-sign": {
+					"rind": 7133.358027101757,
+					"aws-lc-rs": 11160.390583550892,
+					"ring": 10913.984308126335,
+					"rustcrypto": 43982.78809537883,
+					"graviola": 8581.422315004256,
+					"libcrux": 66945.7074065317,
+					"openssl": 12433.656889044372
+				},
+				"p256-ecdsa-verify": {
+					"rind": 26252.33116518141,
+					"aws-lc-rs": 27375.722103389442,
+					"ring": 29221.09328083768,
+					"rustcrypto": 151686.60569306932,
+					"graviola": 28178.997641226808,
+					"libcrux": 156181.1296586375,
+					"openssl": 41897.571019949755
+				},
+				"sha256/64B": {
+					"rind": 36.57131204369449,
+					"aws-lc-rs": 70.32415830089113,
+					"ring": 44.0059054981848,
+					"rustcrypto": 36.215021213239375,
+					"graviola": 35.29174549586164,
+					"libcrux": 224.69178580259438,
+					"openssl": 159.1140555437038
+				},
+				"sha256/1350B": {
+					"rind": 408.75800563142957,
+					"aws-lc-rs": 433.7925322901324,
+					"ring": 409.5397643251492,
+					"rustcrypto": 473.4798320161379,
+					"graviola": 480.237689733539,
+					"libcrux": 2457.191230657615,
+					"openssl": 533.0974161064853
+				},
+				"sha256/16KB": {
+					"rind": 5008.42772515111,
+					"aws-lc-rs": 4860.7042243336155,
+					"ring": 4836.97662563781,
+					"rustcrypto": 5664.698465090769,
+					"graviola": 5793.031021274056,
+					"libcrux": 28996.3705642931,
+					"openssl": 4980.656088504373
+				},
+				"sha512/64B": {
+					"rind": 75.08930666847348,
+					"aws-lc-rs": 104.75911972741461,
+					"ring": 84.3027763773294,
+					"rustcrypto": 76.89690215187275,
+					"graviola": 174.55049129561593,
+					"libcrux": 141.6309418697323,
+					"openssl": 205.1409422183589
+				},
+				"sha512/1350B": {
+					"rind": 730.1034595779082,
+					"aws-lc-rs": 768.3241811440939,
+					"ring": 742.7614440667948,
+					"rustcrypto": 723.0342101015636,
+					"graviola": 1865.7716823478572,
+					"libcrux": 1562.976879539553,
+					"openssl": 892.6857567065447
+				},
+				"sha512/16KB": {
+					"rind": 8723.8825048475,
+					"aws-lc-rs": 8911.650822894844,
+					"ring": 8701.448911755011,
+					"rustcrypto": 8589.75311976187,
+					"graviola": 21687.2184971731,
+					"libcrux": 18393.899450452507,
+					"openssl": 9332.47374029677
+				},
+				"hmac-sha256/64B": {
+					"rind": 109.74123639577842,
+					"aws-lc-rs": 245.26224879132326,
+					"ring": 134.0873994885313,
+					"rustcrypto": 99.42204211376522,
+					"graviola": 111.56371001464255,
+					"libcrux": 563.6307050445498,
+					"openssl": 2094.635672060225
+				},
+				"hmac-sha256/1350B": {
+					"rind": 487.068294570858,
+					"aws-lc-rs": 597.0221645466498,
+					"ring": 502.1719248680047,
+					"rustcrypto": 544.7066881230398,
+					"graviola": 561.8963335065688,
+					"libcrux": 2796.4507769616566,
+					"openssl": 2410.3365230935706
+				},
+				"hkdf-sha256/extract-expand": {
+					"rind": 225.988738336724,
+					"aws-lc-rs": 329.65862900862766,
+					"ring": 272.6824267478671,
+					"rustcrypto": 211.8131456265796,
+					"libcrux": 936.1168095769948,
+					"openssl": 2160.7328722971083
+				},
+				"hkdf-sha256/expand": {
+					"rind": 74.11873825998634,
+					"aws-lc-rs": 153.67865599993996,
+					"ring": 92.57386320707919,
+					"rustcrypto": 68.77316440431991,
+					"libcrux": 481.19385488637937,
+					"openssl": 1548.2686113032798
+				},
+				"rsa2048-pkcs1-sha256-sign": {
+					"rind": 275397.47840204916,
+					"aws-lc-rs": 283822.6210176839,
+					"ring": 323015.9733190483,
+					"rustcrypto": 588222.4770400473,
+					"graviola": 551435.2627220334,
+					"openssl": 340402.00488104037
+				},
+				"rsa2048-pkcs1-sha256-verify": {
+					"rind": 8409.532015500057,
+					"aws-lc-rs": 9538.817489825742,
+					"ring": 11009.06330453941,
+					"rustcrypto": 30967.695657159747,
+					"graviola": 18434.44488704374,
+					"openssl": 16810.763400735595
+				},
+				"rsa2048-pss-sha256-sign": {
+					"rind": 275822.7496280971,
+					"aws-lc-rs": 285360.42448746366,
+					"ring": 323170.4740904389,
+					"rustcrypto": 589957.4370858578,
+					"graviola": 551491.2202231417,
+					"libcrux": 4467537.258571428,
+					"openssl": 341811.2497546919
+				},
+				"rsa2048-pss-sha256-verify": {
+					"rind": 8742.133543346548,
+					"aws-lc-rs": 9889.631911130922,
+					"ring": 11431.395340680452,
+					"rustcrypto": 38875.21373873208,
+					"graviola": 18774.058877364416,
+					"libcrux": 297718.9191606325,
+					"openssl": 17465.844719457873
+				},
+				"mlkem768-keygen": {
+					"rind": 6110.127456215535,
+					"aws-lc-rs": 7310.531183426925,
+					"rustcrypto": 26285.603558445397,
+					"graviola": 6110.241329199627,
+					"libcrux": 11766.910832510714,
+					"openssl": 24902.130620043346
+				},
+				"mlkem768-encaps": {
+					"rind": 6770.324432036487,
+					"aws-lc-rs": 7908.032642739922,
+					"rustcrypto": 27873.441733949516,
+					"graviola": 6320.086300192737,
+					"libcrux": 9246.160567412819,
+					"openssl": 23886.640800354664
+				},
+				"mlkem768-decaps": {
+					"rind": 4118.2416762962175,
+					"aws-lc-rs": 7666.82423372547,
+					"rustcrypto": 33919.741991691706,
+					"graviola": 4022.8164635568032,
+					"libcrux": 9475.755352609887,
+					"openssl": 24662.710449534505
+				},
+				"p384-ecdh": {
+					"rind": 90114.90617576896,
+					"aws-lc-rs": 104988.2257923255,
+					"ring": 413703.04707846907,
+					"rustcrypto": 488307.11447761196,
+					"graviola": 150929.4916580464,
+					"openssl": 280830.4326900153
+				},
+				"p384-ecdsa-sign": {
+					"rind": 22302.40167796879,
+					"aws-lc-rs": 49209.360792571795,
+					"ring": 222336.7691010295,
+					"rustcrypto": 111888.78847101128,
+					"graviola": 80216.9928062657,
+					"openssl": 102688.5455282991
+				},
+				"p384-ecdsa-verify": {
+					"rind": 84012.40322594946,
+					"aws-lc-rs": 110786.01632530417,
+					"ring": 397214.2813610167,
+					"rustcrypto": 422125.95016403135,
+					"graviola": 148924.5971863455,
+					"openssl": 237682.0304221467
+				},
+				"p521-ecdh": {
+					"rind": 129817.85132555047,
+					"aws-lc-rs": 142271.85765095314,
+					"rustcrypto": 396279.48286389833,
+					"openssl": 247042.07350475347
+				},
+				"p521-ecdsa-sign": {
+					"rind": 36251.69397908535,
+					"aws-lc-rs": 84102.4548825181,
+					"rustcrypto": 80093.55418907935,
+					"openssl": 132306.58407979904
+				},
+				"p521-ecdsa-verify": {
+					"rind": 120989.28014777598,
+					"aws-lc-rs": 166726.05441185163,
+					"rustcrypto": 251972.30457711444,
+					"openssl": 254262.76397024776
+				}
+			},
+			"coverage": {
+				"AES-GCM": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "none",
+					"openssl": "none"
+				},
+				"ChaCha20-Poly1305": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"XChaCha20-Poly1305": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "routine",
+					"openssl": null
+				},
+				"AES header protection": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": null,
+					"graviola": null,
+					"libcrux": null,
+					"openssl": null
+				},
+				"ChaCha20 header protection": {
+					"rind": "e2e",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": null,
+					"graviola": null,
+					"libcrux": null,
+					"openssl": null
+				},
+				"SHA-256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"SHA-512": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"HMAC-SHA256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"HKDF-SHA256": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": null,
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"X25519": {
+					"rind": "e2e",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"Ed25519": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"P-256": {
+					"rind": "e2e",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"P-384": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"P-521": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": null,
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"RSA-2048 PSS": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": "e2e",
+					"openssl": "none"
+				},
+				"RSA-2048 PKCS#1": {
+					"rind": "none",
+					"aws-lc-rs": "none",
+					"ring": "none",
+					"rustcrypto": "none",
+					"graviola": "none",
+					"libcrux": null,
+					"openssl": "none"
+				},
+				"ML-KEM-768": {
+					"rind": "routine",
+					"aws-lc-rs": "routine",
+					"ring": null,
+					"rustcrypto": "none",
+					"graviola": "routine",
+					"libcrux": "none",
+					"openssl": "none"
+				}
+			}
+		}
+	]
+}

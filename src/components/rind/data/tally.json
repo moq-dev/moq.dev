@@ -1,0 +1,32 @@
+{
+	"source": {
+		"pr": "https://github.com/moq-dev/rind/pull/499",
+		"copied": "2026-11-07"
+	},
+	"as_of": "2026-11-07T14:32:11-08:00",
+	"scope": "Sessions working in a rind checkout, or whose task names moq-dev/rind, from the graviola bootstrap on 2026-10-27",
+	"calendar_span": {
+		"first": "2026-10-27",
+		"last": "2026-11-07",
+		"count": 12
+	},
+	"agent_hours": {
+		"Claude Code": 559.4
+	},
+	"maintainer_hours": 28.3,
+	"tokens_total": 10296083460,
+	"tokens_by_model": {
+		"Claude Opus 5.5": {
+			"input": 505224,
+			"cache_write_5m": 89635249,
+			"cache_write_1h": 121853488,
+			"cache_write_unknown": 0,
+			"cache_read": 10047912240,
+			"output": 36177259
+		}
+	},
+	"cost_usd_by_model": {
+		"Claude Opus 5.5": 4158
+	},
+	"cost_usd_total": 4158
+}

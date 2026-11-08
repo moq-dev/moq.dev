@@ -1,0 +1,339 @@
+{
+	"source": {
+		"rind": "00610affb74b8c64113c824d7ab1745c33e5650a",
+		"file": "benchmarks/data/<host>.json",
+		"generated": "2026-11-07"
+	},
+	"hosts": [
+		{
+			"name": "Arrow Lake",
+			"source": {
+				"rind": "9e7f6a5a9ea59a0cf1251c24af6c5d4f21c2b0fd",
+				"cpu": "Intel(R) Core(TM) Ultra 7 270K Plus",
+				"jobs": 12,
+				"rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+				"cc": "gcc (GCC) 16.2.0",
+				"date": "2026-11-07T14:06:19+00:00",
+				"runs": 3
+			},
+			"builds": [
+				{
+					"name": "rind",
+					"seconds": 3.37,
+					"cpu_seconds": 7.98,
+					"bytes": 880496,
+					"tools": [],
+					"packages": 5
+				},
+				{
+					"name": "aws-lc-rs",
+					"seconds": 11.84,
+					"cpu_seconds": 37.09,
+					"bytes": 2991408,
+					"tools": ["cc"],
+					"packages": 14
+				},
+				{
+					"name": "ring",
+					"seconds": 4.95,
+					"cpu_seconds": 7.27,
+					"bytes": 744328,
+					"tools": ["cc"],
+					"packages": 9
+				},
+				{
+					"name": "rustcrypto",
+					"seconds": 2.81,
+					"cpu_seconds": 15.77,
+					"bytes": 540256,
+					"tools": [],
+					"packages": 57
+				},
+				{
+					"name": "graviola",
+					"seconds": 2.09,
+					"cpu_seconds": 4.45,
+					"bytes": 912944,
+					"tools": [],
+					"packages": 5
+				},
+				{
+					"name": "libcrux",
+					"seconds": 5.8,
+					"cpu_seconds": 13.41,
+					"bytes": 745648,
+					"tools": [],
+					"packages": 27
+				},
+				{
+					"name": "openssl",
+					"seconds": 3.35,
+					"cpu_seconds": 8.72,
+					"bytes": 377848,
+					"tools": ["cc", "pkg-config"],
+					"packages": 18
+				},
+				{
+					"name": "openssl-vendored",
+					"seconds": 24.66,
+					"cpu_seconds": 161.42,
+					"bytes": 5133408,
+					"tools": ["cc", "make", "perl"],
+					"packages": 19
+				},
+				{
+					"name": "rustls-rind",
+					"seconds": 4.21,
+					"cpu_seconds": 21.13,
+					"bytes": 2998240,
+					"tools": [],
+					"packages": 14
+				},
+				{
+					"name": "rustls-rind-lean",
+					"seconds": 4.5,
+					"cpu_seconds": 23.23,
+					"bytes": 1824096,
+					"tools": [],
+					"packages": 14
+				},
+				{
+					"name": "rustls-aws-lc-rs",
+					"seconds": 16.56,
+					"cpu_seconds": 55.22,
+					"bytes": 4114504,
+					"tools": ["cc"],
+					"packages": 20
+				},
+				{
+					"name": "rustls-ring",
+					"seconds": 7.78,
+					"cpu_seconds": 19.34,
+					"bytes": 1943808,
+					"tools": ["cc"],
+					"packages": 16
+				}
+			]
+		},
+		{
+			"name": "Coffee Lake",
+			"source": {
+				"rind": "f95b91da886bee265dbd836192a7ade2f9158c47",
+				"cpu": "Intel(R) Core(TM) i7-8700 CPU @ 3.20GHz",
+				"jobs": 3,
+				"rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+				"cc": "gcc (GCC) 16.2.0",
+				"date": "2026-11-06T16:12:00+00:00",
+				"runs": 3
+			},
+			"builds": [
+				{
+					"name": "rind",
+					"seconds": 7.25,
+					"cpu_seconds": 12.41,
+					"bytes": 878176,
+					"tools": [],
+					"packages": 5
+				},
+				{
+					"name": "aws-lc-rs",
+					"seconds": 26.18,
+					"cpu_seconds": 62.88,
+					"bytes": 2991408,
+					"tools": ["cc"],
+					"packages": 14
+				},
+				{
+					"name": "ring",
+					"seconds": 9.32,
+					"cpu_seconds": 12.08,
+					"bytes": 744328,
+					"tools": ["cc"],
+					"packages": 9
+				},
+				{
+					"name": "rustcrypto",
+					"seconds": 8.26,
+					"cpu_seconds": 24.02,
+					"bytes": 540320,
+					"tools": [],
+					"packages": 57
+				},
+				{
+					"name": "graviola",
+					"seconds": 3.83,
+					"cpu_seconds": 6.49,
+					"bytes": 912944,
+					"tools": [],
+					"packages": 5
+				},
+				{
+					"name": "libcrux",
+					"seconds": 9.68,
+					"cpu_seconds": 20.19,
+					"bytes": 745664,
+					"tools": [],
+					"packages": 27
+				},
+				{
+					"name": "openssl",
+					"seconds": 5.81,
+					"cpu_seconds": 11.62,
+					"bytes": 377864,
+					"tools": ["cc", "pkg-config"],
+					"packages": 18
+				},
+				{
+					"name": "openssl-vendored",
+					"seconds": 82.35,
+					"cpu_seconds": 220.19,
+					"bytes": 5133408,
+					"tools": ["cc", "make", "perl"],
+					"packages": 19
+				},
+				{
+					"name": "rustls-rind",
+					"seconds": 11.33,
+					"cpu_seconds": 31.48,
+					"bytes": 2953936,
+					"tools": [],
+					"packages": 14
+				},
+				{
+					"name": "rustls-rind-lean",
+					"seconds": 11.79,
+					"cpu_seconds": 32.75,
+					"bytes": 1821344,
+					"tools": [],
+					"packages": 14
+				},
+				{
+					"name": "rustls-aws-lc-rs",
+					"seconds": 36.62,
+					"cpu_seconds": 88.73,
+					"bytes": 4114504,
+					"tools": ["cc"],
+					"packages": 20
+				},
+				{
+					"name": "rustls-ring",
+					"seconds": 16.39,
+					"cpu_seconds": 30.53,
+					"bytes": 1943808,
+					"tools": ["cc"],
+					"packages": 16
+				}
+			]
+		},
+		{
+			"name": "Apple M4",
+			"source": {
+				"rind": "9e7f6a5a9ea59a0cf1251c24af6c5d4f21c2b0fd",
+				"cpu": "Apple M4",
+				"jobs": 4,
+				"rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+				"cc": "clang version 21.1.8",
+				"date": "2026-11-07T14:47:14+00:00",
+				"runs": 3
+			},
+			"builds": [
+				{
+					"name": "rind",
+					"seconds": 4.01,
+					"cpu_seconds": 7.54,
+					"bytes": 674336,
+					"tools": [],
+					"packages": 5
+				},
+				{
+					"name": "aws-lc-rs",
+					"seconds": 29.03,
+					"cpu_seconds": 92.07,
+					"bytes": 2143280,
+					"tools": ["cc"],
+					"packages": 14
+				},
+				{
+					"name": "ring",
+					"seconds": 8.22,
+					"cpu_seconds": 10.21,
+					"bytes": 640592,
+					"tools": ["cc"],
+					"packages": 9
+				},
+				{
+					"name": "rustcrypto",
+					"seconds": 5.11,
+					"cpu_seconds": 16.02,
+					"bytes": 461696,
+					"tools": [],
+					"packages": 52
+				},
+				{
+					"name": "graviola",
+					"seconds": 3.06,
+					"cpu_seconds": 5.53,
+					"bytes": 821088,
+					"tools": [],
+					"packages": 5
+				},
+				{
+					"name": "libcrux",
+					"seconds": 8.04,
+					"cpu_seconds": 17.73,
+					"bytes": 589552,
+					"tools": [],
+					"packages": 27
+				},
+				{
+					"name": "openssl",
+					"seconds": 4.57,
+					"cpu_seconds": 10.2,
+					"bytes": 361648,
+					"tools": ["cc"],
+					"packages": 18
+				},
+				{
+					"name": "openssl-vendored",
+					"seconds": 131.72,
+					"cpu_seconds": 420.87,
+					"bytes": 3751488,
+					"tools": ["cc", "make", "perl"],
+					"packages": 19
+				},
+				{
+					"name": "rustls-rind",
+					"seconds": 6.52,
+					"cpu_seconds": 21.58,
+					"bytes": 2171632,
+					"tools": [],
+					"packages": 14
+				},
+				{
+					"name": "rustls-rind-lean",
+					"seconds": 6.7,
+					"cpu_seconds": 22.12,
+					"bytes": 1536256,
+					"tools": [],
+					"packages": 14
+				},
+				{
+					"name": "rustls-aws-lc-rs",
+					"seconds": 34.04,
+					"cpu_seconds": 109.04,
+					"bytes": 3077120,
+					"tools": ["cc"],
+					"packages": 20
+				},
+				{
+					"name": "rustls-ring",
+					"seconds": 12.18,
+					"cpu_seconds": 22.86,
+					"bytes": 1604896,
+					"tools": ["cc"],
+					"packages": 16
+				}
+			]
+		}
+	]
+}
