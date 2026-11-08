@@ -7,7 +7,8 @@ Read `README.md` for the three sites (moq.dev, moq.pub, moq.watch), setup, and t
 
 # Development
 
-PRs target `main`.
+PRs target `main` and land as squash merges (`--squash`); the repo allows no other method.
+A CodeRabbit or human review of the current head counts. Dependabot PRs need no review once CI passes.
 Run `just fix` before committing. `just check` alone is not verification: look at the change in the dev server (`just dev`, `just dev-pub`, or `just dev-watch`).
 Hand-drawn art ships as SVG: `just trace` the drawn PNG, compare the two, then commit only the SVG.
 
