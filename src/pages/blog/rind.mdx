@@ -4,7 +4,7 @@ title: "Cryptography Slop"
 author: kixelated
 description: I vibe slopped some cryptography, what could go wrong?
 cover: "/blog/rind/cover.svg"
-date: 2026-12-01
+date: 2026-11-08
 ---
 
 import Quic from "@/components/rind/quic";
@@ -78,7 +78,6 @@ lul jk I ran: **/goal**: Support every algorithm, and make it the fastest.
 
 <figure>
 	<Timings client:visible />
-	<figcaption></figcaption>
 </figure>
 
 AI is **really fucking good** at benchmarks.
@@ -156,7 +155,8 @@ ring = { package = "rind-ring", version = "0.17" }
 rustls = { version = "0.23", default-features = false, features = ["std", "tls12"] }
 rind-rustls = "0.23"
 
-# TODO: if you use aws-lc-rs
+# if you use aws-lc-rs
+aws-lc-rs = { package = "rind-aws-lc-rs", version = "1" }
 ```
 
 There's other adapters too if you're lazy.
