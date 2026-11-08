@@ -1,10 +1,8 @@
-// What rustls costs to build from scratch on each crypto library: a race on the oldest CPU, in seconds.
+// What rustls costs to build from scratch on each crypto library: a race, in seconds averaged over every CPU.
 import { createSignal, For, onCleanup, onMount } from "solid-js";
-import { commit, cpu, day, Figure, frames, midscreen, name, reduced } from "./chart";
+import { commit, cpu, day, Figure, frames, geomean, midscreen, name, reduced } from "./chart";
 import data from "./data/build.json";
 
-// The race runs on the 9-year-old PC, where build time hurts most.
-const HOST = "Coffee Lake";
 const RACERS = ["rustls-rind", "rustls-ring", "rustls-aws-lc-rs"];
 // Race seconds per real second.
 const SPEED = 12;
@@ -15,24 +13,28 @@ const needs = (tools: string[]) =>
 const label = (build: string) =>
 	build.startsWith("rustls-") ? `rustls + ${name(build.slice("rustls-".length))}` : name(build);
 
-const host = (n: string) => {
-	const h = data.hosts.find((h) => h.name === n);
-	if (!h) throw new Error(`build.json has no ${n}`);
-	return h;
-};
-const seconds = (h: ReturnType<typeof host>, build: string) => {
+type Host = (typeof data.hosts)[number];
+const seconds = (h: Host, build: string) => {
 	const b = h.builds.find((b) => b.name === build);
 	if (!b) throw new Error(`build.json's ${h.name} has no ${build}`);
 	return b;
 };
 
 export default function Build() {
-	const h = host(HOST);
-	const racers = RACERS.map((r) => seconds(h, r));
+	// Each racer's build, its time the geometric mean over every CPU.
+	const racers = RACERS.map((r) => {
+		const builds = data.hosts.map((h) => seconds(h, r));
+		const tools = builds[0].tools;
+		if (builds.some((b) => b.tools.join() !== tools.join())) throw new Error(`${r} needs different tools per CPU`);
+		return { name: r, seconds: geomean(builds.map((b) => b.seconds)), tools };
+	});
 	const max = Math.max(...racers.map((r) => r.seconds));
-	const ratio = (x: ReturnType<typeof host>) =>
-		seconds(x, "rustls-aws-lc-rs").seconds / seconds(x, "rustls-rind").seconds;
-	const others = data.hosts.filter((x) => x.name !== HOST);
+	const time = (r: string) => {
+		const racer = racers.find((x) => x.name === r);
+		if (!racer) throw new Error(`${r} isn't racing`);
+		return racer.seconds;
+	};
+	const ratio = (x: Host) => seconds(x, "rustls-aws-lc-rs").seconds / seconds(x, "rustls-rind").seconds;
 
 	// The race clock rests at the finish, so the figure reads complete before it plays.
 	const [clock, setClock] = createSignal(max);
@@ -56,8 +58,8 @@ export default function Build() {
 			ref={(el) => {
 				figure = el;
 			}}
-			kicker="rustls, cold release build · the 9-year-old gaming PC"
-			number={`${ratio(h).toFixed(1)}×`}
+			kicker={`rustls, cold release build · averaged over ${data.hosts.length} CPUs`}
+			number={`${(time("rustls-aws-lc-rs") / time("rustls-rind")).toFixed(1)}×`}
 			headline={
 				<>
 					faster to
@@ -65,7 +67,7 @@ export default function Build() {
 					build
 				</>
 			}
-			label={`Seconds to build rustls on rind, ring, and aws-lc-rs on ${HOST}, as a race.`}
+			label={`Seconds to build rustls on rind, ring, and aws-lc-rs, averaged over ${data.hosts.length} CPUs, as a race.`}
 			table={{
 				head: ["CPU", "Build", "Time", "CPU time", "Binary", "Tools"],
 				rows: data.hosts.flatMap((x) =>
@@ -81,12 +83,12 @@ export default function Build() {
 			}}
 			source={
 				<>
-					rind's admin/build-cost: the median of {h.source.runs} cold builds with an empty target directory and a warm
-					download cache.{" "}
+					rind's admin/build-cost: the median of cold builds with an empty target directory and a warm download cache.{" "}
 					{data.hosts.map((x, i) => (
 						<>
 							{i ? "; " : ""}
-							{x.name}: {cpu(x.source.cpu)}, {x.source.jobs} jobs, {day(x.source.date)}, at {commit(x.source.rind)}
+							{x.name}: {cpu(x.source.cpu)}, {x.source.jobs} jobs, {x.source.runs} runs, {day(x.source.date)}, at{" "}
+							{commit(x.source.rind)}
 						</>
 					))}
 					. A tool counts when the build fails without it.
@@ -121,7 +123,7 @@ export default function Build() {
 			</div>
 			<div class="flex flex-wrap items-center justify-between gap-3">
 				<p class="fine" style={{ margin: 0 }}>
-					{others.map((x) => `${x.name}: ${ratio(x).toFixed(1)}×`).join(", ")}.
+					The geometric mean over CPUs. {data.hosts.map((x) => `${x.name}: ${ratio(x).toFixed(1)}×`).join(", ")}.
 				</p>
 				<button type="button" class="replay" onClick={race}>
 					↻ Race again
