@@ -12,7 +12,6 @@ const part = (p: Part) => (typeof p === "object" ? <a href={p.href}>{p.text}</a>
 export interface Props {
 	kicker?: string;
 	number?: string; // the headline number, in giant type
-	qualifier?: string; // small type above the number, such as "up to"
 	headline?: JSX.Element;
 	label: string; // what the figure shows, for screen readers
 	table: { head: string[]; rows: Cell[][] };
@@ -32,12 +31,7 @@ export function Figure(props: Props) {
 				fallback={<Show when={props.headline}>{<p class="headline">{props.headline}</p>}</Show>}
 			>
 				<div class="hero">
-					<div class="big number">
-						<Show when={props.qualifier}>
-							<small>{props.qualifier}</small>
-						</Show>
-						{props.number}
-					</div>
+					<div class="big number">{props.number}</div>
 					<p class="headline">{props.headline}</p>
 				</div>
 			</Show>

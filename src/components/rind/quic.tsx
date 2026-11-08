@@ -1,17 +1,23 @@
 // QUIC's per-packet crypto: every library's AES-128-GCM seal, as a ball bouncing once per packet, and
 // rind against aws-lc-rs on each CPU.
-import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
-import { commit, cpu, days, Figure, frames, midscreen, name, reduced, time, times } from "./chart";
+import { createSignal, For, onCleanup, onMount } from "solid-js";
+import { commit, cpu, days, Figure, frames, geomean, midscreen, name, reduced, time, times } from "./chart";
 import data from "./data/libraries.json";
 
 type Host = (typeof data.hosts)[number];
 type Size = "32B" | "1350B";
 const seal = (host: Host, size: Size) => host.times[`aes128-gcm/${size}`] as Record<string, number>;
 
-// rind's speedup over aws-lc-rs sealing a full packet.
-const lead = (h: Host) => seal(h, "1350B")["aws-lc-rs"] / seal(h, "1350B").rind;
-// The balls run on the CPU where rind leads most, which the headline's "up to" refers to.
-const host = data.hosts.reduce((a, b) => (lead(b) > lead(a) ? b : a));
+// rind's speedup over aws-lc-rs sealing a packet.
+const ratio = (h: Host, size: Size) => seal(h, size)["aws-lc-rs"] / seal(h, size).rind;
+// Each library's full-packet seal, averaged over every CPU, so no one CPU picks the headline.
+const AVERAGE = Object.fromEntries(
+	data.libraries.map((lib) => {
+		const ns = data.hosts.map((h) => seal(h, "1350B")[lib]);
+		if (ns.some((n) => n === undefined)) throw new Error(`libraries.json lacks ${lib}'s seal on a host`);
+		return [lib, geomean(ns)];
+	}),
+);
 // One bounce is one packet sealed, slowed this much so the eye can follow.
 const SLOW = 2e6;
 
@@ -34,7 +40,7 @@ const source = (
 );
 
 export default function Quic() {
-	const lanes = Object.entries(seal(host, "1350B")).sort((a, b) => a[1] - b[1]);
+	const lanes = Object.entries(AVERAGE).sort((a, b) => a[1] - b[1]);
 	const [counts, setCounts] = createSignal(lanes.map(() => 0));
 	const canvases: HTMLCanvasElement[] = [];
 	let figure: HTMLElement | undefined;
@@ -113,9 +119,8 @@ export default function Quic() {
 			ref={(el) => {
 				figure = el;
 			}}
-			kicker={`Sealing 1350 B QUIC packets · one ${host.name} core`}
-			qualifier="up to"
-			number={times(lead(host))}
+			kicker={`Sealing 1350 B QUIC packets · one core, averaged over ${data.hosts.length} CPUs`}
+			number={times(AVERAGE["aws-lc-rs"] / AVERAGE.rind)}
 			headline={
 				<>
 					aws-lc-rs's
@@ -123,7 +128,7 @@ export default function Quic() {
 					packets per core
 				</>
 			}
-			label={`Packets sealed per second by each library on ${host.name}, drawn as balls bouncing once per packet.`}
+			label={`Packets sealed per second by each library, averaged over ${data.hosts.length} CPUs, drawn as balls bouncing once per packet.`}
 			table={table}
 			source={source}
 		>
@@ -145,14 +150,16 @@ export default function Quic() {
 					)}
 				</For>
 			</div>
-			<p class="fine">AES-128-GCM. aws-lc is Amazon's BoringSSL fork.</p>
+			<p class="fine">
+				AES-128-GCM, the geometric mean over CPUs.{" "}
+				{data.hosts.map((h) => `${h.name}: ${times(ratio(h, "1350B"))}`).join(", ")}. aws-lc is Amazon's BoringSSL fork.
+			</p>
 		</Figure>
 	);
 }
 
 // rind against aws-lc-rs on each CPU: a full packet as the headline, an ACK-sized one beneath.
 export function QuicScore() {
-	const ratio = (h: Host, size: Size) => seal(h, size)["aws-lc-rs"] / seal(h, size).rind;
 	return (
 		<Figure
 			kicker="Sealing one QUIC packet, vs aws-lc-rs"

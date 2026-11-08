@@ -17,6 +17,12 @@ const ratio = (op: string, lib: string, h: Host) => {
 	return lib in t ? t[lib] / Math.min(...Object.values(t)) : undefined;
 };
 
+// Libraries with a rustls provider come first, so the rustls rows read as a block on the left.
+const tls = data.sections.find((s) => s.name === "TLS 1.3 with rustls");
+if (!tls) throw new Error("libraries.json has no rustls section");
+const rustls = (lib: string) => tls.operations.some((o) => data.hosts.some((h) => lib in h.times[o.id]));
+const LIBRARIES = [...data.libraries.filter(rustls), ...data.libraries.filter((lib) => !rustls(lib))];
+
 export default function Timings() {
 	const operations = data.sections.flatMap((s) => s.operations);
 	// How many of rind's timings are fastest or within 10%, out of how many.
@@ -36,10 +42,10 @@ export default function Timings() {
 			}
 			label="Every operation rind's benchmark report times, for every library, colored by its time over the fastest library's on each CPU."
 			table={{
-				head: ["Operation", ...data.libraries.map(name)],
+				head: ["Operation", ...LIBRARIES.map(name)],
 				rows: operations.map((o) => [
 					o.label,
-					...data.libraries.map((lib) =>
+					...LIBRARIES.map((lib) =>
 						data.hosts
 							.map((h) => h.times[o.id][lib])
 							.map((t) => (t === undefined ? "-" : time(t)))
@@ -56,9 +62,9 @@ export default function Timings() {
 			}
 		>
 			<div class="scroll">
-				<div class="heat" style={{ "--libs": data.libraries.length }}>
+				<div class="heat" style={{ "--libs": LIBRARIES.length }}>
 					<div />
-					<For each={data.libraries}>{(lib) => <div class={`lib${lib === "rind" ? " me" : ""}`}>{name(lib)}</div>}</For>
+					<For each={LIBRARIES}>{(lib) => <div class={`lib${lib === "rind" ? " me" : ""}`}>{name(lib)}</div>}</For>
 					<For each={data.sections}>
 						{(section) => (
 							<>
@@ -67,7 +73,7 @@ export default function Timings() {
 									{(o) => (
 										<>
 											<div class="row">{o.label}</div>
-											<For each={data.libraries}>
+											<For each={LIBRARIES}>
 												{(lib) => (
 													<div class={`cell${lib === "rind" ? " me" : ""}`}>
 														<span class="trio">

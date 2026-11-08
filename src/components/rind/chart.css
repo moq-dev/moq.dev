@@ -56,12 +56,6 @@
 	font-size: clamp(84px, 18vw, 140px);
 	color: var(--rind);
 }
-.rind-fig .number small {
-	display: block;
-	font-size: 0.25em;
-	line-height: 1.2;
-	text-transform: uppercase;
-}
 .rind-fig .headline {
 	margin: 6px 0 0;
 	font-family: var(--display);
