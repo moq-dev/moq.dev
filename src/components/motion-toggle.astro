@@ -1,0 +1,33 @@
+---
+// Pauses every looping animation on the site, and remembers it. Wired up in global.astro,
+// which sets `data-still` and the accessible name while motion is off, so both say what a
+// click will do.
+interface Props {
+	class?: string;
+	// Icon-only on phones.
+	compact?: boolean;
+}
+const { class: className, compact } = Astro.props;
+---
+
+<button type="button" class:list={["motion-toggle", className]} aria-label="Pause motion" data-motion-toggle>
+	<svg class="if-moving" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1.5h2v7H2zM6 1.5h2v7H6z" fill="currentColor"></path></svg>
+	<svg class="if-still" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.5 1.2 9 5l-6.5 3.8z" fill="currentColor"></path></svg>
+	<span class:list={["if-moving", compact && "max-sm:hidden"]} aria-hidden="true">Pause motion</span>
+	<span class:list={["if-still", compact && "max-sm:hidden"]} aria-hidden="true">Play motion</span>
+</button>
+
+<style>
+	@reference "../layouts/global.css";
+
+	.motion-toggle {
+		@apply label inline-flex min-h-8 min-w-8 items-center justify-center gap-2 rounded-md border-2 border-slate-700 bg-slate-950/60 px-2.5 py-1.5 leading-none text-slate-300 transition-colors hover:border-green-500 hover:text-white;
+	}
+	svg {
+		@apply size-2.5 shrink-0;
+	}
+	.motion-toggle[data-still] .if-moving,
+	.motion-toggle:not([data-still]) .if-still {
+		display: none;
+	}
+</style>

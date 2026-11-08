@@ -1,4 +1,5 @@
 ---
+import MotionToggle from "@/components/motion-toggle.astro";
 import "./global.css";
 
 // NOTE: This is magically used as the type for Astro.props
@@ -35,10 +36,14 @@ const ogImage = new URL(cover ?? "/layout/og.png", siteUrl).toString();
 const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https://moq.pro";
 
 const path = Astro.url.pathname;
-const nav = [
-	{ href: "/demo", word: "Demo" },
-	{ href: "/blog", word: "Blog" },
-	{ href: "https://doc.moq.dev", word: "Docs" },
+// Hand-drawn words from public/layout/, with the plain word for screen readers and the tooltip.
+// `wide` links only fit in the bar on wide screens; phones get them all in the menu.
+const links = [
+	{ href: "/demo", word: "Demo", art: "/layout/demo-word.svg" },
+	{ href: "/blog", word: "Blog", art: "/layout/blog-word.svg" },
+	{ href: "https://doc.moq.dev", word: "Docs", art: "/layout/docs-word.svg" },
+	{ href: "https://github.com/moq-dev/moq", word: "GitHub", art: "/layout/github-word.svg", stat: "stars", wide: true },
+	{ href: "https://discord.moq.dev", word: "Discord", art: "/layout/discord-word.svg", stat: "chatters", wide: true },
 ];
 const date = frontmatter?.date
 	? new Date(frontmatter.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })
@@ -59,7 +64,23 @@ const date = frontmatter?.date
 
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap"
+			rel="stylesheet"
+		/>
+		<!-- `.js` gates the scroll reveals, so content stays visible if scripts never run.
+		The saved motion choice is applied before first paint so nothing starts and then stops. -->
+		<script is:inline>
+			(() => {
+				const root = document.documentElement;
+				root.classList.add("js");
+				try {
+					const motion = localStorage.getItem("motion");
+					if (motion === "off") root.classList.add("still");
+					if (motion === "on") root.classList.add("moving");
+				} catch {}
+			})();
+		</script>
 		<!-- Open Graph -->
 		<meta property="og:type" content={frontmatter?.date ? "article" : "website"} />
 		<meta property="og:title" content={fullTitle} />
@@ -82,40 +103,46 @@ const date = frontmatter?.date
 		<!-- Theme color -->
 		<meta name="theme-color" content="#0f172a" />
 	</head>
-	<body class="min-h-screen flex flex-col">
-		<header class="sticky top-0 z-20 border-b border-slate-800 bg-slate-900/85 backdrop-blur-sm">
-			<div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-6 sm:px-5 md:px-8">
-				<a href="/" class="shrink-0" aria-label="Media over QUIC home">
-					<img src="/home/logo.svg" class="-mb-1 h-8 w-auto sm:h-10 md:h-12" alt="Media over QUIC" />
+	<body class="flex min-h-screen flex-col">
+		<header class="sticky top-0 z-30 border-b-2 border-slate-950 bg-slate-900/90 backdrop-blur-md">
+			<div class="wrap relative flex items-center gap-2.5 py-2 sm:gap-4">
+				<a href="/" class="mr-auto shrink-0">
+					<img src="/home/logo.svg" class="h-9 w-auto sm:h-11 md:h-12" alt="Media over QUIC" />
 				</a>
-				<nav class="ml-auto flex items-center text-[0.95rem] font-medium text-slate-300 sm:gap-1">
+				<nav class="hidden items-center gap-3 sm:flex md:gap-5 xl:gap-7" aria-label="Main">
 					{
-						nav.map(({ href, word }) => (
+						links.map(({ href, word, art, stat, wide }) => (
 							<a
 								href={href}
-								class:list={[
-									"px-2 py-1.5 transition-colors hover:text-white sm:px-3",
-									word !== "Demo" && "hidden sm:block",
-									path.startsWith(href) && "text-white underline decoration-green-500 decoration-2 underline-offset-[6px]",
-								]}
+								aria-current={path.startsWith(href) ? "page" : undefined}
+								class:list={["nav-word group", wide && "hidden lg:flex"]}
 							>
-								{word}
+								<img src={art} class="boil h-8 w-auto shrink-0" alt={word} />
+								{stat && <span data-stat={stat} data-short class="font-mono text-[0.7rem] text-green-500" />}
 							</a>
 						))
 					}
-					<a href="https://github.com/moq-dev/moq" class="hidden items-center gap-2 px-3 py-1.5 transition-colors hover:text-white md:flex">
-						GitHub
-						<span data-stat="stars" data-short class="font-mono text-[0.7rem] text-green-500"></span>
-					</a>
-					<a href="https://discord.moq.dev" class="hidden items-center gap-2 px-3 py-1.5 transition-colors hover:text-white md:flex">
-						Discord
-						<span data-stat="chatters" data-short class="font-mono text-[0.7rem] text-green-500"></span>
-					</a>
-					<a href={proUrl} class="btn-green ml-1 whitespace-nowrap px-4! py-2! text-[0.9rem]! sm:ml-3">
-						<img src="/layout/pro-icon.svg" class="-my-1 -ml-2 h-6" alt="" />
-						moq.pro <span class="hidden sm:inline" aria-hidden="true">→</span>
-					</a>
 				</nav>
+				<a href={proUrl} class="btn-green shrink-0 whitespace-nowrap px-3! py-2! text-[0.95rem]! sm:ml-3 sm:px-3.5! xl:ml-5">
+					<img src="/layout/pro-icon.svg" class="-my-1 -ml-1 h-6" alt="" />
+					moq.pro <span class="hidden sm:inline" aria-hidden="true">→</span>
+				</a>
+				<!-- Phones get every link in a drop-down instead of squeezing the words into the bar. -->
+				<details class="menu sm:hidden" data-menu>
+					<summary aria-label="Menu">
+						<span class="menu-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+					</summary>
+					<nav class="menu-panel" aria-label="Main">
+						{
+							links.map(({ href, word, art, stat }) => (
+								<a href={href} aria-current={path.startsWith(href) ? "page" : undefined} class="nav-word group">
+									<img src={art} class="boil h-10 w-auto shrink-0" alt={word} />
+									{stat && <span data-stat={stat} data-short class="font-mono text-[0.75rem] text-green-500" />}
+								</a>
+							))
+						}
+					</nav>
+				</details>
 			</div>
 		</header>
 
@@ -124,11 +151,20 @@ const date = frontmatter?.date
 				bare ? (
 					<slot />
 				) : (
-					<article class="markdown mx-auto max-w-176 px-5 pb-24 pt-14 md:px-0">
+					<article class="markdown mx-auto max-w-176 px-5 pb-24 pt-12 md:px-0 md:pt-16">
 						{date && (
-							<p class="label mb-3!">
-								{date}
-								{frontmatter?.author && <> · {frontmatter.author}</>}
+							<p class="label not-prose mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
+								<a href="/blog" class="text-slate-300 no-underline hover:text-green-500">
+									<span aria-hidden="true">←</span> Blog
+								</a>
+								<span aria-hidden="true" class="text-slate-600">/</span>
+								<time datetime={frontmatter?.date}>{date}</time>
+								{frontmatter?.author && (
+									<>
+										<span aria-hidden="true" class="text-slate-600">/</span>
+										<span>{frontmatter.author}</span>
+									</>
+								)}
 							</p>
 						)}
 						<slot />
@@ -137,34 +173,38 @@ const date = frontmatter?.date
 			}
 		</main>
 
-		<footer class="border-t border-slate-800">
-			<div class="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.4fr_1fr_1fr_1fr] md:px-8">
-				<div class="flex flex-col gap-4">
-					<img src="/home/logo.svg" class="h-8 w-auto self-start" alt="Media over QUIC" />
-					<p class="max-w-xs text-[0.9rem] leading-relaxed text-slate-400">
-						Fork it, yoink it, make it your own. Just tell us what you build.
-					</p>
+		<footer class="relative mt-40 border-t-2 border-slate-950 bg-slate-950/60">
+			<!-- The MoQ cat, peeking over the edge to see if you're still watching. -->
+			<div class="cat" aria-hidden="true" data-loop>
+				<img src="/blog/open-for-business/viewers-1.svg" class="boil-always" alt="" />
+			</div>
+			<div class="wrap pb-10 pt-14 md:pt-16">
+				<div class="grid grid-cols-2 gap-10 sm:grid-cols-[1.4fr_1fr_1fr_1fr]">
+					<img src="/home/logo.svg" class="col-span-2 h-9 w-auto self-start justify-self-start sm:col-span-1" alt="Media over QUIC" />
+					<div class="flex flex-col gap-2 text-[0.95rem] text-slate-300">
+						<span class="label mb-1 text-green-500!">Project</span>
+						<a href="/demo" class="hover:text-white">Demos</a>
+						<a href="https://doc.moq.dev" class="hover:text-white">Documentation</a>
+						<a href="https://github.com/moq-dev/moq" class="hover:text-white">Source code</a>
+						<a href="https://datatracker.ietf.org/wg/moq/about/" class="hover:text-white">IETF working group</a>
+					</div>
+					<div class="flex flex-col gap-2 text-[0.95rem] text-slate-300">
+						<span class="label mb-1 text-green-500!">Community</span>
+						<a href="/blog" class="hover:text-white">Blog</a>
+						<a href="/rss.xml" class="hover:text-white">RSS</a>
+						<a href="https://discord.moq.dev" class="hover:text-white">Discord</a>
+						<a href="https://x.com/kixelated" class="hover:text-white">X</a>
+						<a href="https://bsky.app/profile/kixel.me" class="hover:text-white">Bluesky</a>
+					</div>
+					<div class="flex flex-col gap-2 text-[0.95rem] text-slate-300">
+						<span class="label mb-1 text-green-500!">Production</span>
+						<a href={proUrl} class="hover:text-white">moq.pro (managed CDN)</a>
+						<a href="https://doc.moq.dev/bin/relay/" class="hover:text-white">Self-host moq-relay</a>
+						<a href="mailto:me@kixel.me" class="hover:text-white">me@kixel.me</a>
+					</div>
 				</div>
-				<div class="flex flex-col gap-2 text-[0.9rem] text-slate-300">
-					<span class="label mb-1">Project</span>
-					<a href="/demo" class="hover:text-white">Demos</a>
-					<a href="https://doc.moq.dev" class="hover:text-white">Documentation</a>
-					<a href="https://github.com/moq-dev/moq" class="hover:text-white">Source code</a>
-					<a href="https://datatracker.ietf.org/wg/moq/about/" class="hover:text-white">IETF working group</a>
-				</div>
-				<div class="flex flex-col gap-2 text-[0.9rem] text-slate-300">
-					<span class="label mb-1">Community</span>
-					<a href="/blog" class="hover:text-white">Blog</a>
-					<a href="/rss.xml" class="hover:text-white">RSS</a>
-					<a href="https://discord.moq.dev" class="hover:text-white">Discord</a>
-					<a href="https://x.com/kixelated" class="hover:text-white">X</a>
-					<a href="https://bsky.app/profile/kixel.me" class="hover:text-white">Bluesky</a>
-				</div>
-				<div class="flex flex-col gap-2 text-[0.9rem] text-slate-300">
-					<span class="label mb-1">Production</span>
-					<a href={proUrl} class="hover:text-white">moq.pro (managed CDN)</a>
-					<a href="https://doc.moq.dev/bin/relay/" class="hover:text-white">Self-host moq-relay</a>
-					<a href="mailto:me@kixel.me" class="hover:text-white">me@kixel.me</a>
+				<div class="mt-12 flex justify-end border-t-2 border-slate-800 pt-6">
+					<MotionToggle />
 				</div>
 			</div>
 		</footer>
@@ -172,7 +212,99 @@ const date = frontmatter?.date
 </html>
 
 <script>
+	import { isStill, setStill, whileLive } from "@/lib/motion";
 	import { renderStats } from "@/stats";
 
 	renderStats();
+
+	// Every motion toggle on the page shows the same state, and a click flips it everywhere.
+	const toggles = document.querySelectorAll<HTMLButtonElement>("[data-motion-toggle]");
+	const showMotion = () => {
+		const still = isStill();
+		for (const toggle of toggles) {
+			toggle.toggleAttribute("data-still", still);
+			toggle.setAttribute("aria-label", still ? "Play motion" : "Pause motion");
+		}
+	};
+	for (const toggle of toggles) toggle.addEventListener("click", () => setStill(!isStill()));
+	document.addEventListener("motion", showMotion);
+	matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", showMotion);
+	showMotion();
+
+	// The phone menu closes on Escape or a tap anywhere else, like any other drop-down.
+	const menu = document.querySelector<HTMLDetailsElement>("[data-menu]");
+	if (menu) {
+		document.addEventListener("keydown", (e) => {
+			if (e.key !== "Escape" || !menu.open) return;
+			menu.open = false;
+			menu.querySelector("summary")?.focus();
+		});
+		document.addEventListener("click", (e) => {
+			if (menu.open && !menu.contains(e.target as Node)) menu.open = false;
+		});
+	}
+
+	// CSS loops (boiling doodles, crawls, meters) hold still while their section is offscreen.
+	for (const el of document.querySelectorAll("[data-loop]")) {
+		whileLive(el, (live) => el.classList.toggle("offscreen", !live));
+	}
+
+	// One-shot scroll reveals: `.scribble` underlines draw in and `.reveal` blocks rise.
+	const reveals = new IntersectionObserver(
+		(entries) => {
+			for (const entry of entries) {
+				if (!entry.isIntersecting) continue;
+				entry.target.classList.add("in");
+				reveals.unobserve(entry.target);
+			}
+		},
+		{ rootMargin: "0px 0px -8% 0px" },
+	);
+	for (const el of document.querySelectorAll(".scribble, .reveal")) reveals.observe(el);
 </script>
+
+<style>
+	@reference "./global.css";
+
+	.menu summary {
+		@apply grid size-10 cursor-pointer list-none place-items-center rounded-lg border-2 border-slate-700 bg-slate-950/60;
+	}
+	.menu summary::-webkit-details-marker {
+		display: none;
+	}
+	.menu-bars {
+		@apply flex w-4.5 flex-col gap-1;
+	}
+	.menu-bars i {
+		@apply block h-0.5 rounded-full bg-slate-200 transition;
+	}
+	.menu[open] .menu-bars i:nth-child(1) {
+		translate: 0 0.375rem;
+		rotate: 45deg;
+	}
+	.menu[open] .menu-bars i:nth-child(2) {
+		opacity: 0;
+	}
+	.menu[open] .menu-bars i:nth-child(3) {
+		translate: 0 -0.375rem;
+		rotate: -45deg;
+	}
+	.menu[open] summary {
+		@apply border-green-500;
+	}
+	.menu-panel {
+		@apply absolute inset-x-0 top-full flex flex-col gap-1 border-b-2 border-slate-950 bg-slate-900 px-4 pb-5 pt-3;
+		box-shadow: 0 10px 0 0 rgb(2 6 23 / 50%);
+	}
+	.menu-panel .nav-word {
+		@apply self-start py-2;
+	}
+
+	/* The cat stands behind the footer's top edge, cropped at the shoulders. */
+	.cat {
+		@apply pointer-events-none absolute bottom-full right-4 h-36 w-52 overflow-hidden sm:right-[10%] md:h-44 md:w-64;
+	}
+	.cat img {
+		@apply absolute inset-x-0 top-0 w-full;
+	}
+</style>

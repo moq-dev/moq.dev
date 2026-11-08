@@ -3,12 +3,26 @@
 @plugin "@tailwindcss/forms";
 
 @theme {
-	--font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-	--font-mono: "JetBrains Mono", ui-monospace, monospace;
+	--font-sans: "Geist", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	--font-display: "Bricolage Grotesque", "Geist", system-ui, sans-serif;
+	--font-mono: "Geist Mono", ui-monospace, monospace;
 
 	/* v3's greens: the brand green is #22c55e, baked into the drawings and logo. */
 	--color-green-400: #4ade80;
 	--color-green-500: #22c55e;
+}
+
+/* Motion off: the visitor hit pause, or asked the OS for less motion and hasn't
+   pressed play since. The motion toggle (see global.astro) sets `.still` or `.moving`. */
+@custom-variant still {
+	:root.still & {
+		@slot;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		:root:not(.moving) & {
+			@slot;
+		}
+	}
 }
 
 @layer base {
@@ -20,14 +34,13 @@
 		text-rendering: optimizeLegibility;
 	}
 
-	/* Plain system sans on purpose: the handwriting is the personality. */
 	body {
 		@apply font-sans;
 		font-optical-sizing: auto;
 	}
 
 	::selection {
-		background: rgb(34 197 94 / 30%);
+		background: rgb(34 197 94 / 35%);
 	}
 
 	:focus-visible {
@@ -102,46 +115,93 @@ table td:first-child {
 	color: var(--astro-code-token-comment);
 }
 
+/* The one page column. Everything that isn't deliberately full-bleed lines up on it. */
+@utility wrap {
+	@apply mx-auto w-full max-w-7xl;
+	--gutter: 1.25rem;
+	padding-inline: var(--gutter);
+
+	@variant md {
+		--gutter: 2rem;
+	}
+}
+
+/* Runs from wherever it is in the page column off the right edge of the window. */
+@utility bleed-right {
+	margin-right: calc((min(100vw, 80rem) - 100vw) / 2 - var(--gutter));
+}
+
+/* Looping decoration holds still while it's offscreen (see global.astro). */
+.offscreen,
+.offscreen * {
+	/* biome-ignore lint/complexity/noImportantStyles: it has to beat every component's own animation shorthand. */
+	animation-play-state: paused !important;
+}
+
+/* Poster type: Bricolage at full weight, a little condensed so it can get huge. */
 @utility display {
-	@apply font-sans font-bold tracking-tight text-white;
-	line-height: 1.05;
+	@apply font-display font-extrabold text-white;
+	font-stretch: 84%;
+	letter-spacing: -0.015em;
+	line-height: 0.92;
 }
 
 /* Small technical labels. Used sparingly so mono still means "this is code". */
 @utility label {
-	@apply font-mono text-[0.72rem] uppercase tracking-[0.08em] text-slate-400;
+	@apply font-mono text-[0.72rem] uppercase tracking-[0.12em] text-slate-400;
 }
 
 @utility green-link {
 	@apply text-green-500 underline decoration-green-500/40 decoration-2 underline-offset-4 transition-colors hover:decoration-green-500;
 }
 
+/* Chunky buttons that sit on a hard shadow and squash into it when pressed. */
 @utility btn {
-	@apply inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-[0.95rem] font-semibold leading-none transition-colors;
+	@apply inline-flex items-center gap-2 rounded-xl border-2 border-slate-950 px-5 py-3 font-display text-[1.05rem] font-bold leading-none;
+	box-shadow: 4px 4px 0 0 var(--color-slate-950);
+	transition:
+		transform 120ms ease-out,
+		box-shadow 120ms ease-out,
+		background-color 120ms;
+
+	&:hover {
+		transform: translate(-2px, -2px);
+		box-shadow: 6px 6px 0 0 var(--color-slate-950);
+	}
+	&:active {
+		transform: translate(3px, 3px);
+		box-shadow: 1px 1px 0 0 var(--color-slate-950);
+	}
 }
 
 @utility btn-green {
-	@apply btn bg-green-500 text-slate-900 hover:bg-green-400;
+	@apply btn bg-green-500 text-slate-950 hover:bg-green-400;
 }
 
 @utility btn-line {
-	@apply btn border border-slate-700 text-slate-100 hover:border-slate-500 hover:bg-slate-800;
+	@apply btn bg-slate-800 text-slate-100 hover:bg-slate-700;
 }
 
-/* A hand-drawn marker underline under a word or two of a heading. */
+/* A hand-drawn marker underline under a word or two of a heading. It draws
+   itself in once the global script marks it `.in` (see global.astro). */
 @utility scribble {
 	@apply relative inline-block whitespace-nowrap;
 
 	&::after {
 		content: "";
 		position: absolute;
-		left: -2%;
-		right: -2%;
-		bottom: -0.08em;
-		height: 0.2em;
+		left: -3%;
+		right: -3%;
+		bottom: -0.1em;
+		height: 0.22em;
 		background: url("/drawn/stroke-1.svg") no-repeat;
 		background-size: 100% 100%;
 		pointer-events: none;
+		clip-path: inset(0 0 0 0);
+		transition: clip-path 0.7s cubic-bezier(0.6, 0, 0.3, 1) 0.15s;
+	}
+	:root.js &:not(.in)::after {
+		clip-path: inset(0 100% 0 0);
 	}
 }
 
@@ -149,22 +209,35 @@ table td:first-child {
 @utility scribble-2 {
 	&::after {
 		background-image: url("/drawn/stroke-3.svg");
-		transform: rotate(-1deg);
+		rotate: -1deg;
 	}
 }
 
 @utility scribble-3 {
 	&::after {
 		background-image: url("/drawn/stroke-5.svg");
-		transform: scaleX(-1) rotate(-1.5deg);
+		transform: scaleX(-1);
+		rotate: 1deg;
 	}
 }
 
-/* A piece of paper on the page: a hard offset shadow instead of a glow, so it
-   reads as cut out and stuck down. Links lift off the page on hover. */
+/* Rises into place the first time it scrolls into view. `--i` staggers siblings. */
+@utility reveal {
+	transition:
+		opacity 0.6s ease-out,
+		translate 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+	transition-delay: calc(var(--i, 0) * 110ms);
+
+	:root.js &:not(.in) {
+		opacity: 0;
+		translate: 0 1.5rem;
+	}
+}
+
+/* A piece of paper stuck to the page: a hard offset shadow instead of a glow. */
 @utility card {
-	@apply rounded-2xl border border-slate-700/70 bg-slate-800/50;
-	box-shadow: 5px 5px 0 0 rgb(2 6 23 / 90%);
+	@apply rounded-2xl border-2 border-slate-700/80 bg-slate-800/60;
+	box-shadow: 6px 6px 0 0 var(--color-slate-950);
 
 	&:is(a) {
 		@apply card-lift;
@@ -172,25 +245,29 @@ table td:first-child {
 }
 
 @utility card-lift {
-	@apply transition duration-200 ease-out;
+	transition:
+		transform 180ms ease-out,
+		box-shadow 180ms ease-out,
+		border-color 180ms;
 
 	&:hover {
-		@apply border-slate-500;
-		transform: translate(-2px, -2px);
-		box-shadow: 7px 7px 0 0 rgb(34 197 94 / 45%);
+		@apply border-green-500/70;
+		transform: translate(-3px, -3px);
+		box-shadow: 9px 9px 0 0 var(--color-green-500);
 	}
 }
 
+/* A blog card: the cover, then the words under it. */
 @utility polaroid {
 	@apply card card-lift flex flex-col gap-2 p-3 pb-5;
 }
 
 /* A square tile for a hand-drawn icon. */
 @utility icon-tile {
-	@apply flex shrink-0 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 transition-transform duration-200;
+	@apply flex shrink-0 items-center justify-center rounded-xl border-2 border-slate-700 bg-slate-900 transition-transform duration-200;
 
 	.group:hover & {
-		transform: scale(1.06);
+		transform: scale(1.06) rotate(-1deg);
 	}
 }
 
@@ -210,43 +287,39 @@ table td:first-child {
 	.group:hover &:nth-of-type(3n) {
 		animation-delay: -0.4s;
 	}
-	@media (prefers-reduced-motion: reduce) {
+	@variant still {
 		.group:hover & {
 			animation: none;
 		}
 	}
 }
 
-@utility chip {
-	@apply inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/60 py-1.5 pl-2 pr-4 text-sm text-slate-200 transition-colors hover:border-green-500 hover:text-white;
+/* The same boil, all the time. `--i` desyncs neighbours. */
+@utility boil-always {
+	animation: boil 0.6s steps(1) infinite;
+	animation-delay: calc(var(--i, 0) * -0.13s);
+
+	@variant still {
+		animation: none;
+	}
 }
 
-/* The CARLA player reads these through its shadow DOM. */
-moq-carla {
-	--panel: var(--color-slate-800);
-	--line: var(--color-slate-700);
-	--text: var(--color-slate-200);
-	--muted: var(--color-slate-400);
-	--accent: var(--color-green-500);
-	--accent-hover: var(--color-green-400);
-	--ok: var(--color-green-500);
-	--on-accent: var(--color-slate-950);
-	--map-bg: var(--color-slate-950);
-	--scrim: rgb(15 23 42 / 80%);
+@utility chip {
+	@apply inline-flex items-center gap-2 rounded-full border-2 border-slate-700 bg-slate-800/70 py-1.5 pl-2 pr-4 text-sm font-medium text-slate-200 transition hover:border-green-500 hover:text-white;
 }
 
 /* The typography plugin's colors for a dark page. */
 @utility prose-moq {
-	--tw-prose-body: var(--color-slate-200);
+	--tw-prose-body: var(--color-slate-300);
 	--tw-prose-headings: var(--color-white);
 	--tw-prose-lead: var(--color-slate-400);
 	--tw-prose-links: var(--color-green-500);
-	--tw-prose-bold: var(--color-green-500);
-	--tw-prose-counters: var(--color-slate-400);
-	--tw-prose-bullets: var(--color-slate-600);
+	--tw-prose-bold: var(--color-white);
+	--tw-prose-counters: var(--color-green-500);
+	--tw-prose-bullets: var(--color-green-500);
 	--tw-prose-hr: var(--color-slate-700);
 	--tw-prose-quotes: var(--color-slate-100);
-	--tw-prose-quote-borders: var(--color-slate-700);
+	--tw-prose-quote-borders: var(--color-green-500);
 	--tw-prose-captions: var(--color-slate-400);
 	--tw-prose-kbd: var(--color-white);
 	--tw-prose-kbd-shadows: var(--color-white);
@@ -259,32 +332,62 @@ moq-carla {
 
 /* see https://github.com/tailwindlabs/tailwindcss-typography */
 @utility markdown {
-	@apply prose prose-lg max-w-none prose-moq;
-	@apply prose-headings:font-bold prose-headings:tracking-[-0.02em];
-	@apply prose-headings:underline prose-headings:decoration-green-500 prose-headings:decoration-4 prose-headings:underline-offset-4;
-	@apply prose-h1:decoration-8 prose-h2:decoration-4 prose-h3:decoration-2;
-	@apply prose-h1:text-[2.6rem] md:prose-h1:text-[3.2rem] prose-h1:leading-[1.05] prose-h1:mb-10 prose-h1:mt-4;
-	@apply prose-h2:text-[1.7rem] prose-h2:mt-14;
-	@apply prose-h3:text-[1.3rem];
-	@apply prose-p:leading-[1.7];
+	@apply prose md:prose-lg max-w-none prose-moq;
+	@apply prose-headings:font-display prose-headings:font-extrabold prose-headings:tracking-[-0.025em];
+	@apply prose-h1:text-[2.9rem] md:prose-h1:text-[4.4rem] prose-h1:leading-[0.95] prose-h1:mb-12 prose-h1:mt-2;
+	@apply prose-h2:text-[1.75rem] md:prose-h2:text-[2rem] prose-h2:font-bold prose-h2:leading-[1.15] prose-h2:tracking-[-0.02em] prose-h2:mt-16 prose-h2:mb-5;
+	@apply prose-h3:text-[1.3rem] prose-h3:font-bold prose-h3:tracking-[-0.01em] prose-h3:text-slate-100;
+	@apply prose-p:leading-[1.75];
 	@apply prose-li:my-1;
 	@apply prose-img:rounded-xl;
 	@apply prose-figure:object-center prose-figure:text-center prose-img:m-auto;
+	@apply prose-figcaption:font-mono prose-figcaption:text-[0.8rem] prose-figcaption:leading-relaxed;
 	@apply prose-a:font-semibold prose-a:text-green-500 prose-a:underline prose-a:decoration-green-500/40 prose-a:decoration-2 prose-a:underline-offset-4 prose-a:hover:decoration-green-500;
 	@apply prose-code:font-mono prose-code:font-normal prose-code:before:content-none prose-code:after:content-none;
-	@apply prose-pre:rounded-xl prose-pre:border prose-pre:border-slate-800 prose-pre:text-[0.875rem];
+	@apply prose-pre:rounded-xl prose-pre:border-2 prose-pre:border-slate-800 prose-pre:text-[0.85rem];
+	@apply prose-blockquote:font-display prose-blockquote:text-[1.35rem] prose-blockquote:font-semibold prose-blockquote:not-italic prose-blockquote:border-l-4;
 
 	/* Long URLs and inline `code` shouldn't push the page wider than the viewport. */
 	@apply wrap-break-word;
 
+	font-stretch: normal;
+
+	& h1 {
+		font-stretch: 84%;
+		text-wrap: balance;
+	}
+	& :where(h2, h3) {
+		text-wrap: balance;
+	}
+	& p {
+		text-wrap: pretty;
+	}
+
+	/* The title gets a marker stroke that draws itself in on load. */
+	& h1::after {
+		content: "";
+		display: block;
+		width: min(60%, 18rem);
+		height: 0.2em;
+		margin-top: 0.22em;
+		background: url("/drawn/stroke-1.svg") no-repeat;
+		background-size: 100% 100%;
+		animation: draw-in 0.8s cubic-bezier(0.6, 0, 0.3, 1) 0.2s both;
+	}
+
+	& h2 + h3 {
+		margin-top: 0;
+	}
+
 	& :where(code):not(:where(pre *)) {
-		@apply rounded-sm bg-slate-800 px-1.5 py-0.5 text-[0.82em];
+		@apply rounded-md border border-slate-700 bg-slate-800 px-1.5 py-0.5 text-[0.82em];
 	}
 
 	& pre {
 		tab-size: 4;
 		scrollbar-width: thin;
 		scrollbar-color: var(--color-slate-700) transparent;
+		box-shadow: 6px 6px 0 0 var(--color-slate-950);
 	}
 	/* prose-lg sizes every `code` at 0.89em, which would shrink block code a
 	   second time on top of the pre's own size. */
@@ -310,7 +413,9 @@ moq-carla {
 }
 
 @utility tagline {
-	@apply my-12 text-center text-2xl font-bold text-white underline decoration-green-500 decoration-4 underline-offset-4 md:text-3xl;
+	@apply my-14 text-center font-display text-3xl font-extrabold text-white md:text-4xl;
+	text-wrap: balance;
+	font-stretch: 85%;
 }
 
 @keyframes boil {
@@ -322,5 +427,50 @@ moq-carla {
 	}
 	66% {
 		transform: translate(0.3px, 0.5px) rotate(-0.4deg) scale(1.02);
+	}
+}
+
+@keyframes draw-in {
+	from {
+		clip-path: inset(0 100% 0 0);
+	}
+	to {
+		clip-path: inset(0 0 0 0);
+	}
+}
+
+.markdown h1::after,
+.scribble::after,
+.reveal {
+	@variant still {
+		animation: none;
+		transition: none;
+	}
+}
+
+/* A hand-drawn header link. The current page gets a marker stroke under it. */
+@utility nav-word {
+	@apply relative flex items-center gap-2 rounded-lg px-1.5 py-1 opacity-90 transition-opacity hover:opacity-100;
+
+	/* The traced words are hairline-thin at header size. Same-color shadows on four sides
+	   thicken every stroke, then a dark halo outlines them against whatever scrolls under
+	   the translucent bar. */
+	& img {
+		filter: drop-shadow(0.7px 0 0 #f8f8f9) drop-shadow(-0.7px 0 0 #f8f8f9) drop-shadow(0 0.7px 0 #f8f8f9)
+			drop-shadow(0 -0.7px 0 #f8f8f9) drop-shadow(1.5px 1.5px 0 #020617) drop-shadow(0 0 1px #020617);
+	}
+
+	&[aria-current="page"] {
+		opacity: 1;
+	}
+	&[aria-current="page"]::after {
+		content: "";
+		position: absolute;
+		left: 0.4rem;
+		right: 0.4rem;
+		bottom: -0.1rem;
+		height: 0.4rem;
+		background: url("/drawn/stroke-3.svg") no-repeat;
+		background-size: 100% 100%;
 	}
 }

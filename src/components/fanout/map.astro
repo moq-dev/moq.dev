@@ -1,0 +1,130 @@
+---
+// The hero's live fan-out map. The script in map.ts draws and runs it.
+---
+
+<figure
+	class="fanout"
+	data-fanout
+	role="img"
+	aria-label="Illustration: publishers and viewers each connect to their nearest edge relay, and relays copy every broadcast across the mesh to each viewer's edge."
+>
+	<svg class="fanout-svg" aria-hidden="true"></svg>
+	<figcaption class="fanout-legend" aria-hidden="true">
+		<span><i class="key-pub"></i>publisher</span>
+		<span><i class="key-sub"></i>viewer</span>
+		<span><img src="/drawn/icon-globe.svg" alt="" />edge relay</span>
+	</figcaption>
+</figure>
+
+<script>
+	import { mount } from "./map";
+
+	for (const figure of document.querySelectorAll<HTMLElement>("[data-fanout]")) mount(figure);
+</script>
+
+<style>
+	@reference "../../layouts/global.css";
+
+	.fanout {
+		@apply relative flex w-full flex-col;
+	}
+	.fanout-svg {
+		@apply block w-full overflow-visible;
+		aspect-ratio: 1 / 1;
+
+		@variant sm {
+			aspect-ratio: 16 / 11;
+		}
+		@variant lg {
+			aspect-ratio: 5 / 4;
+		}
+	}
+	.fanout-legend {
+		@apply label mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.68rem] text-slate-500;
+	}
+	.fanout-legend span {
+		@apply flex items-center gap-2;
+	}
+	.fanout-legend i {
+		@apply inline-block size-2 rounded-full;
+	}
+	.fanout-legend img {
+		@apply size-3.5;
+	}
+	.key-pub {
+		@apply bg-green-500;
+	}
+	.key-sub {
+		@apply bg-slate-300;
+	}
+
+	/* Everything below is drawn by map.ts, so it's styled globally within the figure. */
+	.fanout :global(.mesh-link) {
+		fill: none;
+		stroke: var(--color-slate-600);
+		stroke-width: 1.6;
+		stroke-linecap: round;
+	}
+	/* A second, fainter pass of the pen, slightly off the first. */
+	.fanout :global(.mesh-link-2) {
+		fill: none;
+		stroke: var(--color-slate-700);
+		stroke-width: 1;
+		stroke-linecap: round;
+		translate: 1.2px -1px;
+	}
+	.fanout :global(.access-link) {
+		fill: none;
+		stroke: var(--color-slate-700);
+		stroke-width: 1.2;
+		stroke-dasharray: 1;
+	}
+	.fanout :global(.relay-pad) {
+		fill: var(--color-slate-900);
+	}
+	.fanout :global(.relay-pulse) {
+		fill: none;
+		stroke: var(--color-green-500);
+		stroke-width: 1.5;
+		opacity: 0;
+	}
+	/* A halo in the page color keeps labels readable where links cross them. */
+	.fanout :global(text) {
+		font-family: var(--font-mono);
+		font-size: 11px;
+		letter-spacing: 0.02em;
+		paint-order: stroke;
+		stroke: var(--color-slate-900);
+		stroke-width: 4px;
+		stroke-linejoin: round;
+	}
+	.fanout :global(.label-relay) {
+		fill: var(--color-slate-400);
+	}
+	.fanout :global(.label-end) {
+		fill: var(--color-slate-200);
+	}
+	.fanout :global(.dot-pub) {
+		fill: var(--color-green-500);
+		stroke: var(--color-slate-950);
+		stroke-width: 2;
+	}
+	.fanout :global(.dot-sub) {
+		fill: var(--color-slate-300);
+		stroke: var(--color-slate-950);
+		stroke-width: 2;
+		transition: fill 150ms;
+	}
+	.fanout :global(.lit .dot-sub) {
+		fill: var(--color-green-400);
+	}
+	.fanout :global(.pk-video) {
+		fill: var(--color-green-500);
+	}
+	.fanout :global(.pk-audio) {
+		fill: #86efac;
+	}
+	.fanout :global(.pk-control) {
+		fill: var(--color-slate-100);
+	}
+</style>
