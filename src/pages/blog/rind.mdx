@@ -55,6 +55,7 @@ It started as fork of [Graviola](https://github.com/ctz/graviola) and quickly mo
 Even a tiny reduction in CPU usage has huge impact when multiplied across **every HTTPS request in the world**\*.
 
 \* this benchmark is HTTP/3 specific. HTTP/1 and HTTP/2 use different payload sizes.
+There be a lot of variance depending on the architecture.
 
 ## WOW FAST
 Rust gets dunked on for compile speeds but nerds forget that C/C++ can also be terrible when uncached.
@@ -69,7 +70,7 @@ It takes **literal hours**.
 
 Most of the time these builds are cached anyway but IDK it's still nice to see smaller number.
 
-## Optimize EVERYTHING
+## Wow fast
 Having accomplished my goal of making MoQ faster, I let my old gaming PC take a vacation.
 
 <Meme src="/blog/rind/tired.webm" label="I'm tired, boss." class="w-20" />
@@ -103,7 +104,7 @@ Because like, if you can **prove the vibe slop is correct**, it's no longer vibe
 Green boxes are formally verified, dashed are *mostly* formally verified.
 
 `libcrux` is cool because they try to formally verify everything, but if you saw the last grid, it's super slow.
-But `rind` will only use a formal proof if the performance was within 10%, which has surprisingly decent coverage.
+`rind` will only use a formal proof if the performance was within 10%, which has surprisingly decent coverage.
 
 **aes-gcm** being verified on some architectures is awesome, because it's the goat of crypto.
 
