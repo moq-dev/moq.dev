@@ -103,7 +103,10 @@ export default function Timings() {
 				</div>
 			</div>
 			<Bands />
-			<p class="fine">Squares: {data.hosts.map((h) => h.name).join(", ")}. Blank: not offered.</p>
+			<p class="fine">
+				Squares: {data.hosts.map((h) => h.name).join(", ")}. Blank: not offered. On ARM, rind holds DIT (constant-time
+				mode) across each batch.
+			</p>
 		</Figure>
 	);
 }

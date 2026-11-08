@@ -1,7 +1,6 @@
-// QUIC's per-packet crypto: every library's AES-128-GCM seal, as a ball bouncing once per packet, and
-// rind against aws-lc-rs on each CPU.
+// QUIC's per-packet crypto: every library's AES-128-GCM seal, as a ball bouncing once per packet.
 import { createSignal, For, onCleanup, onMount } from "solid-js";
-import { commit, cpu, days, Figure, frames, geomean, midscreen, name, reduced, time, times } from "./chart";
+import { commit, days, Figure, frames, geomean, midscreen, name, reduced, time, times } from "./chart";
 import data from "./data/libraries.json";
 
 type Host = (typeof data.hosts)[number];
@@ -153,42 +152,8 @@ export default function Quic() {
 			<p class="fine">
 				AES-128-GCM, the geometric mean over CPUs.{" "}
 				{data.hosts.map((h) => `${h.name}: ${times(ratio(h, "1350B"))}`).join(", ")}. aws-lc is Amazon's BoringSSL fork.
+				On ARM, rind holds DIT (constant-time mode) across each batch.
 			</p>
-		</Figure>
-	);
-}
-
-// rind against aws-lc-rs on each CPU: a full packet as the headline, an ACK-sized one beneath.
-export function QuicScore() {
-	return (
-		<Figure
-			kicker="Sealing one QUIC packet, vs aws-lc-rs"
-			headline={data.hosts.every((h) => ratio(h, "1350B") > 1) ? "Faster on every CPU we timed" : "rind vs aws-lc-rs"}
-			label="rind's speed over aws-lc-rs's sealing a 1350 B and a 32 B QUIC packet, on each CPU."
-			table={table}
-			source={source}
-		>
-			<div class="score">
-				<For each={data.hosts}>
-					{(h) => (
-						<div>
-							<div class="cpu">
-								{h.name}
-								<small>{cpu(h.source.cpu)}</small>
-							</div>
-							<div class={`big${ratio(h, "1350B") < 1.25 ? " meh" : ""}`}>{times(ratio(h, "1350B"))}</div>
-							<div class="duel">
-								<i class="me" style={{ width: `${100 / ratio(h, "1350B")}%` }} />
-								<i style={{ width: "100%" }} />
-							</div>
-							<div class="ack">
-								32 B ACK: <b>{times(ratio(h, "32B"))}</b>
-							</div>
-						</div>
-					)}
-				</For>
-			</div>
-			<p class="fine">Big number: a full 1350 B packet. Green is rind, grey aws-lc-rs; shorter is faster.</p>
 		</Figure>
 	);
 }

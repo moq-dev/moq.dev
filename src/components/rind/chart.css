@@ -159,62 +159,6 @@
 .rind-fig .lane.me canvas {
 	border-color: rgb(34 197 94 / 40%);
 }
-.rind-fig .score {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-	gap: 1px;
-	margin-top: 22px;
-	border-radius: 10px;
-	overflow: hidden;
-	background: var(--line);
-}
-.rind-fig .score > div {
-	display: grid;
-	align-content: start;
-	gap: 10px;
-	min-width: 0;
-	padding: 18px 14px 16px;
-	background: var(--frame);
-}
-.rind-fig .score .cpu {
-	font-family: var(--mono);
-	font-size: 12px;
-	color: var(--ink-2);
-}
-.rind-fig .score .cpu small {
-	display: block;
-	font-size: 10.5px;
-	color: var(--ink-3);
-}
-.rind-fig .score .big {
-	font-size: clamp(54px, 12vw, 80px);
-	color: var(--rind);
-}
-.rind-fig .score .big.meh {
-	color: var(--ink-2);
-}
-.rind-fig .score .ack {
-	font-family: var(--mono);
-	font-size: 12px;
-	color: var(--ink-2);
-}
-.rind-fig .score .ack b {
-	color: var(--rind);
-}
-.rind-fig .duel {
-	display: grid;
-	gap: 4px;
-}
-.rind-fig .duel i {
-	display: block;
-	height: 10px;
-	border-radius: 0 4px 4px 0;
-	background: var(--rival);
-}
-.rind-fig .duel i.me {
-	background: var(--rind);
-}
-
 /* Bars: runtimes and the build race */
 .rind-fig .bars {
 	display: grid;
@@ -472,20 +416,6 @@
 	display: flex;
 	align-items: center;
 	gap: 6px;
-}
-
-/* Speed swarm */
-.rind-fig svg.plot {
-	display: block;
-	width: 100%;
-	height: auto;
-	margin-top: 18px;
-}
-.rind-fig svg.plot text {
-	font-family: var(--mono);
-}
-.rind-fig svg.plot text.big {
-	font-family: var(--display);
 }
 
 /* Tally receipt */

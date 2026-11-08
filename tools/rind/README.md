@@ -4,13 +4,12 @@ The charts in `src/pages/blog/rind.mdx` read `src/components/rind/data/*.json`.
 Each file records its source: the rind commit, host, CPU, and date.
 Refresh them all just before posting, from rind main after its latest report collection, then run `just fix`.
 
-## Proofs, build cost, and libraries
+## Build cost and libraries
 
-All three come from a rind checkout at the commit being announced, after its nightly
+Both come from a rind checkout at the commit being announced, after its nightly
 `bench` run and `admin/bench-report` collection:
 
 ```bash
-bun tools/rind/refresh.ts proofs <rind>      # proofs.json: ALGORITHMS.md, verified.toml, tiers.json
 bun tools/rind/refresh.ts build <rind>       # build.json: benchmarks/data/<host>.json's build_cost
 bun tools/rind/refresh.ts libraries <rind>   # libraries.json: every library's times and proofs, labeled by admin/bench-report (needs python3)
 ```

@@ -1,7 +1,6 @@
 // Regenerates the rind post's chart data (src/components/rind/data/) from a rind checkout and
 // fresh measurements. See README.md beside this file for when to run each step.
 //
-//   bun tools/rind/refresh.ts proofs <rind>               verified.toml + ALGORITHMS.md + tiers.json
 //   bun tools/rind/refresh.ts build <rind>                benchmarks/data/*.json build_cost
 //   bun tools/rind/refresh.ts libraries <rind>            benchmarks/data/*.json times + verified.toml + admin/bench-report
 //   bun tools/rind/refresh.ts runtimes <out> <out>/*.tsv  runtimes.sh's rounds
@@ -18,161 +17,6 @@ const write = (name: string, value: unknown) => {
 };
 const today = () => new Date().toISOString().slice(0, 10);
 const commit = (rind: string) => execFileSync("git", ["-C", rind, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
-const geomean = (xs: number[]) => Math.exp(xs.reduce((a, x) => a + Math.log(x), 0) / xs.length);
-
-// rind's CPU tiers, as bench.yml denies features and ALGORITHMS.md's tables name them.
-// `features` is what rind can use on that tier, for matching verified.toml's `cpu` lists.
-const X86 = ["aes", "pclmulqdq", "ssse3", "sse4.1", "avx", "movbe"];
-const TIERS = [
-	{
-		name: "x86_64",
-		arch: "x86_64",
-		nightly: ["x86_64-unknown-linux-gnu", false, ""],
-		features: [...X86, "avx2", "bmi2", "adx", "sha", "vaes", "vpclmulqdq"],
-	},
-	{ name: "no AVX2", arch: "x86_64", nightly: ["x86_64-unknown-linux-gnu", true, ""], features: X86 },
-	{
-		name: "no AVX",
-		arch: "x86_64",
-		nightly: ["x86_64-unknown-linux-gnu", true, "no-avx"],
-		features: X86.filter((f) => f !== "avx"),
-	},
-	{ name: "no AES-NI", arch: "x86_64", nightly: ["x86_64-unknown-linux-gnu", true, "no-aes"], features: ["ssse3"] },
-	{ name: "SSE2", arch: "x86_64", nightly: ["x86_64-unknown-linux-gnu", true, "no-ssse3"], features: [] },
-	{
-		name: "aarch64",
-		arch: "aarch64",
-		nightly: ["aarch64-unknown-linux-gnu", false, ""],
-		features: ["aes", "pmull", "sha2", "sha3"],
-	},
-	{ name: "no crypto", arch: "aarch64", nightly: ["aarch64-unknown-linux-gnu", true, ""], features: [] },
-	{ name: "armv7", arch: "armv7", nightly: ["armv7-unknown-linux-gnueabihf", false, ""], features: [] },
-] as const;
-
-// The primitives charted, as ALGORITHMS.md's rows (by prefix) and nightly benchmark IDs
-// (admin/bench-report's TIER_ROWS). `helpers` marks a row whose ✓ covers only helpers, such as
-// RSA's s2n-bignum multiplications under rind's own exponentiation, which isn't a proven core.
-const ROWS = [
-	{ name: "AES-GCM", algorithms: "AES-GCM", pattern: /^aes(128|256)-gcm(-open)?\// },
-	{ name: "AES header protection", algorithms: "AES block", pattern: /^quic-header-protection\/aes(128|256)\// },
-	{
-		name: "ChaCha20 header protection",
-		algorithms: "ChaCha20 (header",
-		pattern: /^quic-header-protection\/chacha20\//,
-	},
-	{ name: "ChaCha20-Poly1305", algorithms: "ChaCha20-Poly1305", pattern: /^x?chacha20poly1305\// },
-	{ name: "SHA-256", algorithms: "SHA-256", pattern: /^sha256(-updates)?\// },
-	{ name: "SHA-384, SHA-512", algorithms: "SHA-384", pattern: /^sha(384|512|512-256)\// },
-	{ name: "HMAC", algorithms: "HMAC", pattern: /^hmac-/ },
-	{ name: "HKDF", algorithms: "HKDF", pattern: /^hkdf-/ },
-	{ name: "X25519", algorithms: "X25519", pattern: /^x25519-/ },
-	{ name: "Ed25519", algorithms: "Ed25519", pattern: /^ed25519-/ },
-	{ name: "P-256", algorithms: "P-256", pattern: /^p256-/ },
-	{ name: "P-384", algorithms: "P-384", pattern: /^p384-/ },
-	{ name: "P-521", algorithms: "P-521", pattern: /^p521-/ },
-	{ name: "ML-KEM-768", algorithms: "ML-KEM-768", pattern: /^mlkem768-/ },
-	{ name: "RSA", algorithms: "RSA", pattern: /^rsa\d+-(pkcs1|pss|load)/, helpers: true },
-];
-
-// Each tier's cell text in ALGORITHMS.md's two tables; an empty cell repeats the one to its left.
-function algorithms(markdown: string): Map<string, string[]> {
-	const cells = new Map<string, string[]>();
-	for (const line of markdown.split("\n")) {
-		if (!line.startsWith("| ") || line.startsWith("| Algorithm") || line.startsWith("|---")) continue;
-		const [name, ...rest] = line
-			.split("|")
-			.slice(1, -1)
-			.map((c) => c.trim());
-		if (!rest.length) continue;
-		const filled = rest.reduce<string[]>((acc, c) => {
-			acc.push(c || acc.at(-1) || "");
-			return acc;
-		}, []);
-		cells.set(name, [...(cells.get(name) ?? []), ...filled]);
-	}
-	return cells;
-}
-
-// Which proofs a verified.toml entry composes, in a few words.
-function sources(proof: string): string {
-	const found = [
-		[/HOL Light/, "s2n-bignum (HOL Light)"],
-		[/SAW/, "aws-lc (SAW)"],
-		[/NSym/, "aws-lc (NSym)"],
-		[/Vale's F\*/, "Vale (F*)"],
-		[/HACL\*'s rounds/, "HACL* (F*)"],
-	] as const;
-	return ["rind (Lean, via Aeneas)", ...found.filter(([re]) => re.test(proof)).map(([, name]) => name)].join(" + ");
-}
-
-function proofs(rind: string) {
-	const verified = Bun.TOML.parse(readFileSync(join(rind, "benchmarks/verified.toml"), "utf8")) as {
-		verified: { library: string; operations: string[]; arch?: string; cpu?: string[]; proof: string; link: string }[];
-	};
-	const table = algorithms(readFileSync(join(rind, "ALGORITHMS.md"), "utf8"));
-	const nightly = read(join(rind, "benchmarks/data/tiers.json"));
-
-	const cells = ROWS.map((row) => {
-		const text = [...table].find(([name]) => name.startsWith(row.algorithms))?.[1];
-		if (!text || text.length !== TIERS.length) throw new Error(`ALGORITHMS.md has no full row for ${row.algorithms}`);
-
-		return TIERS.map((tier, i) => {
-			const proven = verified.verified.find(
-				(v) =>
-					v.library === "rind" &&
-					v.arch === tier.arch &&
-					v.operations.some((op) => row.pattern.test(`${op}/`)) &&
-					(v.cpu ?? []).every((f) =>
-						f === "intel"
-							? true
-							: f.startsWith("!")
-								? !tier.features.includes(f.slice(1) as never)
-								: tier.features.includes(f as never),
-					),
-			);
-			const run = nightly.tiers.find((t: { target: string; portable: boolean; tier: string }) =>
-				[t.target, t.portable, t.tier].every((v, j) => v === tier.nightly[j]),
-			);
-			const ratios = Object.entries(run?.benchmarks ?? {})
-				.filter(([key]) => row.pattern.test(key))
-				.flatMap(([, libs]) => {
-					const { rind: ours, "aws-lc-rs": theirs } = libs as Record<string, number>;
-					return ours && theirs ? [theirs / ours] : [];
-				});
-
-			return {
-				status: proven ? "e2e" : !("helpers" in row) && text[i].includes("✓") ? "routine" : "none",
-				code: text[i],
-				proof: proven ? sources(proven.proof) : undefined,
-				note: proven?.cpu?.includes("intel") ? "Intel CPUs only" : undefined,
-				link: proven?.link,
-				// aws-lc-rs's time over rind's: above 1, rind is faster.
-				speedup: ratios.length
-					? { geomean: geomean(ratios), min: Math.min(...ratios), max: Math.max(...ratios), n: ratios.length }
-					: undefined,
-			};
-		});
-	});
-
-	write("proofs.json", {
-		source: {
-			rind: commit(rind),
-			files: ["ALGORITHMS.md", "benchmarks/verified.toml", "benchmarks/data/tiers.json"],
-			nightly: { run: nightly.url, commit: nightly.commit, date: nightly.date },
-			cpus: Object.fromEntries(
-				TIERS.map((tier) => [
-					tier.name,
-					nightly.tiers.find((t: { target: string; portable: boolean; tier: string }) =>
-						[t.target, t.portable, t.tier].every((v, j) => v === tier.nightly[j]),
-					)?.cpu,
-				]),
-			),
-			generated: today(),
-		},
-		tiers: TIERS.map((t) => t.name),
-		rows: ROWS.map((r, i) => ({ name: r.name, cells: cells[i] })),
-	});
-}
 
 // rind's report hosts, named by CPU since the hostnames mean nothing outside.
 const HOSTS: Record<string, string> = {
@@ -467,8 +311,7 @@ function runtimes(out: string, files: string[]) {
 }
 
 const [cmd, ...args] = process.argv.slice(2);
-if (cmd === "proofs" && args.length === 1) proofs(args[0]);
-else if (cmd === "build" && args.length === 1) build(args[0]);
+if (cmd === "build" && args.length === 1) build(args[0]);
 else if (cmd === "libraries" && args.length === 1) libraries(args[0]);
 else if (cmd === "runtimes" && args.length >= 2) runtimes(args[0], args.slice(1));
 else {
