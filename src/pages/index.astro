@@ -93,7 +93,7 @@ const ticker = [
 	</div>
 
 	<!-- Hero -->
-	<section class="wrap grid items-center gap-8 pb-10 pt-10 md:pt-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-12 lg:pb-16 lg:pt-16">
+	<section class="wrap grid items-center gap-8 pb-10 pt-10 md:pt-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:gap-10 lg:pb-6 lg:pt-16">
 		<div>
 			<a href="/robotics" class="pill group">
 				<span class="pill-tag">In prod</span>
@@ -118,29 +118,8 @@ const ticker = [
 		<FanoutMap />
 	</section>
 
-	<!-- A strip of tape across the page, carrying the feature titles. Decoration only.
-	Two identical groups, each wider than any screen, so sliding exactly one loops seamlessly. -->
-	<div class="sash-wrap" aria-hidden="true" data-loop>
-		<div class="sash">
-			<div class="sash-track">
-				{
-					[0, 1].map(() => (
-						<span class="sash-group">
-							{[...features, ...features].map((feature) => (
-								<>
-									<span>{feature.title}</span>
-									<img src={`/drawn/icon-${feature.icon}.svg`} alt="" />
-								</>
-							))}
-						</span>
-					))
-				}
-			</div>
-		</div>
-	</div>
-
-	<!-- Features -->
-	<section class="wrap section">
+	<!-- Features, close under the hero. -->
+	<section class="wrap pt-12 md:pt-16">
 		<h2 class="sr-only">What you get</h2>
 		<img src="/drawn/what.svg" class="mb-6 w-36 -rotate-1 md:w-40" alt="" />
 		<ul class="features">
@@ -295,8 +274,29 @@ const ticker = [
 		</div>
 	</section>
 
-	<!-- Blog -->
-	<section class="wrap section">
+	<!-- A strip of tape across the page, carrying the feature titles. Decoration only.
+	Two identical groups, each wider than any screen, so sliding exactly one loops seamlessly. -->
+	<div class="sash-wrap" aria-hidden="true" data-loop>
+		<div class="sash">
+			<div class="sash-track">
+				{
+					[0, 1].map(() => (
+						<span class="sash-group">
+							{[...features, ...features].map((feature) => (
+								<>
+									<span>{feature.title}</span>
+									<img src={`/drawn/icon-${feature.icon}.svg`} alt="" />
+								</>
+							))}
+						</span>
+					))
+				}
+			</div>
+		</div>
+	</div>
+
+	<!-- Blog, close under the sash. -->
+	<section class="wrap pt-10 md:pt-14">
 		<div class="mb-10 flex items-end justify-between gap-6 md:mb-12">
 			<h2 class="quiet-title">From the <span class="scribble">blog.</span></h2>
 			<a href="/blog" class="green-link shrink-0 font-display text-[1.1rem] font-bold">All posts <span aria-hidden="true">→</span></a>
@@ -401,7 +401,7 @@ const ticker = [
 	}
 
 	.sash-wrap {
-		@apply relative h-28 md:h-36;
+		@apply relative mt-16 h-28 md:mt-24 md:h-36;
 	}
 	.sash {
 		@apply absolute top-6 -left-[5%] w-[110%] overflow-hidden border-y-2 border-slate-950 bg-green-500 py-2 font-display text-[1.6rem] font-extrabold uppercase leading-none text-slate-950 md:top-10 md:py-3 md:text-[2.6rem];

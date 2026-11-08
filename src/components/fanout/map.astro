@@ -6,7 +6,7 @@
 	class="fanout"
 	data-fanout
 	role="img"
-	aria-label="Illustration: publishers and viewers each connect to their nearest edge relay. One broadcast at a time, a camera, a mic, then a robot and its remote operator, sends frames that relays copy across the mesh to each viewer's edge."
+	aria-label="Illustration: publishers and viewers each connect to their nearest edge relay. A camera, a mic, and a robot with its remote operator all stream at once, and relays copy every frame across the mesh to each viewer's edge."
 >
 	<svg class="fanout-svg" aria-hidden="true"></svg>
 	<figcaption class="fanout-legend" aria-hidden="true">
@@ -36,11 +36,11 @@
 			aspect-ratio: 16 / 11;
 		}
 		@variant lg {
-			aspect-ratio: 5 / 4;
+			aspect-ratio: 4 / 3;
 		}
 	}
 	.fanout-legend {
-		@apply label mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.68rem] text-slate-500;
+		@apply label mt-1 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.68rem] text-slate-500;
 	}
 	.fanout-legend span {
 		@apply flex items-center gap-2;
@@ -64,57 +64,77 @@
 		@apply bg-slate-300;
 	}
 
-	/* Everything below is drawn by map.ts, so it's styled globally within the figure. */
+	/* Everything below is drawn by map.ts, so it's styled globally within the figure.
+	   --s is the map's scale (smaller on phones); --c is the color of a broadcast. */
 	.fanout :global(.mesh-link) {
 		fill: none;
 		stroke: var(--color-slate-600);
-		stroke-width: 1.6;
+		stroke-width: calc(2.2px * var(--s, 1));
 		stroke-linecap: round;
 	}
 	/* A second, fainter pass of the pen, slightly off the first. */
 	.fanout :global(.mesh-link-2) {
 		fill: none;
 		stroke: var(--color-slate-700);
-		stroke-width: 1;
+		stroke-width: 1.2;
 		stroke-linecap: round;
-		translate: 1.2px -1px;
-	}
-	/* The links the current broadcast travels light up in its color. */
-	.fanout :global(.mesh-link) {
-		transition: stroke 300ms;
-	}
-	.fanout :global(.mesh-link.hot) {
-		stroke: color-mix(in oklab, var(--c) 75%, var(--color-slate-700));
-	}
-	.fanout :global(.mesh-link-2.hot) {
-		stroke: color-mix(in oklab, var(--c) 40%, var(--color-slate-800));
+		translate: 1.5px -1.2px;
 	}
 	.fanout :global(.access-link) {
 		fill: none;
-		stroke: var(--color-slate-700);
-		stroke-width: 1.2;
+		stroke: var(--color-slate-600);
+		stroke-width: calc(1.6px * var(--s, 1));
 		stroke-dasharray: 1;
 	}
-	.fanout :global(.access-link.hot) {
-		stroke: color-mix(in oklab, var(--c) 65%, var(--color-slate-700));
+	/* A link lights up in the color of whatever just crossed it, then cools. */
+	.fanout :global(.glow-link) {
+		fill: none;
+		stroke: var(--c);
+		stroke-width: calc(3.4px * var(--s, 1));
+		stroke-linecap: round;
+		opacity: 0;
+		filter: drop-shadow(0 0 4px var(--c));
+	}
+	.fanout :global(.packet) {
+		fill: var(--c);
+		stroke: var(--color-slate-950);
+		stroke-width: 1.8;
+	}
+	.fanout :global(.packet-tail) {
+		stroke: var(--c);
+		stroke-width: calc(4px * var(--s, 1));
+		stroke-linecap: round;
+		opacity: 0.45;
+	}
+	.fanout :global(.relay-pad),
+	.fanout :global(.end-pad) {
+		fill: var(--color-slate-900);
 	}
 	.fanout :global(.relay-pad) {
-		fill: var(--color-slate-900);
+		stroke: var(--color-slate-700);
+		stroke-width: 2;
 	}
 	.fanout :global(.relay-pulse) {
 		fill: none;
-		stroke: var(--color-green-500);
-		stroke-width: 1.5;
+		stroke: var(--color-green-400);
+		stroke-width: 2.5;
+		opacity: 0;
+	}
+	/* An endpoint ripples in its color as a frame leaves or lands. */
+	.fanout :global(.ripple) {
+		fill: none;
+		stroke: var(--c);
+		stroke-width: 2.5;
 		opacity: 0;
 	}
 	/* A halo in the page color keeps labels readable where links cross them. */
 	.fanout :global(text) {
 		font-family: var(--font-mono);
-		font-size: 11px;
+		font-size: calc(12px * var(--s, 1));
 		letter-spacing: 0.02em;
 		paint-order: stroke;
 		stroke: var(--color-slate-900);
-		stroke-width: 4px;
+		stroke-width: 5px;
 		stroke-linejoin: round;
 	}
 	.fanout :global(.label-relay) {
@@ -123,25 +143,13 @@
 	/* A source's name is its legend: written in the color its frames carry. */
 	.fanout :global(.label-end) {
 		fill: var(--c, var(--color-slate-200));
+		font-size: calc(14px * var(--s, 1));
+		font-weight: 600;
 	}
-	.fanout :global(.dot-pub) {
+	/* A viewer takes the color of what it watches. */
+	.fanout :global(.dot) {
 		fill: var(--c);
 		stroke: var(--color-slate-950);
-		stroke-width: 2;
-	}
-	/* A viewer takes the color of what it watches, and flashes white as a frame lands. */
-	.fanout :global(.dot-sub) {
-		fill: var(--c);
-		stroke: var(--color-slate-950);
-		stroke-width: 2;
-		transition: fill 150ms;
-	}
-	.fanout :global(.lit .dot-sub) {
-		fill: var(--color-slate-50);
-	}
-	.fanout :global(.packet) {
-		fill: var(--c);
-		stroke: var(--color-slate-950);
-		stroke-width: 1.5;
+		stroke-width: 2.5;
 	}
 </style>
