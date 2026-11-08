@@ -6,11 +6,11 @@
 	class="fanout"
 	data-fanout
 	role="img"
-	aria-label="Illustration: publishers and viewers each connect to their nearest edge relay, and relays copy every broadcast across the mesh to each viewer's edge."
+	aria-label="Illustration: publishers and viewers each connect to their nearest edge relay. One broadcast at a time, a camera, a mic, then a robot and its remote operator, sends frames that relays copy across the mesh to each viewer's edge."
 >
 	<svg class="fanout-svg" aria-hidden="true"></svg>
 	<figcaption class="fanout-legend" aria-hidden="true">
-		<span><i class="key-pub"></i>publisher</span>
+		<span><i class="key-frame"></i><i class="key-frame audio"></i>a frame, in its source's color</span>
 		<span><i class="key-sub"></i>viewer</span>
 		<span><img src="/drawn/icon-globe.svg" alt="" />edge relay</span>
 	</figcaption>
@@ -51,8 +51,14 @@
 	.fanout-legend img {
 		@apply size-3.5;
 	}
-	.key-pub {
-		@apply bg-green-500;
+	.fanout-legend i + i {
+		@apply -ml-1;
+	}
+	.key-frame {
+		@apply rounded-[2px] bg-green-500;
+	}
+	.key-frame.audio {
+		@apply rounded-full bg-sky-300;
 	}
 	.key-sub {
 		@apply bg-slate-300;
@@ -73,11 +79,24 @@
 		stroke-linecap: round;
 		translate: 1.2px -1px;
 	}
+	/* The links the current broadcast travels light up in its color. */
+	.fanout :global(.mesh-link) {
+		transition: stroke 300ms;
+	}
+	.fanout :global(.mesh-link.hot) {
+		stroke: color-mix(in oklab, var(--c) 75%, var(--color-slate-700));
+	}
+	.fanout :global(.mesh-link-2.hot) {
+		stroke: color-mix(in oklab, var(--c) 40%, var(--color-slate-800));
+	}
 	.fanout :global(.access-link) {
 		fill: none;
 		stroke: var(--color-slate-700);
 		stroke-width: 1.2;
 		stroke-dasharray: 1;
+	}
+	.fanout :global(.access-link.hot) {
+		stroke: color-mix(in oklab, var(--c) 65%, var(--color-slate-700));
 	}
 	.fanout :global(.relay-pad) {
 		fill: var(--color-slate-900);
@@ -101,30 +120,28 @@
 	.fanout :global(.label-relay) {
 		fill: var(--color-slate-400);
 	}
+	/* A source's name is its legend: written in the color its frames carry. */
 	.fanout :global(.label-end) {
-		fill: var(--color-slate-200);
+		fill: var(--c, var(--color-slate-200));
 	}
 	.fanout :global(.dot-pub) {
-		fill: var(--color-green-500);
+		fill: var(--c);
 		stroke: var(--color-slate-950);
 		stroke-width: 2;
 	}
+	/* A viewer takes the color of what it watches, and flashes white as a frame lands. */
 	.fanout :global(.dot-sub) {
-		fill: var(--color-slate-300);
+		fill: var(--c);
 		stroke: var(--color-slate-950);
 		stroke-width: 2;
 		transition: fill 150ms;
 	}
 	.fanout :global(.lit .dot-sub) {
-		fill: var(--color-green-400);
+		fill: var(--color-slate-50);
 	}
-	.fanout :global(.pk-video) {
-		fill: var(--color-green-500);
-	}
-	.fanout :global(.pk-audio) {
-		fill: #86efac;
-	}
-	.fanout :global(.pk-control) {
-		fill: var(--color-slate-100);
+	.fanout :global(.packet) {
+		fill: var(--c);
+		stroke: var(--color-slate-950);
+		stroke-width: 1.5;
 	}
 </style>

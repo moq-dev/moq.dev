@@ -452,12 +452,11 @@ table td:first-child {
 @utility nav-word {
 	@apply relative flex items-center gap-2 rounded-lg px-1.5 py-1 opacity-90 transition-opacity hover:opacity-100;
 
-	/* The traced words are hairline-thin at header size. Same-color shadows on four sides
-	   thicken every stroke, then a dark halo outlines them against whatever scrolls under
-	   the translucent bar. */
+	/* The traced words are hairline-thin at header size: a faint sideways shadow thickens
+	   the strokes slightly, and a soft dark halo keeps them legible over whatever scrolls
+	   under the translucent bar. */
 	& img {
-		filter: drop-shadow(0.7px 0 0 #f8f8f9) drop-shadow(-0.7px 0 0 #f8f8f9) drop-shadow(0 0.7px 0 #f8f8f9)
-			drop-shadow(0 -0.7px 0 #f8f8f9) drop-shadow(1.5px 1.5px 0 #020617) drop-shadow(0 0 1px #020617);
+		filter: drop-shadow(0.3px 0 0 #f8f8f9) drop-shadow(0 0 1.5px #020617);
 	}
 
 	&[aria-current="page"] {

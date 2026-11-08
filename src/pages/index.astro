@@ -16,9 +16,9 @@ const formatDate = (date: string) =>
 
 const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https://moq.pro";
 
-// "Massive scale" has its own section below, so it isn't repeated here.
 const features = [
 	{ icon: "rocket", title: "Adaptive latency", body: "Keep viewers live through the shittiest network conditions." },
+	{ icon: "stonk", title: "Massive scale", body: "Fan out horizontally through CDNs, from one user to millions." },
 	{ icon: "link", title: "Live discovery", body: "Dynamic announcements, connecting arbitrary publishers to subscribers." },
 	{ icon: "battery", title: "On-demand delivery", body: "Encode and send only when someone is watching." },
 	{ icon: "globe", title: "Modern web", body: "Publish and play directly in the browser. No need for WebRTC!" },
@@ -66,13 +66,6 @@ const ticker = [
 	{ tag: "IETF", text: "MoQ is being standardized by the IETF as a new RFC", href: "https://datatracker.ietf.org/wg/moq/about/" },
 ];
 
-// The cat crowds from the moq.pro launch post, one order of magnitude at a time.
-const fanout = [
-	{ n: 1, label: "×1" },
-	{ n: 10, label: "×10" },
-	{ n: 100, label: "×100" },
-	{ n: 1000, label: "×1,000" },
-];
 ---
 
 <Layout title="" description="" bare>
@@ -125,24 +118,26 @@ const fanout = [
 		<FanoutMap />
 	</section>
 
-	<!-- Fan-out: one order of magnitude at a time. -->
-	<section class="wrap section">
-		<div class="section-head">
-			<h2 class="section-title">Massive <span class="scribble scribble-2">scale.</span></h2>
-			<p class="section-lede">Fan out horizontally through CDNs, from one user to millions.</p>
+	<!-- A strip of tape across the page, carrying the feature titles. Decoration only.
+	Two identical groups, each wider than any screen, so sliding exactly one loops seamlessly. -->
+	<div class="sash-wrap" aria-hidden="true" data-loop>
+		<div class="sash">
+			<div class="sash-track">
+				{
+					[0, 1].map(() => (
+						<span class="sash-group">
+							{[...features, ...features].map((feature) => (
+								<>
+									<span>{feature.title}</span>
+									<img src={`/drawn/icon-${feature.icon}.svg`} alt="" />
+								</>
+							))}
+						</span>
+					))
+				}
+			</div>
 		</div>
-		<ol class="steps" data-loop>
-			{
-				fanout.map((step, i) => (
-					<li class="step reveal" style={`--i:${i}`}>
-						<span class="step-label">{step.label}</span>
-						<img src={`/blog/open-for-business/viewers-${step.n}.svg`} class="step-art boil-always" style={`--i:${i}`} alt="" loading="lazy" />
-						{i < fanout.length - 1 && <img src="/drawn/arrow-6.svg" class="step-arrow" alt="" />}
-					</li>
-				))
-			}
-		</ol>
-	</section>
+	</div>
 
 	<!-- Features -->
 	<section class="wrap section">
@@ -162,7 +157,7 @@ const fanout = [
 					</li>
 				))
 			}
-			<li class="feature group sm:col-span-2 lg:col-span-3">
+			<li class="feature group lg:col-span-2">
 				<span class="icon-tile size-14">
 					<img src="/drawn/icon-puzzle.svg" class="boil size-8 object-contain" alt="" />
 				</span>
@@ -405,21 +400,31 @@ const fanout = [
 		}
 	}
 
-	/* The fan-out steps: the crowd grows by ten each card. */
-	.steps {
-		@apply grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4 lg:gap-10;
+	.sash-wrap {
+		@apply relative h-28 md:h-36;
 	}
-	.step {
-		@apply card relative flex flex-col p-4 sm:p-5;
+	.sash {
+		@apply absolute top-6 -left-[5%] w-[110%] overflow-hidden border-y-2 border-slate-950 bg-green-500 py-2 font-display text-[1.6rem] font-extrabold uppercase leading-none text-slate-950 md:top-10 md:py-3 md:text-[2.6rem];
+		font-stretch: 84%;
+		rotate: -2deg;
+		box-shadow: 0 8px 0 0 var(--color-slate-950);
 	}
-	.step-label {
-		@apply display text-[2.4rem] text-green-500 tabular-nums sm:text-[3.2rem] lg:text-[3.6rem];
+	.sash-track {
+		display: flex;
+		width: max-content;
+		animation: crawl 70s linear infinite;
+
+		@variant still {
+			animation: none;
+		}
 	}
-	.step-art {
-		@apply -mb-2 aspect-square w-full;
+	.sash-group {
+		@apply flex items-center whitespace-nowrap;
 	}
-	.step-arrow {
-		@apply pointer-events-none absolute -right-11 top-[46%] z-10 hidden w-12 lg:block;
+	/* The drawings are green, so on the green strip they're inked dark. */
+	.sash img {
+		@apply mx-5 h-[1.1em] w-[1.1em] object-contain md:mx-8;
+		filter: brightness(0);
 	}
 
 	/* What you get: ruled cells, a drawing and a claim each. */
