@@ -31,7 +31,10 @@ export function Figure(props: Props) {
 				fallback={<Show when={props.headline}>{<p class="headline">{props.headline}</p>}</Show>}
 			>
 				<div class="hero">
-					<div class="big number">{props.number}</div>
+					<div class="big number">
+						{/* A fraction's slash dips below the digits into the headline, so it gets its own span */}
+						{props.number?.split("/").flatMap((p, i) => (i ? [<span class="slash">/</span>, p] : [p]))}
+					</div>
 					<p class="headline">{props.headline}</p>
 				</div>
 			</Show>

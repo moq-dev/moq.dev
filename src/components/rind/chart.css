@@ -53,8 +53,15 @@
 	font-variant-numeric: tabular-nums;
 }
 .rind-fig .number {
+	/* The line box is shorter than the digits, which rise 0.03em above it into the kicker */
+	margin-top: 0.12em;
 	font-size: clamp(84px, 18vw, 140px);
 	color: var(--rind);
+}
+/* Shrunk and raised to span the digits, baseline to top, rather than dip 0.2em below them */
+.rind-fig .number .slash {
+	font-size: 0.8em;
+	vertical-align: 0.2em;
 }
 .rind-fig .headline {
 	margin: 6px 0 0;
