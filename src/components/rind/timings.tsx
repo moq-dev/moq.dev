@@ -56,8 +56,8 @@ export default function Timings() {
 			source={
 				<>
 					Criterion's estimates from rind's benchmark report at {commit(data.source.rind)}, run {days(data.hosts)}, as{" "}
-					{data.hosts.map((h) => h.name).join(" / ")}. Every library runs its native path on each CPU. Where the CPU has
-					DIT, rind holds it across the timed loop, as a caller batching calls does.
+					{data.hosts.map((h) => h.name).join(" / ")}. Every library runs its native path on each CPU. On Mac, rind
+					holds DIT across the timed loop, as a caller batching calls does.
 				</>
 			}
 		>
@@ -104,7 +104,7 @@ export default function Timings() {
 			</div>
 			<Bands />
 			<p class="fine">
-				Squares: {data.hosts.map((h) => h.name).join(", ")}. Blank: not offered. On ARM, rind holds DIT (constant-time
+				Squares: {data.hosts.map((h) => h.name).join(", ")}. Blank: not offered. On Mac, rind holds DIT (constant-time
 				mode) across each batch.
 			</p>
 		</Figure>

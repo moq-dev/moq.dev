@@ -33,8 +33,8 @@ const table = {
 const source = (
 	<>
 		AES-128-GCM seal, criterion's estimate from rind's benchmark report at {commit(data.source.rind)}, run{" "}
-		{days(data.hosts)}: {data.hosts.map((h) => `${h.name} is ${h.source.cpu}`).join(", ")}. On a CPU with DIT, rind
-		holds it across the timed loop, as a caller batching packets does.
+		{days(data.hosts)}: {data.hosts.map((h) => `${h.name} is ${h.source.cpu}`).join(", ")}. On Mac, rind holds DIT
+		across the timed loop, as a caller batching packets does.
 	</>
 );
 
@@ -152,7 +152,7 @@ export default function Quic() {
 			<p class="fine">
 				AES-128-GCM, the geometric mean over CPUs.{" "}
 				{data.hosts.map((h) => `${h.name}: ${times(ratio(h, "1350B"))}`).join(", ")}. aws-lc is Amazon's BoringSSL fork.
-				On ARM, rind holds DIT (constant-time mode) across each batch.
+				On Mac, rind holds DIT (constant-time mode) across each batch.
 			</p>
 		</Figure>
 	);

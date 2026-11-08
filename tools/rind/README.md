@@ -15,7 +15,7 @@ bun tools/rind/refresh.ts libraries <rind>   # libraries.json: every library's t
 ```
 
 `build` leaves out a host whose report skipped its build cost (a busy host does) and says so; rerun that host's report to bring it back.
-`libraries` charts the four hosts in `refresh.ts`'s `HOSTS`, Apple M4 included, timing rind with DIT held across each batch.
+`libraries` charts the four hosts in `refresh.ts`'s `HOSTS`, Apple M4 included, timing rind on Mac with DIT held across each batch.
 `libraries` reads end-to-end proofs from `verified.toml`. Partial proofs, where a proven routine does the core math under unproven glue, live in `refresh.ts`'s `PARTIAL`, by architecture; recheck them against each library's source for each architecture when a locked version changes.
 
 ## Runtimes
