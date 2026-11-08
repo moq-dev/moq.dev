@@ -4,7 +4,7 @@ import "@moq/watch/support/element";
 
 assets("/assets/");
 
-export default function Car() {
+export default function Carla() {
 	const url = new URL("/demo", import.meta.env.PUBLIC_RELAY_URL);
 
 	return (
