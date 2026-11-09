@@ -1,6 +1,6 @@
 ---
 layout: "@/layouts/global.astro"
-title: "Cryptography Slop"
+title: "Slop Cryptography"
 author: kixelated
 description: I vibe slopped some cryptography, what could go wrong?
 cover: "/blog/rind/cover.svg"
@@ -23,15 +23,13 @@ I'm one of the OG "rewrite it in Rust" guys.
 Unfortunately, I wrote my last line of Rust 6 months ago.
 I still want Claude to write everything in Rust, but it's difficult when **rustc** turns my desktop into lava.
 
-I spent some tokens investigating on how to speed up MoQ build.
+I spent some tokens investigating on how to speed up builds for MoQ.
 One finding was that `aws-lc-rs` takes 60s+ to build.
 **wtf** why does a single crate take a *full minute* to build?
 
 Despite the suffix, `aws-lc-rs` is actually a `C` library in disguise.
 Same with the next best crypto library: `ring`.
-**wtf** is C doing in my Rust library.
-
-**THIS WILL NOT STAND.**
+**wtf is C doing in my Rust library**.
 
 I did what any sane software engineer does in `current_year`,
 I pulled a 9-year old gaming PC out of the closet, installed Claude, and ran `/goal rewrite it in rust` \*.
@@ -40,10 +38,11 @@ I pulled a 9-year old gaming PC out of the closet, installed Claude, and ran `/g
 
 ## WOW FAST
 [rind](https://github.com/moq-dev/rind) is vibe slopped crypto.
+This statement alone *should* fill me with mortal dread, but AI is advancing so quickly that it's **no longer absurd**.
 
 <img src="/blog/rind/rind.svg" alt="rind" class="mx-auto w-80" />
 
-It started as fork of [Graviola](https://github.com/ctz/graviola) and quickly morphed into a monsterish combination of [ring](https://github.com/briansmith/ring) and [aws-lc-rs](https://github.com/aws/aws-lc-rs) and [libcrux](https://github.com/celabshq/libcrux).
+Not only was Opus able to make **builds faster**, it made the **runtime faster** too.
 
 <figure>
 	<Quic client:visible />
@@ -51,16 +50,17 @@ It started as fork of [Graviola](https://github.com/ctz/graviola) and quickly mo
 </figure>
 
 ^ This is a **big deal** because AES-128-GCM is the most popular TLS cipher suite by far.
-Even a tiny reduction in CPU usage has huge impact when multiplied across **every HTTPS request in the world**\*.
+Even this relatively tiny reduction in CPU usage has huge impact when multiplied across **every HTTPS request in the world**\*.
+
+Rind started as fork of [Graviola](https://github.com/ctz/graviola) and quickly morphed into a monsterish combination of [ring](https://github.com/briansmith/ring) and [aws-lc-rs](https://github.com/aws/aws-lc-rs) (both fork BoringSSL, a fork of OpenSSL). Bits of [libcrux](https://github.com/celabshq/libcrux) were throw in there for good measure.
+
+The engineers who developed these libraries are smarter than me.
+But I have a credit card in `current_year` and don't need to be smart any more.
 
 \* this benchmark is HTTP/3 specific. HTTP/1 and HTTP/2 use different payload sizes.
-There be a lot of variance depending on the architecture.
 
 ## WOW FAST
-Rust gets dunked on for compile speeds but nerds forget that C/C++ can also be terrible when uncached.
-
-Have you ever tried to cold compile Chromium?
-It takes **literal hours**.
+Rust gets dunked on for compile speeds but nerds forget that C/C++ can also be terrible.
 
 <figure>
 	<Build client:visible />
@@ -68,9 +68,15 @@ It takes **literal hours**.
 </figure>
 
 Most of the time these builds are cached anyway but IDK it's still nice to see smaller number.
+**PSA** You should be using [mbx](https://mr-boxington.jdx.dev/) for Rust instead of complaining on Twitter about cargo target sizee and build times.
+
+Also it's nice from a maintainer point of view because `aws-lc-rs` does not compile on a lot of machines.
+`rind` doesn't support every architecture yet either only because I don't have test hardware.
+
 
 ## Wow fast
 Having accomplished my goal of making MoQ faster, I let my 9-year-old gaming PC take a vacation.
+This **poor machine** was awoken from retirement and forced to run crypto benchmarks.
 
 <Meme src="/blog/rind/tired.webm" label="I'm tired, boss." class="w-20" />
 
@@ -81,13 +87,19 @@ lul jk I ran: **/goal**: Support every algorithm, and make it the fastest.
 </figure>
 
 AI is **really fucking good** at benchmarks.
-It's terrifying.
-
 Moments like this fill me with dread as a professional software engineer.
-A decade ago, I **wasted weeks** speeding up Go's crypto. I could have just waited a decade for Opus 5.5 instead.
-idiot
+
+A decade ago, I **wasted weeks** speeding up Go's crypto. 
+I was that guy, [hand-writing assembly](https://codereview.appspot.com/56530043/) to use the `PCLMULQDQ` instruction for massive performance gains (AES-GCM).
+It didn't even get merged because I insisted on trying to change the Go API like an **idiot**.
+
+I should have just waited a decade for Opus 5.5 instead.
+**idiot**.
 
 ## Lean into Lean
+But does it actually work?
+How can we build confidence?
+
 I saw an [Anthropic blog post about formal verification](https://www.anthropic.com/research/formal-verification).
 Like most programmers, I don't even test my code, let alone formally verify it.
 But I figured I'd play along and waste a few more tokens chasing the dragon.
@@ -99,15 +111,15 @@ Because like, if you can **prove the vibe slop is correct**, it's no longer vibe
 	<figcaption>donate some tokens and make every box green</figcaption>
 </figure>
 
-Green boxes are formally verified, dashed are *mostly* formally verified.
+Many of these implementations **are faster AND formally verified**.
+Including the afformentioned AES-GCM (the goat).
+At least according to Claude so grain of salt folks.
 
-`libcrux` is cool because they try to formally verify everything, but if you saw the last grid, it's super slow.
-`rind` will only use a formal proof if the performance was within 10%, which has surprisingly decent coverage.
+My goal is to get **every algorithm formally proven**.
+Claude says that will take years.
 
-**aes-gcm** being verified on some architectures is awesome, because it's the goat of crypto.
-
-I'm sure we could get **every algorithm formally proven**.
-If only there was somebody in the audience works for a **frontier lab** and wants some easy marketting piece instead of stealing all of the glory from the mathematicians.
+If only there was somebody in the audience works for a **frontier lab** and wants some easy marketting piece.
+Steal the glory from the cryptographers instead of the mathematicians.
 
 ## Please Donate Tokens
 If it sounds like I'm desparate and begging for more tokens, **ur right**.
@@ -117,7 +129,7 @@ I decided the best way to get tokens is to **rage bait**.
 
 **Bun is SUPER SLOW**.\
 Holy shit it's like **REALLY SLOW**.\
-Imagine doing common stuff like **TLS certificate generation** in Bun.\
+Imagine doing **super common** stuff like **TLS certificate generation** in Bun.\
 **Super SLOW**.
 
 <figure>
@@ -125,16 +137,19 @@ Imagine doing common stuff like **TLS certificate generation** in Bun.\
 	<figcaption>rip dino</figcaption>
 </figure>
 
-I threw Deprecated Deno in just because it uses RustCrypto.
+I threw Deprecated Deno in just because it uses [RustCrypto](https://github.com/rustcrypto).
 Oh man, I used to **hate** RustCrypto back when I was a programmer.
+Do not use it, even though they registered *official sounding* crates like `aes` and `rsa`.
+
+Anyway, back to dunking on JS runtimes for being slow at things they weren't designed to do, like cryptography:
 
 <figure>
 	<RuntimeHeat client:visible />
 	<figcaption>Imagine being marginally slower than Node</figcaption>
 </figure>
 
-Did the rage bait work? 
-Login to your work account, choose the secret model nobody else has access to, then `/quest-spawn` to work on [the backlog](https://github.com/moq-dev/rind/tree/main/quest) I planned.
+**Did the rage bait work?**
+Login to your work account, choose the unreleased model, then `/quest-spawn` to work on [the backlog](https://github.com/moq-dev/rind/tree/main/quest) I planned.
 
 k thx
 
@@ -168,7 +183,7 @@ All of this crypto jizz, it must have been expensive, right?
 This took my 9-year old desktop PC... **12 days**.
 And much of that was waiting for a usage reset.
 
-The Opus total was about $4.2k at **API pricing**.
+The total was about $4.2k at **API pricing**.
 But API pricing is a meme.
 
 <figure>
@@ -176,7 +191,7 @@ But API pricing is a meme.
 	<figcaption>Thanks god for the upcoming IPO</figcaption>
 </figure>
 
-That's right, **I** made the internet a better place\* for $40.
+That's right, my credit card made the internet a better place\* for $40.
 **It's ridiculous**.
 
 \* Assuming anybody actually uses this library.
@@ -186,10 +201,11 @@ That's right, **I** made the internet a better place\* for $40.
 We had a good run.
 
 Many of these crypto libraries have been hand optimized by some of the smartest people I know (cryptography nerds).
-And they get completely **blown out of the water** by a vibe coder with a credit card.
+And they get completely **blown out of the water** by a vibe coder.
 
 I know we still need humans to tell the AI to do dumb shit.
 Like to rewrite libraries in Rust.
+I know that AI is still terrible at anything involving user experience.
 
 But like, for how much longer?
 
