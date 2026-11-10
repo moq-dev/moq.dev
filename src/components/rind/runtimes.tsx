@@ -34,7 +34,7 @@ const SOURCE = (
 		{cpu(data.source.cpu)}, one pinned core, the median of {data.source.rounds} alternating rounds,{" "}
 		{day(data.source.date)}. {RUNS.map((r) => `${label(r)}: ${r.version}`).join("; ")}. Bun and Bun + rind are release
 		builds of the same Bun commit, without and with <a href={data.source.bun.prototype}>the rind prototype</a>, which
-		moves Ed25519, X25519, P-384, and P-521 onto rind; P-256 still runs BoringSSL in both. {data.source.note}
+		moves Ed25519, X25519, P-256, P-384, and P-521 onto rind. {data.source.note}
 	</>
 );
 const TABLE = {
@@ -147,7 +147,7 @@ export function RuntimeHeat() {
 				</div>
 			</div>
 			<Bands />
-			<p class="fine">Blank: the runtime refuses it. P-256 runs BoringSSL in both Buns.</p>
+			<p class="fine">Blank: the runtime refuses it.</p>
 		</Figure>
 	);
 }

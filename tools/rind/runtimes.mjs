@@ -1,7 +1,8 @@
 // Times the asymmetric crypto the Bun-on-rind prototype moves, through WebCrypto and node:crypto, in
 // whichever runtime runs it: microseconds per call, sequential awaits, the median of ROUNDS batches.
 // Prints `# <label>\t<version>`, then `<api>/<algorithm>/<operation>\t<us>` per line. An operation the
-// runtime refuses is left out, and its error goes to stderr.
+// runtime refuses is left out, and its error goes to stderr. Key generation also exports the public
+// key, so a runtime that derives it lazily still pays for it.
 //
 //   node tools/rind/runtimes.mjs Node
 //   deno run tools/rind/runtimes.mjs Deno
@@ -20,6 +21,9 @@ const ROUNDS = 5;
 
 const { subtle } = globalThis.crypto;
 const msg = new Uint8Array(64).fill(0x5a);
+const genRaw = async (alg, usages) => subtle.exportKey("raw", (await subtle.generateKey(alg, true, usages)).publicKey);
+const genSpki = (type, options) =>
+	crypto.generateKeyPairSync(type, options).publicKey.export({ type: "spki", format: "der" });
 
 async function time(name, fn) {
 	try {
@@ -57,7 +61,7 @@ const CURVES = [
 	const ed = await subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
 	const sig = await subtle.sign({ name: "Ed25519" }, ed.privateKey, msg);
 	const pkcs8 = await subtle.exportKey("pkcs8", ed.privateKey);
-	await time("WebCrypto/Ed25519/generateKey", () => subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]));
+	await time("WebCrypto/Ed25519/generateKey + exportKey raw", () => genRaw({ name: "Ed25519" }, ["sign", "verify"]));
 	await time("WebCrypto/Ed25519/importKey pkcs8", () =>
 		subtle.importKey("pkcs8", pkcs8, { name: "Ed25519" }, true, ["sign"]),
 	);
@@ -67,7 +71,7 @@ const CURVES = [
 
 	const xa = await subtle.generateKey({ name: "X25519" }, true, ["deriveBits"]);
 	const xb = await subtle.generateKey({ name: "X25519" }, true, ["deriveBits"]);
-	await time("WebCrypto/X25519/generateKey", () => subtle.generateKey({ name: "X25519" }, true, ["deriveBits"]));
+	await time("WebCrypto/X25519/generateKey + exportKey raw", () => genRaw({ name: "X25519" }, ["deriveBits"]));
 	await time("WebCrypto/X25519/deriveBits", () =>
 		subtle.deriveBits({ name: "X25519", public: xb.publicKey }, xa.privateKey, 256),
 	);
@@ -78,7 +82,7 @@ const CURVES = [
 		const sig = await subtle.sign({ name: "ECDSA", hash }, k.privateKey, msg);
 		const pkcs8 = await subtle.exportKey("pkcs8", k.privateKey);
 		const spki = await subtle.exportKey("spki", k.publicKey);
-		await time(`WebCrypto/${curve}/generateKey`, () => subtle.generateKey(alg, true, ["sign", "verify"]));
+		await time(`WebCrypto/${curve}/generateKey + exportKey raw`, () => genRaw(alg, ["sign", "verify"]));
 		await time(`WebCrypto/${curve}/importKey pkcs8`, () => subtle.importKey("pkcs8", pkcs8, alg, true, ["sign"]));
 		await time(`WebCrypto/${curve}/importKey spki`, () => subtle.importKey("spki", spki, alg, true, ["verify"]));
 		await time(`WebCrypto/${curve}/sign`, () => subtle.sign({ name: "ECDSA", hash }, k.privateKey, msg));
@@ -98,14 +102,14 @@ const CURVES = [
 	const ed = crypto.generateKeyPairSync("ed25519");
 	const sig = crypto.sign(null, msg, ed.privateKey);
 	const pem = ed.privateKey.export({ type: "pkcs8", format: "pem" });
-	await time("node:crypto/Ed25519/generateKeyPairSync", () => crypto.generateKeyPairSync("ed25519"));
+	await time("node:crypto/Ed25519/generateKeyPairSync + export spki", () => genSpki("ed25519"));
 	await time("node:crypto/Ed25519/sign", () => crypto.sign(null, msg, ed.privateKey));
 	await time("node:crypto/Ed25519/verify", () => crypto.verify(null, msg, ed.publicKey, sig));
 	await time("node:crypto/Ed25519/sign, PEM key each call", () => crypto.sign(null, msg, pem));
 
 	const xa = crypto.generateKeyPairSync("x25519");
 	const xb = crypto.generateKeyPairSync("x25519");
-	await time("node:crypto/X25519/generateKeyPairSync", () => crypto.generateKeyPairSync("x25519"));
+	await time("node:crypto/X25519/generateKeyPairSync + export spki", () => genSpki("x25519"));
 	await time("node:crypto/X25519/diffieHellman", () =>
 		crypto.diffieHellman({ privateKey: xa.privateKey, publicKey: xb.publicKey }),
 	);
@@ -116,9 +120,7 @@ const CURVES = [
 		const sig = crypto.sign(hash, msg, k.privateKey);
 		const pem = k.privateKey.export({ type: "pkcs8", format: "pem" });
 		const peer = crypto.generateKeyPairSync("ec", { namedCurve: curve });
-		await time(`node:crypto/${curve}/generateKeyPairSync`, () =>
-			crypto.generateKeyPairSync("ec", { namedCurve: curve }),
-		);
+		await time(`node:crypto/${curve}/generateKeyPairSync + export spki`, () => genSpki("ec", { namedCurve: curve }));
 		await time(`node:crypto/${curve}/sign`, () => crypto.sign(hash, msg, k.privateKey));
 		await time(`node:crypto/${curve}/verify`, () => crypto.verify(hash, msg, k.publicKey, sig));
 		await time(`node:crypto/${curve}/createPrivateKey pem`, () => crypto.createPrivateKey(pem));
