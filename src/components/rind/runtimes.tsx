@@ -34,8 +34,7 @@ const SOURCE = (
 		{cpu(data.source.cpu)}, one pinned core, the median of {data.source.rounds} alternating rounds,{" "}
 		{day(data.source.date)}. {RUNS.map((r) => `${label(r)}: ${r.version}`).join("; ")}. Bun and Bun + rind are release
 		builds of the same Bun commit, without and with <a href={data.source.bun.prototype}>the rind prototype</a>, which
-		moves Ed25519, X25519, P-256, P-384, and P-521 onto rind and derives a key's public point when first read, so its
-		key generation rows leave that out. {data.source.note}
+		moves Ed25519, X25519, P-256, P-384, and P-521 onto rind. {data.source.note}
 	</>
 );
 const TABLE = {
@@ -88,7 +87,10 @@ export default function Runtimes() {
 					}}
 				</For>
 			</div>
-			<p class="fine">Shorter is faster. Same Bun commit, with rind swapped in.</p>
+			<p class="fine">
+				Shorter is faster. Same Bun commit, with rind swapped in. Bun + rind times key generation without the public
+				point, which it derives when first read.
+			</p>
 		</Figure>
 	);
 }
@@ -148,7 +150,10 @@ export function RuntimeHeat() {
 				</div>
 			</div>
 			<Bands />
-			<p class="fine">Blank: the runtime refuses it.</p>
+			<p class="fine">
+				Blank: the runtime refuses it. Bun + rind times key generation without the public point, which it derives when
+				first read.
+			</p>
 		</Figure>
 	);
 }
