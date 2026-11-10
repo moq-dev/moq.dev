@@ -87,10 +87,7 @@ export default function Runtimes() {
 					}}
 				</For>
 			</div>
-			<p class="fine">
-				Shorter is faster. Same Bun commit, with rind swapped in. Bun + rind times key generation without the public
-				point, which it derives when first read.
-			</p>
+			<p class="fine">Shorter is faster. Same Bun commit, with rind swapped in.</p>
 		</Figure>
 	);
 }
@@ -150,10 +147,7 @@ export function RuntimeHeat() {
 				</div>
 			</div>
 			<Bands />
-			<p class="fine">
-				Blank: the runtime refuses it. Bun + rind times key generation without the public point, which it derives when
-				first read.
-			</p>
+			<p class="fine">Blank: the runtime refuses it.</p>
 		</Figure>
 	);
 }
