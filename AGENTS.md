@@ -12,5 +12,5 @@ A CodeRabbit or human review of the current head counts. Dependabot PRs need no 
 Run `just fix` before committing. `just check` alone is not verification: look at the change in the dev server (`just dev`, `just dev-pub`, or `just dev-watch`).
 Hand-drawn art ships as SVG: `just trace` the drawn PNG, compare the two, then commit only the SVG.
 
-Quests: before any work, run `quest context` and follow it.
+Quests: before any work, run `quest context` and follow it, unless this session already holds its rules.
 The `quest` binary comes from the moq-dev/quest flake input and serves the quest skills; change them upstream and bump the input.
