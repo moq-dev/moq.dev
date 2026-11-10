@@ -1,0 +1,174 @@
+---
+layout: "@/layouts/global.astro"
+title: Update 02
+author: kixelated
+description: The stuff I promised last time, plus a bunch of stuff I didn't.
+cover: "/blog/moq-onion/karp.png"
+date: 2026-09-23
+---
+
+{/* TODO before merging: a real cover, the publish date, and a pass on every section. */}
+
+import Author from "@/components/author.astro";
+
+# Update 02
+
+sup nerds, part 2.
+
+[Update 01](/blog/update-01) was "I merged the `dev` branch".
+This one is "I finished the stuff from Update 01", plus a bunch of new stuff nobody asked for.
+
+~1,100 commits later, the latest release train just shipped: `moq-relay` 0.15, `moq-net` 0.3, `moq-cli` 0.12, and friends.
+
+## moq-lite-06
+[Read the draft](https://github.com/moq-dev/moq/blob/main/drafts/draft-lcurley-moq-lite.md)
+
+`moq-lite-06` is now the default in Rust and the browser.
+It **breaks the wire** with `moq-lite-05`, so upgrade both ends.
+
+Last time I bragged that `moq-lite` is honest about supported functionality.
+This time I stole `moq-transport`'s routing model on purpose:
+
+- **ROUTES**: An announcement is now a prefix meaning "I can serve stuff under here", same as a `moq-transport` namespace. The longest prefix wins.
+- **COST**: Each route carries a *warm* and *cold* cost: what it costs to pull through this path given what's already cached, and what it would cost from scratch. Relays pick the cheapest path, not just the shortest one.
+- **PARTIAL GROUPS**: `SUBSCRIBE` and `FETCH` can start or end partway through a group.
+- **ERROR CODES**: Real error codes, shared with `moq-transport` where possible. `NOT_FOUND`, `OLD`, and `EVICTED` tell you *why* a group is missing.
+- **MAX AGE**: Subscriptions are sized by how old of content you're willing to accept. Groups are always delivered newest-first; the `Ordered` flag is gone.
+
+## moq-transport
+The *official* draft keeps moving, so we keep chasing it: drafts [20](https://github.com/moq-dev/moq/pull/3255), [21](https://github.com/moq-dev/moq/pull/3574), and [22](https://github.com/moq-dev/moq/pull/3858).
+21 and 22 are identical to 20 on the wire lul.
+Peers older than draft-20 still work too.
+
+I also wrote up the `moq-lite` experiments as `moq-transport` extensions, in case anybody wants them:
+
+- **[cluster](https://github.com/moq-dev/moq/blob/main/drafts/draft-lcurley-moq-cluster.md)**: A mesh of relays via hop IDs and path cost. Replaces the old `relay-hops` draft.
+- **[pattern](https://github.com/moq-dev/moq/blob/main/drafts/draft-lcurley-moq-pattern.md)**: Path patterns for auth tokens and filters.
+- **[solicit](https://github.com/moq-dev/moq/blob/main/drafts/draft-lcurley-moq-solicit.md)**: Opt out of unsolicited `PUBLISH_NAMESPACE` spam.
+- **[mpegts](https://github.com/moq-dev/moq/blob/main/drafts/draft-lcurley-moq-mpegts.md)**: Everything you need to rebuild an MPEG-TS stream, gross SI tables included.
+- **[flate](https://github.com/moq-dev/moq/blob/main/drafts/draft-lcurley-moq-flate.md)**: DEFLATE compressed tracks, like the stats from last time.
+- **[e2ee](https://github.com/moq-dev/moq/blob/main/drafts/draft-lcurley-moq-e2ee.md)**: See below.
+
+These drafts are AI generated from the implementation, and they say so.
+Knock yourself out.
+
+## Clustering
+Last time I teased shortest-path routing via hops.
+Now it's a real mesh.
+
+- **LAN**: `--cluster-lan` finds every MoQ process on your network over mDNS and meshes with it. No relay, no internet, no certificates. `moq-relay` joins the same mesh with `[cluster.lan]`. Add a shared secret unless you trust your coworkers.
+- **Failover**: Two encoders with the same `--hop` ID are interchangeable. If one dies, relays switch to the other at the next group boundary.
+- **Resumption**: Subscriptions now also move between routes that share a first hop. So that "moq.pro + P2P" failover from last time works in more places.
+
+```bash
+# on the camera box
+moq --cluster-lan --broadcast cam.hang import capture
+
+# anywhere else on the network
+moq --cluster-lan --broadcast cam.hang play
+```
+
+[Docs](https://doc.moq.dev/bin/relay/cluster)
+
+## Auth + Encryption
+**moq-auth** (and `@moq/auth`) is one contract for every relay: the request a relay sends per session, the grant an auth server answers with, the lease a session holds, and the JWT a client presents.
+The relay admits every session through a lease and can push a re-check to live sessions, so revoking a token actually does something.
+`moq auth serve` is a reference auth server if you don't want to write one.
+
+```bash
+moq auth generate --out key.jwk
+moq auth sign --key key.jwk --root demo --publish 'bbb/**' > token.jwt
+```
+
+**moq-e2ee** is end-to-end encryption.
+Relays forward ciphertext and never see the keys; even the broadcast paths can be opaque.
+
+## Performance
+- **noq**: Every native binary now uses our own QUIC implementation by default. quinn and quiche are still one feature flag away.
+- **moq-uring**: `io_uring`, thread-per-core. One ring per worker, GRO/GSO, ECN, and no tokio on the hot path. It speaks WebTransport too. Linux 6.12+.
+- **Bandwidth**: One connection's send estimate is split between its tracks, so publishers stop fighting each other.
+- **moq-bench**: A regression suite so I notice when I make things slower.
+
+{/* TODO: a benchmark number or chart, or cut the brag. */}
+
+## Export/Import, continued
+Last time I said **I AM WORKING ON IT STAY TUNED** about HLS.
+Stay tuned no longer.
+
+`moq export hls` serves any broadcast as HLS for players that can't speak MoQ.
+The fun part: it never subscribes to the media.
+It builds playlists from the broadcast's timeline and `FETCH`es exactly the groups each segment needs from the relay's cache.
+Idle renditions cost nothing.
+
+```bash
+moq --connect https://relay.example.com/anon \
+    import --broadcast event.hang srt --listen 0.0.0.0:9000 \
+    -- export --broadcast event.hang hls --listen 0.0.0.0:8080
+```
+
+Yes, that's SRT in and HLS out in one process.
+
+- **moq import hls**: Pull a remote HLS playlist into MoQ.
+- **moq-archive**: Store recordings on S3 or disk. VOD/DVR is coming.
+- **MPEG-TS**: SCTE-35, subtitles, and service tables all survive the round trip now.
+
+[Docs](https://doc.moq.dev/bin/hls)
+
+## Native Media
+Last time's disclaimer was "mostly vibe coded, don't trust it lul".
+It's still new, but now it's been tested on more hardware than my laptop.
+
+- **moq-video**: Hardware codecs everywhere: VideoToolbox, Media Foundation, NVENC/NVDEC, VAAPI, V4L2, and Android MediaCodec. Native screen capture on macOS, Windows, Wayland, and X11. Frames stay on the GPU where the platform allows it.
+- **moq-audio**: PipeWire/PulseAudio, Opus with voice activity, AAC decode, and echo cancellation.
+
+Most of this is the [iroh-live](https://github.com/n0-computer/iroh-live) merge I promised last time.
+
+And now the CLI can use it:
+
+- **moq play**: Watch a broadcast in a native window with sound. No browser, no ffplay.
+- **moq transcode**: Publish an ABR ladder next to any broadcast. A rung is only encoded while someone watches it; on NVIDIA it never leaves the GPU.
+- **OBS**: The MoQ Source plays audio now, and there's a stats dock.
+
+```bash
+cargo install moq-cli --features play
+moq --connect https://relay.example.com/anon --broadcast my-stream.hang play
+```
+
+## moq-net API
+Last time I made one massive breaking change so there wouldn't be more breaking changes.
+Anyway here are more breaking changes.
+
+- **Patterns**: Origins are scoped by path patterns: `foo` is one broadcast, `foo/**` a subtree. Also available standalone as `moq-pattern` / `@moq/pattern`.
+- **On demand**: `create_broadcast`, `announce`, and `dynamic(prefix)` let you serve a broadcast only when somebody asks for it.
+- **Names**: One name per concept, a smaller public API, and JS names that match Rust.
+- **moq-binary**: Binary tracks as a `snapshot` (latest value wins) or a `stream` (append log). Same framing as `moq-json`.
+- **@moq/watch**: A headless `Watch.Player` if you don't want the web component, and `latency="instant"` if you want frames the moment they decode.
+
+## Rooms
+**@moq/room** (and **moq-room** for Rust) is the conferencing layer from [hang.live](https://hang.live), extracted.
+
+A room is just a path prefix.
+Members are discovered from announcements.
+Camera, mic, and screenshare are built in.
+There's no room server; joining is minting a token for the prefix.
+
+[Docs](https://doc.moq.dev/lib/js/room)
+
+## Language Bindings
+Last time: five bindings. Now: six, plus Rust and TypeScript.
+
+- **Dart**: [`moq`](https://pub.dev/packages/moq) on pub.dev for Flutter apps. Warning: the generated bindings currently leak memory on every call. Working on it.
+- **Go**: Moved to `moq.dev/moq`, served by this very website.
+
+Every binding now reconnects automatically, decodes video for you, fetches old groups, and follows its share of the connection's bandwidth.
+A publisher in Python plays in Swift.
+
+{/* TODO: moq-ffi compiles for wasm32 now. Tease it or cut it. */}
+
+Full docs for each language: [doc.moq.dev/lib](https://doc.moq.dev/lib/).
+
+## FIN
+Come to [DEMOQED](https://moqalliance.org/demoqed-2026/) on October 8 in San Francisco if you want to yell at me in person.
+Otherwise, join the discord u nerd.
+
+<Author />
