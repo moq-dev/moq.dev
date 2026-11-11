@@ -1,0 +1,155 @@
+---
+// The hero's live fan-out map. The script in map.ts draws and runs it.
+---
+
+<figure
+	class="fanout"
+	data-fanout
+	role="img"
+	aria-label="Illustration: publishers and viewers each connect to their nearest edge relay. A camera, a mic, and a robot with its remote operator all stream at once, and relays copy every frame across the mesh to each viewer's edge."
+>
+	<svg class="fanout-svg" aria-hidden="true"></svg>
+	<figcaption class="fanout-legend" aria-hidden="true">
+		<span><i class="key-frame"></i><i class="key-frame audio"></i>a frame, in its source's color</span>
+		<span><i class="key-sub"></i>viewer</span>
+		<span><img src="/drawn/icon-globe.svg" alt="" />edge relay</span>
+	</figcaption>
+</figure>
+
+<script>
+	import { mount } from "./map";
+
+	for (const figure of document.querySelectorAll<HTMLElement>("[data-fanout]")) mount(figure);
+</script>
+
+<style>
+	@reference "../../layouts/global.css";
+
+	.fanout {
+		@apply relative flex w-full flex-col;
+	}
+	.fanout-svg {
+		@apply block w-full overflow-visible;
+		aspect-ratio: 1 / 1;
+
+		@variant sm {
+			aspect-ratio: 16 / 11;
+		}
+		@variant lg {
+			aspect-ratio: 4 / 3;
+		}
+	}
+	.fanout-legend {
+		@apply label mt-1 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.68rem] text-slate-500;
+	}
+	.fanout-legend span {
+		@apply flex items-center gap-2;
+	}
+	.fanout-legend i {
+		@apply inline-block size-2 rounded-full;
+	}
+	.fanout-legend img {
+		@apply size-3.5;
+	}
+	.fanout-legend i + i {
+		@apply -ml-1;
+	}
+	.key-frame {
+		@apply rounded-[2px] bg-green-500;
+	}
+	.key-frame.audio {
+		@apply rounded-full bg-sky-300;
+	}
+	.key-sub {
+		@apply bg-slate-300;
+	}
+
+	/* Everything below is drawn by map.ts, so it's styled globally within the figure.
+	   --s is the map's scale (smaller on phones); --c is the color of a broadcast. */
+	.fanout :global(.mesh-link) {
+		fill: none;
+		stroke: var(--color-slate-600);
+		stroke-width: calc(2.2px * var(--s, 1));
+		stroke-linecap: round;
+	}
+	/* A second, fainter pass of the pen, slightly off the first. */
+	.fanout :global(.mesh-link-2) {
+		fill: none;
+		stroke: var(--color-slate-700);
+		stroke-width: 1.2;
+		stroke-linecap: round;
+		translate: 1.5px -1.2px;
+	}
+	.fanout :global(.access-link) {
+		fill: none;
+		stroke: var(--color-slate-600);
+		stroke-width: calc(1.6px * var(--s, 1));
+		stroke-dasharray: 1;
+	}
+	/* A link lights up in the color of whatever just crossed it, then cools. */
+	.fanout :global(.glow-link) {
+		fill: none;
+		stroke: var(--c);
+		stroke-width: calc(3.4px * var(--s, 1));
+		stroke-linecap: round;
+		opacity: 0;
+		filter: drop-shadow(0 0 4px var(--c));
+	}
+	.fanout :global(.packet) {
+		fill: var(--c);
+		stroke: var(--color-slate-950);
+		stroke-width: 1.8;
+	}
+	.fanout :global(.packet-tail) {
+		stroke: var(--c);
+		stroke-width: calc(4px * var(--s, 1));
+		stroke-linecap: round;
+		opacity: 0.45;
+	}
+	.fanout :global(.relay-pad),
+	.fanout :global(.end-pad) {
+		fill: var(--color-slate-900);
+	}
+	.fanout :global(.relay-pad) {
+		stroke: var(--color-slate-700);
+		stroke-width: 2;
+	}
+	.fanout :global(.relay-pulse) {
+		fill: none;
+		stroke: var(--color-green-400);
+		stroke-width: 2.5;
+		opacity: 0;
+	}
+	/* An endpoint ripples in its color as a frame leaves or lands. */
+	.fanout :global(.ripple) {
+		fill: none;
+		stroke: var(--c);
+		stroke-width: 2.5;
+		opacity: 0;
+	}
+	/* A halo in the page color keeps labels readable where links cross them. */
+	.fanout :global(text) {
+		font-family: var(--font-mono);
+		font-size: calc(12px * var(--s, 1));
+		letter-spacing: 0.02em;
+		paint-order: stroke;
+		stroke: var(--color-slate-900);
+		stroke-width: 5px;
+		stroke-linejoin: round;
+	}
+	.fanout :global(.label-relay) {
+		fill: var(--color-slate-400);
+	}
+	/* A source's name is its legend: written in the color its frames carry. */
+	.fanout :global(.label-end) {
+		fill: var(--c, var(--color-slate-200));
+		font-size: calc(14px * var(--s, 1));
+		font-weight: 600;
+	}
+	/* A viewer takes the color of what it watches. */
+	.fanout :global(.dot) {
+		fill: var(--c);
+		stroke: var(--color-slate-950);
+		stroke-width: 2.5;
+	}
+</style>
