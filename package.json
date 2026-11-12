@@ -39,7 +39,7 @@
 		"@moq/json": "workspace:*",
 		"@moq/publish": "workspace:*",
 		"@moq/watch": "workspace:*",
-		"astro": "^7.4.4",
+		"astro": "^7.4.6",
 		"highlight.js": "^11.12.0",
 		"solid-js": "^1.9.17"
 	},
@@ -48,20 +48,20 @@
 		"@astrojs/rss": "^4.0.19",
 		"@astrojs/solid-js": "7.1.2",
 		"@astrojs/ts-content-mapper": "^0.2.0",
-		"@biomejs/biome": "^2.6.4",
-		"@microsoft/api-extractor": "7.60.0",
+		"@biomejs/biome": "^2.6.5",
+		"@microsoft/api-extractor": "7.60.1",
 		"@tailwindcss/forms": "^0.5.11",
 		"@tailwindcss/typography": "^0.5.20",
-		"@tailwindcss/vite": "^4.3.3",
+		"@tailwindcss/vite": "^4.3.4",
 		"@types/bun": "^1.4.3",
 		"@types/node": "^26.6.5",
 		"rolldown": "^1.2.14",
 		"sharp": "^0.35.5",
-		"shiki": "^4.5.0",
-		"tailwindcss": "^4.3.3",
+		"shiki": "^4.6.0",
+		"tailwindcss": "^4.3.4",
 		"typescript": "7.1.0-beta",
 		"vite": "^8.3.4",
-		"wrangler": "^4.155.0"
+		"wrangler": "^4.158.0"
 	},
 	"packageManager": "bun@1.4.2"
 }
