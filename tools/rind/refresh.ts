@@ -133,7 +133,7 @@ const PARTIAL: Record<string, Partial> = {
 		rind: {
 			"AES-GCM": {
 				proof: "Vale's F* AES-GCM, for every message without VAES but only short ones with it",
-				link: "https://github.com/moq-dev/rind/blob/main/ALGORITHMS.md",
+				link: "https://github.com/kixel-ai/rind/blob/main/ALGORITHMS.md",
 			},
 			Ed25519: { proof: "s2n-bignum's HOL Light scalar multiplications", link: S2N_X86 },
 			"P-256": { proof: "s2n-bignum's HOL Light scalar multiplication, for ECDH", link: S2N_X86 },
