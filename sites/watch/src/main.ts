@@ -4,22 +4,29 @@
 //   ?relay=<url>          Relay server URL (default: the relay this site was built for)
 //   ?cloudflare=<label>  Shorthand for <label>.cloudflare.mediaoverquic.com
 //   ?jwt=<token>          Appended to the relay URL as ?jwt=<token>
+import { assets } from "@moq/watch";
 import "@moq/watch/element";
 import "@moq/watch/ui";
 
 import * as Broadcast from "../../lib/broadcast";
+import * as Try from "../../lib/try";
 
 const DEFAULT_RELAY = import.meta.env.PUBLIC_RELAY_URL ?? "https://cdn.moq.pro";
 
+// Load the worklets the build emits to /assets/ rather than blob: URLs.
+assets("/assets/");
+
 const broadcast = Broadcast.parse(location.pathname);
 if (broadcast) {
-	mount(broadcast);
+	void mount(broadcast).catch((error) => {
+		document.body.textContent = error.message;
+	});
 } else {
 	usage();
 }
 
-function mount(broadcast: Broadcast.Broadcast) {
-	const params = new URLSearchParams(location.search);
+async function mount(broadcast: Broadcast.Broadcast) {
+	const params = await Try.watch(import.meta.env.PUBLIC_API_URL, broadcast, new URLSearchParams(location.search));
 	const relay = Broadcast.relay(broadcast, params, DEFAULT_RELAY);
 	if (!relay) {
 		document.body.textContent = "Invalid relay configuration.";
@@ -29,7 +36,6 @@ function mount(broadcast: Broadcast.Broadcast) {
 	const watch = document.createElement("moq-watch");
 	watch.setAttribute("url", relay.toString());
 	watch.setAttribute("name", broadcast.name);
-	watch.setAttribute("reload", "");
 	watch.appendChild(document.createElement("canvas"));
 
 	const ui = document.createElement("moq-watch-ui");

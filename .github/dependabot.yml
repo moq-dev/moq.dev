@@ -1,0 +1,50 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# cooldown.default-days holds back any newly published version until it is at
+# least N days old. This buys time for a compromised release (supply-chain
+# attack) to be noticed and yanked before we pull it in. Security updates
+# bypass the cooldown. It only gates Dependabot-driven updates, not a manual
+# `bun update`.
+#
+# Nix flake inputs are updated weekly by Dependabot.
+
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "bun"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    groups:
+      bun:
+        patterns:
+          - "*"
+    # The exact 7.1.0-beta pin would otherwise draw 7.1.0-dev nightlies, which
+    # sort above "beta". Drop this once typescript is on 7.1 stable.
+    ignore:
+      - dependency-name: "typescript"
+        versions: [">=7.1.0-dev, <7.1.0"]
+
+  - package-ecosystem: "nix"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      nix:
+        patterns:
+          - "*"

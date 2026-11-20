@@ -1,12 +1,19 @@
 {
 	"extends": "astro/tsconfigs/strict",
+	"exclude": ["**/dist", "node_modules", "moq"],
 	"compilerOptions": {
-		"baseUrl": ".",
 		"jsx": "preserve",
 		"jsxImportSource": "solid-js",
 		"esModuleInterop": true,
+		"types": ["bun"],
 		"paths": {
-			"@/*": ["src/*"]
+			"@/*": ["./src/*"]
 		}
-	}
+	},
+	"contentMappers": [
+		{
+			"package": "@astrojs/ts-content-mapper",
+			"extensions": [".astro"]
+		}
+	]
 }

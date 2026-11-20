@@ -1,0 +1,6 @@
+<!-- PLACEHOLDER: the voice cat's "rest" mouth. Redraw it in this 200x120 box with (100,50) as the mouth's center; see src/components/voice/cat.tsx. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">
+	<g transform="translate(100 50)">
+		<path d="M-52,-0.2C-15,4.9 15,-4.7 51.4,-0.4" fill="none" stroke="#fafafa" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" />
+	</g>
+</svg>

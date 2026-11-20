@@ -1,0 +1,5 @@
+<!-- PLACEHOLDER: hand-draw a scribbled-out word, ~4:1. It's stretched over each word that never arrived. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" preserveAspectRatio="none" fill="none" stroke="#fee2e2" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+	<path d="M8 30c10-18 18 14 28-4s16 16 28-2 18 14 28-4 18 16 28-2 18 14 28-4 18 14 28-2" />
+	<path d="M14 18c40 6 120 10 172 4" />
+</svg>

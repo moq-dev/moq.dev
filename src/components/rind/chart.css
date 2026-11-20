@@ -1,0 +1,499 @@
+/* The rind post's figures: one headline number each, dark like the rest of the site. */
+@import url("https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&display=swap");
+
+.rind-fig {
+	--frame: #0f172a;
+	--frame-2: #131d33;
+	--line: rgb(148 163 184 / 16%);
+	--ink: #f1f5f9;
+	--ink-2: #94a3b8;
+	--ink-3: #64748b;
+	--rind: #22c55e;
+	--rind-2: #16a34a;
+	--rind-deep: #15803d;
+	--rival: #475569;
+	--rival-2: #334155;
+	--warn: #f59e0b;
+	--paper: #f4f4ef;
+	--paper-ink: #1c1917;
+	--display: "Big Shoulders Display", Impact, "Arial Narrow", sans-serif;
+	--mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+	margin: 2rem 0;
+	padding: 1.75rem clamp(1.1rem, 4vw, 2.25rem);
+	border: 1px solid var(--line);
+	border-radius: 14px;
+	background: var(--frame);
+	color: var(--ink);
+	text-align: left;
+	overflow: hidden;
+}
+.rind-fig :focus-visible {
+	outline: 2px solid var(--rind);
+	outline-offset: 2px;
+}
+.rind-fig .kicker {
+	font-family: var(--mono);
+	font-size: 12px;
+	color: var(--ink-2);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+}
+.rind-fig .hero {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 6px 22px;
+}
+.rind-fig .big {
+	font-family: var(--display);
+	font-weight: 900;
+	line-height: 0.82;
+	letter-spacing: -0.01em;
+	font-variant-numeric: tabular-nums;
+}
+.rind-fig .number {
+	/* The line box is shorter than the digits, which rise 0.03em above it into the kicker */
+	margin-top: 0.12em;
+	font-size: clamp(84px, 18vw, 140px);
+	color: var(--rind);
+}
+/* Shrunk and raised to span the digits, baseline to top, rather than dip 0.2em below them */
+.rind-fig .number .slash {
+	font-size: 0.8em;
+	vertical-align: 0.2em;
+}
+.rind-fig .headline {
+	margin: 6px 0 0;
+	font-family: var(--display);
+	font-weight: 700;
+	font-size: clamp(26px, 5vw, 36px);
+	line-height: 1;
+	text-transform: uppercase;
+	text-wrap: balance;
+}
+.rind-fig .fine {
+	margin: 16px 0 0;
+	font-family: var(--mono);
+	font-size: 11.5px;
+	line-height: 1.5;
+	color: var(--ink-3);
+}
+.rind-fig .data {
+	margin-top: 14px;
+	font-size: 12px;
+	color: var(--ink-2);
+}
+.rind-fig .data summary {
+	cursor: pointer;
+	font-family: var(--mono);
+	color: var(--ink-3);
+}
+.rind-fig .data table {
+	width: 100%;
+	margin-top: 8px;
+	text-align: left;
+	font-variant-numeric: tabular-nums;
+}
+.rind-fig .data th,
+.rind-fig .data td {
+	padding: 3px 12px 3px 0;
+	text-align: left;
+}
+.rind-fig .data tbody tr {
+	border-top: 1px solid var(--line);
+}
+.rind-fig .data p {
+	margin: 8px 0 0;
+	font-size: 11px;
+	color: var(--ink-3);
+}
+.rind-fig a {
+	text-decoration: underline;
+}
+
+/* QUIC: ping-pong lanes and the per-CPU scoreboard */
+.rind-fig .lanes {
+	display: grid;
+	gap: 8px;
+	margin-top: 26px;
+}
+.rind-fig .lane {
+	display: grid;
+	grid-template-columns: 96px minmax(0, 1fr) 44px;
+	gap: 12px;
+	align-items: center;
+}
+.rind-fig .lane .who {
+	font-family: var(--mono);
+	font-size: 12.5px;
+	line-height: 1.2;
+	text-align: right;
+}
+.rind-fig .lane .who small {
+	display: block;
+	font-size: 10.5px;
+	color: var(--ink-3);
+}
+.rind-fig .lane canvas {
+	display: block;
+	width: 100%;
+	height: 34px;
+	border: 1px solid var(--line);
+	border-radius: 7px;
+	background: var(--frame-2);
+}
+.rind-fig .lane .count {
+	font-family: var(--display);
+	font-weight: 900;
+	font-size: 26px;
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+	color: var(--ink-2);
+}
+.rind-fig .lane.me .who,
+.rind-fig .lane.me .count {
+	color: var(--rind);
+	font-weight: 700;
+}
+.rind-fig .lane.me canvas {
+	border-color: rgb(34 197 94 / 40%);
+}
+/* Bars: runtimes and the build race */
+.rind-fig .bars {
+	display: grid;
+	gap: 10px;
+	margin-top: 26px;
+}
+.rind-fig .bar {
+	display: grid;
+	grid-template-columns: 112px minmax(0, 1fr) 96px;
+	gap: 14px;
+	align-items: center;
+}
+.rind-fig .bar .name {
+	font-family: var(--mono);
+	font-size: 13px;
+	line-height: 1.25;
+	text-align: right;
+	color: var(--ink-2);
+}
+.rind-fig .bar .track {
+	position: relative;
+	height: 30px;
+}
+.rind-fig .bar .fill {
+	position: absolute;
+	inset: 0 auto 0 0;
+	border-radius: 0 6px 6px 0;
+	background: var(--rival);
+	transition: width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.rind-fig .bar .val {
+	font-family: var(--mono);
+	font-size: 12.5px;
+	color: var(--ink-3);
+	font-variant-numeric: tabular-nums;
+}
+.rind-fig .bar.me .name,
+.rind-fig .bar.me .val {
+	color: var(--rind);
+	font-weight: 700;
+}
+.rind-fig .bar.me .fill {
+	background: var(--rind);
+}
+.rind-fig .race .bar {
+	grid-template-columns: 150px minmax(0, 1fr);
+}
+.rind-fig .race .track {
+	height: 40px;
+	border: 1px solid var(--line);
+	border-radius: 6px;
+	background: var(--frame-2);
+	overflow: hidden;
+}
+.rind-fig .race .go {
+	position: absolute;
+	inset: 0 auto 0 0;
+	background: repeating-linear-gradient(-45deg, var(--rival) 0 8px, var(--rival-2) 8px 16px);
+}
+.rind-fig .race .me .go {
+	background: repeating-linear-gradient(-45deg, var(--rind) 0 8px, var(--rind-2) 8px 16px);
+}
+.rind-fig .race .done .go {
+	background: var(--rival);
+}
+.rind-fig .race .me.done .go {
+	background: var(--rind);
+}
+.rind-fig .race .time {
+	position: absolute;
+	top: 50%;
+	right: 10px;
+	transform: translateY(-50%);
+	font-family: var(--mono);
+	font-size: 13px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+.rind-fig .race-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 16px;
+}
+.rind-fig .clock {
+	font-family: var(--mono);
+	font-size: 13px;
+	text-align: right;
+	color: var(--ink-2);
+}
+.rind-fig .clock strong {
+	display: block;
+	font-family: var(--display);
+	font-weight: 900;
+	font-size: 58px;
+	line-height: 0.9;
+	color: var(--ink);
+	font-variant-numeric: tabular-nums;
+}
+.rind-fig .chip {
+	display: inline-block;
+	margin-top: 3px;
+	padding: 1px 6px;
+	border: 1px solid rgb(245 158 11 / 45%);
+	border-radius: 3px;
+	font-size: 10.5px;
+	font-weight: 500;
+	color: var(--warn);
+}
+.rind-fig .chip.ok {
+	border-color: rgb(34 197 94 / 45%);
+	color: var(--rind);
+}
+.rind-fig .replay {
+	padding: 6px 12px;
+	border: 1px solid var(--line);
+	border-radius: 6px;
+	background: var(--frame-2);
+	font: 500 12px var(--mono);
+	color: var(--ink);
+	cursor: pointer;
+}
+.rind-fig .replay:hover {
+	border-color: var(--rind);
+}
+
+/* Coverage heatmap */
+.rind-fig .scroll {
+	margin-top: 22px;
+	overflow-x: auto;
+}
+.rind-fig .heat {
+	display: grid;
+	grid-template-columns: auto repeat(var(--libs), 54px);
+	justify-content: start;
+	align-items: center;
+	min-width: 560px;
+}
+.rind-fig .heat > div {
+	padding-block: 3px;
+}
+.rind-fig .heat .row {
+	padding-right: 10px;
+	font-family: var(--mono);
+	font-size: 11px;
+	text-align: right;
+	white-space: nowrap;
+	color: var(--ink-2);
+}
+.rind-fig .heat .lib {
+	display: flex;
+	justify-content: center;
+	padding-bottom: 8px;
+	font-family: var(--mono);
+	font-size: 9px;
+	letter-spacing: -0.02em; /* so "RustCrypto" fits its column unbroken */
+	white-space: nowrap;
+	color: var(--ink-2);
+}
+.rind-fig .heat .me {
+	background: rgb(34 197 94 / 7%);
+}
+.rind-fig .heat .lib.me {
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--rind);
+}
+.rind-fig .heat .cell {
+	display: flex;
+	justify-content: center;
+}
+.rind-fig .trio {
+	display: inline-flex;
+	gap: 2px;
+}
+.rind-fig .trio i {
+	display: block;
+	width: 11px;
+	height: 11px;
+	border-radius: 3px;
+}
+.rind-fig .trio .e2e {
+	background: var(--rind);
+	box-shadow: 0 0 8px rgb(34 197 94 / 50%);
+}
+.rind-fig .trio .routine {
+	border: 1.5px dashed var(--rind);
+}
+.rind-fig .trio .none {
+	background: var(--rival-2);
+}
+.rind-fig .heat .section {
+	grid-column: 1 / -1;
+	padding-top: 14px;
+	font-family: var(--display);
+	font-size: 15px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--ink);
+}
+.rind-fig .heat.runtimes {
+	grid-template-columns: auto repeat(4, 104px);
+}
+.rind-fig .heat.runtimes .lib:not(.me) {
+	font-size: 11px;
+}
+.rind-fig .tile {
+	display: block;
+	width: 92px;
+	padding-block: 2px;
+	border-radius: 4px;
+	font-family: var(--mono);
+	font-size: 11px;
+	font-weight: 600;
+	text-align: center;
+	color: var(--frame);
+}
+/* Speed bands, green at fastest to red at over 8×. */
+.rind-fig .s0 {
+	background: #22c55e;
+}
+.rind-fig .s1 {
+	background: #84cc16;
+}
+.rind-fig .s2 {
+	background: #eab308;
+}
+.rind-fig .s3 {
+	background: #f59e0b;
+}
+.rind-fig .s4 {
+	background: #f97316;
+}
+.rind-fig .s5 {
+	background: #ef4444;
+}
+.rind-fig .s6 {
+	background: #b91c1c;
+}
+.rind-fig .tile.s5,
+.rind-fig .tile.s6 {
+	color: var(--ink);
+}
+.rind-fig .key {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 18px;
+	margin-top: 14px;
+	font-size: 12px;
+	color: var(--ink-2);
+}
+.rind-fig .key span {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+/* Tally receipt */
+.rind-fig .till {
+	display: grid;
+	place-items: center;
+	padding-block: 8px 12px;
+}
+.rind-fig .receipt {
+	--z: 8px;
+	width: 100%;
+	max-width: 320px;
+	padding: 22px 20px 30px;
+	background: var(--paper);
+	color: var(--paper-ink);
+	font-family: var(--mono);
+	font-size: 12px;
+	line-height: 1.6;
+	transform: rotate(1.6deg);
+	box-shadow: 0 18px 40px rgb(0 0 0 / 45%);
+	mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--z)) 100%;
+}
+.rind-fig .receipt .c {
+	text-align: center;
+}
+.rind-fig .receipt .store {
+	font-family: var(--display);
+	font-weight: 900;
+	font-size: 34px;
+	line-height: 1;
+	letter-spacing: 0.06em;
+}
+.rind-fig .receipt hr {
+	margin: 10px 0;
+	border: 0;
+	border-top: 1.5px dashed var(--paper-ink);
+	opacity: 0.5;
+}
+.rind-fig .receipt .li {
+	display: flex;
+	gap: 6px;
+}
+.rind-fig .receipt .li span:first-child {
+	flex: 1;
+	overflow: hidden;
+	white-space: nowrap;
+}
+.rind-fig .receipt .li span:first-child::after {
+	content: " ........................................";
+}
+.rind-fig .receipt .list {
+	font-weight: 700;
+	font-size: 15px;
+}
+.rind-fig .receipt .list span:last-child {
+	text-decoration: line-through;
+	opacity: 0.6;
+}
+.rind-fig .receipt .paid {
+	font-weight: 700;
+	font-size: 20px;
+}
+.rind-fig .receipt .barcode {
+	height: 38px;
+	margin-top: 12px;
+	background: repeating-linear-gradient(
+		90deg,
+		var(--paper-ink) 0 2px,
+		transparent 2px 4px,
+		var(--paper-ink) 4px 5px,
+		transparent 5px 8px,
+		var(--paper-ink) 8px 11px,
+		transparent 11px 12px
+	);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rind-fig .bar .fill {
+		transition: none;
+	}
+}

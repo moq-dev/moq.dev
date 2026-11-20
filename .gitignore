@@ -7,8 +7,17 @@ node_modules/
 
 # Build output
 dist/
+tools/cards/out/
 .astro/
 tsconfig.tsbuildinfo
+
+# Agent scratch
+/.tmp/
+
+# Nix / direnv
+.direnv/
+result
+result-*
 
 # Mac shit
 .DS_Store
@@ -21,3 +30,7 @@ tsconfig.tsbuildinfo
 # Cloudflare
 .wrangler/
 .dev.vars
+
+# Claude Code per-user files
+.claude/settings.local.json
+.claude/launch.json

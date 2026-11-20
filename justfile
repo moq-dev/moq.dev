@@ -16,6 +16,9 @@ check:
 	# Make sure Typescript compiles
 	bun run check
 
+	# Validate the quest tree
+	quest check
+
 # Automatically fix some issues.
 fix:
 	# Fix the JS packages
@@ -28,6 +31,19 @@ fix:
 test:
 	# Run the JS tests via node.
 	bun test
+
+# Render the social announcement cards (tools/cards/cards.ts) to PNG with the
+# devshell's Playwright Chromium: `just cards` for all, `just cards <slug>...`
+# for some, `--html` to keep the page for tweaking. Output lands in
+# tools/cards/out/, which is ignored; the PNGs are posted, not committed.
+cards *args:
+	bun i
+	bun tools/cards/render.ts {{args}}
+
+# Trace hand-drawn PNGs into SVGs beside them (tools/drawn/trace.ts). Then delete
+# each PNG and point its references at the SVG; a cover still gets a PNG og:image.
+trace *args:
+	bun tools/drawn/trace.ts {{args}}
 
 # Upgrade any tooling
 upgrade:

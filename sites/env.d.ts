@@ -3,4 +3,7 @@
 interface ImportMetaEnv {
 	/** The relay to connect to, e.g. https://cdn.moq.pro. */
 	readonly PUBLIC_RELAY_URL: string;
+	readonly PUBLIC_API_URL: string;
+	readonly PUBLIC_PUBLISH_URL: string;
+	readonly PUBLIC_WATCH_URL: string;
 }

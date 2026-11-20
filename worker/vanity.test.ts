@@ -33,7 +33,7 @@ describe("vanity", () => {
 	});
 
 	test("ignores everything else", () => {
-		for (const path of ["/", "/blog", "/moqadillo", "/de/moq"]) {
+		for (const path of ["/", "/blog", "/moqadillo"]) {
 			expect(vanity(new URL(`https://moq.dev${path}?go-get=1`))).toBeUndefined();
 		}
 	});

@@ -29,18 +29,11 @@ describe("fetch", () => {
 		expect(env.seen).toEqual([]);
 	});
 
-	test("leaves de.moq.dev its own namespace", async () => {
-		// The rewrite has to win over the vanity paths, or DEMOQED loses every URL
-		// starting with /moq to a pkg.go.dev redirect.
+	test("answers a missing asset with the 404 page", async () => {
 		const env = assets();
-		const res = await send("https://de.moq.dev/moq", env);
-		expect(res.status).toBe(200);
-		expect(env.seen).toEqual(["/de/moq"]);
-	});
-
-	test("passes anything else to the assets", async () => {
-		const env = assets();
-		await send("https://moq.dev/blog/", env);
-		expect(env.seen).toEqual(["/blog/"]);
+		const res = await send("https://moq.dev/_astro/missing.js", env);
+		expect(res.status).toBe(404);
+		expect(await res.text()).toBe("/404");
+		expect(env.seen).toEqual(["/404"]);
 	});
 });

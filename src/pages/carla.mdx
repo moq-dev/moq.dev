@@ -1,0 +1,27 @@
+---
+layout: "@/layouts/global.astro"
+title: CARLA
+description: Steer simulated vehicles in CARLA over MoQ.
+---
+
+import Carla from "@/components/carla.astro";
+
+# CARLA
+
+<Carla />
+
+The vehicles run in [CARLA](https://carla.org) on my home desktop in San Francisco.
+When it is offline, the player says so.
+
+## How it works
+
+- **Video on demand.** Hover a vehicle for a 240p preview; select it for 720p.
+  Cameras render and encode only while someone watches.
+- **Control and telemetry.** Steering commands and vehicle status use JSON tracks
+  on the same MoQ connection as the video. One driver holds control at a time;
+  releasing it returns the vehicle to autonomy.
+- **A shared world.** The vehicles can see each other, and their positions appear
+  on the map even while their cameras are idle.
+
+The [demo source and setup](https://github.com/moq-dev/moq/tree/main/demo/carla)
+include the player, simulator worker, and GPU video bridge.

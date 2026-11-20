@@ -25,13 +25,7 @@ interface Module {
  */
 const HOST = "moq.dev";
 
-/**
- * Every module published under HOST.
- *
- * Paths have to start with `/moq` to match the `run_worker_first` wildcard in
- * wrangler.jsonc. Without that, an asset miss answers with the 404 page and the
- * go command never reaches this Worker at all.
- */
+/** Every module published under HOST. */
 const MODULES: Module[] = [
 	{ dir: "/moq", repo: "https://github.com/moq-dev/moq-go" },
 	{ dir: "/moq-ffi", repo: "https://github.com/moq-dev/moq-go-ffi" },

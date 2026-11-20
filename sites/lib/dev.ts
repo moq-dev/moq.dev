@@ -3,9 +3,9 @@
  * `/anon/foo.hang` loads the page locally instead of 404ing.
  */
 import type { Plugin } from "vite";
-import { type Options, redirect } from "./route";
+import { redirect } from "./route";
 
-export function routing(options: Options): Plugin {
+export function routing(): Plugin {
 	return {
 		name: "moq-routing",
 		configureServer(server) {
@@ -17,7 +17,7 @@ export function routing(options: Options): Plugin {
 
 				const url = new URL(req.url ?? "/", "http://localhost");
 
-				const location = redirect(url, options);
+				const location = redirect(url);
 				if (location) {
 					res.writeHead(302, { Location: location, "Cache-Control": "no-store" });
 					res.end();

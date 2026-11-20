@@ -7,6 +7,8 @@ cover: "/blog/never-use-datagrams/bodies.jpeg"
 date: 2024-02-17
 ---
 
+import Author from "@/components/author.astro";
+
 # Never\* use Datagrams
 
 Click-bait title, but hear me out.
@@ -185,7 +187,7 @@ Let's be honest, you don't even know what half of those are, nor why they are wo
 Just use a [QUIC](https://en.wikipedia.org/wiki/QUIC) library instead.
 
 But if you still insist on UDP, you're actually in good company with a lot of the video industry.
-Building a live video protocol on top of UDP is all the rage; for example, [WebRTC](https://webrtc.org/), [SRT](https://www.haivision.com/products/srt-secure-reliable-transport/), [Sye](https://nscreenmedia.com/amazon-buys-sye/), [RIST](https://www.rist.tv/), etc.
+Building a live video protocol on top of UDP is all the rage; for example, [WebRTC](https://webrtc.org/), [SRT](https://www.haivision.com/products/srt-secure-reliable-transport/), [Sye](https://view.news.eu.nasdaq.com/view?id=bb4921747083298debfd22ff92b490e13&lang=en), [RIST](https://www.rist.tv/), etc.
 With the exception of Google, it's very easy make a terrible protocol on top of UDP.
 Look forward to the upcoming **Replacing RTMP _but please not with SRT_** blog post!
 
@@ -255,6 +257,4 @@ And please, please don't make yet another video protocol on top of UDP.
 Get involved with [Media over QUIC](https://datatracker.ietf.org/wg/moq/about/) instead!
 Join our [Discord](https://discord.moq.dev) and tell me how wrong I am.
 
-Written by [@kixelated](https://github.com/kixelated).
-
-![@kixelated](/blog/avatar.png)
+<Author />

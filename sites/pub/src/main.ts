@@ -1,31 +1,39 @@
-// moq.pub — publish the broadcast named by the path, e.g. /anon/lazy-otter-4f21.hang.
-//
-// The Worker redirects anything else to a broadcast path, inventing a name when
-// the URL doesn't carry one, so this page always loads on the shareable URL.
-//
-// Everything that isn't part of the broadcast's identity stays in the query:
-//   ?relay=<url>          Relay server URL (default: the relay this site was built for)
-//   ?cloudflare=<label>  Shorthand for <label>.cloudflare.mediaoverquic.com
-//   ?jwt=<token>          Appended to the relay URL as ?jwt=<token>
-//   ?source=<kind>        Preselect a capture source: camera, screen, or file
+// Publish an explicit broadcast, or mint a private try broadcast on a bare URL.
+import { assets } from "@moq/publish";
 import "@moq/publish/element";
 import "@moq/publish/ui";
 
 import * as Broadcast from "../../lib/broadcast";
+import * as Try from "../../lib/try";
 
 const DEFAULT_RELAY = import.meta.env.PUBLIC_RELAY_URL ?? "https://cdn.moq.pro";
 
-const broadcast = Broadcast.parse(location.pathname);
-if (broadcast) {
-	mount(broadcast);
-} else {
-	// Shouldn't happen, since the Worker redirects everything else here. Bounce
-	// off the root and let it invent a name rather than show a blank page.
-	location.replace("/");
+// Load the worklets the build emits to /assets/ rather than blob: URLs.
+assets("/assets/");
+
+void start().catch((error) => {
+	document.body.textContent = error.message;
+});
+
+async function start() {
+	const params = new URLSearchParams(location.search);
+	const broadcast = Broadcast.parse(location.pathname);
+	if (broadcast) return mount(broadcast, params);
+	if (location.pathname !== "/" || [...params.keys()].some((key) => key !== "source")) {
+		document.body.textContent = "Specify /<project>/<broadcast>, or open moq.pub/ to start a private broadcast.";
+		return;
+	}
+	document.body.textContent = "Creating a private broadcast…";
+	const token = await Try.publish(import.meta.env.PUBLIC_API_URL);
+	const created = { project: token.project, name: token.broadcast };
+	params.set("jwt", token.publishToken);
+	// Reloads retain the credential, while sharing only the path grants watch access.
+	history.replaceState(null, "", `${Broadcast.path(created)}?${params}`);
+	document.body.textContent = "";
+	mount(created, params);
 }
 
-function mount(broadcast: Broadcast.Broadcast) {
-	const params = new URLSearchParams(location.search);
+function mount(broadcast: Broadcast.Broadcast, params: URLSearchParams) {
 	const relay = Broadcast.relay(broadcast, params, DEFAULT_RELAY);
 	if (!relay) {
 		document.body.textContent = "Invalid relay configuration.";
@@ -50,5 +58,16 @@ function mount(broadcast: Broadcast.Broadcast) {
 	const ui = document.createElement("moq-publish-ui");
 	ui.appendChild(publish);
 
+	// Only here does moq.watch mint its own subscribe token. Share the bare path:
+	// this page's ?jwt= is a publish token, and would let anyone publish.
+	if (broadcast.project === "try" && !params.has("relay") && !params.has("cloudflare")) {
+		const share = new URL(import.meta.env.PUBLIC_WATCH_URL);
+		share.pathname = Broadcast.path(broadcast);
+		const link = document.createElement("a");
+		link.href = share.toString();
+		link.referrerPolicy = "no-referrer";
+		link.textContent = "Watch link (share this)";
+		document.body.appendChild(link);
+	}
 	document.body.appendChild(ui);
 }

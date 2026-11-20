@@ -1,0 +1,11 @@
+<!-- PLACEHOLDER: the voice cat's "slit" mouth. Redraw it in this 200x120 box with (100,50) as the mouth's center; see src/components/voice/cat.tsx. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">
+	<defs>
+		<path id="lips" d="M41.5,-2.4C41.7,-0.6 41.6,3 39,4.1C36.5,5.3 31.4,3.9 26.2,4.7C21,5.6 13.6,8.7 7.7,9.3C1.8,10 -3.6,8.8 -9.2,8.8C-14.8,8.8 -20.4,9.8 -25.8,9.3C-31.2,8.7 -38.3,7.2 -41.6,5.4C-44.8,3.6 -45.6,0.2 -45.4,-1.6C-45.1,-3.4 -43.2,-4.6 -40,-5.5C-36.7,-6.4 -31,-6.6 -25.8,-6.8C-20.7,-7.1 -15.3,-6.9 -9.3,-7.3C-3.3,-7.7 3.9,-9 10,-9.3C16.1,-9.5 22.6,-9.5 27.2,-8.9C31.9,-8.4 35.3,-7.3 37.7,-6.2C40.1,-5.1 41.3,-4.1 41.5,-2.4Z" />
+		<clipPath id="inside"><use href="#lips" /></clipPath>
+	</defs>
+	<g transform="translate(100 50)">
+		<use href="#lips" fill="#05070d" />
+		<use href="#lips" fill="none" stroke="#fafafa" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" />
+	</g>
+</svg>

@@ -1,10 +1,5 @@
-// Cloudflare Worker entry. Static asset requests fall through to the ASSETS
-// binding (Workers-with-Static-Assets). Only the de.moq.dev rewrite and the Go
-// vanity import paths are handled here.
-//
-// Note that the Worker only sees a request if wrangler.jsonc says so: an asset
-// miss is answered with the 404 page rather than falling through, so every path
-// below has to be listed in `run_worker_first`.
+// Cloudflare Worker entry. Static assets are served before the Worker runs, so
+// this only sees paths without one: the Go vanity import paths and 404s.
 
 import { vanity } from "./vanity";
 
@@ -16,19 +11,14 @@ export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
 		const url = new URL(request.url);
 
-		// de.moq.dev is the DEMOQED page, which lives at /de in the static build.
-		const alreadyRewritten = url.pathname === "/de" || url.pathname.startsWith("/de/");
-		if (url.hostname.split(".")[0] === "de" && !alreadyRewritten) {
-			const rewritten = new URL(url);
-			rewritten.pathname = `/de${url.pathname}`;
-			return env.ASSETS.fetch(new Request(rewritten, request));
-		}
 		// `go get moq.dev/moq` and friends, served from a mirror repo rather than
-		// by this site. After the rewrite above, so it only ever answers for the
-		// host the import paths are published under.
+		// by this site.
 		const module = vanity(url);
 		if (module) return module;
 
-		return env.ASSETS.fetch(request);
+		// Not `not_found_handling`, because public/_headers would apply to its response
+		// and cache a missing /_astro/ file as immutable. Worker responses skip _headers.
+		const page = await env.ASSETS.fetch(new Request(new URL("/404", url)));
+		return new Response(page.body, { status: 404, headers: page.headers });
 	},
 };
