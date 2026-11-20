@@ -7,6 +7,7 @@ date: 2026-11-12
 ---
 
 import Author from "@/components/author.astro";
+import Reviews from "@/components/quest/reviews";
 
 # TODO: Title
 
@@ -22,6 +23,7 @@ import Author from "@/components/author.astro";
 
 ## The Problem: Review
 - MoQ merges a stupid number of PRs now: ~300 merged on moq-dev/moq between Nov 8 and Nov 12.
+- Since Aug 31, across 15 repos: 12,053 PRs merged, ~21k reviews by bots. Busiest day: 436 merged (Nov 7). Same data as the [quest post](/blog/quest); link it rather than repeat its charts.
 - Most are agent-written (quests). Nobody can hand-review that volume.
 - Our rule: a model other than the latest writer reviews every PR before it's ready.
   - Locally: `quest review` with Codex or Claude, whichever didn't write it last.
@@ -40,6 +42,11 @@ import Author from "@/components/author.astro";
 ## How We Use It
 - Added to moq-dev/moq on Oct 30 ([7fc637e](https://github.com/moq-dev/moq/commit/7fc637eed)); on moq.dev in [moq-dev/moq.dev#233](https://github.com/moq-dev/moq.dev/pull/233).
 - Reviewed 282 of the last 300 merged moq PRs (Nov 8 to Nov 12).
+- Since Oct 30: 7,497 Pullfrog reviews; it read 3,285 of the 4,583 PRs merged once it had joined their repo (72%; 90% on moq-dev/moq). Peak: 907 reviews on Nov 14.
+- It replaced the Codex connector's reviews almost the day it arrived; CodeRabbit kept running beside it. TODO: say why, or drop the other bots from the figure if naming them in a sponsor post is awkward.
+- ~2 reviews per PR, since it re-reviews every new head.
+
+<Reviews client:visible />
 - A ruleset requires one approving review on `main`; Pullfrog approves once none of its threads is open.
 - TODO: screenshot of a real Pullfrog review catching something. Pick one from moq-dev/moq.
 - TODO: the funny/bad side. False positives? Nitpicks? Be honest, it's more convincing.
