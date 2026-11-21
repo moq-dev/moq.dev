@@ -36,7 +36,7 @@ export default function Tally() {
 			}}
 			source={
 				<>
-					From the final tally in <a href={data.source.pr}>moq-dev/rind#499</a>, through November 7, 2026, at 14:32 PT.{" "}
+					From the final tally in <a href={data.source.pr}>kixel-ai/rind#499</a>, through November 7, 2026, at 14:32 PT.{" "}
 					{data.scope}. Opus usage from Claude Code logs, each API message counted once, priced at its standard API
 					rate. Paid: {data.calendar_span.count} days of a {usd(PLAN)} a month plan. Human hours are the maintainer's
 					prompts, with gaps over 15 minutes counted as away. Agent hours cover Claude Code sessions.
