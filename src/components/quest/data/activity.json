@@ -1,0 +1,2231 @@
+{
+	"source": {
+		"since": "2026-08-31",
+		"until": "2026-11-20",
+		"hosts": 4,
+		"quest": "github:moq-dev/quest/8a8c8994ce26000857f3a9bfabba191da1b0220d",
+		"tokenMax": "github:kixel-ai/token-max/ed043273542af56bf7da4e21cec63f4f15ae07e0",
+		"opened": {
+			"moq-dev/moq": 5801,
+			"private": 3603,
+			"moq-dev/quest": 788,
+			"moq-dev/moq.dev": 149,
+			"moq-dev/studio": 222,
+			"moq-dev/web-transport": 157,
+			"moq-dev/noq": 44,
+			"kixel-ai/rind": 944,
+			"kixel-ai/rust2": 929,
+			"kixel-ai/token-max": 179
+		}
+	},
+	"days": [
+		{
+			"date": "2026-08-31",
+			"merged": {
+				"moq-dev/moq": 21,
+				"private": 21
+			},
+			"decisions": {
+				"unranked": 25,
+				"recommended": 25,
+				"other": 7,
+				"own": 11
+			},
+			"messages": 83,
+			"sessions": 23,
+			"costUsd": 1290,
+			"quests": {
+				"added": 243,
+				"deleted": 10
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 93,
+				"coderabbitai": 33
+			}
+		},
+		{
+			"date": "2026-09-01",
+			"merged": {
+				"moq-dev/moq": 36,
+				"private": 8
+			},
+			"decisions": {
+				"recommended": 47,
+				"unranked": 22,
+				"own": 5,
+				"other": 5
+			},
+			"messages": 90,
+			"sessions": 34,
+			"costUsd": 1631,
+			"quests": {
+				"added": 36,
+				"deleted": 18
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 87,
+				"coderabbitai": 38
+			}
+		},
+		{
+			"date": "2026-09-02",
+			"merged": {
+				"moq-dev/moq": 45,
+				"private": 3,
+				"moq-dev/web-transport": 1
+			},
+			"decisions": {
+				"recommended": 43,
+				"other": 8,
+				"unranked": 17,
+				"own": 16
+			},
+			"messages": 86,
+			"sessions": 27,
+			"costUsd": 640,
+			"quests": {
+				"added": 27,
+				"deleted": 22
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 74,
+				"coderabbitai": 28
+			}
+		},
+		{
+			"date": "2026-09-03",
+			"merged": {
+				"moq-dev/moq": 1,
+				"private": 3
+			},
+			"decisions": {
+				"recommended": 16,
+				"unranked": 26
+			},
+			"messages": 23,
+			"sessions": 26,
+			"costUsd": 1350,
+			"quests": {
+				"added": 0,
+				"deleted": 0
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 28,
+				"coderabbitai": 19
+			}
+		},
+		{
+			"date": "2026-09-04",
+			"merged": {
+				"moq-dev/moq": 41,
+				"private": 14,
+				"moq-dev/moq.dev": 2,
+				"moq-dev/web-transport": 1
+			},
+			"decisions": {
+				"own": 40,
+				"recommended": 121,
+				"other": 29,
+				"unranked": 6
+			},
+			"messages": 69,
+			"sessions": 51,
+			"costUsd": 1199,
+			"quests": {
+				"added": 9,
+				"deleted": 21
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 111,
+				"coderabbitai": 30
+			}
+		},
+		{
+			"date": "2026-09-05",
+			"merged": {
+				"moq-dev/moq": 40,
+				"private": 14
+			},
+			"decisions": {
+				"other": 24,
+				"recommended": 63,
+				"own": 28,
+				"unranked": 8
+			},
+			"messages": 52,
+			"sessions": 32,
+			"costUsd": 514,
+			"quests": {
+				"added": 48,
+				"deleted": 27
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 145,
+				"coderabbitai": 53
+			}
+		},
+		{
+			"date": "2026-09-06",
+			"merged": {
+				"moq-dev/moq": 30,
+				"private": 14,
+				"moq-dev/moq.dev": 1
+			},
+			"decisions": {
+				"own": 9,
+				"unranked": 7,
+				"recommended": 16,
+				"other": 1
+			},
+			"messages": 14,
+			"sessions": 28,
+			"costUsd": 180,
+			"quests": {
+				"added": 20,
+				"deleted": 7
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 63,
+				"coderabbitai": 25
+			}
+		},
+		{
+			"date": "2026-09-07",
+			"merged": {
+				"moq-dev/moq": 23,
+				"private": 7,
+				"moq-dev/web-transport": 2
+			},
+			"decisions": {
+				"unranked": 5,
+				"recommended": 19,
+				"other": 4,
+				"own": 7
+			},
+			"messages": 15,
+			"sessions": 54,
+			"costUsd": 1964,
+			"quests": {
+				"added": 14,
+				"deleted": 9
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 43,
+				"coderabbitai": 23
+			}
+		},
+		{
+			"date": "2026-09-08",
+			"merged": {
+				"moq-dev/moq": 33,
+				"private": 18
+			},
+			"decisions": {
+				"unranked": 5,
+				"recommended": 66,
+				"own": 23,
+				"other": 17
+			},
+			"messages": 51,
+			"sessions": 93,
+			"costUsd": 903,
+			"quests": {
+				"added": 41,
+				"deleted": 25
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 158,
+				"coderabbitai": 38
+			}
+		},
+		{
+			"date": "2026-09-09",
+			"merged": {
+				"moq-dev/moq": 22,
+				"private": 27
+			},
+			"decisions": {
+				"own": 39,
+				"recommended": 85,
+				"other": 29,
+				"unranked": 5
+			},
+			"messages": 80,
+			"sessions": 67,
+			"costUsd": 906,
+			"quests": {
+				"added": 8,
+				"deleted": 3
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 77,
+				"coderabbitai": 17
+			}
+		},
+		{
+			"date": "2026-09-10",
+			"merged": {
+				"moq-dev/moq": 20,
+				"private": 24,
+				"moq-dev/moq.dev": 3
+			},
+			"decisions": {
+				"own": 4,
+				"recommended": 9,
+				"other": 1
+			},
+			"messages": 3,
+			"sessions": 3,
+			"costUsd": 40,
+			"quests": {
+				"added": 8,
+				"deleted": 3
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 112,
+				"coderabbitai": 18
+			}
+		},
+		{
+			"date": "2026-09-11",
+			"merged": {
+				"moq-dev/moq": 6,
+				"private": 15
+			},
+			"decisions": {
+				"recommended": 21,
+				"own": 6,
+				"other": 7
+			},
+			"messages": 21,
+			"sessions": 18,
+			"costUsd": 95,
+			"quests": {
+				"added": 13,
+				"deleted": 6
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 62,
+				"coderabbitai": 15
+			}
+		},
+		{
+			"date": "2026-09-12",
+			"merged": {
+				"moq-dev/moq": 33,
+				"private": 53
+			},
+			"decisions": {
+				"recommended": 17
+			},
+			"messages": 3,
+			"sessions": 7,
+			"costUsd": 28,
+			"quests": {
+				"added": 35,
+				"deleted": 0
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 172,
+				"coderabbitai": 13
+			}
+		},
+		{
+			"date": "2026-09-13",
+			"merged": {
+				"moq-dev/moq": 27,
+				"private": 36
+			},
+			"decisions": {
+				"recommended": 15,
+				"unranked": 2,
+				"own": 6,
+				"other": 2
+			},
+			"messages": 5,
+			"sessions": 6,
+			"costUsd": 35,
+			"quests": {
+				"added": 0,
+				"deleted": 2
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 108,
+				"coderabbitai": 3
+			}
+		},
+		{
+			"date": "2026-09-14",
+			"merged": {
+				"moq-dev/moq": 13,
+				"private": 15,
+				"moq-dev/moq.dev": 3
+			},
+			"decisions": {
+				"own": 7,
+				"other": 12,
+				"recommended": 22
+			},
+			"messages": 10,
+			"sessions": 10,
+			"costUsd": 81,
+			"quests": {
+				"added": 11,
+				"deleted": 9
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 52,
+				"coderabbitai": 19
+			}
+		},
+		{
+			"date": "2026-09-15",
+			"merged": {
+				"moq-dev/moq": 12,
+				"private": 10
+			},
+			"decisions": {
+				"recommended": 31,
+				"own": 11,
+				"other": 10
+			},
+			"messages": 21,
+			"sessions": 17,
+			"costUsd": 104,
+			"quests": {
+				"added": 4,
+				"deleted": 0
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 37,
+				"coderabbitai": 3
+			}
+		},
+		{
+			"date": "2026-09-16",
+			"merged": {
+				"private": 3
+			},
+			"decisions": {
+				"recommended": 6,
+				"own": 2,
+				"unranked": 1
+			},
+			"messages": 14,
+			"sessions": 6,
+			"costUsd": 63,
+			"quests": {
+				"added": 0,
+				"deleted": 0
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 3
+			}
+		},
+		{
+			"date": "2026-09-17",
+			"merged": {
+				"moq-dev/moq": 35,
+				"private": 62
+			},
+			"decisions": {
+				"recommended": 51,
+				"other": 18,
+				"own": 16,
+				"unranked": 1
+			},
+			"messages": 87,
+			"sessions": 54,
+			"costUsd": 542,
+			"quests": {
+				"added": 11,
+				"deleted": 1
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 168,
+				"coderabbitai": 12
+			}
+		},
+		{
+			"date": "2026-09-18",
+			"merged": {
+				"moq-dev/moq": 39,
+				"private": 46
+			},
+			"decisions": {
+				"recommended": 78,
+				"other": 14,
+				"own": 31,
+				"unranked": 3
+			},
+			"messages": 67,
+			"sessions": 47,
+			"costUsd": 415,
+			"quests": {
+				"added": 23,
+				"deleted": 1
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 145,
+				"coderabbitai": 11
+			}
+		},
+		{
+			"date": "2026-09-19",
+			"merged": {
+				"moq-dev/moq": 14,
+				"private": 12
+			},
+			"decisions": {
+				"other": 5,
+				"recommended": 9,
+				"own": 1
+			},
+			"messages": 15,
+			"sessions": 7,
+			"costUsd": 25,
+			"quests": {
+				"added": 2,
+				"deleted": 1
+			},
+			"reviews": {
+				"coderabbitai": 3,
+				"chatgpt-codex-connector": 7
+			}
+		},
+		{
+			"date": "2026-09-20",
+			"merged": {
+				"moq-dev/moq": 18,
+				"private": 11
+			},
+			"decisions": {
+				"recommended": 10,
+				"other": 2
+			},
+			"messages": 9,
+			"sessions": 4,
+			"costUsd": 36,
+			"quests": {
+				"added": 140,
+				"deleted": 133
+			},
+			"reviews": {
+				"coderabbitai": 17,
+				"chatgpt-codex-connector": 9
+			}
+		},
+		{
+			"date": "2026-09-21",
+			"merged": {
+				"moq-dev/moq": 48,
+				"private": 22,
+				"moq-dev/moq.dev": 2,
+				"moq-dev/noq": 1
+			},
+			"decisions": {
+				"recommended": 31,
+				"other": 5,
+				"own": 6,
+				"unranked": 1
+			},
+			"messages": 41,
+			"sessions": 28,
+			"costUsd": 523,
+			"quests": {
+				"added": 53,
+				"deleted": 40
+			},
+			"reviews": {
+				"coderabbitai": 28,
+				"chatgpt-codex-connector": 24
+			}
+		},
+		{
+			"date": "2026-09-22",
+			"merged": {
+				"moq-dev/moq": 54,
+				"private": 21,
+				"moq-dev/noq": 1
+			},
+			"decisions": {
+				"other": 30,
+				"recommended": 87,
+				"unranked": 25,
+				"own": 18
+			},
+			"messages": 189,
+			"sessions": 89,
+			"costUsd": 950,
+			"quests": {
+				"added": 5,
+				"deleted": 53
+			},
+			"reviews": {
+				"coderabbitai": 40,
+				"chatgpt-codex-connector": 4
+			}
+		},
+		{
+			"date": "2026-09-23",
+			"merged": {
+				"moq-dev/moq": 49,
+				"private": 49,
+				"moq-dev/moq.dev": 1
+			},
+			"decisions": {
+				"recommended": 207,
+				"own": 53,
+				"other": 48,
+				"unranked": 2
+			},
+			"messages": 130,
+			"sessions": 141,
+			"costUsd": 745,
+			"quests": {
+				"added": 1,
+				"deleted": 0
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 102,
+				"coderabbitai": 25
+			}
+		},
+		{
+			"date": "2026-09-24",
+			"merged": {
+				"moq-dev/moq": 51,
+				"private": 47
+			},
+			"decisions": {
+				"recommended": 235,
+				"own": 43,
+				"other": 39,
+				"unranked": 4
+			},
+			"messages": 87,
+			"sessions": 141,
+			"costUsd": 864,
+			"quests": {
+				"added": 0,
+				"deleted": 0
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 151,
+				"coderabbitai": 53
+			}
+		},
+		{
+			"date": "2026-09-25",
+			"merged": {
+				"moq-dev/moq": 125,
+				"private": 78,
+				"moq-dev/noq": 8
+			},
+			"decisions": {
+				"recommended": 357,
+				"unranked": 10,
+				"own": 63,
+				"other": 62
+			},
+			"messages": 164,
+			"sessions": 277,
+			"costUsd": 1813,
+			"quests": {
+				"added": 83,
+				"deleted": 58
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 321,
+				"coderabbitai": 65
+			}
+		},
+		{
+			"date": "2026-09-26",
+			"merged": {
+				"moq-dev/moq": 71,
+				"private": 29,
+				"moq-dev/quest": 5
+			},
+			"decisions": {
+				"recommended": 218,
+				"other": 41,
+				"own": 33,
+				"unranked": 30
+			},
+			"messages": 104,
+			"sessions": 161,
+			"costUsd": 1039,
+			"quests": {
+				"added": 53,
+				"deleted": 44
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 156,
+				"coderabbitai": 36
+			}
+		},
+		{
+			"date": "2026-09-27",
+			"merged": {
+				"moq-dev/moq": 53,
+				"private": 26,
+				"moq-dev/quest": 6,
+				"moq-dev/web-transport": 8,
+				"moq-dev/noq": 3
+			},
+			"decisions": {
+				"recommended": 81,
+				"unranked": 8,
+				"own": 25,
+				"other": 29
+			},
+			"messages": 39,
+			"sessions": 131,
+			"costUsd": 577,
+			"quests": {
+				"added": 6,
+				"deleted": 5
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 92,
+				"coderabbitai": 29
+			}
+		},
+		{
+			"date": "2026-09-28",
+			"merged": {
+				"moq-dev/moq": 46,
+				"private": 47,
+				"moq-dev/quest": 7,
+				"moq-dev/moq.dev": 4,
+				"moq-dev/noq": 5
+			},
+			"decisions": {
+				"own": 54,
+				"recommended": 179,
+				"other": 35,
+				"unranked": 36
+			},
+			"messages": 75,
+			"sessions": 242,
+			"costUsd": 1139,
+			"quests": {
+				"added": 0,
+				"deleted": 1
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 133,
+				"coderabbitai": 37
+			}
+		},
+		{
+			"date": "2026-09-29",
+			"merged": {
+				"moq-dev/moq": 115,
+				"private": 21,
+				"moq-dev/moq.dev": 2,
+				"moq-dev/web-transport": 1,
+				"moq-dev/noq": 4
+			},
+			"decisions": {
+				"other": 51,
+				"recommended": 394,
+				"own": 110,
+				"unranked": 109
+			},
+			"messages": 121,
+			"sessions": 289,
+			"costUsd": 1957,
+			"quests": {
+				"added": 130,
+				"deleted": 64
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 209,
+				"coderabbitai": 75
+			}
+		},
+		{
+			"date": "2026-09-30",
+			"merged": {
+				"moq-dev/moq": 71,
+				"private": 23,
+				"moq-dev/quest": 10,
+				"moq-dev/moq.dev": 3
+			},
+			"decisions": {
+				"unranked": 77,
+				"recommended": 356,
+				"other": 64,
+				"own": 62
+			},
+			"messages": 105,
+			"sessions": 165,
+			"costUsd": 1209,
+			"quests": {
+				"added": 6,
+				"deleted": 5
+			},
+			"reviews": {
+				"coderabbitai": 49,
+				"chatgpt-codex-connector": 49
+			}
+		},
+		{
+			"date": "2026-10-01",
+			"merged": {
+				"moq-dev/moq": 48,
+				"private": 44,
+				"moq-dev/moq.dev": 5,
+				"moq-dev/web-transport": 3,
+				"moq-dev/noq": 1
+			},
+			"decisions": {
+				"recommended": 168,
+				"other": 38,
+				"own": 51,
+				"unranked": 4
+			},
+			"messages": 94,
+			"sessions": 119,
+			"costUsd": 517,
+			"quests": {
+				"added": 105,
+				"deleted": 126
+			},
+			"reviews": {
+				"coderabbitai": 34,
+				"chatgpt-codex-connector": 2
+			}
+		},
+		{
+			"date": "2026-10-02",
+			"merged": {
+				"moq-dev/moq": 33,
+				"private": 8,
+				"moq-dev/quest": 8,
+				"moq-dev/web-transport": 3,
+				"moq-dev/noq": 4
+			},
+			"decisions": {
+				"other": 22,
+				"recommended": 95,
+				"own": 15,
+				"unranked": 2
+			},
+			"messages": 100,
+			"sessions": 42,
+			"costUsd": 226,
+			"quests": {
+				"added": 45,
+				"deleted": 39
+			},
+			"reviews": {
+				"coderabbitai": 31
+			}
+		},
+		{
+			"date": "2026-10-03",
+			"merged": {
+				"moq-dev/moq": 43,
+				"private": 21,
+				"moq-dev/quest": 4,
+				"moq-dev/moq.dev": 1
+			},
+			"decisions": {
+				"recommended": 140,
+				"other": 26,
+				"own": 20,
+				"unranked": 6
+			},
+			"messages": 54,
+			"sessions": 109,
+			"costUsd": 491,
+			"quests": {
+				"added": 19,
+				"deleted": 16
+			},
+			"reviews": {
+				"coderabbitai": 32
+			}
+		},
+		{
+			"date": "2026-10-04",
+			"merged": {
+				"moq-dev/moq": 25,
+				"private": 1,
+				"moq-dev/moq.dev": 3
+			},
+			"decisions": {
+				"own": 20,
+				"recommended": 65,
+				"other": 14
+			},
+			"messages": 21,
+			"sessions": 34,
+			"costUsd": 89,
+			"quests": {
+				"added": 22,
+				"deleted": 11
+			},
+			"reviews": {
+				"coderabbitai": 6
+			}
+		},
+		{
+			"date": "2026-10-05",
+			"merged": {
+				"moq-dev/moq": 49,
+				"private": 16,
+				"moq-dev/quest": 11
+			},
+			"decisions": {
+				"unranked": 5,
+				"recommended": 420,
+				"other": 73,
+				"own": 98
+			},
+			"messages": 102,
+			"sessions": 241,
+			"costUsd": 1155,
+			"quests": {
+				"added": 50,
+				"deleted": 26
+			},
+			"reviews": {
+				"coderabbitai": 78
+			}
+		},
+		{
+			"date": "2026-10-06",
+			"merged": {
+				"moq-dev/moq": 79,
+				"private": 20,
+				"moq-dev/quest": 2,
+				"moq-dev/moq.dev": 1,
+				"moq-dev/web-transport": 1,
+				"moq-dev/noq": 2
+			},
+			"decisions": {
+				"recommended": 245,
+				"own": 39,
+				"unranked": 13,
+				"other": 35
+			},
+			"messages": 74,
+			"sessions": 144,
+			"costUsd": 936,
+			"quests": {
+				"added": 56,
+				"deleted": 94
+			},
+			"reviews": {
+				"coderabbitai": 58,
+				"chatgpt-codex-connector": 5
+			}
+		},
+		{
+			"date": "2026-10-07",
+			"merged": {
+				"moq-dev/moq": 42,
+				"private": 14,
+				"moq-dev/quest": 23,
+				"moq-dev/web-transport": 3,
+				"moq-dev/noq": 2
+			},
+			"decisions": {
+				"recommended": 358,
+				"other": 76,
+				"own": 60,
+				"unranked": 10
+			},
+			"messages": 43,
+			"sessions": 215,
+			"costUsd": 1152,
+			"quests": {
+				"added": 12,
+				"deleted": 33
+			},
+			"reviews": {
+				"coderabbitai": 71,
+				"chatgpt-codex-connector": 4
+			}
+		},
+		{
+			"date": "2026-10-08",
+			"merged": {
+				"moq-dev/moq": 83,
+				"private": 9,
+				"moq-dev/quest": 7
+			},
+			"decisions": {
+				"recommended": 277,
+				"other": 35,
+				"unranked": 71,
+				"own": 29
+			},
+			"messages": 35,
+			"sessions": 197,
+			"costUsd": 987,
+			"quests": {
+				"added": 75,
+				"deleted": 91
+			},
+			"reviews": {
+				"coderabbitai": 69
+			}
+		},
+		{
+			"date": "2026-10-09",
+			"merged": {
+				"moq-dev/moq": 47,
+				"private": 30,
+				"moq-dev/moq.dev": 3,
+				"moq-dev/web-transport": 4
+			},
+			"decisions": {
+				"unranked": 9,
+				"recommended": 231,
+				"other": 31,
+				"own": 26
+			},
+			"messages": 34,
+			"sessions": 153,
+			"costUsd": 1160,
+			"quests": {
+				"added": 32,
+				"deleted": 21
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 62,
+				"coderabbitai": 44
+			}
+		},
+		{
+			"date": "2026-10-10",
+			"merged": {
+				"moq-dev/moq": 84,
+				"private": 37,
+				"moq-dev/quest": 3,
+				"moq-dev/noq": 6
+			},
+			"decisions": {
+				"other": 59,
+				"recommended": 365,
+				"unranked": 13,
+				"own": 31
+			},
+			"messages": 41,
+			"sessions": 146,
+			"costUsd": 1140,
+			"quests": {
+				"added": 77,
+				"deleted": 28
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 173,
+				"coderabbitai": 65
+			}
+		},
+		{
+			"date": "2026-10-11",
+			"merged": {
+				"moq-dev/moq": 93,
+				"private": 21,
+				"moq-dev/quest": 1
+			},
+			"decisions": {
+				"other": 33,
+				"recommended": 232,
+				"own": 24,
+				"unranked": 4
+			},
+			"messages": 19,
+			"sessions": 145,
+			"costUsd": 1594,
+			"quests": {
+				"added": 25,
+				"deleted": 70
+			},
+			"reviews": {
+				"coderabbitai": 47,
+				"chatgpt-codex-connector": 157
+			}
+		},
+		{
+			"date": "2026-10-12",
+			"merged": {
+				"moq-dev/moq": 24,
+				"private": 36
+			},
+			"decisions": {
+				"other": 21,
+				"recommended": 70,
+				"own": 13,
+				"unranked": 8
+			},
+			"messages": 11,
+			"sessions": 37,
+			"costUsd": 340,
+			"quests": {
+				"added": 14,
+				"deleted": 29
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 101,
+				"coderabbitai": 23
+			}
+		},
+		{
+			"date": "2026-10-13",
+			"merged": {
+				"moq-dev/moq": 121,
+				"private": 41,
+				"moq-dev/quest": 3,
+				"moq-dev/noq": 1
+			},
+			"decisions": {
+				"recommended": 534,
+				"other": 78,
+				"own": 83,
+				"unranked": 21
+			},
+			"messages": 108,
+			"sessions": 283,
+			"costUsd": 2238,
+			"quests": {
+				"added": 113,
+				"deleted": 52
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 219,
+				"coderabbitai": 69
+			}
+		},
+		{
+			"date": "2026-10-14",
+			"merged": {
+				"moq-dev/moq": 65,
+				"private": 17,
+				"moq-dev/quest": 9,
+				"moq-dev/web-transport": 6
+			},
+			"decisions": {
+				"recommended": 314,
+				"unranked": 8,
+				"own": 34,
+				"other": 28
+			},
+			"messages": 59,
+			"sessions": 131,
+			"costUsd": 794,
+			"quests": {
+				"added": 50,
+				"deleted": 41
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 124,
+				"coderabbitai": 38
+			}
+		},
+		{
+			"date": "2026-10-15",
+			"merged": {
+				"moq-dev/moq": 63,
+				"private": 44,
+				"moq-dev/quest": 8,
+				"moq-dev/noq": 2
+			},
+			"decisions": {
+				"recommended": 332,
+				"other": 49,
+				"own": 40,
+				"unranked": 3
+			},
+			"messages": 70,
+			"sessions": 151,
+			"costUsd": 646,
+			"quests": {
+				"added": 44,
+				"deleted": 44
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 160,
+				"coderabbitai": 43
+			}
+		},
+		{
+			"date": "2026-10-16",
+			"merged": {
+				"moq-dev/moq": 111,
+				"private": 62,
+				"moq-dev/quest": 14,
+				"moq-dev/noq": 1
+			},
+			"decisions": {
+				"recommended": 538,
+				"other": 62,
+				"own": 52,
+				"unranked": 19
+			},
+			"messages": 164,
+			"sessions": 423,
+			"costUsd": 2831,
+			"quests": {
+				"added": 53,
+				"deleted": 85
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 307,
+				"coderabbitai": 50
+			}
+		},
+		{
+			"date": "2026-10-17",
+			"merged": {
+				"moq-dev/moq": 128,
+				"private": 25,
+				"moq-dev/quest": 4
+			},
+			"decisions": {
+				"recommended": 236,
+				"other": 37,
+				"own": 41,
+				"unranked": 25
+			},
+			"messages": 41,
+			"sessions": 163,
+			"costUsd": 916,
+			"quests": {
+				"added": 50,
+				"deleted": 91
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 323,
+				"coderabbitai": 85
+			}
+		},
+		{
+			"date": "2026-10-18",
+			"merged": {
+				"moq-dev/moq": 33,
+				"private": 6,
+				"moq-dev/quest": 1
+			},
+			"decisions": {
+				"recommended": 183,
+				"other": 20,
+				"own": 28,
+				"unranked": 4
+			},
+			"messages": 10,
+			"sessions": 46,
+			"costUsd": 227,
+			"quests": {
+				"added": 44,
+				"deleted": 17
+			},
+			"reviews": {
+				"coderabbitai": 27,
+				"chatgpt-codex-connector": 29
+			}
+		},
+		{
+			"date": "2026-10-19",
+			"merged": {
+				"moq-dev/moq": 58,
+				"private": 25,
+				"moq-dev/quest": 13,
+				"moq-dev/moq.dev": 4
+			},
+			"decisions": {
+				"recommended": 309,
+				"own": 85,
+				"other": 82,
+				"unranked": 29
+			},
+			"messages": 80,
+			"sessions": 351,
+			"costUsd": 1446,
+			"quests": {
+				"added": 34,
+				"deleted": 40
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 175,
+				"coderabbitai": 69
+			}
+		},
+		{
+			"date": "2026-10-20",
+			"merged": {
+				"moq-dev/moq": 99,
+				"private": 60,
+				"moq-dev/quest": 1,
+				"moq-dev/moq.dev": 3,
+				"moq-dev/web-transport": 12
+			},
+			"decisions": {
+				"recommended": 455,
+				"unranked": 26,
+				"other": 73,
+				"own": 77
+			},
+			"messages": 171,
+			"sessions": 405,
+			"costUsd": 1377,
+			"quests": {
+				"added": 62,
+				"deleted": 58
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 223,
+				"coderabbitai": 132
+			}
+		},
+		{
+			"date": "2026-10-21",
+			"merged": {
+				"moq-dev/moq": 91,
+				"private": 50,
+				"moq-dev/quest": 30,
+				"moq-dev/moq.dev": 3,
+				"moq-dev/web-transport": 1
+			},
+			"decisions": {
+				"recommended": 460,
+				"unranked": 30,
+				"other": 60,
+				"own": 61
+			},
+			"messages": 163,
+			"sessions": 522,
+			"costUsd": 1992,
+			"quests": {
+				"added": 61,
+				"deleted": 51
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 313,
+				"coderabbitai": 97
+			}
+		},
+		{
+			"date": "2026-10-22",
+			"merged": {
+				"moq-dev/moq": 179,
+				"private": 72,
+				"moq-dev/quest": 15,
+				"moq-dev/moq.dev": 7,
+				"moq-dev/web-transport": 2
+			},
+			"decisions": {
+				"unranked": 20,
+				"own": 35,
+				"recommended": 656,
+				"other": 38
+			},
+			"messages": 152,
+			"sessions": 583,
+			"costUsd": 2300,
+			"quests": {
+				"added": 255,
+				"deleted": 91
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 379,
+				"coderabbitai": 132
+			}
+		},
+		{
+			"date": "2026-10-23",
+			"merged": {
+				"moq-dev/moq": 137,
+				"private": 79,
+				"moq-dev/quest": 5,
+				"moq-dev/moq.dev": 8,
+				"moq-dev/web-transport": 7,
+				"kixel-ai/rust2": 3
+			},
+			"decisions": {
+				"recommended": 485,
+				"own": 74,
+				"other": 73,
+				"unranked": 136
+			},
+			"messages": 174,
+			"sessions": 572,
+			"costUsd": 2467,
+			"quests": {
+				"added": 78,
+				"deleted": 101
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 213,
+				"coderabbitai": 100
+			}
+		},
+		{
+			"date": "2026-10-24",
+			"merged": {
+				"moq-dev/moq": 142,
+				"private": 40,
+				"moq-dev/quest": 17,
+				"moq-dev/moq.dev": 1,
+				"moq-dev/web-transport": 3,
+				"kixel-ai/rust2": 29
+			},
+			"decisions": {
+				"other": 36,
+				"recommended": 250,
+				"unranked": 14,
+				"own": 20
+			},
+			"messages": 72,
+			"sessions": 346,
+			"costUsd": 2208,
+			"quests": {
+				"added": 47,
+				"deleted": 90
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 120,
+				"coderabbitai": 78
+			}
+		},
+		{
+			"date": "2026-10-25",
+			"merged": {
+				"moq-dev/moq": 133,
+				"private": 72,
+				"moq-dev/quest": 5,
+				"moq-dev/moq.dev": 1,
+				"moq-dev/web-transport": 1,
+				"kixel-ai/rust2": 24
+			},
+			"decisions": {
+				"other": 57,
+				"recommended": 350,
+				"own": 64,
+				"unranked": 11
+			},
+			"messages": 124,
+			"sessions": 516,
+			"costUsd": 3308,
+			"quests": {
+				"added": 126,
+				"deleted": 100
+			},
+			"reviews": {
+				"coderabbitai": 103,
+				"chatgpt-codex-connector": 139
+			}
+		},
+		{
+			"date": "2026-10-26",
+			"merged": {
+				"moq-dev/moq": 69,
+				"private": 55,
+				"moq-dev/quest": 9,
+				"moq-dev/moq.dev": 1,
+				"kixel-ai/rust2": 28
+			},
+			"decisions": {
+				"recommended": 346,
+				"own": 59,
+				"other": 40,
+				"unranked": 16
+			},
+			"messages": 80,
+			"sessions": 266,
+			"costUsd": 1208,
+			"quests": {
+				"added": 111,
+				"deleted": 56
+			},
+			"reviews": {
+				"coderabbitai": 107,
+				"chatgpt-codex-connector": 59
+			}
+		},
+		{
+			"date": "2026-10-27",
+			"merged": {
+				"moq-dev/moq": 75,
+				"private": 25,
+				"moq-dev/quest": 4,
+				"moq-dev/moq.dev": 2,
+				"kixel-ai/rust2": 41
+			},
+			"decisions": {
+				"recommended": 274,
+				"other": 38,
+				"own": 58,
+				"unranked": 10
+			},
+			"messages": 93,
+			"sessions": 243,
+			"costUsd": 1191,
+			"quests": {
+				"added": 43,
+				"deleted": 48
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 62,
+				"coderabbitai": 75
+			}
+		},
+		{
+			"date": "2026-10-28",
+			"merged": {
+				"moq-dev/moq": 99,
+				"private": 60,
+				"moq-dev/quest": 33,
+				"moq-dev/moq.dev": 9,
+				"moq-dev/web-transport": 2,
+				"kixel-ai/rind": 16,
+				"kixel-ai/rust2": 65
+			},
+			"decisions": {
+				"recommended": 352,
+				"unranked": 17,
+				"own": 57,
+				"other": 51
+			},
+			"messages": 150,
+			"sessions": 602,
+			"costUsd": 3480,
+			"quests": {
+				"added": 89,
+				"deleted": 57
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 148,
+				"coderabbitai": 97
+			}
+		},
+		{
+			"date": "2026-10-29",
+			"merged": {
+				"moq-dev/moq": 98,
+				"private": 55,
+				"moq-dev/quest": 3,
+				"kixel-ai/rind": 17,
+				"kixel-ai/rust2": 39
+			},
+			"decisions": {
+				"own": 48,
+				"recommended": 370,
+				"other": 47,
+				"unranked": 25
+			},
+			"messages": 133,
+			"sessions": 412,
+			"costUsd": 1059,
+			"quests": {
+				"added": 86,
+				"deleted": 62
+			},
+			"reviews": {
+				"coderabbitai": 84,
+				"chatgpt-codex-connector": 71
+			}
+		},
+		{
+			"date": "2026-10-30",
+			"merged": {
+				"moq-dev/moq": 58,
+				"private": 35,
+				"moq-dev/quest": 18,
+				"moq-dev/moq.dev": 1,
+				"moq-dev/web-transport": 1,
+				"kixel-ai/rind": 69,
+				"kixel-ai/rust2": 74
+			},
+			"decisions": {
+				"recommended": 154,
+				"own": 79,
+				"other": 31,
+				"unranked": 16
+			},
+			"messages": 146,
+			"sessions": 587,
+			"costUsd": 1742,
+			"quests": {
+				"added": 13,
+				"deleted": 23
+			},
+			"reviews": {
+				"chatgpt-codex-connector": 53,
+				"pullfrog": 9,
+				"coderabbitai": 84
+			}
+		},
+		{
+			"date": "2026-10-31",
+			"merged": {
+				"moq-dev/moq": 57,
+				"private": 40,
+				"moq-dev/quest": 23,
+				"kixel-ai/rind": 45,
+				"kixel-ai/rust2": 52
+			},
+			"decisions": {
+				"own": 24,
+				"recommended": 259,
+				"other": 27,
+				"unranked": 17
+			},
+			"messages": 139,
+			"sessions": 603,
+			"costUsd": 1578,
+			"quests": {
+				"added": 39,
+				"deleted": 34
+			},
+			"reviews": {
+				"pullfrog": 100,
+				"coderabbitai": 129,
+				"pullfrogJoined": 57,
+				"pullfrogMerged": 10
+			}
+		},
+		{
+			"date": "2026-11-01",
+			"merged": {
+				"moq-dev/moq": 158,
+				"private": 15,
+				"moq-dev/quest": 38,
+				"kixel-ai/rind": 44,
+				"kixel-ai/rust2": 36
+			},
+			"decisions": {
+				"recommended": 187,
+				"own": 21,
+				"unranked": 11,
+				"other": 22
+			},
+			"messages": 116,
+			"sessions": 568,
+			"costUsd": 1782,
+			"quests": {
+				"added": 82,
+				"deleted": 111
+			},
+			"reviews": {
+				"pullfrog": 183,
+				"pullfrogJoined": 158,
+				"pullfrogMerged": 86,
+				"coderabbitai": 181
+			}
+		},
+		{
+			"date": "2026-11-02",
+			"merged": {
+				"moq-dev/moq": 144,
+				"private": 76,
+				"moq-dev/quest": 31,
+				"kixel-ai/rind": 75,
+				"kixel-ai/rust2": 56
+			},
+			"decisions": {
+				"recommended": 451,
+				"own": 59,
+				"other": 47,
+				"unranked": 17
+			},
+			"messages": 119,
+			"sessions": 561,
+			"costUsd": 1775,
+			"quests": {
+				"added": 59,
+				"deleted": 146
+			},
+			"reviews": {
+				"pullfrog": 128,
+				"pullfrogJoined": 144,
+				"pullfrogMerged": 120,
+				"coderabbitai": 149
+			}
+		},
+		{
+			"date": "2026-11-03",
+			"merged": {
+				"moq-dev/moq": 117,
+				"private": 77,
+				"moq-dev/quest": 64,
+				"moq-dev/studio": 13,
+				"moq-dev/web-transport": 2,
+				"kixel-ai/rind": 40,
+				"kixel-ai/rust2": 95
+			},
+			"decisions": {
+				"recommended": 565,
+				"other": 59,
+				"own": 113,
+				"unranked": 73
+			},
+			"messages": 169,
+			"sessions": 918,
+			"costUsd": 3394,
+			"quests": {
+				"added": 102,
+				"deleted": 90
+			},
+			"reviews": {
+				"pullfrog": 338,
+				"coderabbitai": 205,
+				"pullfrogJoined": 190,
+				"pullfrogMerged": 137
+			}
+		},
+		{
+			"date": "2026-11-04",
+			"merged": {
+				"moq-dev/moq": 147,
+				"private": 88,
+				"moq-dev/quest": 36,
+				"moq-dev/studio": 23,
+				"kixel-ai/rind": 28,
+				"kixel-ai/rust2": 43
+			},
+			"decisions": {
+				"recommended": 475,
+				"other": 41,
+				"own": 93,
+				"unranked": 26
+			},
+			"messages": 151,
+			"sessions": 770,
+			"costUsd": 3085,
+			"quests": {
+				"added": 120,
+				"deleted": 90
+			},
+			"reviews": {
+				"pullfrog": 583,
+				"pullfrogJoined": 324,
+				"pullfrogMerged": 267,
+				"coderabbitai": 231
+			}
+		},
+		{
+			"date": "2026-11-05",
+			"merged": {
+				"moq-dev/moq": 91,
+				"private": 28,
+				"moq-dev/quest": 16,
+				"moq-dev/studio": 19,
+				"kixel-ai/rind": 44,
+				"kixel-ai/token-max": 1
+			},
+			"decisions": {
+				"recommended": 399,
+				"unranked": 51,
+				"other": 34,
+				"own": 64
+			},
+			"messages": 126,
+			"sessions": 343,
+			"costUsd": 1304,
+			"quests": {
+				"added": 39,
+				"deleted": 54
+			},
+			"reviews": {
+				"pullfrog": 286,
+				"pullfrogJoined": 188,
+				"coderabbitai": 227,
+				"pullfrogMerged": 146
+			}
+		},
+		{
+			"date": "2026-11-06",
+			"merged": {
+				"moq-dev/moq": 71,
+				"private": 96,
+				"moq-dev/quest": 5,
+				"moq-dev/studio": 8,
+				"kixel-ai/rind": 33,
+				"kixel-ai/rust2": 5
+			},
+			"decisions": {
+				"recommended": 369,
+				"own": 50,
+				"other": 44,
+				"unranked": 24
+			},
+			"messages": 104,
+			"sessions": 441,
+			"costUsd": 1521,
+			"quests": {
+				"added": 68,
+				"deleted": 48
+			},
+			"reviews": {
+				"coderabbitai": 164,
+				"pullfrog": 215,
+				"pullfrogJoined": 208,
+				"pullfrogMerged": 115
+			}
+		},
+		{
+			"date": "2026-11-07",
+			"merged": {
+				"moq-dev/moq": 135,
+				"private": 86,
+				"moq-dev/quest": 41,
+				"moq-dev/moq.dev": 1,
+				"moq-dev/studio": 37,
+				"moq-dev/web-transport": 1,
+				"kixel-ai/rind": 70,
+				"kixel-ai/rust2": 55,
+				"kixel-ai/token-max": 10
+			},
+			"decisions": {
+				"recommended": 619,
+				"own": 84,
+				"other": 54,
+				"unranked": 44
+			},
+			"messages": 180,
+			"sessions": 949,
+			"costUsd": 2505,
+			"quests": {
+				"added": 82,
+				"deleted": 62
+			},
+			"reviews": {
+				"pullfrog": 244,
+				"coderabbitai": 297,
+				"pullfrogJoined": 407,
+				"pullfrogMerged": 135,
+				"chatgpt-codex-connector": 1
+			}
+		},
+		{
+			"date": "2026-11-08",
+			"merged": {
+				"moq-dev/moq": 93,
+				"private": 58,
+				"moq-dev/quest": 14,
+				"moq-dev/moq.dev": 10,
+				"moq-dev/studio": 14,
+				"moq-dev/web-transport": 24,
+				"kixel-ai/rind": 13,
+				"kixel-ai/rust2": 9,
+				"kixel-ai/token-max": 4
+			},
+			"decisions": {
+				"recommended": 361,
+				"own": 71,
+				"unranked": 8,
+				"other": 42
+			},
+			"messages": 134,
+			"sessions": 534,
+			"costUsd": 1555,
+			"quests": {
+				"added": 43,
+				"deleted": 58
+			},
+			"reviews": {
+				"pullfrog": 247,
+				"coderabbitai": 244,
+				"pullfrogJoined": 199,
+				"pullfrogMerged": 94,
+				"chatgpt-codex-connector": 2
+			}
+		},
+		{
+			"date": "2026-11-09",
+			"merged": {
+				"moq-dev/moq": 85,
+				"private": 36,
+				"moq-dev/quest": 17,
+				"moq-dev/moq.dev": 1,
+				"kixel-ai/rind": 10,
+				"kixel-ai/rust2": 6,
+				"kixel-ai/token-max": 14
+			},
+			"decisions": {
+				"recommended": 329,
+				"other": 24,
+				"own": 77,
+				"unranked": 3
+			},
+			"messages": 101,
+			"sessions": 527,
+			"costUsd": 1354,
+			"quests": {
+				"added": 33,
+				"deleted": 58
+			},
+			"reviews": {
+				"pullfrog": 210,
+				"pullfrogJoined": 147,
+				"pullfrogMerged": 92,
+				"coderabbitai": 194
+			}
+		},
+		{
+			"date": "2026-11-10",
+			"merged": {
+				"moq-dev/moq": 59,
+				"private": 78,
+				"moq-dev/quest": 24,
+				"moq-dev/moq.dev": 2,
+				"moq-dev/studio": 8,
+				"kixel-ai/rind": 54,
+				"kixel-ai/rust2": 21,
+				"kixel-ai/token-max": 12
+			},
+			"decisions": {
+				"recommended": 509,
+				"own": 116,
+				"other": 53,
+				"unranked": 17
+			},
+			"messages": 226,
+			"sessions": 676,
+			"costUsd": 1982,
+			"quests": {
+				"added": 70,
+				"deleted": 126
+			},
+			"reviews": {
+				"pullfrog": 208,
+				"coderabbitai": 155,
+				"pullfrogJoined": 210,
+				"pullfrogMerged": 101
+			}
+		},
+		{
+			"date": "2026-11-11",
+			"merged": {
+				"moq-dev/moq": 62,
+				"private": 70,
+				"moq-dev/quest": 24,
+				"moq-dev/studio": 8,
+				"moq-dev/web-transport": 17,
+				"kixel-ai/rind": 35,
+				"kixel-ai/rust2": 14,
+				"kixel-ai/token-max": 5
+			},
+			"decisions": {
+				"recommended": 438,
+				"unranked": 14,
+				"other": 51,
+				"own": 79
+			},
+			"messages": 260,
+			"sessions": 709,
+			"costUsd": 2309,
+			"quests": {
+				"added": 25,
+				"deleted": 36
+			},
+			"reviews": {
+				"pullfrog": 138,
+				"coderabbitai": 167,
+				"pullfrogJoined": 181,
+				"pullfrogMerged": 66,
+				"chatgpt-codex-connector": 1
+			}
+		},
+		{
+			"date": "2026-11-12",
+			"merged": {
+				"moq-dev/moq": 80,
+				"private": 130,
+				"moq-dev/quest": 22,
+				"moq-dev/moq.dev": 4,
+				"moq-dev/studio": 13,
+				"moq-dev/web-transport": 8,
+				"kixel-ai/rind": 54,
+				"kixel-ai/rust2": 14,
+				"kixel-ai/token-max": 26
+			},
+			"decisions": {
+				"own": 142,
+				"recommended": 621,
+				"other": 66,
+				"unranked": 15
+			},
+			"messages": 275,
+			"sessions": 978,
+			"costUsd": 2949,
+			"quests": {
+				"added": 29,
+				"deleted": 33
+			},
+			"reviews": {
+				"pullfrog": 201,
+				"coderabbitai": 147,
+				"pullfrogJoined": 260,
+				"pullfrogMerged": 94
+			}
+		},
+		{
+			"date": "2026-11-13",
+			"merged": {
+				"moq-dev/moq": 71,
+				"private": 167,
+				"moq-dev/quest": 45,
+				"moq-dev/studio": 5,
+				"kixel-ai/rind": 39,
+				"kixel-ai/rust2": 41,
+				"kixel-ai/token-max": 15
+			},
+			"decisions": {
+				"recommended": 687,
+				"own": 92,
+				"other": 71,
+				"unranked": 63
+			},
+			"messages": 241,
+			"sessions": 1726,
+			"costUsd": 3702,
+			"quests": {
+				"added": 34,
+				"deleted": 32
+			},
+			"reviews": {
+				"pullfrog": 668,
+				"pullfrogJoined": 340,
+				"pullfrogMerged": 255,
+				"coderabbitai": 313
+			}
+		},
+		{
+			"date": "2026-11-14",
+			"merged": {
+				"moq-dev/moq": 79,
+				"private": 103,
+				"moq-dev/quest": 25,
+				"moq-dev/moq.dev": 12,
+				"moq-dev/studio": 10,
+				"moq-dev/web-transport": 5,
+				"kixel-ai/rind": 27,
+				"kixel-ai/rust2": 45,
+				"kixel-ai/token-max": 15
+			},
+			"decisions": {
+				"recommended": 364,
+				"other": 34,
+				"own": 41,
+				"unranked": 20
+			},
+			"messages": 83,
+			"sessions": 1692,
+			"costUsd": 3167,
+			"quests": {
+				"added": 46,
+				"deleted": 79
+			},
+			"reviews": {
+				"pullfrog": 907,
+				"pullfrogJoined": 321,
+				"pullfrogMerged": 321,
+				"coderabbitai": 285
+			}
+		},
+		{
+			"date": "2026-11-15",
+			"merged": {
+				"moq-dev/moq": 115,
+				"private": 152,
+				"moq-dev/quest": 16,
+				"moq-dev/moq.dev": 8,
+				"moq-dev/studio": 13,
+				"moq-dev/web-transport": 11,
+				"kixel-ai/rind": 34,
+				"kixel-ai/rust2": 27,
+				"kixel-ai/token-max": 18
+			},
+			"decisions": {
+				"recommended": 512,
+				"other": 37,
+				"unranked": 14,
+				"own": 76
+			},
+			"messages": 130,
+			"sessions": 1781,
+			"costUsd": 3296,
+			"quests": {
+				"added": 102,
+				"deleted": 83
+			},
+			"reviews": {
+				"pullfrog": 752,
+				"pullfrogJoined": 394,
+				"pullfrogMerged": 393,
+				"coderabbitai": 213
+			}
+		},
+		{
+			"date": "2026-11-16",
+			"merged": {
+				"moq-dev/moq": 45,
+				"private": 31,
+				"moq-dev/quest": 1,
+				"moq-dev/studio": 15,
+				"kixel-ai/rind": 11,
+				"kixel-ai/rust2": 10,
+				"kixel-ai/token-max": 10
+			},
+			"decisions": {
+				"recommended": 198,
+				"unranked": 4,
+				"other": 30,
+				"own": 52
+			},
+			"messages": 68,
+			"sessions": 788,
+			"costUsd": 2003,
+			"quests": {
+				"added": 70,
+				"deleted": 41
+			},
+			"reviews": {
+				"pullfrog": 364,
+				"pullfrogJoined": 117,
+				"pullfrogMerged": 116,
+				"coderabbitai": 146
+			}
+		},
+		{
+			"date": "2026-11-17",
+			"merged": {
+				"moq-dev/moq": 104,
+				"private": 78,
+				"moq-dev/quest": 18,
+				"moq-dev/moq.dev": 13,
+				"moq-dev/studio": 11,
+				"moq-dev/web-transport": 5,
+				"kixel-ai/rind": 35,
+				"kixel-ai/rust2": 15,
+				"kixel-ai/token-max": 20
+			},
+			"decisions": {
+				"recommended": 398,
+				"own": 59,
+				"other": 29,
+				"unranked": 22
+			},
+			"messages": 97,
+			"sessions": 1477,
+			"costUsd": 2289,
+			"quests": {
+				"added": 51,
+				"deleted": 70
+			},
+			"reviews": {
+				"pullfrog": 588,
+				"pullfrogJoined": 294,
+				"pullfrogMerged": 294,
+				"coderabbitai": 170
+			}
+		},
+		{
+			"date": "2026-11-18",
+			"merged": {
+				"moq-dev/moq": 70,
+				"private": 36,
+				"moq-dev/quest": 4,
+				"moq-dev/moq.dev": 3,
+				"moq-dev/studio": 2,
+				"moq-dev/web-transport": 3,
+				"kixel-ai/rind": 19,
+				"kixel-ai/rust2": 2,
+				"kixel-ai/token-max": 11
+			},
+			"decisions": {
+				"recommended": 253,
+				"own": 56,
+				"unranked": 19,
+				"other": 29
+			},
+			"messages": 111,
+			"sessions": 738,
+			"costUsd": 1595,
+			"quests": {
+				"added": 69,
+				"deleted": 54
+			},
+			"reviews": {
+				"pullfrog": 368,
+				"pullfrogJoined": 150,
+				"pullfrogMerged": 149,
+				"coderabbitai": 151
+			}
+		},
+		{
+			"date": "2026-11-19",
+			"merged": {
+				"moq-dev/moq": 81,
+				"private": 28,
+				"moq-dev/quest": 9,
+				"moq-dev/moq.dev": 1,
+				"moq-dev/studio": 6,
+				"moq-dev/web-transport": 1,
+				"kixel-ai/rind": 34,
+				"kixel-ai/rust2": 19,
+				"kixel-ai/token-max": 1
+			},
+			"decisions": {
+				"other": 14,
+				"own": 30,
+				"unranked": 17,
+				"recommended": 144
+			},
+			"messages": 61,
+			"sessions": 1020,
+			"costUsd": 1924,
+			"quests": {
+				"added": 40,
+				"deleted": 64
+			},
+			"reviews": {
+				"pullfrog": 475,
+				"coderabbitai": 305,
+				"pullfrogJoined": 180,
+				"pullfrogMerged": 180
+			}
+		},
+		{
+			"date": "2026-11-20",
+			"merged": {
+				"moq-dev/moq": 26,
+				"private": 9,
+				"moq-dev/quest": 2,
+				"moq-dev/moq.dev": 1,
+				"moq-dev/studio": 13,
+				"moq-dev/web-transport": 1,
+				"kixel-ai/rind": 20,
+				"kixel-ai/rust2": 36,
+				"kixel-ai/token-max": 6
+			},
+			"decisions": {
+				"recommended": 92,
+				"own": 40,
+				"other": 15,
+				"unranked": 3
+			},
+			"messages": 40,
+			"sessions": 749,
+			"costUsd": 1182,
+			"quests": {
+				"added": 29,
+				"deleted": 19
+			},
+			"reviews": {
+				"pullfrog": 285,
+				"pullfrogJoined": 114,
+				"pullfrogMerged": 114,
+				"coderabbitai": 156
+			}
+		}
+	]
+}

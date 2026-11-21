@@ -17,12 +17,13 @@ export interface Props {
 	table: { head: string[]; rows: Cell[][] };
 	source: JSX.Element;
 	ref?: (el: HTMLElement) => void;
+	class?: string; // another post's theme, overriding the rind palette's variables
 	children: JSX.Element;
 }
 
 export function Figure(props: Props) {
 	return (
-		<figure class="rind-fig not-prose select-none" aria-label={props.label} ref={props.ref}>
+		<figure class={`rind-fig not-prose select-none ${props.class ?? ""}`} aria-label={props.label} ref={props.ref}>
 			<Show when={props.kicker}>
 				<div class="kicker">{props.kicker}</div>
 			</Show>
