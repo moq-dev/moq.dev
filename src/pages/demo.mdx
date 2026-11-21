@@ -6,57 +6,58 @@ description: Live demos of the MoQ protocol in action.
 
 import Cat from "@/components/voice/cat";
 
-# Demos
+<h1 class="sr-only">Demos</h1>
+<img src="/layout/demo-word.svg" class="not-prose -ml-4 -mt-6 mb-2 h-36 w-auto -rotate-1 md:h-44" alt="" />
 
-Click on any of them. That's what they're here for. Everything is open source!
+<p class="font-display text-[1.6rem]! font-bold leading-tight text-white">Click on any of them. That's what they're here for. Everything is open source!</p>
 
 <div class="not-prose my-10 grid gap-6 sm:grid-cols-2">
 	<a href="/boy" class="card group flex flex-col gap-4 p-5 text-white">
-		<div class="flex h-28 items-center justify-center rounded-xl bg-slate-900">
-			<img src="/demo/moqboy.svg" class="max-h-20 max-w-[70%] object-contain" alt="MoQ Boy" />
+		<div class="flex h-36 items-center justify-center rounded-xl border-2 border-slate-950 bg-slate-950">
+			<img src="/demo/moqboy.svg" class="max-h-20 max-w-[70%] object-contain transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-1" alt="MoQ Boy" />
 		</div>
-		<div class="text-xl font-semibold group-hover:text-green-500">MoQ Boy</div>
-		<div class="text-sm leading-relaxed text-slate-300">Multiplayer (anarchy) Game Boy emulation on a remote server, using MoQ tracks for everything. Emulation and encoding only run when at least one viewer is watching.</div>
+		<div class="font-display text-[1.6rem] font-extrabold leading-tight group-hover:text-green-500">MoQ Boy</div>
+		<div class="text-[0.95rem] leading-relaxed text-slate-300">Multiplayer (anarchy) Game Boy emulation on a remote server, using MoQ tracks for everything. Emulation and encoding only run when at least one viewer is watching.</div>
 	</a>
 
 	<a href="/carla" class="card group flex flex-col gap-4 p-5 text-white">
-		<div class="flex h-28 items-center justify-center rounded-xl bg-slate-900">
-			<img src="/demo/carla.svg" class="max-h-20 max-w-[70%] object-contain" alt="CARLA" />
+		<div class="flex h-36 items-center justify-center rounded-xl border-2 border-slate-950 bg-slate-950">
+			<img src="/demo/carla.svg" class="max-h-20 max-w-[70%] object-contain transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-1" alt="CARLA" />
 		</div>
-		<div class="text-xl font-semibold group-hover:text-green-500">CARLA</div>
-		<div class="text-sm leading-relaxed text-slate-300">Steer simulated vehicles in CARLA over MoQ. Cameras stream on demand, with controls and telemetry on the same connection.</div>
+		<div class="font-display text-[1.6rem] font-extrabold leading-tight group-hover:text-green-500">CARLA</div>
+		<div class="text-[0.95rem] leading-relaxed text-slate-300">Steer simulated vehicles in CARLA over MoQ. Cameras stream on demand, with controls and telemetry on the same connection.</div>
 	</a>
 
 	<a href="/watch?project=demo&name=bbb.hang" class="card group flex flex-col gap-4 p-5 text-white">
-		<div class="flex h-28 items-center justify-center rounded-xl bg-slate-900">
-			<img src="/demo/bunny.svg" class="max-h-24 max-w-[70%] object-contain" alt="BBB" />
+		<div class="flex h-36 items-center justify-center rounded-xl border-2 border-slate-950 bg-slate-950">
+			<img src="/demo/bunny.svg" class="max-h-24 max-w-[70%] object-contain transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-1" alt="BBB" />
 		</div>
-		<div class="text-xl font-semibold group-hover:text-green-500">B I G B U C K B U N N Y</div>
-		<div class="text-sm leading-relaxed text-slate-300">Watch a "live" broadcast of everybody's favorite rodent friend. The video player is available as a (tree-shakable) Javascript library or <code>\<moq-watch\></code> web component.</div>
+		<div class="font-display text-[1.6rem] font-extrabold leading-tight group-hover:text-green-500">B I G B U C K B U N N Y</div>
+		<div class="text-[0.95rem] leading-relaxed text-slate-300">Watch a "live" broadcast of everybody's favorite rodent friend. The video player is available as a (tree-shakable) Javascript library or <code>\<moq-watch\></code> web component.</div>
 	</a>
 
 	<a href="/voice" class="card group flex flex-col gap-4 p-5 text-white">
-		<div class="flex h-28 items-center justify-center rounded-xl bg-slate-900">
+		<div class="flex h-36 items-center justify-center rounded-xl border-2 border-slate-950 bg-slate-950">
 			<Cat client:visible babble class="h-24 w-24" />
 		</div>
-		<div class="text-xl font-semibold group-hover:text-green-500">Voice AI</div>
-		<div class="text-sm leading-relaxed text-slate-300">Talk to a Pipecat voice agent over MoQ, with a live transcript of both sides. It sends its reply faster than real-time, and you can interrupt it whenever.</div>
+		<div class="font-display text-[1.6rem] font-extrabold leading-tight group-hover:text-green-500">Voice AI</div>
+		<div class="text-[0.95rem] leading-relaxed text-slate-300">Talk to a Pipecat voice agent over MoQ, with a live transcript of both sides. It sends its reply faster than real-time, and you can interrupt it whenever.</div>
 	</a>
 
 	<a href="https://hang.live" rel="noreferrer" target="_blank" class="card group flex flex-col gap-4 p-5 text-white">
-		<div class="flex h-28 items-center justify-center rounded-xl bg-slate-900">
-			<img src="/hang.svg" class="max-h-20 max-w-[70%] object-contain" alt="hang.live" />
+		<div class="flex h-36 items-center justify-center rounded-xl border-2 border-slate-950 bg-slate-950">
+			<img src="/hang.svg" class="max-h-20 max-w-[70%] object-contain transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-1" alt="hang.live" />
 		</div>
-		<div class="text-xl font-semibold group-hover:text-green-500">hang.live</div>
-		<div class="text-sm leading-relaxed text-slate-300">A full-blown conferencing app built entirely on MoQ. Includes custom WebGL rendering, WebAudio panning, markdown chat, dank memes, you name it. You'll need a friend though, or at least another tab (I won't judge).</div>
+		<div class="font-display text-[1.6rem] font-extrabold leading-tight group-hover:text-green-500">hang.live</div>
+		<div class="text-[0.95rem] leading-relaxed text-slate-300">A full-blown conferencing app built entirely on MoQ. Includes custom WebGL rendering, WebAudio panning, markdown chat, dank memes, you name it. You'll need a friend though, or at least another tab (I won't judge).</div>
 	</a>
 
 	<a href="/publish" class="card group flex flex-col gap-4 p-5 text-white">
-		<div class="flex h-28 items-center justify-center rounded-xl bg-slate-900">
-			<img src="/demo/publish.svg" class="max-h-20 max-w-[70%] object-contain" alt="Publish" />
+		<div class="flex h-36 items-center justify-center rounded-xl border-2 border-slate-950 bg-slate-950">
+			<img src="/demo/publish.svg" class="max-h-20 max-w-[70%] object-contain transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-1" alt="Publish" />
 		</div>
-		<div class="text-xl font-semibold group-hover:text-green-500">Publish</div>
-		<div class="text-sm leading-relaxed text-slate-300">Go live! Share your camera, microphone, or screen with anyone you give the watch link to. Browser demos use a private broadcast in the try project.</div>
+		<div class="font-display text-[1.6rem] font-extrabold leading-tight group-hover:text-green-500">Publish</div>
+		<div class="text-[0.95rem] leading-relaxed text-slate-300">Go live! Share your camera, microphone, or screen with anyone you give the watch link to. Browser demos use a private broadcast in the try project.</div>
 	</a>
 </div>
 
@@ -66,21 +67,21 @@ Want something you can run from a terminal? These copy-paste examples use the sa
 
 <div class="not-prose grid gap-4 sm:grid-cols-3 my-8">
 	<a href="#cli" class="card group p-5 text-white">
-		<img src="https://moq.pro/icons/box.svg" class="mb-3 h-16 transition-transform group-hover:-rotate-3" alt="Hand-drawn box" />
-		<div class="mb-2 text-xl font-semibold">MoQ CLI</div>
-		<div class="text-sm font-light text-slate-300">Pull a live broadcast out of MoQ and play it with ffplay.</div>
+		<img src="https://moq.pro/icons/box.svg" class="mb-3 h-16 transition-transform group-hover:-rotate-1" alt="Hand-drawn box" />
+		<div class="mb-2 font-display text-[1.4rem] font-extrabold">MoQ CLI</div>
+		<div class="text-[0.95rem] text-slate-300">Pull a live broadcast out of MoQ and play it with ffplay.</div>
 	</a>
 
 	<a href="#ffmpeg" class="card group p-5 text-white">
-		<img src="https://moq.pro/icons/rocket.svg" class="mb-3 h-16 transition-transform group-hover:-rotate-3" alt="Hand-drawn rocket" />
-		<div class="mb-2 text-xl font-semibold">FFmpeg</div>
-		<div class="text-sm font-light text-slate-300">Encode a test pattern, webcam, or screen and publish it live.</div>
+		<img src="https://moq.pro/icons/rocket.svg" class="mb-3 h-16 transition-transform group-hover:-rotate-1" alt="Hand-drawn rocket" />
+		<div class="mb-2 font-display text-[1.4rem] font-extrabold">FFmpeg</div>
+		<div class="text-[0.95rem] text-slate-300">Encode a test pattern, webcam, or screen and publish it live.</div>
 	</a>
 
 	<a href="#gstreamer" class="card group p-5 text-white">
-		<img src="https://moq.pro/icons/puzzle.svg" class="mb-3 h-16 transition-transform group-hover:-rotate-3" alt="Hand-drawn puzzle piece" />
-		<div class="mb-2 text-xl font-semibold">GStreamer</div>
-		<div class="text-sm font-light text-slate-300">Drop <code>moqsrc</code> and <code>moqsink</code> into a media pipeline.</div>
+		<img src="https://moq.pro/icons/puzzle.svg" class="mb-3 h-16 transition-transform group-hover:-rotate-1" alt="Hand-drawn puzzle piece" />
+		<div class="mb-2 font-display text-[1.4rem] font-extrabold">GStreamer</div>
+		<div class="text-[0.95rem] text-slate-300">Drop <code>moqsrc</code> and <code>moqsink</code> into a media pipeline.</div>
 	</a>
 </div>
 
