@@ -8,13 +8,22 @@
  * instead of a breaking change for everyone who imported it.
  */
 
-/** A published module: the path it answers to, and the repo behind it. */
-interface Module {
+/** A published module: the path it answers to, and where the go command fetches it. */
+type Module = {
 	/** Path on this host, which is also the module path in its `go.mod`. */
 	dir: string;
-	/** Repo the go command clones. */
-	repo: string;
-}
+} & (
+	| {
+			vcs: "git";
+			/** Repo the go command clones. */
+			repo: string;
+	  }
+	| {
+			vcs: "mod";
+			/** Module proxy (GOPROXY protocol) the go command downloads zips from, for a module no repo holds. */
+			proxy: string;
+	  }
+);
 
 /**
  * The host the modules are published under.
@@ -27,8 +36,9 @@ const HOST = "moq.dev";
 
 /** Every module published under HOST. */
 const MODULES: Module[] = [
-	{ dir: "/moq", repo: "https://github.com/moq-dev/moq-go" },
-	{ dir: "/moq-ffi", repo: "https://github.com/moq-dev/moq-go-ffi" },
+	{ dir: "/moq", vcs: "git", repo: "https://github.com/moq-dev/moq-go" },
+	// Prebuilt static libraries, kept out of git. See infra/go in moq-dev/moq.
+	{ dir: "/moq-ffi", vcs: "mod", proxy: "https://go.moq.dev" },
 ];
 
 /** The go-get response for a vanity path, or undefined to serve the request normally. */
@@ -53,18 +63,23 @@ export function vanity(url: URL): Response | undefined {
 
 function page(module: Module): string {
 	const path = HOST + module.dir;
+	const origin = module.vcs === "git" ? module.repo : module.proxy;
 
 	// go-import is the one the go command needs. go-source is what pkg.go.dev
-	// follows to link a symbol back to the line that declares it.
+	// follows to link a symbol back to the line that declares it, so only a
+	// module in a repo has one.
+	const source =
+		module.vcs === "git"
+			? `\n\t\t<meta name="go-source" content="${path} ${module.repo} ${module.repo}/tree/main{/dir} ${module.repo}/blob/main{/dir}/{file}#L{line}">`
+			: "";
 	return `<!doctype html>
 <html>
 	<head>
 		<meta charset="utf-8">
-		<meta name="go-import" content="${path} git ${module.repo}">
-		<meta name="go-source" content="${path} ${module.repo} ${module.repo}/tree/main{/dir} ${module.repo}/blob/main{/dir}/{file}#L{line}">
+		<meta name="go-import" content="${path} ${module.vcs} ${origin}">${source}
 	</head>
 	<body>
-		<a href="https://pkg.go.dev/${path}">${path}</a> is served from <a href="${module.repo}">${module.repo}</a>.
+		<a href="https://pkg.go.dev/${path}">${path}</a> is served from <a href="${origin}">${origin}</a>.
 	</body>
 </html>
 `;
