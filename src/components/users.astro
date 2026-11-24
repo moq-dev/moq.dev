@@ -6,7 +6,7 @@ interface Props {
 	useCase?: string;
 }
 
-const { class: columns = "sm:grid-cols-2", useCase } = Astro.props;
+const { class: columns = "", useCase } = Astro.props;
 
 // Companies running MoQ in production. A null `name` renders as a redaction bar
 // for users who can't be named yet; `redacted` sets the bar's width.
@@ -24,47 +24,73 @@ const users = [
 		what: "Autonomous boats",
 		body: "MoQ is the primary video system across its autonomous vessels. Transmits multiple cameras/qualities over Starlink.",
 		links: [
-			{ text: "Proof that I'm not lying", href: "https://medium.com/saronic-technologies/the-ground-moves-building-on-early-open-source-without-getting-burned-ba2af78beb78" },
-			{ text: "Corsair rescues two Army pilots", href: "https://www.navalnews.com/naval-news/2026/06/saronic-usv-rescues-two-u-s-army-pilots-downed-by-iran/" },
+			{
+				text: "Proof that I'm not lying",
+				href: "https://medium.com/saronic-technologies/the-ground-moves-building-on-early-open-source-without-getting-burned-ba2af78beb78",
+			},
+			{
+				text: "Corsair rescues two Army pilots",
+				href: "https://www.navalnews.com/naval-news/2026/06/saronic-usv-rescues-two-u-s-army-pilots-downed-by-iran/",
+			},
 		],
 	},
 	{
 		name: "Evolve Robotics",
 		useCase: "robotics",
 		what: "Teleoperation",
-		body: 'Using MoQ extensively for VR teleoperation. Point clouds, controls, the whole works, all transmitted over MoQ.',
+		body: "Using MoQ extensively for VR teleoperation. Point clouds, controls, the whole works, all transmitted over MoQ.",
 		links: [{ text: "evolverobotics.com", href: "https://evolverobotics.com/" }],
 	},
-	{ name: null, useCase: "robotics", redacted: "w-52", what: "Drones", body: "A major government contractor flying drones around with MoQ. That's all we're legally allowed to say.", links: [] },
-	{ name: null, useCase: "robotics", redacted: "w-44", what: "Drones", body: "A defense contractor flying drones across international borders with Starlink. The drone controls are also transmitted via MoQ.", links: [] },
+	{
+		name: null,
+		useCase: "robotics",
+		redacted: "w-48",
+		what: "Drones",
+		body: "A major government contractor flying drones around with MoQ. That's all we're legally allowed to say.",
+		links: [],
+	},
+	{
+		name: null,
+		useCase: "robotics",
+		redacted: "w-40",
+		what: "Drones",
+		body: "A defense contractor flying drones across international borders with Starlink. The drone controls are also transmitted via MoQ.",
+		links: [],
+	},
 ];
 ---
 
-<div class={`not-prose grid gap-5 ${columns}`}>
+<div class={`not-prose border-t border-line ${columns}`}>
 	{
 		users
 			.filter((user) => !useCase || user.useCase === useCase)
 			.map((user) => (
-			<div class="card flex flex-col gap-2 p-5">
-				<span class="label">{user.what}</span>
-				{user.name ? (
-					<h3 class="text-[1.2rem] font-semibold text-white">{user.name}</h3>
-				) : (
-					<h3 class={`my-0.5 flex h-8 ${user.redacted} -rotate-1 items-center justify-center bg-black font-mono text-base tracking-[0.3em] text-white`}>
-						REDACTED
-					</h3>
-				)}
-				<p class="text-[0.9rem] leading-relaxed text-slate-400">{user.body}</p>
-				{user.links.length > 0 && (
-					<div class="mt-auto flex flex-col gap-1 pt-2 text-[0.9rem]">
-						{user.links.map((link) => (
-							<a href={link.href} class="green-link">
-								{link.text}
-							</a>
-						))}
+				<div class="grid gap-3 border-b border-line py-5 sm:grid-cols-[12rem_1fr] sm:gap-6">
+					<div>
+						<span class="label">{user.what}</span>
+						{user.name ? (
+							<h3 class="mt-1 text-[1.15rem] font-semibold text-ink">{user.name}</h3>
+						) : (
+							<h3
+								class={`mt-1.5 flex h-7 ${user.redacted} -rotate-1 items-center justify-center bg-black font-mono text-sm tracking-[0.28em] text-white`}
+							>
+								REDACTED
+							</h3>
+						)}
 					</div>
-				)}
-			</div>
-		))
+					<div class="flex flex-col gap-2">
+						<p class="text-[0.92rem] leading-relaxed text-ink-3">{user.body}</p>
+						{user.links.length > 0 && (
+							<div class="flex flex-wrap gap-x-5 gap-y-1 text-[0.88rem]">
+								{user.links.map((link) => (
+									<a href={link.href} class="green-link">
+										{link.text}
+									</a>
+								))}
+							</div>
+						)}
+					</div>
+				</div>
+			))
 	}
 </div>

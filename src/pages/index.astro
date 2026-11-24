@@ -8,12 +8,41 @@ interface Post {
 
 const posts = Object.values(import.meta.glob<Post>("./blog/*.mdx", { eager: true }))
 	.sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date))
-	.slice(0, 3);
+	.slice(0, 5);
+
+const [leadPost, ...recentPosts] = posts;
 
 const formatDate = (date: string) =>
 	new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
 
 const proUrl = import.meta.env.MODE === "staging" ? "https://moq.wtf" : "https://moq.pro";
+
+const demos = [
+	{
+		title: "MoQ Boy",
+		icon: "/demo/moqboy.svg",
+		body: "Multiplayer Game Boy emulation on a remote server, using MoQ tracks for everything.",
+		href: "/boy",
+	},
+	{
+		title: "CARLA",
+		icon: "/demo/carla.svg",
+		body: "Steer simulated vehicles over MoQ. Cameras on demand, controls and telemetry on one link.",
+		href: "/carla",
+	},
+	{
+		title: "Voice AI",
+		icon: "/voice/kraken-1.svg",
+		body: "Talk to a Pipecat voice agent over MoQ. Faster-than-real-time reply and instant barge-in.",
+		href: "/voice",
+	},
+	{
+		title: "Big Buck Bunny",
+		icon: "/demo/bunny.svg",
+		body: "Watch a live broadcast via the <moq-watch> web component or tree-shakable JS library.",
+		href: "/watch?project=demo&name=bbb.hang",
+	},
+];
 
 const features = [
 	{ icon: "rocket", title: "Adaptive latency", body: "Keep viewers live through the shittiest network conditions." },
@@ -51,117 +80,242 @@ const alliance = [
 
 // `icon` is hand-drawn art in public/icons/use-case/.
 const useCases = [
-	{ title: "Robotics", icon: "robotics", body: "Real-time teleoperation, with telemetry and control on the same relays as the video.", href: "/robotics" },
-	{ title: "Voice and video AI", icon: "voice-video-ai", body: "Server-side media in Rust or Python, played back faster than real time in the browser.", href: "https://doc.moq.dev/concept/use-case/ai" },
-	{ title: "Interactive", icon: "interactive", body: "Media down, input up. MoQ Boy is a Game Boy played by everyone watching at once.", href: "/boy" },
-	{ title: "Conferencing", icon: "conferencing", body: "Browser publish and watch with a live roster, plus WebRTC for WHIP and WHEP clients.", href: "/blog/first-app" },
-	{ title: "Distribution", icon: "distribution", body: "Fan out to millions of viewers on demand, and keep legacy players on HLS.", href: "/blog/replacing-hls-dash" },
-	{ title: "Contribution", icon: "contribution", body: "Ingest from OBS, FFmpeg, or SRT with dynamic origins and failover.", href: "https://doc.moq.dev/bin/obs" },
+	{
+		title: "Robotics",
+		icon: "robotics",
+		body: "Real-time teleoperation, with telemetry and control on the same relays as the video.",
+		href: "/robotics",
+	},
+	{
+		title: "Voice and video AI",
+		icon: "voice-video-ai",
+		body: "Server-side media in Rust or Python, played back faster than real time in the browser.",
+		href: "https://doc.moq.dev/concept/use-case/ai",
+	},
+	{
+		title: "Interactive",
+		icon: "interactive",
+		body: "Media down, input up. MoQ Boy is a Game Boy played by everyone watching at once.",
+		href: "/boy",
+	},
+	{
+		title: "Conferencing",
+		icon: "conferencing",
+		body: "Browser publish and watch with a live roster, plus WebRTC for WHIP and WHEP clients.",
+		href: "/blog/first-app",
+	},
+	{
+		title: "Distribution",
+		icon: "distribution",
+		body: "Fan out to millions of viewers on demand, and keep legacy players on HLS.",
+		href: "/blog/replacing-hls-dash",
+	},
+	{
+		title: "Contribution",
+		icon: "contribution",
+		body: "Ingest from OBS, FFmpeg, or SRT with dynamic origins and failover.",
+		href: "https://doc.moq.dev/bin/obs",
+	},
 ];
 ---
 
 <Layout title="" description="" bare>
 	<!-- Hero -->
-	<section class="mx-auto grid max-w-6xl items-center gap-14 px-5 pb-16 pt-12 md:px-8 lg:grid-cols-[1.1fr_1fr] lg:pt-16">
-		<div>
-			<a
-				href="/robotics"
-				class="group mb-7 inline-flex items-center gap-3 rounded-full border border-slate-700 bg-slate-800/60 py-1.5 pl-1.5 pr-4 text-[0.85rem] text-slate-300 transition-colors hover:border-slate-500"
-			>
-				<span class="shrink-0 whitespace-nowrap rounded-full bg-green-500 px-2.5 py-0.5 font-mono text-[0.68rem] font-medium uppercase tracking-wider text-slate-900">In prod</span>
-				<span>Saronic ships MoQ on its autonomous boats</span>
-				<span class="text-slate-500 transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
-			</a>
+	<section class="relative overflow-hidden">
+		<div class="hero-glow" aria-hidden="true"></div>
+		<div class="relative mx-auto grid max-w-6xl items-center gap-12 px-5 pb-16 pt-12 md:px-8 lg:grid-cols-[1.06fr_0.94fr] lg:gap-16 lg:pb-20 lg:pt-16">
+			<div class="min-w-0">
+				<a
+					href="/robotics"
+					class="group mb-6 inline-flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[0.875rem] text-ink-2 transition-colors hover:text-ink"
+				>
+					<span class="shrink-0 rounded-full bg-accent-soft px-2.5 py-0.5 font-mono text-[0.7rem] font-medium uppercase tracking-wider text-accent-ink">
+						In prod
+					</span>
+					<span>Saronic ships MoQ on its autonomous boats</span>
+					<span class="text-ink-3 transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+				</a>
 
-			<h1 class="display text-[2.3rem] sm:text-[3.4rem] lg:text-[3.6rem]">
-				Real-time media <span class="whitespace-nowrap">and <span class="scribble">massive scale.</span></span>
-			</h1>
+				<h1 class="display text-[2.25rem] sm:text-[3.5rem] lg:text-[3.85rem]">
+					Real-time media <span class="whitespace-nowrap">and <span class="scribble">massive scale.</span></span>
+				</h1>
 
-			<p class="mt-7 max-w-xl text-[1.15rem] leading-relaxed text-slate-300 md:text-[1.25rem]">
-				The <strong class="font-bold text-slate-100">open standard</strong> for streaming live video, audio, and <em>whatever you want</em>.
-			</p>
+				<p class="mt-6 max-w-xl text-[1.1rem] leading-relaxed text-ink-2 md:text-[1.22rem]">
+					The <strong class="font-semibold text-ink">open standard</strong> for streaming live video, audio, and <em>whatever you want</em>.
+				</p>
 
-			<div class="mt-9 flex flex-wrap items-center gap-3">
-				<a href="/demo" class="btn-green">Demos <span aria-hidden="true">→</span></a>
-				<a href="https://doc.moq.dev" class="btn-line">Docs</a>
+				<div class="mt-8 flex flex-wrap items-center gap-3">
+					<a href="/demo" class="btn-green">Demos <span aria-hidden="true">→</span></a>
+					<a href="https://doc.moq.dev" class="btn-line">Docs</a>
+					<a
+						href="https://doc.moq.dev/bin/relay/"
+						class="ml-1 text-[0.9rem] text-ink-3 underline decoration-line-strong underline-offset-4 transition-colors hover:text-ink"
+					>
+						or self-host moq-relay →
+					</a>
+				</div>
 			</div>
+
+			<!-- Unboxed publish -> relay -> subscribe schematic floating directly on the grid wash. -->
+			<figure class="group mx-auto w-full min-w-0 max-w-lg">
+				<svg
+					viewBox="0 0 494 252"
+					class="w-full drop-shadow-[0_0_28px_rgba(34,197,94,0.08)]"
+					role="img"
+					aria-label="A publisher sends one stream to the relay, which fans it out to every subscriber"
+				>
+					<image class="boil" href="/icons/use-case/voice-video-ai.svg" x="0" y="75" width="96" height="70" />
+					<image class="boil" href="/drawn/icon-globe.svg" x="206" y="65" width="90" height="90" />
+					<image class="boil" href="/icons/use-case/conferencing.svg" x="416" y="10" width="60" height="50" />
+					<image class="boil" href="/icons/use-case/interactive.svg" x="416" y="85" width="60" height="50" />
+					<image class="boil" href="/icons/use-case/robotics.svg" x="416" y="158" width="60" height="58" />
+
+					<!-- Hand-drawn arrows, each placed by its tail and rotated toward its icon.
+					     The rotation lives on a <g> so `.boil` can own `transform`. -->
+					<image class="boil" href="/drawn/arrow-2.svg" x="106" y="100.5" width="90" height="19" />
+					<g transform="rotate(-38 302 96)"><image class="boil" href="/drawn/arrow-4.svg" x="302" y="86.5" width="100" height="19" /></g>
+					<image class="boil" href="/drawn/arrow-6.svg" x="310" y="100" width="90" height="20" />
+					<g transform="rotate(38 302 124)"><image class="boil" href="/drawn/arrow-5.svg" x="302" y="112" width="100" height="24" /></g>
+
+					<g class="font-mono uppercase" fill="#8c99b0" font-size="13" letter-spacing="1.2" text-anchor="middle">
+						<text x="48" y="242">publish</text>
+						<text x="251" y="242">relay</text>
+						<text x="446" y="242">subscribe</text>
+					</g>
+				</svg>
+
+				<a
+					href="/watch?project=demo&name=bbb.hang"
+					class="mt-4 flex items-center justify-between gap-3 rounded-lg border border-line bg-[#020617]/75 px-3.5 py-2.5 text-[0.78rem] transition-colors hover:border-line-strong"
+					style="font-family: var(--font-code);"
+				>
+					<span class="truncate text-ink-2">
+						<span class="text-slate-500">&lt;</span><span class="text-accent-ink">moq-watch</span>{" "}
+						<span class="text-[#c4b5fd]">url</span>=<span class="text-[#fde68a]">"https://cdn.moq.pro/demo/bbb.hang"</span><span class="text-slate-500">&gt;</span>
+					</span>
+					<span class="shrink-0 font-mono text-[0.7rem] text-accent-ink">live →</span>
+				</a>
+			</figure>
 		</div>
-
-		<!-- One publisher, fanned out by the relay to whoever subscribes. One coordinate
-		system for the icons and arrows, so every arrow lands on its icon. -->
-		<figure class="group card card-lift mx-auto w-full max-w-lg px-5 py-6 sm:px-7">
-			<svg
-				viewBox="0 0 494 262"
-				class="w-full"
-				role="img"
-				aria-label="A publisher sends one stream to the relay, which fans it out to every subscriber"
-			>
-				<image class="boil" href="/icons/use-case/voice-video-ai.svg" x="0" y="85" width="96" height="70" />
-				<image class="boil" href="/drawn/icon-globe.svg" x="206" y="75" width="90" height="90" />
-				<image class="boil" href="/icons/use-case/conferencing.svg" x="416" y="18" width="60" height="50" />
-				<image class="boil" href="/icons/use-case/interactive.svg" x="416" y="95" width="60" height="50" />
-				<image class="boil" href="/icons/use-case/robotics.svg" x="416" y="168" width="60" height="58" />
-
-				<!-- Hand-drawn arrows, each placed by its tail and rotated toward its icon.
-				     The fan's tails are spread down the globe's edge so they don't overlap.
-				     The rotation lives on a <g> so `.boil` can own `transform`. -->
-				<image class="boil" href="/drawn/arrow-2.svg" x="106" y="110.5" width="90" height="19" />
-				<g transform="rotate(-38 302 106)"><image class="boil" href="/drawn/arrow-4.svg" x="302" y="96.5" width="100" height="19" /></g>
-				<image class="boil" href="/drawn/arrow-6.svg" x="310" y="110" width="90" height="20" />
-				<g transform="rotate(38 302 134)"><image class="boil" href="/drawn/arrow-5.svg" x="302" y="122" width="100" height="24" /></g>
-
-				<g class="font-mono uppercase" fill="#cbd5e1" font-size="13" letter-spacing="1.2" text-anchor="middle">
-					<text x="48" y="254">publish</text>
-					<text x="251" y="254">relay</text>
-					<text x="446" y="254">subscribe</text>
-				</g>
-			</svg>
-		</figure>
 	</section>
 
-	<!-- Features -->
-	<section class="mx-auto max-w-6xl px-5 pb-20 md:px-8">
-		<h2 class="sr-only">What you get</h2>
-		<img src="/drawn/what.svg" class="mb-5 w-32 -rotate-3" alt="" />
-		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-			{
-				features.map((feature) => (
-					<div class="card group flex gap-4 p-5 sm:flex-col">
-						<span class="icon-tile h-12 w-12">
-							<img src={`/drawn/icon-${feature.icon}.svg`} class="boil h-7 w-7 object-contain" alt="" />
-						</span>
-						<div>
-							<h3 class="font-semibold text-white">{feature.title}</h3>
-							<p class="mt-1 text-[0.9rem] leading-relaxed text-slate-400">{feature.body}</p>
-						</div>
-					</div>
-				))
-			}
-		</div>
-		<div class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-			<h3 class="shrink-0 font-semibold text-white">Libraries for</h3>
-			<div class="flex flex-wrap gap-2">
+	<!-- Demos: ruled 2-column editorial list on a solid surface band (no grid) -->
+	<section class="sec-band">
+		<div class="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-16">
+			<div class="mb-7 flex items-end justify-between gap-6">
+				<div>
+					<img src="/drawn/how.svg" class="mb-1.5 h-7 w-auto -rotate-2" alt="" />
+					<h2 class="display text-[1.9rem] md:text-[2.3rem]">Demos</h2>
+				</div>
+				<a href="/demo" class="green-link shrink-0 text-[0.92rem] font-medium">All demos &amp; CLI →</a>
+			</div>
+
+			<div class="grid border-t border-line md:grid-cols-2">
 				{
-					languages.map((language) => (
-						<a href={language.href} class="chip group">
-							<img src={`/icons/cards/${language.icon}.svg`} class="boil h-6 w-6 object-contain" alt="" />
-							{language.name}
+					demos.map((demo, i) => (
+						<a
+							href={demo.href}
+							class:list={[
+								"group grid grid-cols-[5rem_1fr_1.25rem] items-center gap-4 border-b border-line py-5 transition-colors hover:bg-tint sm:gap-5",
+								i % 2 === 0 ? "md:border-r md:pr-7 md:pl-2" : "md:pl-7 md:pr-2",
+							]}
+						>
+							<img src={demo.icon} class="boil mx-auto h-14 w-20 object-contain" alt="" />
+							<div>
+								<h3 class="text-[1.05rem] font-semibold text-ink transition-colors group-hover:text-accent-ink">
+									{demo.title}
+								</h3>
+								<p class="mt-1 text-[0.88rem] leading-relaxed text-ink-3">{demo.body}</p>
+							</div>
+							<span class="font-mono text-sm text-accent transition-transform group-hover:translate-x-0.5" aria-hidden="true">
+								→
+							</span>
 						</a>
 					))
 				}
 			</div>
+
+			<div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-[0.85rem] text-ink-3">
+				<div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+					<span>Also:</span>
+					<a href="https://hang.live" rel="noreferrer" target="_blank" class="text-ink-2 transition-colors hover:text-accent-ink">hang.live</a>
+					<span aria-hidden="true">·</span>
+					<a href="/publish" class="text-ink-2 transition-colors hover:text-accent-ink">Publish</a>
+					<span aria-hidden="true">·</span>
+					<a href="/demo#cli" class="text-ink-2 transition-colors hover:text-accent-ink">MoQ CLI</a>
+					<span aria-hidden="true">·</span>
+					<a href="/demo#ffmpeg" class="text-ink-2 transition-colors hover:text-accent-ink">FFmpeg</a>
+					<span aria-hidden="true">·</span>
+					<a href="/demo#gstreamer" class="text-ink-2 transition-colors hover:text-accent-ink">GStreamer</a>
+				</div>
+				<span class="label">all open source</span>
+			</div>
 		</div>
 	</section>
 
-	<!-- Standards -->
-	<section class="border-y border-slate-800 bg-slate-800/30">
-		<div class="mx-auto flex max-w-6xl flex-col items-start gap-6 px-5 py-8 md:flex-row md:items-center md:gap-10 md:px-8">
-			<div class="flex shrink-0 items-center gap-6">
-				<img src="/home/ietf.svg" class="h-11 w-auto" alt="IETF" />
-				<img src="/home/quic.svg" class="h-7 w-auto" alt="QUIC" />
+	<!-- Features + Libraries -->
+	<section>
+		<div class="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-16">
+			<div class="grid gap-10 lg:grid-cols-[200px_1fr] lg:gap-14">
+				<div>
+					<h2 class="sr-only">What you get</h2>
+					<img src="/drawn/what.svg" class="w-36 -rotate-2" alt="" />
+					<p class="mt-4 text-[0.9rem] leading-relaxed text-ink-3">
+						Open source under MIT / Apache 2.0.
+					</p>
+				</div>
+
+				<div class="grid gap-x-10 gap-y-7 sm:grid-cols-2">
+					{
+						features.map((feature) => (
+							<div class="group flex items-start gap-4">
+								<img
+									src={`/drawn/icon-${feature.icon}.svg`}
+									class="boil mt-0.5 h-7 w-7 shrink-0 object-contain"
+									alt=""
+								/>
+								<div>
+									<h3 class="font-semibold text-ink">{feature.title}</h3>
+									<p class="mt-1 text-[0.9rem] leading-relaxed text-ink-3">{feature.body}</p>
+								</div>
+							</div>
+						))
+					}
+				</div>
 			</div>
-			<p class="text-[0.98rem] leading-relaxed text-slate-400">
-				<strong class="font-semibold text-white">Build first, argue later.</strong>{" "}
+
+			<div class="mt-12 flex flex-col gap-4 border-t border-line pt-8 sm:flex-row sm:items-center sm:justify-between">
+				<h3 class="label shrink-0">Libraries</h3>
+				<div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+					{
+						languages.map((language) => (
+							<a
+								href={language.href}
+								class="group inline-flex items-center gap-2 text-[0.92rem] text-ink-2 transition-colors hover:text-ink"
+							>
+								<img
+									src={`/icons/cards/${language.icon}.svg`}
+									class="boil h-6 w-6 object-contain"
+									alt=""
+								/>
+								<span>{language.name}</span>
+							</a>
+						))
+					}
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Standards: thin horizontal strip -->
+	<section class="sec-band">
+		<div class="mx-auto flex max-w-6xl flex-col items-start gap-6 px-5 py-7 md:flex-row md:items-center md:gap-10 md:px-8 md:py-8">
+			<div class="flex shrink-0 items-center gap-6">
+				<img src="/home/ietf.svg" class="h-10 w-auto" alt="IETF" />
+				<img src="/home/quic.svg" class="h-6 w-auto" alt="QUIC" />
+			</div>
+			<p class="text-[0.98rem] leading-relaxed text-ink-3">
+				<strong class="font-semibold text-ink">Build first, argue later.</strong>{" "}
 				MoQ is being standardized by the <a class="green-link" href="https://datatracker.ietf.org/wg/moq/about/">IETF</a>{" "}
 				as a new RFC. We ship{" "}
 				<a class="green-link" href="https://doc.moq.dev/concept/layer/moq-lite">moq-lite</a> today: a forwards-compatible
@@ -171,96 +325,110 @@ const useCases = [
 		</div>
 	</section>
 
-	<!-- Use cases -->
-	<section class="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
-		<h2 class="display mb-10 text-[2.1rem] md:text-[2.6rem]">More than <span class="scribble scribble-2">media.</span></h2>
-		<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+	<!-- Use cases (ruled index) + Unboxed MoQ Alliance -->
+	<section class="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-16">
+		<div class="mb-7 flex items-baseline justify-between gap-6">
+			<h2 class="display text-[1.9rem] md:text-[2.3rem]">Use cases</h2>
+			<a href="/robotics" class="green-link shrink-0 text-[0.92rem] font-medium">Robotics in prod →</a>
+		</div>
+
+		<div class="border-t border-line">
 			{
 				useCases.map((useCase) => (
-					<a href={useCase.href} class="card group flex gap-5 p-5">
-						<span class="icon-tile h-16 w-16">
-							<img src={`/icons/use-case/${useCase.icon}.svg`} class="boil h-10 w-10 object-contain" alt="" />
+					<a
+						href={useCase.href}
+						class="group grid grid-cols-[2.25rem_1fr_1.25rem] items-center gap-x-4 gap-y-1 border-b border-line px-2 py-4 transition-colors hover:bg-tint sm:grid-cols-[2.5rem_11.5rem_1fr_1.5rem]"
+					>
+						<img
+							src={`/icons/use-case/${useCase.icon}.svg`}
+							class="boil h-7 w-8 object-contain"
+							alt=""
+						/>
+						<span class="font-semibold text-ink transition-colors group-hover:text-accent-ink">
+							{useCase.title}
 						</span>
-						<span class="flex flex-col gap-1">
-							<span class="flex items-center gap-2 text-[1.1rem] font-semibold text-white group-hover:text-green-500">
-								{useCase.title}
-								<span class="-translate-x-1 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" aria-hidden="true">→</span>
-							</span>
-							<span class="text-[0.9rem] leading-relaxed text-slate-400">{useCase.body}</span>
+						<span class="col-start-2 text-[0.9rem] leading-relaxed text-ink-3 sm:col-start-auto">
+							{useCase.body}
+						</span>
+						<span
+							class="col-start-3 row-start-1 text-right font-mono text-sm text-accent transition-transform group-hover:translate-x-0.5 sm:col-start-auto sm:row-start-auto"
+							aria-hidden="true"
+						>
+							→
 						</span>
 					</a>
 				))
 			}
 		</div>
-	</section>
 
-	<!-- Alliance -->
-	<section class="mx-auto max-w-6xl px-5 pb-16 md:px-8 md:pb-20">
-		<h2 class="display mb-4 text-[2.1rem] md:text-[2.6rem]">Not just <span class="scribble">us.</span></h2>
-		<p class="mb-8 max-w-2xl text-[1.05rem] leading-relaxed text-slate-400">
-			The <a class="green-link" href="https://moqalliance.org/">MoQ Alliance</a> is a group of CDNs, vendors, and open
-			source projects building MoQ together, with independent implementations that interoperate.
-		</p>
-		<div class="grid grid-cols-3 gap-3 sm:gap-4 lg:grid-cols-9">
-			{
-				alliance.map((member) => (
-					<div class="card flex flex-col items-center gap-3 px-2 py-5">
-						<img src={`/icons/alliance/${member.icon}.svg`} class="boil h-10 w-full max-w-20 object-contain" alt="" />
-						<span class="text-[0.8rem] text-slate-300 sm:text-[0.9rem]">{member.name}</span>
-					</div>
-				))
-			}
-			<a href="https://moqalliance.org/" class="card group flex flex-col items-center justify-center gap-1 px-2 py-5 text-center">
-				<span class="font-semibold text-white group-hover:text-green-500">and many more</span>
-				<span class="text-green-500 transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+		<div class="mt-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+			<div class="shrink-0">
+				<span class="label">MoQ Alliance</span>
+			</div>
+			<div class="flex flex-wrap items-center gap-x-7 gap-y-4">
+				{
+					alliance.map((member) => (
+						<img
+							src={`/icons/alliance/${member.icon}.svg`}
+							class="h-7 w-auto max-w-18 object-contain opacity-90 transition-opacity hover:opacity-100"
+							alt={member.name}
+							title={member.name}
+						/>
+					))
+				}
+			</div>
+			<a href="https://moqalliance.org/" class="green-link shrink-0 text-[0.88rem] font-medium">
+				and many more →
 			</a>
 		</div>
 	</section>
 
-	<!-- Production -->
-	<section class="border-t border-slate-800 bg-slate-800/30">
-		<div class="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
-			<div class="relative mb-10 max-w-2xl">
-				<h2 class="display text-[2.1rem] md:text-[2.6rem]">Ready for <span class="scribble scribble-3">production.</span></h2>
-				<p class="mt-4 text-[1.05rem] leading-relaxed text-slate-400">
-					Every piece is open source under MIT or Apache 2.0. Run it yourself, or let us run it for you.
-				</p>
-				<img src="/drawn/open.svg" class="pointer-events-none absolute -right-64 top-2 hidden w-48 rotate-[4deg] lg:block" alt="open and optional" />
+	<!-- Self-host or managed: vertical hairline split (no nested boxes) -->
+	<section class="sec-band">
+		<div class="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-16">
+			<div class="mb-10 flex flex-wrap items-end justify-between gap-4">
+				<div>
+					<img src="/drawn/open.svg" class="mb-1.5 h-8 w-auto -rotate-2" alt="open and optional" />
+					<h2 class="display text-[1.9rem] md:text-[2.3rem]">Self-host or managed</h2>
+				</div>
+				<span class="label">MIT / Apache 2.0</span>
 			</div>
-			<div class="grid gap-6 md:grid-cols-2">
-				<div class="card flex flex-col bg-slate-900! p-7 md:p-9">
+
+			<div class="grid gap-10 md:grid-cols-2 md:gap-0">
+				<div class="flex flex-col md:pr-10">
 					<span class="label">Open source</span>
-					<h3 class="mt-2 text-[1.5rem] font-bold text-white">Self-host</h3>
-					<p class="mt-3 leading-relaxed text-slate-400">
-						Deploy <code class="font-mono text-[0.85em] text-slate-200">moq-relay</code> anywhere. Clusters discover each
+					<h3 class="display mt-2 text-[1.45rem]">Self-host</h3>
+					<p class="mt-3 text-[0.95rem] leading-relaxed text-ink-3">
+						Deploy <code class="font-mono text-[0.86em] text-ink">moq-relay</code> anywhere. Clusters discover each
 						other, route by the shortest path, and fail over without a central controller.
 					</p>
-					<ul class="mt-6 flex flex-col gap-2 text-[0.95rem] text-slate-300">
-						<li><span class="text-green-500">✓</span> &nbsp;No license fees, no lock-in</li>
-						<li><span class="text-green-500">✓</span> &nbsp;Compatible with any MoQ CDN</li>
-						<li><span class="text-green-500">✓</span> &nbsp;Community support on Discord</li>
+					<ul class="mt-5 flex flex-col gap-2 text-[0.92rem] text-ink-2">
+						<li><span class="mr-2 text-accent">✓</span>No license fees, no lock-in</li>
+						<li><span class="mr-2 text-accent">✓</span>Compatible with any MoQ CDN</li>
+						<li><span class="mr-2 text-accent">✓</span>Community support on Discord</li>
 					</ul>
-					<div class="mt-auto flex gap-3 pt-8">
+					<div class="mt-auto flex flex-wrap gap-3 pt-7">
 						<a href="https://doc.moq.dev/bin/relay/" class="btn-line">Relay docs</a>
 						<a href="https://github.com/moq-dev/moq" class="btn-line">GitHub</a>
 					</div>
 				</div>
-				<div class="card flex flex-col border-green-500/60! bg-slate-900! p-7 shadow-[5px_5px_0_0_#22c55e]! md:p-9">
-					<span class="label text-green-500!">Managed</span>
-					<h3 class="mt-2 flex items-center gap-3 text-[1.5rem] font-bold text-white">
+
+				<div class="flex flex-col border-t border-line pt-10 md:border-l md:border-t-0 md:pl-10 md:pt-0">
+					<span class="label text-accent-ink!">Managed CDN</span>
+					<h3 class="display mt-2 flex items-center gap-2.5 text-[1.45rem]">
 						moq.pro
-						<img src="/layout/pro-icon.svg" class="h-7" alt="" />
+						<img src="/layout/pro-icon.svg" class="h-6 w-auto" alt="" />
 					</h3>
-					<p class="mt-3 leading-relaxed text-slate-400">
-						A global MoQ CDN run by the people who wrote the relay. Every viewer lands on the nearest edge, with no regions
-						to pick.
+					<p class="mt-3 text-[0.95rem] leading-relaxed text-ink-3">
+						A global MoQ CDN run by the people who wrote the relay. Every viewer lands on the nearest edge, with no
+						regions to pick.
 					</p>
-					<ul class="mt-6 flex flex-col gap-2 text-[0.95rem] text-slate-300">
-						<li><span class="text-green-500">✓</span> &nbsp;400 GB of delivery free every month</li>
-						<li><span class="text-green-500">✓</span> &nbsp;Up and running in minutes, nothing to operate</li>
-						<li><span class="text-green-500">✓</span> &nbsp;Direct support from the maintainers</li>
+					<ul class="mt-5 flex flex-col gap-2 text-[0.92rem] text-ink-2">
+						<li><span class="mr-2 text-accent">✓</span>400 GB of delivery free every month</li>
+						<li><span class="mr-2 text-accent">✓</span>Up and running in minutes, nothing to operate</li>
+						<li><span class="mr-2 text-accent">✓</span>Direct support from the maintainers</li>
 					</ul>
-					<div class="mt-auto flex flex-wrap gap-3 pt-8">
+					<div class="mt-auto flex flex-wrap gap-3 pt-7">
 						<a href={proUrl} class="btn-green">Get started <span aria-hidden="true">→</span></a>
 						<a href="mailto:me@kixel.me" class="btn-line">Talk to us</a>
 					</div>
@@ -269,28 +437,47 @@ const useCases = [
 		</div>
 	</section>
 
-	<!-- Blog -->
-	<section class="border-t border-slate-800">
-		<div class="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
-			<div class="mb-10 flex items-baseline justify-between gap-6">
-				<h2 class="display text-[2.1rem] md:text-[2.6rem]">From the <span class="scribble">blog.</span></h2>
-				<a href="/blog" class="green-link shrink-0 font-medium">All posts</a>
-			</div>
-			<div class="grid gap-7 md:grid-cols-3">
-				{
-					posts.map((post) => (
-						<a href={post.url} class="polaroid group">
+	<!-- Blog: editorial lead + ruled chronological list -->
+	<section class="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-16">
+		<div class="mb-8 flex items-baseline justify-between gap-6">
+			<h2 class="display text-[1.9rem] md:text-[2.3rem]">Blog</h2>
+			<a href="/blog" class="green-link shrink-0 text-[0.92rem] font-medium">All posts &amp; RSS →</a>
+		</div>
+
+		<div class="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
+			{
+				leadPost && (
+					<a href={leadPost.url} class="group block">
+						<div class="mb-4 overflow-hidden rounded-xl border border-line bg-surface p-4 transition-colors group-hover:border-line-strong">
 							<img
-								src={post.frontmatter.cover}
-								class="mb-2 aspect-video w-full rounded-lg bg-slate-900 object-cover"
+								src={leadPost.frontmatter.cover}
+								class="aspect-video w-full object-contain"
 								alt=""
-								loading="lazy"
 							/>
-							<span class="label px-1">{formatDate(post.frontmatter.date)}</span>
-							<span class="px-1 text-[1.2rem] font-semibold leading-tight text-white group-hover:text-green-500">
-								{post.frontmatter.title}
-							</span>
-							<span class="px-1 text-[0.92rem] leading-relaxed text-slate-400">{post.frontmatter.description}</span>
+						</div>
+						<span class="label">{formatDate(leadPost.frontmatter.date)}</span>
+						<h3 class="display mt-1.5 text-[1.5rem] transition-colors group-hover:text-accent-ink">
+							{leadPost.frontmatter.title}
+						</h3>
+						<p class="mt-2 text-[0.95rem] leading-relaxed text-ink-3">{leadPost.frontmatter.description}</p>
+					</a>
+				)
+			}
+
+			<div class="border-t border-line">
+				{
+					recentPosts.map((post) => (
+						<a
+							href={post.url}
+							class="group block border-b border-line px-2 py-4 transition-colors hover:bg-tint"
+						>
+							<div class="flex items-baseline justify-between gap-4">
+								<h3 class="font-semibold text-ink transition-colors group-hover:text-accent-ink">
+									{post.frontmatter.title}
+								</h3>
+								<span class="label shrink-0">{formatDate(post.frontmatter.date)}</span>
+							</div>
+							<p class="mt-1 text-[0.88rem] leading-relaxed text-ink-3">{post.frontmatter.description}</p>
 						</a>
 					))
 				}
