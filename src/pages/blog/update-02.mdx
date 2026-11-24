@@ -4,7 +4,7 @@ title: Update 02
 author: kixelated
 description: "TODO"
 cover: "/blog/moq-onion/karp.svg"
-date: 2026-11-12
+date: 2026-11-23
 ---
 
 import Author from "@/components/author.astro";
@@ -12,74 +12,104 @@ import Author from "@/components/author.astro";
 # Update 02
 
 {/* SKELETON: headings are the outline, bullets are notes and facts to write from. Delete the bullets as you go.
-    Source: moq-dev/moq origin/release (7b7d621ecb, 2026-11-11) vs origin/main (1d5c230cfd, 2026-11-12), merge base d0b086e71b (2026-10-09).
-    `release` has ~279 backports of its own, so some fixes below may already have shipped: check before claiming "new". */}
+    Source: moq-dev/moq origin/release (a36c508ade, 2026-11-22) vs origin/main (e56d723e60, 2026-11-24), merge base d0b086e71b (2026-10-09).
+    `release` has 191 commits of its own (backports and release-plz), so some fixes below may already have shipped as patches: check before claiming "new".
 
-- TODO: the hook. 3,642 commits on `main` not on `release`: 1,140 fix, 572 feat, 91 perf, 714 quest planning. 437 titles carry `!`.
-- Compare to update-01's "+129k -24k". TODO: `git diff --shortstat origin/release origin/main`.
+    NOT CUT YET. `version.json` still has "minor": null. The cut (moq quest/m3/release/cut.md) waits on:
+    - m2, the last breaking work:
+      - lite-07 Path Keep counts decoded parts: moq#9357 (open)
+      - per-range SUBSCRIBE_START on every track: moq#9491 (open)
+      - lite-07 metadata-only subscription wire: being planned in moq#9516 (draft, decided 2026-11-23)
+      - then lite07-finalize renames `moq-lite-07-wip` to `moq-lite-07`; it also waits on origin route rank, moq#9371 (open)
+    - m0: rind 0.4 adapters (moq#8432, draft, waits on rind 0.4 publishing), Interop and Nightly green
+      (both still failed their 2026-11-23 scheduled runs; open fixes moq#9511, moq#9509, moq#9393)
+    - m3 release reviews, which run after m2 lands: migration audit, API shape review, feature review delta, Cargo feature review delta
+    - the maintainer claims @moq/clock, @moq/libav, @moq/stats, @moq/video on npm by hand
+    Bullets marked (pending) depend on that unmerged work. Re-run the numbers below at the cut. */}
+
+- TODO: the hook. 4,410 commits on `main` not on `release`: 1,451 fix, 763 feat, 106 perf, 846 quest planning. 566 titles carry `!`.
+- Compare to update-01's "+129k -24k": `main` is +1.38M -321k across 5,519 files. Inflated by vendored code (moq-quic +59k, moq-vaapi +46k, moq-congestion +30k) and `nix/Cargo.nix` (+65k); moq-net alone is +302k -67k.
 
 ## 0.22 for Everything
-- First cut is a **shared minor**: `just version 0.22.0` moves every published package to 0.22.0 across Rust, npm, Python, Go, Swift, Kotlin, Dart, C, and C++ (`RELEASE.md`). Patches stay independent per package afterwards.
-- Exempt: `kio`, `kio-macros`, `qmux`, `@moq/qmux`.
-- Only `hang` (0.21.x) would have hit 0.22 naturally. `moq-net` 0.3 → 0.22 and `@moq/watch` 0.6 → 0.22 are big jumps; explain why (one number to ask "what version are you on?").
-- Breaking API cleanup: API audits deleted/privatized unused public surface, banned `doc(hidden)`, `Option` instead of sentinel values. [moq#8461](https://github.com/moq-dev/moq/pull/8461), [moq#8088](https://github.com/moq-dev/moq/pull/8088), [moq#8265](https://github.com/moq-dev/moq/pull/8265), [moq#8392](https://github.com/moq-dev/moq/pull/8392), [moq#8247](https://github.com/moq-dev/moq/pull/8247)
-- Every package has a `MIGRATE.md`. Link them.
+- First cut is a **shared minor**: `just version 0.22.0` moves every published package to 0.22.0 across Rust, npm, Python, Go, Swift, Kotlin, C, and C++ (`RELEASE.md`). Patches stay independent per package afterwards.
+- Exempt: `kio`, `kio-macros`, `qmux`, `@moq/qmux` keep their own lines. Dart's `moq` wrapper stays 0.x until an interop client or an iOS run proves it. New experiments start at 0.0.x.
+- Today `hang` is 0.21.25, `moq-net` 0.3.24, `libmoq` 0.6.27, `@moq/watch` 0.6.6 on `release`. Only `hang` would have hit 0.22 naturally; explain the jump (one number to ask "what version are you on?").
+- After 0.22, cuts are on demand and each cycle runs in three phases: additive, then API breaks, then wire changes (`RELEASE.md`). TODO: one line on what that means for users (fewer surprise breaks?).
+- Breaking API cleanup: API audits deleted/privatized unused public surface, banned `doc(hidden)`, `Option` instead of sentinel values; each package publishes only what a caller uses. [moq#8461](https://github.com/moq-dev/moq/pull/8461), [moq#8088](https://github.com/moq-dev/moq/pull/8088), [moq#8265](https://github.com/moq-dev/moq/pull/8265), [moq#8392](https://github.com/moq-dev/moq/pull/8392), [moq#8247](https://github.com/moq-dev/moq/pull/8247), [moq#8931](https://github.com/moq-dev/moq/pull/8931), [moq#8929](https://github.com/moq-dev/moq/pull/8929), [moq#8957](https://github.com/moq-dev/moq/pull/8957), [moq#8956](https://github.com/moq-dev/moq/pull/8956)
+- 58 `MIGRATE.md` files so far; the migration audit (pending) checks every break has its entry. Link them.
+
+## Groups Are Timestamps
+- The big one. Groups are addressed by their start timestamp, not a sequence number, in moq-net (Rust and JS), the FFI, and every binding. Readers seek or join from a time; no producer remembers group numbers. Older wires carry the key verbatim as the group ID, so old peers keep working. [moq#8638](https://github.com/moq-dev/moq/pull/8638), [moq#8908](https://github.com/moq-dev/moq/pull/8908), [moq#8915](https://github.com/moq-dev/moq/pull/8915), [moq#9002](https://github.com/moq-dev/moq/pull/9002)
+- Every write takes a required `Timestamp { value, scale }`; JS group starts are `bigint`.
+- Catalog updates take effect at their timestamp. [moq#8907](https://github.com/moq-dev/moq/pull/8907), [moq#9281](https://github.com/moq-dev/moq/pull/9281)
+- TODO: a code before/after.
+
+## Subscriptions, Reworked
+- A subscription is a set of ranges. A live join is a range with a `Live { min, max }` start: `min` reaches back from the live edge, `max` is that range's staleness budget. History ranges (time, position, oldest) deliver in full. So one DVR viewer no longer stretches every live viewer's budget on a relay. Replaces `Delay { min, max }` from earlier on `main`. [moq#9316](https://github.com/moq-dev/moq/pull/9316), [moq#9409](https://github.com/moq-dev/moq/pull/9409), [moq#9490](https://github.com/moq-dev/moq/pull/9490)
+- Fetch is a range of a subscription; a lite-07 range may start partway through a group, so a route switch resends nothing. [moq#7545](https://github.com/moq-dev/moq/pull/7545), [moq#9155](https://github.com/moq-dev/moq/pull/9155)
+- Each range gets its own SUBSCRIBE_START, so a live join through a relay waits on its upstream. [moq#9444](https://github.com/moq-dev/moq/pull/9444); every track (pending, [moq#9491](https://github.com/moq-dev/moq/pull/9491))
+- Datagram tracks are their own kind of track. [moq#6949](https://github.com/moq-dev/moq/pull/6949), [moq#7752](https://github.com/moq-dev/moq/pull/7752)
+- Tracks refresh by interval or on request. [moq#9054](https://github.com/moq-dev/moq/pull/9054)
 
 ## Protocol Versions
-- moq-transport: dropped drafts 14–17 and 19–21, then brought 20 back. Supported: **18, 20, 22**. [moq#6753](https://github.com/moq-dev/moq/pull/6753), [moq#6754](https://github.com/moq-dev/moq/pull/6754), [moq#7190](https://github.com/moq-dev/moq/pull/7190)
-- moq-lite-07 (still opt-in as `moq-lite-07-wip`): ranges, `SUBSCRIBE_SKIP`, a route layer with RTT and loop-free routes, availability in announcements. [moq#7872](https://github.com/moq-dev/moq/pull/7872), [moq#7764](https://github.com/moq-dev/moq/pull/7764), [moq#8023](https://github.com/moq-dev/moq/pull/8023), [moq#8443](https://github.com/moq-dev/moq/pull/8443), [moq#8375](https://github.com/moq-dev/moq/pull/8375)
-- TODO: is lite-07 the default yet at the cut? If not, say when.
+- moq-lite-07 ships (pending lite07-finalize): `moq-lite-07-wip` becomes `moq-lite-07`, servers accept it by default, first-party clients prefer it and fall back. Contents: ranges, timestamp-addressed groups, live starts, `SUBSCRIBE_SKIP`, a route layer (ROUTE, ROUTE_END, DEAD, DRAIN; every claim owned by the relay announcing it), availability in announcements, metadata-only subscriptions (pending, [moq#9516](https://github.com/moq-dev/moq/pull/9516)). [moq#7872](https://github.com/moq-dev/moq/pull/7872), [moq#7764](https://github.com/moq-dev/moq/pull/7764), [moq#8987](https://github.com/moq-dev/moq/pull/8987), [moq#8443](https://github.com/moq-dev/moq/pull/8443), [moq#8375](https://github.com/moq-dev/moq/pull/8375)
+- moq-transport: dropped drafts 14–17, 19, and 21. Supported: **18, 20, 22**, plus **23** opt-in. [moq#6753](https://github.com/moq-dev/moq/pull/6753), [moq#6754](https://github.com/moq-dev/moq/pull/6754), [moq#7190](https://github.com/moq-dev/moq/pull/7190), [moq#8975](https://github.com/moq-dev/moq/pull/8975)
 
 ## Our Own QUIC Stack (on rind)
 - `moq-quic`: in-tree import of quinn-proto, BBR3 as the default congestion controller. `moq-tokio` and `moq-uring` run on it. [moq#4879](https://github.com/moq-dev/moq/pull/4879), [moq#4921](https://github.com/moq-dev/moq/pull/4921), [moq#5664](https://github.com/moq-dev/moq/pull/5664)
-- Native crypto moves to [rind](/blog/rind); aws-lc-rs is gone. [moq#7873](https://github.com/moq-dev/moq/pull/7873), [moq#8250](https://github.com/moq-dev/moq/pull/8250)
+- Native crypto moves to [rind](/blog/rind); aws-lc-rs is gone. The cut waits on rind 0.4 (pending, [moq#8432](https://github.com/moq-dev/moq/pull/8432)). [moq#7873](https://github.com/moq-dev/moq/pull/7873), [moq#8250](https://github.com/moq-dev/moq/pull/8250)
+- qlog is always compiled; turn it on at runtime without a rebuild. [moq#8853](https://github.com/moq-dev/moq/pull/8853)
 - TODO: why fork quinn-proto (control over pacing/CC? io_uring?). Build time win from dropping aws-lc?
 
-## Subscriptions, Reworked
-- Subscriptions take `Delay { min, max }`. [moq#7597](https://github.com/moq-dev/moq/pull/7597)
-- Fetch is now a range of a subscription. [moq#7545](https://github.com/moq-dev/moq/pull/7545)
-- Datagram tracks are their own kind of track. [moq#6949](https://github.com/moq-dev/moq/pull/6949), [moq#7752](https://github.com/moq-dev/moq/pull/7752)
-- Group IDs past 2^53 are `bigint` in JS. [moq#7681](https://github.com/moq-dev/moq/pull/7681)
-- TODO: a code before/after.
+## Flow Control
+- Receive credit is leased: a relay pauses a stream while its writer runs ahead of the fastest reader, and any number of streams can pause. Smaller default windows. [moq#7624](https://github.com/moq-dev/moq/pull/7624), [moq#9210](https://github.com/moq-dev/moq/pull/9210)
+- Session stats count send-credit stalls, time sends held by congestion control, and count lost bytes, so the failure mode is visible. [moq#9328](https://github.com/moq-dev/moq/pull/9328), [moq#9446](https://github.com/moq-dev/moq/pull/9446), [moq#9398](https://github.com/moq-dev/moq/pull/9398)
+- TODO: whether the peer window default ([moq#9329](https://github.com/moq-dev/moq/pull/9329)) makes the cut.
 
 ## Auth
-- Tokens are per connection; relays enforce bitrate caps. [moq#6834](https://github.com/moq-dev/moq/pull/6834), [moq#7535](https://github.com/moq-dev/moq/pull/7535)
-- Clustered relays authenticate each other with mTLS; `moq auth serve` does mesh enrollment. [moq#8301](https://github.com/moq-dev/moq/pull/8301), [moq#7301](https://github.com/moq-dev/moq/pull/7301)
-- A credential is a handle in every binding. [moq#8516](https://github.com/moq-dev/moq/pull/8516)
-- Roles as patterns, dialed `host` (moq-auth CHANGELOG).
+- Tokens are per connection, written as documented with a typed `jti`; relays enforce bitrate caps and refuse grants they don't fully understand. Grants are path prefixes again. [moq#6834](https://github.com/moq-dev/moq/pull/6834), [moq#7535](https://github.com/moq-dev/moq/pull/7535), [moq#9001](https://github.com/moq-dev/moq/pull/9001), [moq#8933](https://github.com/moq-dev/moq/pull/8933), [moq#9251](https://github.com/moq-dev/moq/pull/9251)
+- Clustered relays authenticate each other with mTLS, and a cluster peer's token rotates on its live session. [moq#8301](https://github.com/moq-dev/moq/pull/8301), [moq#9403](https://github.com/moq-dev/moq/pull/9403), [moq#9380](https://github.com/moq-dev/moq/pull/9380)
+- A credential is a handle in every binding; a reconnecting client carries it in the URL's `auth` parameter. [moq#8516](https://github.com/moq-dev/moq/pull/8516), [moq#9215](https://github.com/moq-dev/moq/pull/9215)
 
-## Relay Performance
+## Relay Operations
 - QUIC endpoint sharded per core; moq-transport served from the io_uring workers; QUIC-LB forwarding. [moq#5688](https://github.com/moq-dev/moq/pull/5688), [moq#5821](https://github.com/moq-dev/moq/pull/5821), [moq#7539](https://github.com/moq-dev/moq/pull/7539)
 - Two performance audits cut the relay's live read cost. [moq#7874](https://github.com/moq-dev/moq/pull/7874), [moq#6281](https://github.com/moq-dev/moq/pull/6281)
+- Zero-downtime restarts: a new relay takes the listening sockets from the draining one over `SCM_RIGHTS`. [moq#8596](https://github.com/moq-dev/moq/pull/8596)
+- Bounded by default: a stock relay keeps 10% of memory free, and a session's live edges are bounded in bytes. [moq#9269](https://github.com/moq-dev/moq/pull/9269), [moq#9308](https://github.com/moq-dev/moq/pull/9308)
+- Each root's stats are published inside that root. [moq#9384](https://github.com/moq-dev/moq/pull/9384)
 - TODO: a number. The fanout benchmark ([moq#7986](https://github.com/moq-dev/moq/pull/7986)) might have a chart.
 
 ## Congestion Control
-- New `moq-congestion` crate; SCReAMv2 and GCC as candidate controllers; bring your own controller. [moq#6602](https://github.com/moq-dev/moq/pull/6602), [moq#7547](https://github.com/moq-dev/moq/pull/7547), [moq#7546](https://github.com/moq-dev/moq/pull/7546)
-- Viewer probe targets and receive grants; publishers drop simulcast rungs the grant can't fund. [moq#7467](https://github.com/moq-dev/moq/pull/7467), [moq#7090](https://github.com/moq-dev/moq/pull/7090), [moq#6781](https://github.com/moq-dev/moq/pull/6781)
+- New `moq-congestion` crate; congestion control is chosen by name: `bbr` (default), `cubic`, `unlimited`. SCReAMv2 and GCC stay as lab candidates, not published API. [moq#6602](https://github.com/moq-dev/moq/pull/6602), [moq#8944](https://github.com/moq-dev/moq/pull/8944), [moq#8850](https://github.com/moq-dev/moq/pull/8850)
+- Viewer probe targets and receive grants; publishers drop simulcast rungs the grant can't fund, and native capture publishes scaled simulcast renditions. [moq#7467](https://github.com/moq-dev/moq/pull/7467), [moq#7090](https://github.com/moq-dev/moq/pull/7090), [moq#6781](https://github.com/moq-dev/moq/pull/6781), [moq#9182](https://github.com/moq-dev/moq/pull/9182)
+- Encoders spend less than the cap on calm scenes (Linux, VideoToolbox). [moq#8905](https://github.com/moq-dev/moq/pull/8905), [moq#8972](https://github.com/moq-dev/moq/pull/8972)
 
 ## Transports
 - WebSocket fallback that upgrades to QUIC once UDP works. [moq#4180](https://github.com/moq-dev/moq/pull/4180), [moq#8330](https://github.com/moq-dev/moq/pull/8330)
 - MoQ over WebRTC data channels; QUIC and WebRTC media share one UDP port. [moq#5702](https://github.com/moq-dev/moq/pull/5702), [moq#5595](https://github.com/moq-dev/moq/pull/5595)
 - HTTP, RTMP, and `tls://` share one TCP port. [moq#7095](https://github.com/moq-dev/moq/pull/7095), [moq#7362](https://github.com/moq-dev/moq/pull/7362)
+- `qmux` and `@moq/qmux` moved in from moq-dev/web-transport.
 
 ## New Packages
-- Rust: `moq-c` (was `libmoq`), `moq-quic`, `moq-congestion`, `moq-crypto` (merges `moq-sign` + `moq-e2ee`), `moq-webrtc` (was `moq-rtc`), `moq-rtsp`, `moq-vaapi` (moved in from moq-dev/vaapi).
-- npm: `@moq/video` (WebGPU), `@moq/ui`, `@moq/stats`, `@moq/p2p`, `@moq/libav`, `@moq/crypto`.
-- [moq#6052](https://github.com/moq-dev/moq/pull/6052), [moq#7702](https://github.com/moq-dev/moq/pull/7702), [moq#8122](https://github.com/moq-dev/moq/pull/8122), [moq#5859](https://github.com/moq-dev/moq/pull/5859), [moq#5138](https://github.com/moq-dev/moq/pull/5138), [moq#8502](https://github.com/moq-dev/moq/pull/8502)
-- Bindings: C++ package with the OBS plugin on top, Dart codecs, VideoToolbox on iOS, bindings mirror Rust's layers, `curl | sh` installer. [moq#4079](https://github.com/moq-dev/moq/pull/4079), [moq#5839](https://github.com/moq-dev/moq/pull/5839), [moq#4638](https://github.com/moq-dev/moq/pull/4638), [moq#4519](https://github.com/moq-dev/moq/pull/4519), [moq#4839](https://github.com/moq-dev/moq/pull/4839)
+- Rust: `moq-quic`, `moq-congestion`, `moq-crypto` (endpoint keys only), `moq-webrtc` (was `moq-rtc`), `moq-rtsp`, `moq-vaapi` (moved in from moq-dev/vaapi), `qmux`.
+- npm: `@moq/video` (WebGPU), `@moq/stats`, `@moq/libav`, `@moq/clock`, `@moq/obs` (set up a local OBS from the browser), `@moq/qmux`.
+- `libmoq` keeps its name and ships 0.22 as its final line. [moq#8941](https://github.com/moq-dev/moq/pull/8941)
+- [moq#6052](https://github.com/moq-dev/moq/pull/6052), [moq#8122](https://github.com/moq-dev/moq/pull/8122), [moq#5859](https://github.com/moq-dev/moq/pull/5859), [moq#5138](https://github.com/moq-dev/moq/pull/5138), [moq#8502](https://github.com/moq-dev/moq/pull/8502), [moq#8721](https://github.com/moq-dev/moq/pull/8721)
+- Bindings: C++ package with the OBS plugin on top, Dart codecs, VideoToolbox on iOS, bindings mirror Rust's layers, `curl | sh` installer, `cargo binstall`, a Go module proxy at `moq.dev/moq-ffi`. [moq#4079](https://github.com/moq-dev/moq/pull/4079), [moq#5839](https://github.com/moq-dev/moq/pull/5839), [moq#4638](https://github.com/moq-dev/moq/pull/4638), [moq#4519](https://github.com/moq-dev/moq/pull/4519), [moq#4839](https://github.com/moq-dev/moq/pull/4839), [moq#8586](https://github.com/moq-dev/moq/pull/8586), [moq#8743](https://github.com/moq-dev/moq/pull/8743)
 
 ## Stats and Media Tooling
 - Browser publisher and player report stats and feedback; relay stats published as tracks. [moq#7222](https://github.com/moq-dev/moq/pull/7222), [moq#6428](https://github.com/moq-dev/moq/pull/6428)
-- `moq-studio`, `moq-scene`, an audio program bus (mix, pan, positioned sources). [moq#6797](https://github.com/moq-dev/moq/pull/6797)
-- Signed broadcasts per draft moq-sign-00. [moq#7092](https://github.com/moq-dev/moq/pull/7092)
-- Captions (SRT, WebVTT, TTML), VR/360 metadata. [moq#5281](https://github.com/moq-dev/moq/pull/5281), [moq#5543](https://github.com/moq-dev/moq/pull/5543)
-- Crash-safe MP4 recording + `moq repair`; HLS export. [moq#7357](https://github.com/moq-dev/moq/pull/7357), [moq#7560](https://github.com/moq-dev/moq/pull/7560), [moq#6777](https://github.com/moq-dev/moq/pull/6777)
+- `moq-studio` lives in its own repo, [moq-dev/studio](https://github.com/moq-dev/studio), on moq-video and moq-audio. An audio program bus (mix, pan, positioned sources). [moq#6797](https://github.com/moq-dev/moq/pull/6797)
+- Captions (SRT, WebVTT, TTML), VR/360 metadata and a VR demo; players pick a rendition by viewport orientation. [moq#5281](https://github.com/moq-dev/moq/pull/5281), [moq#5543](https://github.com/moq-dev/moq/pull/5543), [moq#8781](https://github.com/moq-dev/moq/pull/8781), [moq#9287](https://github.com/moq-dev/moq/pull/9287)
+- Crash-safe MP4 recording + `moq repair`, chapters in finished MP4s; HLS export; archive format v2. [moq#7357](https://github.com/moq-dev/moq/pull/7357), [moq#7560](https://github.com/moq-dev/moq/pull/7560), [moq#9284](https://github.com/moq-dev/moq/pull/9284), [moq#6777](https://github.com/moq-dev/moq/pull/6777), [moq#8932](https://github.com/moq-dev/moq/pull/8932)
+- Voice sources send nothing while the talker is silent. [moq#8998](https://github.com/moq-dev/moq/pull/8998), [moq#9031](https://github.com/moq-dev/moq/pull/9031)
 - VAAPI H.265 encode/decode on by default. [moq#8013](https://github.com/moq-dev/moq/pull/8013)
 
 ## RIP
 - WASM support, the iroh backend, built-in ACME, Opus DTX. [moq#7475](https://github.com/moq-dev/moq/pull/7475), [moq#7345](https://github.com/moq-dev/moq/pull/7345), [moq#7803](https://github.com/moq-dev/moq/pull/7803), [moq#4919](https://github.com/moq-dev/moq/pull/4919)
-- Crates `moq-native`, `moq-room`; packages `moq-binary`, `moq-flate`; `@moq/boy` is a demo now. [moq#8450](https://github.com/moq-dev/moq/pull/8450), [moq#7046](https://github.com/moq-dev/moq/pull/7046), [moq#8446](https://github.com/moq-dev/moq/pull/8446)
-- Smaller breaks: `moq ls` → `moq announced`, Docker image runs unprivileged, clock moved to `kio::clock`, capture encodes while enabled. [moq#4877](https://github.com/moq-dev/moq/pull/4877), [moq#6774](https://github.com/moq-dev/moq/pull/6774), [moq#7027](https://github.com/moq-dev/moq/pull/7027), [moq#7164](https://github.com/moq-dev/moq/pull/7164)
+- Scope cut: "moq keeps what a large live-media platform would use." Sockets (byte pipes over MoQ), peer-to-peer and the relay's STUN responder, mesh enrollment, and per-frame signing (moq-sign-00) all left before the cut. End-to-end encryption isn't ready, so `moq-e2ee` stays unpublished. [moq#9029](https://github.com/moq-dev/moq/pull/9029), [moq#8772](https://github.com/moq-dev/moq/pull/8772), [moq#8771](https://github.com/moq-dev/moq/pull/8771), [moq#8756](https://github.com/moq-dev/moq/pull/8756), [moq#8855](https://github.com/moq-dev/moq/pull/8855), [moq#8947](https://github.com/moq-dev/moq/pull/8947)
+- Unpublished: crates `moq-native`, `moq-room`, `moq-boy`, `moq-binary`, `moq-flate`; npm `@moq/boy`, `@moq/binary`, `@moq/flate`; `@moq/ui` is bundled into watch and publish. [moq#8450](https://github.com/moq-dev/moq/pull/8450), [moq#7046](https://github.com/moq-dev/moq/pull/7046), [moq#8446](https://github.com/moq-dev/moq/pull/8446), [moq#8934](https://github.com/moq-dev/moq/pull/8934)
+- Smaller breaks: `moq ls` → `moq announced`, Docker image runs unprivileged, clock moved to `kio::clock`, capture encodes while enabled, compile-trim Cargo features removed. [moq#4877](https://github.com/moq-dev/moq/pull/4877), [moq#6774](https://github.com/moq-dev/moq/pull/6774), [moq#7027](https://github.com/moq-dev/moq/pull/7027), [moq#7164](https://github.com/moq-dev/moq/pull/7164), [moq#8851](https://github.com/moq-dev/moq/pull/8851), [moq#8852](https://github.com/moq-dev/moq/pull/8852)
 - TODO: why WASM got cut. People will ask.
 
 ## FIN
