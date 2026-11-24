@@ -276,7 +276,7 @@ table td:first-child {
 }
 
 @utility sec-band {
-	@apply border-y border-line bg-surface/90;
+	@apply border-y border-line bg-surface;
 }
 
 /* Clean flat panel without resting shadows (used by embedded interactive diagrams). */

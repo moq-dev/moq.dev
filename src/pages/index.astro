@@ -199,8 +199,8 @@ const useCases = [
 		</div>
 	</section>
 
-	<!-- Demos: ruled 2-column editorial list (no card boxes) -->
-	<section class="border-t border-line">
+	<!-- Demos: ruled 2-column editorial list on a solid surface band (no grid) -->
+	<section class="sec-band">
 		<div class="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-16">
 			<div class="mb-7 flex items-end justify-between gap-6">
 				<div>
@@ -254,7 +254,7 @@ const useCases = [
 	</section>
 
 	<!-- Features + Libraries -->
-	<section class="border-t border-line">
+	<section>
 		<div class="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-16">
 			<div class="grid gap-10 lg:grid-cols-[200px_1fr] lg:gap-14">
 				<div>
@@ -383,58 +383,8 @@ const useCases = [
 		</div>
 	</section>
 
-	<!-- Blog: editorial lead + ruled chronological list -->
-	<section class="border-t border-line">
-		<div class="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-16">
-			<div class="mb-8 flex items-baseline justify-between gap-6">
-				<h2 class="display text-[1.9rem] md:text-[2.3rem]">Blog</h2>
-				<a href="/blog" class="green-link shrink-0 text-[0.92rem] font-medium">All posts &amp; RSS →</a>
-			</div>
-
-			<div class="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
-				{
-					leadPost && (
-						<a href={leadPost.url} class="group block">
-							<div class="mb-4 overflow-hidden rounded-xl border border-line bg-surface p-4 transition-colors group-hover:border-line-strong">
-								<img
-									src={leadPost.frontmatter.cover}
-									class="aspect-video w-full object-contain"
-									alt=""
-								/>
-							</div>
-							<span class="label">{formatDate(leadPost.frontmatter.date)}</span>
-							<h3 class="display mt-1.5 text-[1.5rem] transition-colors group-hover:text-accent-ink">
-								{leadPost.frontmatter.title}
-							</h3>
-							<p class="mt-2 text-[0.95rem] leading-relaxed text-ink-3">{leadPost.frontmatter.description}</p>
-						</a>
-					)
-				}
-
-				<div class="border-t border-line">
-					{
-						recentPosts.map((post) => (
-							<a
-								href={post.url}
-								class="group block border-b border-line px-2 py-4 transition-colors hover:bg-tint"
-							>
-								<div class="flex items-baseline justify-between gap-4">
-									<h3 class="font-semibold text-ink transition-colors group-hover:text-accent-ink">
-										{post.frontmatter.title}
-									</h3>
-									<span class="label shrink-0">{formatDate(post.frontmatter.date)}</span>
-								</div>
-								<p class="mt-1 text-[0.88rem] leading-relaxed text-ink-3">{post.frontmatter.description}</p>
-							</a>
-						))
-					}
-				</div>
-			</div>
-		</div>
-	</section>
-
 	<!-- Self-host or managed: vertical hairline split (no nested boxes) -->
-	<section class="border-t border-line bg-surface/90">
+	<section class="sec-band">
 		<div class="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-16">
 			<div class="mb-10 flex flex-wrap items-end justify-between gap-4">
 				<div>
@@ -483,6 +433,54 @@ const useCases = [
 						<a href="mailto:me@kixel.me" class="btn-line">Talk to us</a>
 					</div>
 				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Blog: editorial lead + ruled chronological list -->
+	<section class="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-16">
+		<div class="mb-8 flex items-baseline justify-between gap-6">
+			<h2 class="display text-[1.9rem] md:text-[2.3rem]">Blog</h2>
+			<a href="/blog" class="green-link shrink-0 text-[0.92rem] font-medium">All posts &amp; RSS →</a>
+		</div>
+
+		<div class="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
+			{
+				leadPost && (
+					<a href={leadPost.url} class="group block">
+						<div class="mb-4 overflow-hidden rounded-xl border border-line bg-surface p-4 transition-colors group-hover:border-line-strong">
+							<img
+								src={leadPost.frontmatter.cover}
+								class="aspect-video w-full object-contain"
+								alt=""
+							/>
+						</div>
+						<span class="label">{formatDate(leadPost.frontmatter.date)}</span>
+						<h3 class="display mt-1.5 text-[1.5rem] transition-colors group-hover:text-accent-ink">
+							{leadPost.frontmatter.title}
+						</h3>
+						<p class="mt-2 text-[0.95rem] leading-relaxed text-ink-3">{leadPost.frontmatter.description}</p>
+					</a>
+				)
+			}
+
+			<div class="border-t border-line">
+				{
+					recentPosts.map((post) => (
+						<a
+							href={post.url}
+							class="group block border-b border-line px-2 py-4 transition-colors hover:bg-tint"
+						>
+							<div class="flex items-baseline justify-between gap-4">
+								<h3 class="font-semibold text-ink transition-colors group-hover:text-accent-ink">
+									{post.frontmatter.title}
+								</h3>
+								<span class="label shrink-0">{formatDate(post.frontmatter.date)}</span>
+							</div>
+							<p class="mt-1 text-[0.88rem] leading-relaxed text-ink-3">{post.frontmatter.description}</p>
+						</a>
+					))
+				}
 			</div>
 		</div>
 	</section>
