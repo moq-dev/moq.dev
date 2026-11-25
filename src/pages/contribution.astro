@@ -1,0 +1,85 @@
+---
+import UseCasePage from "@/components/use-case-page.astro";
+---
+
+<UseCasePage
+	title="Contribution"
+	description="Pull-based contribution, optional on-demand encoding, and failover—replacing RTMP, SRT, and WHIP."
+	heading="Contribution"
+	scribble="Contribution"
+	pitch="Replace RTMP, SRT, and WHIP with pull-based ingest, optional on-demand encoding, and seamless failover—using the same protocol both ways."
+	docsHref="https://doc.moq.dev/concept/use-case/contribution"
+	art="/icons/use-case/contribution.svg"
+	artAlt="Contribution over MoQ"
+	chip={{ label: "In prod", text: "Meta ships MoQ for Instagram and Facebook Live Ingest", href: "#in-production" }}
+	useCase="contribution"
+	points={[
+		{
+			icon: "battery",
+			title: "Pull, not Push",
+			body: "RTMP, SRT, and WHIP upload every rendition whether anything downstream wants it or not. With MoQ, no subscribers means no transmission.",
+		},
+		{
+			icon: "puzzle",
+			title: "Encode on Demand",
+			body: "Publishers can opt in to encoding extra renditions or AI tracks only when someone pulls them, saving compute across long-tail streams.",
+		},
+		{
+			icon: "back",
+			title: "Lossy Live, Pristine Archive",
+			body: "The live monitor waits 100ms while the recorder waits 30 seconds on the same stream, backfilling dropped groups once the uplink recovers.",
+		},
+		{
+			icon: "stonk",
+			title: "One Copy off the Truck",
+			body: "Cluster a venue relay with your CDN so the expensive uplink carries each track once, no matter how many downstream consumers attach.",
+		},
+		{
+			icon: "link",
+			title: "Failover",
+			body: "Announce over several connections or CDNs; publisher instances let replicas fail over mid-group and let restarts switch cleanly instead of stalling.",
+		},
+		{
+			icon: "globe",
+			title: "Bring Your Encoder",
+			body: "Publish directly with the OBS plugin, or ingest RTMP, SRT, and WHIP via moq-cli—one protocol for ingest and delivery over QUIC with BBR.",
+		},
+	]}
+	figures={[
+		{
+			title: "Encode only what gets watched",
+			src: "/blog/moq-boy/bren2.svg",
+			alt: "On-demand encoding diagram",
+			body: "Skip burning CPU and uplink on 1080p rungs or AI captions tracks until a downstream viewer or transcoder actually subscribes.",
+			caption: "No subscribers, no encode, no upload.",
+		},
+		{
+			title: "Live ingest and clean archive together",
+			src: "/blog/cars2/backfill.svg",
+			alt: "Live vs archive backfill diagram",
+			body: "Low-latency consumers skip past temporary congestion while recorders wait out the blip and pull a complete copy from the same broadcast.",
+			caption: "One ingest stream, per-subscriber latency budgets.",
+		},
+		{
+			title: "Fan out from the first hop",
+			src: "/blog/cars2/fanout.svg",
+			alt: "Relay mesh fanout diagram",
+			body: "Relays merge duplicate subscriptions upstream so a single contribution uplink feeds monitoring, transcoding, recording, and live viewers.",
+			caption: "One copy off the truck.",
+		},
+		{
+			title: "Multi-path ingest and failover",
+			src: "/blog/on-a-boat/multipath.svg",
+			alt: "Multi-connection failover diagram",
+			body: "Announce the same broadcast across multiple connections or CDNs so subscriptions switch routes seamlessly when an uplink drops.",
+			caption: "Like kittens, these pairs are bonded.",
+		},
+	]}
+	yours="Moving live ingest off RTMP, SRT, or WHIP onto MoQ?"
+	reading={[
+		{ title: "OBS plugin docs", href: "https://doc.moq.dev/bin/obs" },
+		{ title: "moq-cli docs", href: "https://doc.moq.dev/bin/cli" },
+		{ title: "Cars 2", href: "/blog/cars2" },
+		{ title: "MoQ Boy", href: "/blog/moq-boy" },
+	]}
+/>

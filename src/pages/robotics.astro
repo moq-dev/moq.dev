@@ -1,0 +1,86 @@
+---
+import UseCasePage from "@/components/use-case-page.astro";
+---
+
+<UseCasePage
+	title="Robotics"
+	description="MoQ streams video, telemetry, and control for robots on terrible networks."
+	heading="Robotics"
+	scribble="Robotics"
+	pitch="Robots have a lot of cameras. Stream video, telemetry, and control on the worst networks—cellular, satellite, or mesh radio—with no fear."
+	docsHref="https://doc.moq.dev/concept/use-case/teleoperation"
+	art="/blog/on-a-boat/boat.svg"
+	artAlt="Autonomous boat streaming over MoQ"
+	chip={{ label: "In prod", text: "Saronic ships MoQ on its autonomous boats", href: "#in-production" }}
+	useCase="robotics"
+	points={[
+		{
+			icon: "battery",
+			title: "Pull, not Push",
+			body: "Nothing is transmitted until somebody subscribes. Camera 7 doesn't touch the Starlink uplink until somebody cares about camera 7.",
+		},
+		{
+			icon: "rocket",
+			title: "Shit Networks",
+			body: "Every subscription has a priority on one QUIC connection. Controls before audio before telemetry before video—you decide what gives.",
+		},
+		{
+			icon: "back",
+			title: "Lossy live, pristine archive",
+			body: "The operator waits 100ms, the AI model waits a second, and the recorder waits 30 seconds—backfilling dropped groups once the link recovers.",
+		},
+		{
+			icon: "link",
+			title: "Bonded Pairs",
+			body: "Switch between WiFi, cellular, and satellite with QUIC path migration, or announce over multiple MoQ connections at once.",
+		},
+		{
+			icon: "stonk",
+			title: "Fan Out",
+			body: "moq-relay merges 100 viewers into a single upstream subscription. The robot serves at most one copy of each track.",
+		},
+		{
+			icon: "puzzle",
+			title: "Not Just Media",
+			body: "Camera, GPS, joystick, killswitch—each is a track stamped with the same clock on the same connection.",
+		},
+	]}
+	figures={[
+		{
+			title: "Pull only the cameras you need",
+			src: "/blog/on-a-boat/kraken.png",
+			alt: "Nine cameras on a boat",
+			body: "An AI model watches 360p from every camera and subscribes to 1080p only when it spots trouble. Unwatched cameras stay silent.",
+			caption: "Arr, there be a kraken on the starboard bow.",
+		},
+		{
+			title: "Per-subscriber latency budgets",
+			src: "/blog/cars2/backfill.svg",
+			alt: "Realtime vs backfill diagram",
+			body: "MoQ sends the newest frames first and keeps old ones in RAM up to a TTL, so live operators stay real-time while recorders backfill.",
+			caption: "If I ever own a racing team, it's going to be called The Backfill Boyes.",
+		},
+		{
+			title: "One uplink, any number of viewers",
+			src: "/blog/on-a-boat/fanout.svg",
+			alt: "Relay fanout from a boat",
+			body: "Self-host a relay on the robot or base station, then cluster it with a CDN like moq.pro or Cloudflare when everyone wants to watch.",
+			caption: "One uplink from the boat, any number of viewers.",
+		},
+		{
+			title: "Controls work the same way, backwards",
+			src: "/blog/moq-boy/moqboy.svg",
+			alt: "MoQ Boy bidirectional media and controls",
+			body: "The operator publishes a controls track and the robot subscribes to it. Lockout, handoff, or anarchy is your application's call.",
+			caption: "weapon of mass destruction?",
+			href: "/boy",
+			linkText: "Try MoQ Boy →",
+		},
+	]}
+	yours="Running MoQ on something that moves? Or don't name yourself, and we'll add another black bar."
+	reading={[
+		{ title: "On a Boat", href: "/blog/on-a-boat" },
+		{ title: "Cars 2", href: "/blog/cars2" },
+		{ title: "MoQ Boy", href: "/blog/moq-boy" },
+	]}
+/>
