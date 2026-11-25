@@ -187,6 +187,9 @@ export function mount(root: HTMLElement) {
 
 	const pointer = { x: 0, y: 0, inside: false };
 	let hoveredPop = -1;
+	const repaint = () => {
+		if (!isLive) render();
+	};
 
 	function rebuildLinks() {
 		for (const p of pops) p.links = [];
@@ -203,18 +206,44 @@ export function mount(root: HTMLElement) {
 		};
 		for (const [a, b] of BACKBONE_INDICES) add(a, b);
 
-		// Bridge any online PoP whose primary neighbors went offline.
+		// Bridge disconnected components among online PoPs (e.g. if LHR or FRA goes offline).
 		const online = pops.map((p, i) => (p.online ? i : -1)).filter((i) => i !== -1);
-		for (const i of online) {
-			if (pops[i].links.length > 0 || online.length <= 1) continue;
-			const nearest = online
-				.filter((j) => j !== i)
-				.sort(
-					(a, b) =>
-						Math.hypot(pops[a].x - pops[i].x, pops[a].y - pops[i].y) -
-						Math.hypot(pops[b].x - pops[i].x, pops[b].y - pops[i].y),
-				)[0];
-			if (nearest !== undefined) add(i, nearest);
+		if (online.length > 1) {
+			const visited = new Set<number>();
+			const dfs = (start: number) => {
+				const stack = [start];
+				visited.add(start);
+				while (stack.length) {
+					const cur = stack.pop() as number;
+					for (const nxt of pops[cur].links) {
+						if (!visited.has(nxt)) {
+							visited.add(nxt);
+							stack.push(nxt);
+						}
+					}
+				}
+			};
+			dfs(online[0]);
+			while (visited.size < online.length) {
+				let bestA = -1;
+				let bestB = -1;
+				let bestD = Number.POSITIVE_INFINITY;
+				for (const a of online) {
+					if (!visited.has(a)) continue;
+					for (const b of online) {
+						if (visited.has(b)) continue;
+						const d = Math.hypot(pops[a].x - pops[b].x, pops[a].y - pops[b].y);
+						if (d < bestD) {
+							bestD = d;
+							bestA = a;
+							bestB = b;
+						}
+					}
+				}
+				if (bestA === -1 || bestB === -1) break;
+				add(bestA, bestB);
+				dfs(bestB);
+			}
 		}
 	}
 
@@ -249,14 +278,24 @@ export function mount(root: HTMLElement) {
 		return edges;
 	}
 
+	function pushRing(ring: Ring) {
+		if (!isLive) rings = [];
+		else if (rings.length >= 48) rings.shift();
+		rings.push(ring);
+	}
+
 	function broadcastFromPop(index: number, rgb = "74, 222, 128") {
 		const p = pops[index];
 		if (!p?.online) return;
 		p.flash = 1;
-		rings.push({ x: p.x, y: p.y, r: 5, maxR: 44, a: 0.9, rgb });
+		pushRing({ x: p.x, y: p.y, r: 5, maxR: 44, a: 0.9, rgb });
+		if (!isLive) {
+			pulses = [];
+			return;
+		}
 		const visited = new Set([index]);
 		for (const nxt of p.links) {
-			if (visited.has(nxt)) continue;
+			if (visited.has(nxt) || pulses.length >= 64) continue;
 			visited.add(nxt);
 			const target = pops[nxt];
 			const len = Math.max(1, Math.hypot(target.x - p.x, target.y - p.y));
@@ -269,7 +308,13 @@ export function mount(root: HTMLElement) {
 		if (!hit) return;
 		const target = pops[hit.index];
 		const rgb = "74, 222, 128";
-		rings.push({ x, y, r: 4, maxR: 32, a: 0.85, rgb });
+		pushRing({ x, y, r: 4, maxR: 32, a: 0.85, rgb });
+		if (!isLive) {
+			pulses = [];
+			target.flash = 1;
+			return;
+		}
+		if (pulses.length >= 64) return;
 		const len = Math.max(1, Math.hypot(target.x - x, target.y - y));
 		pulses.push({
 			from: { x, y },
@@ -378,9 +423,6 @@ export function mount(root: HTMLElement) {
 		}
 
 		// 3. Live anycast arc from cursor to nearest online edge PoP.
-		const repaint = () => {
-			if (!isLive) render();
-		};
 		if (pointer.inside && hit) {
 			const target = pops[hit.index];
 			const c = arcControl(pointer, target);
@@ -589,7 +631,7 @@ export function mount(root: HTMLElement) {
 				if (pop.online) {
 					broadcastFromPop(hitIdx);
 				} else {
-					rings.push({ x: pop.x, y: pop.y, r: 5, maxR: 46, a: 0.9, rgb: "251, 113, 133" });
+					pushRing({ x: pop.x, y: pop.y, r: 5, maxR: 46, a: 0.9, rgb: "251, 113, 133" });
 					const backup = nearestPop(pop.x, pop.y);
 					if (backup) broadcastFromPop(backup.index);
 				}
@@ -623,10 +665,8 @@ export function mount(root: HTMLElement) {
 		frame = requestAnimationFrame(tick);
 	});
 
-	loadIcon(RELAY_ICON, () => {
-		if (!isLive) render();
-	});
-	loadIcon(CLIENT_ICON);
+	loadIcon(RELAY_ICON, repaint);
+	loadIcon(CLIENT_ICON, repaint);
 
 	resize();
 	new ResizeObserver(() => resize()).observe(surface);

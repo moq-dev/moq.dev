@@ -66,6 +66,7 @@ interface FloatingTag {
 }
 
 interface LossZone {
+	pointerId: number;
 	x: number;
 	y: number;
 	r: number;
@@ -521,12 +522,18 @@ export function mount(root: HTMLElement) {
 	const isControl = (target: EventTarget | null) =>
 		target instanceof Element && Boolean(target.closest("a, button, input, [data-no-canvas]"));
 
+	function clearPausedLoss() {
+		loss = null;
+		for (const g of groups) g.stalled = false;
+		render();
+	}
+
 	surface.addEventListener("pointermove", (e) => {
 		const pt = toCanvas(e);
 		pointer.x = pt.x;
 		pointer.y = pt.y;
 		pointer.inside = true;
-		if (loss?.holding) {
+		if (loss?.holding && e.pointerId === loss.pointerId) {
 			loss.x = pt.x;
 			loss.y = pt.y;
 		}
@@ -535,24 +542,36 @@ export function mount(root: HTMLElement) {
 
 	surface.addEventListener("pointerleave", () => {
 		pointer.inside = false;
-		if (loss) loss.holding = false;
+		if (loss) {
+			if (!isLive) {
+				clearPausedLoss();
+				return;
+			}
+			loss.holding = false;
+		}
 		if (!isLive) render();
 	});
 
 	surface.addEventListener("pointerdown", (e) => {
 		if (e.button !== 0 || isControl(e.target)) return;
+		if (loss?.holding) return;
 		const overText = e.target instanceof Element && Boolean(e.target.closest("h2, h3, p, span, code"));
 		if (overText) return;
 		const pt = toCanvas(e);
-		loss = { x: pt.x, y: pt.y, r: 76, life: 1, holding: true };
+		loss = { pointerId: e.pointerId, x: pt.x, y: pt.y, r: 76, life: 1, holding: true };
 		if (!isLive) {
 			step(0.04);
 			render();
 		}
 	});
 
-	const releaseLoss = () => {
-		if (loss) loss.holding = false;
+	const releaseLoss = (e: PointerEvent) => {
+		if (!loss || e.pointerId !== loss.pointerId) return;
+		if (!isLive) {
+			clearPausedLoss();
+			return;
+		}
+		loss.holding = false;
 	};
 	surface.addEventListener("pointerup", releaseLoss);
 	surface.addEventListener("pointercancel", releaseLoss);

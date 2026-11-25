@@ -217,6 +217,9 @@ export function mount(root: HTMLElement) {
 
 	const relayById = (id: number) => relays.find((r) => r.id === id);
 	const endpointById = (id: number) => endpoints.find((e) => e.id === id);
+	const repaint = () => {
+		if (!isLive) render();
+	};
 
 	function updateStatus() {
 		if (!statusEl) return;
@@ -440,11 +443,13 @@ export function mount(root: HTMLElement) {
 	}
 
 	function spawnRing(x: number, y: number, rgb: string, maxR = 38, width = 1.8) {
+		if (!isLive) rings = [];
+		else if (rings.length >= 48) rings.shift();
 		rings.push({ x, y, r: 5, maxR, a: 0.9, rgb, width });
 	}
 
 	function sendPacket(spec: Omit<Packet, "t" | "speed" | "phase"> & { pace: number }) {
-		if (packets.length >= MAX_PACKETS) return;
+		if (!isLive || packets.length >= MAX_PACKETS) return;
 		const len = curveLength(spec.from, spec.to, spec.via);
 		packets.push({
 			kind: spec.kind,
@@ -635,7 +640,7 @@ export function mount(root: HTMLElement) {
 			const nextHop = p.hop + 1;
 			if (nextHop < p.path.length) {
 				const next = relayById(p.path[nextHop]);
-				if (!next?.online) return;
+				if (!next?.online || !r.links.includes(next.id)) return;
 				const key = pairKey(r.id, next.id);
 				const seed = Math.min(r.id, next.id) * 31 + Math.max(r.id, next.id);
 				const via = bowControl(r, next, seed);
@@ -1089,9 +1094,6 @@ export function mount(root: HTMLElement) {
 		}
 
 		// 5. Endpoint nodes (hand-drawn icons on subtle dark pads).
-		const repaint = () => {
-			if (!isLive) render();
-		};
 		ctx.font = '500 10.5px "DM Mono", ui-monospace, monospace';
 		for (const e of endpoints) {
 			const rgb = KINDS[e.kind].rgb;
@@ -1224,9 +1226,22 @@ export function mount(root: HTMLElement) {
 		ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
 		if (prevW < 1 || Math.abs(prevW - w) > 140 || Math.abs(prevH - h) > 140) {
+			hovered = null;
+			if (dragging) {
+				try {
+					surface.releasePointerCapture(dragging.pointerId);
+				} catch {
+					// Ignore if not captured.
+				}
+				dragging = null;
+				surface.style.cursor = "";
+			}
 			seed();
 			// Warm up the simulation so even a paused/initial frame is mid-fanout.
+			const prevLive = isLive;
+			isLive = true;
 			for (let i = 0; i < 90; i++) step(1 / 60);
+			isLive = prevLive;
 		} else {
 			const sx = w / prevW;
 			const sy = h / prevH;
@@ -1338,8 +1353,20 @@ export function mount(root: HTMLElement) {
 		if (!isLive) render();
 	};
 
+	const cancelDrag = (e: PointerEvent) => {
+		if (!dragging || e.pointerId !== dragging.pointerId) return;
+		dragging = null;
+		surface.style.cursor = hovered ? "grab" : "";
+		try {
+			surface.releasePointerCapture(e.pointerId);
+		} catch {
+			// Ignore if not captured.
+		}
+		if (!isLive) render();
+	};
+
 	surface.addEventListener("pointerup", finishDrag);
-	surface.addEventListener("pointercancel", finishDrag);
+	surface.addEventListener("pointercancel", cancelDrag);
 
 	const tick = (now: number) => {
 		const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000));
@@ -1361,11 +1388,9 @@ export function mount(root: HTMLElement) {
 	});
 
 	// Preload hand-drawn icons immediately so the first frame paints them cleanly.
-	loadIcon(RELAY_ICON, () => {
-		if (!isLive) render();
-	});
-	for (const f of FEATURED_ENDPOINTS) loadIcon(f.icon);
-	for (const src of PEER_ICONS) loadIcon(src);
+	loadIcon(RELAY_ICON, repaint);
+	for (const f of FEATURED_ENDPOINTS) loadIcon(f.icon, repaint);
+	for (const src of PEER_ICONS) loadIcon(src, repaint);
 
 	resize();
 	new ResizeObserver(() => resize()).observe(surface);
