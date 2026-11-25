@@ -1,0 +1,85 @@
+---
+import UseCasePage from "@/components/use-case-page.astro";
+---
+
+<UseCasePage
+	title="Interactive"
+	description="Media down, input up, live discovery, and on-demand encoding—all over one MoQ connection."
+	heading="Interactive"
+	scribble="Interactive"
+	pitch="Media down, input up. Build real-time bidirectional apps—cloud gaming, shared canvases, remote control—on one generic MoQ relay with live discovery built in."
+	docsHref="https://doc.moq.dev/concept/use-case/teleoperation"
+	demo={{ label: "Play MoQ Boy", href: "/boy" }}
+	art="/demo/moqboy.svg"
+	artAlt="MoQ Boy Game Boy streaming over MoQ"
+	points={[
+		{
+			icon: "link",
+			title: "Viewers can be broadcasters too",
+			body: "Every player publishes a JSON controls track under a shared prefix while subscribing to the game's audio and video—bidirectional streaming built from unidirectional tracks.",
+		},
+		{
+			icon: "puzzle",
+			title: "Your business logic, not the relay's",
+			body: "Subscribe to every player for anarchy (like MoQ Boy), enforce single-player lockout, or hand off control dynamically without custom server routing.",
+		},
+		{
+			icon: "battery",
+			title: "Sleep when nobody watches",
+			body: "Relays merge subscriptions upstream. With zero active subscribers, encoders—and the emulator or simulation itself—sleep until someone tunes in.",
+		},
+		{
+			icon: "globe",
+			title: "Live discovery, no room server",
+			body: "Ask the relay for every broadcast matching a prefix and get live notifications as sessions and players come online or disconnect.",
+		},
+		{
+			icon: "stonk",
+			title: "Always fans out",
+			body: "One player or ten thousand spectators watching the same session: the origin serves at most one copy of each track while the relay mesh fans it out.",
+		},
+		{
+			icon: "rocket",
+			title: "Web and native",
+			body: "Play directly in the browser with WebTransport and WebCodecs, or embed native clients with Rust, C, Swift, Kotlin, and Python bindings.",
+		},
+	]}
+	figures={[
+		{
+			title: "On-demand encoding and emulation",
+			src: "/blog/moq-boy/bren2.svg",
+			alt: "On-demand emulation and encoding",
+			body: "No audio subscribers? Opus sleeps. No video subscribers? H.264 sleeps. No subscribers at all? The emulator pauses completely.",
+			caption: "bigger bren",
+		},
+		{
+			title: "Prefix-based live discovery",
+			src: "/blog/moq-boy/pub1.svg",
+			alt: "Live broadcast discovery",
+			body: "Workers announce broadcasts under a prefix so clients automatically populate the live lobby without maintaining a separate room service.",
+			caption: "pub boy",
+		},
+		{
+			title: "Bidirectional controls on the same relay",
+			src: "/blog/moq-boy/pub2.svg",
+			alt: "Player control tracks",
+			body: "Each player publishes button state as JSON on its own broadcast; the worker discovers active players and subscribes to their controls tracks.",
+			caption: "sub boy",
+			href: "/boy",
+			linkText: "Play MoQ Boy →",
+		},
+		{
+			title: "Native mobile and desktop too",
+			src: "/blog/moq-boy/native.jpg",
+			alt: "MoQ Boy running on a phone",
+			body: "The same protocol and Rust core power browser players and native apps alike—including React Native, Swift, and Kotlin bindings.",
+			caption: "Definitely the future of gaming.",
+		},
+	]}
+	yours="Building a game, remote desktop, or interactive stream with MoQ?"
+	reading={[
+		{ title: "MoqBoy", href: "/blog/moq-boy" },
+		{ title: "Play MoQ Boy", href: "/boy" },
+		{ title: "Drive CARLA", href: "/carla" },
+	]}
+/>

@@ -5,6 +5,7 @@
 // the box sits at (108,265) in the cat's 420x420 favicon box, just under the eyes. Draw on
 // transparent: the cat's slate shows through.
 import { createEffect, createSignal, For, onCleanup, onMount } from "solid-js";
+import { isStill } from "@/lib/motion";
 import { centroid, ease, follow, level, pick, SHAPES, type Shape } from "./mouth";
 
 // moq.pro's favicon (app/static/favicon.svg), in its own upside-down tenths.
@@ -60,10 +61,23 @@ export default function Cat(props: { voice?: AudioNode; babble?: boolean; class?
 		let mouthAt = 0;
 		let blinkAt = last + 2500;
 		let frame = 0;
-		const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-		const babble = props.babble && !still;
+		const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+		let still = isStill();
 		let syllable = { open: 0, tone: 1, closeAt: 0, endAt: 0 };
 		let syllables = 0;
+
+		const syncStill = () => {
+			still = isStill();
+			if (still) {
+				setBlink(false);
+				if (!tap) {
+					open = 0;
+					setShape("rest");
+				}
+			}
+		};
+		document.addEventListener("motion", syncStill);
+		reduce.addEventListener("change", syncStill);
 
 		const tick = (now: number) => {
 			const dt = now - last;
@@ -71,7 +85,7 @@ export default function Cat(props: { voice?: AudioNode; babble?: boolean; class?
 
 			let target = 0;
 			let tone = 1;
-			if (babble && !tap) {
+			if (props.babble && !still && !tap) {
 				if (now >= syllable.endAt) {
 					// Between phrases, a breath.
 					const pause = syllables-- <= 0;
@@ -111,7 +125,11 @@ export default function Cat(props: { voice?: AudioNode; babble?: boolean; class?
 			frame = requestAnimationFrame(tick);
 		};
 		frame = requestAnimationFrame(tick);
-		onCleanup(() => cancelAnimationFrame(frame));
+		onCleanup(() => {
+			cancelAnimationFrame(frame);
+			document.removeEventListener("motion", syncStill);
+			reduce.removeEventListener("change", syncStill);
+		});
 	});
 
 	return (

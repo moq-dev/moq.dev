@@ -1,0 +1,85 @@
+---
+import UseCasePage from "@/components/use-case-page.astro";
+---
+
+<UseCasePage
+	title="Conferencing"
+	description="Browser publish and watch with live room discovery, WebCodecs pipeline control, and zero SDP or STUN/TURN."
+	heading="Conferencing"
+	scribble="Conferencing"
+	pitch="Publish and watch in the browser with live room discovery, full WebCodecs control, and zero SDP or STUN/TURN—plus WHIP and WHEP interop for WebRTC clients."
+	docsHref="https://doc.moq.dev/concept/use-case/conferencing"
+	demo={{ label: "Try hang.live", href: "https://hang.live", external: true }}
+	art="/icons/use-case/conferencing.svg"
+	artAlt="Conferencing over MoQ"
+	points={[
+		{
+			icon: "link",
+			title: "Publish and subscribe on one session",
+			body: "Each camera, mic, or screen is a broadcast under a shared room prefix. No SDP offer/answer and no renegotiation every time someone joins or leaves.",
+		},
+		{
+			icon: "globe",
+			title: "Full pipeline control in the browser",
+			body: "WebCodecs frames and AudioData samples are yours: render to WebGL, spatialize with WebAudio, run in-browser Whisper captions, or apply custom effects.",
+		},
+		{
+			icon: "stonk",
+			title: "No SFU / CDN split",
+			body: "The same relay that serves a two-person call also scales to a ten-thousand-viewer webinar—no bespoke codec-parsing SFUs required.",
+		},
+		{
+			icon: "rocket",
+			title: "Latency you choose per track",
+			body: "Set your own latency budget per track so audio stays near-lossless at 500ms while video stays at the live edge, instead of letting libwebrtc decide.",
+		},
+		{
+			icon: "lock",
+			title: "No STUN or TURN",
+			body: "Clients connect outbound to the relay over WebTransport like any HTTPS server, skipping the brittle ICE/STUN/TURN handshake maze.",
+		},
+		{
+			icon: "back",
+			title: "WebRTC interop included",
+			body: "The WebRTC gateway accepts WHIP publishers and serves WHEP players, bridging existing WebRTC clients into the same MoQ broadcasts.",
+		},
+	]}
+	figures={[
+		{
+			title: "hang.live: built without a trace of WebRTC",
+			src: "/blog/first-app/demo.png",
+			alt: "hang.live conferencing app",
+			body: "Webcam, mic, screen share, synchronized drag/zoom, spatial WebAudio, live markdown chat, and in-browser AI captions—all over WebTransport and WebCodecs.",
+			caption: "Every web feature under the sun except WebRTC.",
+			href: "https://hang.live",
+			linkText: "Try hang.live →",
+		},
+		{
+			title: "Live room previews with prefix discovery",
+			src: "/blog/first-app/preview.png",
+			alt: "hang.live room previews",
+			body: "Subscribe to active broadcasts under a room prefix to preview who's talking before joining—no separate membership service needed.",
+			caption: "Even the room previews are live.",
+		},
+		{
+			title: "One transport instead of a protocol stack",
+			src: "/blog/replacing-webrtc/layers.png",
+			alt: "WebRTC protocol layers",
+			body: "WebRTC bundles ICE, STUN, TURN, DTLS, RTP, SRTP, SCTP, and SDP into one black box. MoQ replaces the pile with QUIC streams and WebCodecs.",
+			caption: "Less plumbing, full application control.",
+		},
+		{
+			title: "Relays replace custom SFUs",
+			src: "/blog/replacing-webrtc/sfu.png",
+			alt: "SFU topology diagram",
+			body: "Standard MoQ relays forward generic tracks across edge clusters without parsing H.264/VP9 payloads or maintaining bespoke SFU meshes.",
+			caption: "Conferencing and CDN fan-out on the same infrastructure.",
+		},
+	]}
+	yours="Building a conferencing, hangout, or webinar app on MoQ?"
+	reading={[
+		{ title: "The First MoQ App: hang.live", href: "/blog/first-app" },
+		{ title: "Replacing WebRTC", href: "/blog/replacing-webrtc" },
+		{ title: "Try hang.live", href: "https://hang.live" },
+	]}
+/>
