@@ -191,6 +191,13 @@ export function mount(root: HTMLElement) {
 		}
 	}
 
+	function isGroupInLoss(g: StreamGroup): boolean {
+		if (!loss || loss.life <= 0.2 || g.boost > 0.05) return false;
+		const lane = lanes[g.lane];
+		const head = g.frames[0];
+		return Math.hypot(head.x - loss.x, laneY(lane, head.x) - loss.y) < loss.r;
+	}
+
 	function step(dt: number) {
 		time += dt;
 
@@ -219,8 +226,7 @@ export function mount(root: HTMLElement) {
 			const lane = lanes[g.lane];
 			const head = g.frames[0];
 			const headY = laneY(lane, head.x);
-			const inLoss =
-				loss !== null && loss.life > 0.2 && Math.hypot(head.x - loss.x, headY - loss.y) < loss.r && g.boost <= 0.05;
+			const inLoss = isGroupInLoss(g);
 
 			if (inLoss) {
 				if (!g.stalled) {
@@ -524,10 +530,7 @@ export function mount(root: HTMLElement) {
 
 	function syncPausedStalls() {
 		for (const g of groups) {
-			const lane = lanes[g.lane];
-			const head = g.frames[0];
-			const headY = laneY(lane, head.x);
-			g.stalled = loss !== null && Math.hypot(head.x - loss.x, headY - loss.y) < loss.r;
+			g.stalled = isGroupInLoss(g);
 		}
 	}
 

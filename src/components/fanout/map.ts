@@ -211,11 +211,11 @@ export function mount(root: HTMLElement) {
 	let dragging: {
 		target: HitTarget;
 		pointerId: number;
-		startX: number;
-		startY: number;
+		startClientX: number;
+		startClientY: number;
 		moved: boolean;
 	} | null = null;
-	let pendingTap: { pointerId: number; x: number; y: number; moved: boolean } | null = null;
+	let pendingTap: { pointerId: number; clientX: number; clientY: number; moved: boolean } | null = null;
 
 	const relayById = (id: number) => relays.find((r) => r.id === id);
 	const endpointById = (id: number) => endpoints.find((e) => e.id === id);
@@ -1332,11 +1332,11 @@ export function mount(root: HTMLElement) {
 		}
 
 		if (pendingTap && e.pointerId === pendingTap.pointerId) {
-			if (Math.hypot(pt.x - pendingTap.x, pt.y - pendingTap.y) > 6) pendingTap.moved = true;
+			if (Math.hypot(e.clientX - pendingTap.clientX, e.clientY - pendingTap.clientY) > 6) pendingTap.moved = true;
 		}
 
 		if (dragging && e.pointerId === dragging.pointerId) {
-			if (Math.hypot(pt.x - dragging.startX, pt.y - dragging.startY) > 5) dragging.moved = true;
+			if (Math.hypot(e.clientX - dragging.startClientX, e.clientY - dragging.startClientY) > 5) dragging.moved = true;
 			if (dragging.moved) {
 				dragging.target.node.x = Math.min(w - 28, Math.max(28, pt.x));
 				dragging.target.node.y = Math.min(h - 32, Math.max(28, pt.y));
@@ -1372,7 +1372,13 @@ export function mount(root: HTMLElement) {
 		const pt = toCanvasPoint(e);
 		const hit = hitTest(pt.x, pt.y);
 		if (hit) {
-			dragging = { target: hit, pointerId: e.pointerId, startX: pt.x, startY: pt.y, moved: false };
+			dragging = {
+				target: hit,
+				pointerId: e.pointerId,
+				startClientX: e.clientX,
+				startClientY: e.clientY,
+				moved: false,
+			};
 			surface.style.cursor = "grabbing";
 			e.preventDefault();
 			try {
@@ -1382,16 +1388,18 @@ export function mount(root: HTMLElement) {
 			}
 			return;
 		}
-		// Defer spawning until a confirmed tap (pointerup without scroll/drag).
-		pendingTap = { pointerId: e.pointerId, x: pt.x, y: pt.y, moved: false };
+		// Defer spawning until a confirmed tap (pointerup without scroll/drag in viewport coordinates).
+		pendingTap = { pointerId: e.pointerId, clientX: e.clientX, clientY: e.clientY, moved: false };
 	});
 
 	const finishDrag = (e: PointerEvent) => {
 		if (pendingTap && e.pointerId === pendingTap.pointerId) {
 			const tap = pendingTap;
 			pendingTap = null;
-			if (!tap.moved) {
-				spawnUserEndpoint(tap.x, tap.y);
+			const moved = tap.moved || Math.hypot(e.clientX - tap.clientX, e.clientY - tap.clientY) > 6;
+			if (!moved) {
+				const pt = toCanvasPoint(e);
+				spawnUserEndpoint(pt.x, pt.y);
 				if (!isLive) render();
 			}
 			return;
