@@ -6,24 +6,34 @@
 
 6. **Mesh Routing, Shortest Path & Failover** (`Non-standard · moq-lite`) — a
    multi-region voice-call mesh (`US-West`, `US-East`, `EU`, `Tokyo`) comparing
-   MoQ shortest-path routing and per-link fan-out deduplication (e.g.
+   MoQ lowest-cost routing and per-link fan-out deduplication (e.g.
    `Tokyo ↔ Tokyo` staying local) against centralized WebRTC SFU hairpinning,
    plus toggles to add a simultaneous self-hosted / P2P shortcut and to cut a
-   mesh link to watch automatic shortest-path rerouting.
+   mesh link to watch automatic rerouting. State the demo's route-cost model
+   explicitly (latency/edge costs or equal per-hop cost) so visitors understand
+   that `moq-lite` ranks total route cost before hop count rather than always
+   picking fewer hops.
 7. **Timestamp Addressing** (`Non-standard · moq-lite-07`) — interactive shared
    media timeline across tracks with intentionally misaligned group durations
    (e.g. `480p` 2 s groups, `1080p` 3 s groups, `audio` 1 s groups), showing a
    draggable `Time(t)` anchor resolving to the right group on each track, an
-   ABR `480p → 1080p` switch aligned cleanly by media time, and an E2EE toggle.
+   ABR `480p → 1080p` switch aligned cleanly by media time, and a `moq-e2ee`
+   toggle labeled as its own project draft.
 8. **Max Age: Per-Subscriber Latency Budgets** (`Non-standard · moq-lite /
    moq-timestamp`) — one broadcast through one relay serving three simultaneous
    subscribers (`Operator / Call`, `Couch Viewer`, `Archive Recorder`) with
    independent `Subscriber Max Age` budgets (plus an adjustable slider and a
-   "Trigger congestion" button), showing the relay forwarding the widest
-   `max_age` upstream (1× upload) while each viewer independently skips,
-   buffers, or backfills by media time.
+   "Trigger congestion" button). Model both expiration clocks (whichever
+   reaches `max_age` first: media timestamp age or hop wall-clock arrival age
+   since the successor arrived, with the newest group never expiring) and the
+   upstream retention limit (`Publisher Max Age` / relay cache ceiling, so a
+   wider subscriber budget cannot recover groups already evicted upstream),
+   showing the relay forwarding the widest `max_age` upstream (1× upload) while
+   each viewer independently skips, buffers, or backfills.
 
-Also ships the closing "Why switch" band (zero STUN/TURN/SDP + QUIC migration,
+Also ships the closing "Why switch" band (zero STUN/TURN/SDP scoped to direct
+relay connections over native QUIC or WebTransport—not browser P2P paths, which
+still use application-provided WebRTC signaling and ICE—plus QUIC migration,
 one protocol replacing RTMP/SRT/WebRTC/HLS, incremental migration via
 OBS/FFmpeg + HLS & WHIP/WHEP gateways, links to demos and `doc.moq.dev`), the
 reactive `huh?` cat companion using the traced SVGs from `public/huh/`, and

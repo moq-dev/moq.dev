@@ -9,8 +9,10 @@
    track, `audio`, `captions`, and arbitrary app data such as `controls.json`)
    beside a live `catalog.json` view and uplink bandwidth meter. Unsubscribed
    tracks visibly sleep (`0 kbps`, encoder idle); toggling subscriptions or
-   presets wakes only the pulled tracks, and an E2EE toggle shows relays
-   forwarding opaque ciphertext without parsing payloads.
+   presets wakes only the pulled tracks, and an E2EE toggle—explicitly labeled
+   as the separate `moq-e2ee` project draft rather than part of `hang` or IETF
+   `moq-transport`—shows relays forwarding opaque ciphertext without parsing
+   payloads.
 5. **Broadcasts & Live Discovery** (`Standard + extensions`) — an interactive
    namespace prefix-gossip playground where publishers announce paths (e.g.
    `room/alice`, `room/bob`, `room/carol`, `boat/cam-1`) through a relay mesh

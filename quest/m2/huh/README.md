@@ -48,40 +48,49 @@ Decided 2026-11-24 (maintainer, `/quest-plan`), shared across the epic:
 - Section lineup:
   1. **QUIC & Multiple Streams** *(Standard · RFC 9000)* — HTTP/2 over TCP vs.
      HTTP/3 & WebTransport over QUIC, showing packet loss / head-of-line
-     blocking where it applies.
+     blocking where it applies. Label the automatic WebSocket fallback
+     separately as `qmux` over WebSocket/TCP (project draft, still subject to
+     TCP head-of-line blocking) rather than under the RFC 9000 badge.
   2. **Congestion & Prioritization** *(Standard · QUIC / IETF)* — shared
      congestion control (`cwnd`), ranked streams, opening new streams cheaply,
      and resetting stale streams mid-flight.
   3. **Frames & Groups** *(Standard · IETF MoQ)* — delta encoding (`I` + `P`
      frames) explained here (rejected: standalone frame dependency graph
      section); contiguous timeline with no gaps between groups, trickling
-     frame-by-frame over 1 QUIC stream per group.
+     frame-by-frame over one QUIC stream per group (noting this is the
+     single-subgroup / `moq-lite` case, since IETF `moq-transport` also allows
+     multiple subgroups per group).
   4. **Tracks: Media & Arbitrary Data on Demand** *(Standard + `hang`)* — pull,
      not push; live `catalog.json` for video renditions, extra cameras, audio,
      captions, and arbitrary data (`controls`, `chat`, `telemetry`) combined
      here (rejected: separate "Your App" section); unwatched encoders sleep;
-     optional E2EE.
+     optional E2EE toggle labeled separately as the `moq-e2ee` project draft.
   5. **Broadcasts & Live Discovery** *(Standard + extensions)* — hierarchical
      namespaces/paths, prefix `ANNOUNCE` gossip across relays, live rosters
      without a room server or SDP, bidirectional sessions.
   6. **Mesh Routing, Shortest Path & Failover** *(Non-standard · `moq-lite`)* —
-     multi-region voice-call mesh comparing shortest-path routing and
-     inter-region deduplication against centralized WebRTC SFU hairpinning,
-     plus simultaneous CDN + self-hosted `moq-relay` + P2P connections with
-     live link-cut failover.
+     multi-region voice-call mesh comparing lowest-cost routing (making route
+     cost / latency weights explicit rather than implying fewer hops always
+     win) and inter-region deduplication against centralized WebRTC SFU
+     hairpinning, plus simultaneous CDN + self-hosted `moq-relay` + P2P
+     connections with live link-cut failover.
   7. **Timestamp Addressing** *(Non-standard · `moq-lite-07`)* — track
      `Timescale` and frame `Timestamp` on the wire so `Time` range anchors
      address misaligned tracks and align ABR switches by media time, even with
-     E2EE (rejected: separate faster-than-real-time TTS section).
+     `moq-e2ee` encryption (rejected: separate faster-than-real-time TTS
+     section).
   8. **Max Age: Per-Subscriber Latency Budgets** *(Non-standard · `moq-lite` /
      `moq-timestamp`)* — multiple simultaneous subscribers (e.g. `0.5 s` live
      operator/call, `4 s` viewer, `30 s` archive recorder) sharing one
      broadcast and relay, with the relay forwarding the widest `max_age`
-     upstream and expiring superseded groups independently by media time.
-  - Closing band: zero STUN/TURN/SDP + QUIC migration, one protocol replacing
-    RTMP/SRT/WebRTC/HLS, incremental migration via OBS/FFmpeg + HLS & WHIP/WHEP
-    gateways, and links to `/demo`, `/voice`, `/boy`, `/carla`, and
-    `https://doc.moq.dev`.
+     upstream (bounded by publisher/relay retention) and expiring superseded
+     groups on whichever reaches `max_age` first: media timestamp age or
+     hop wall-clock arrival age.
+  - Closing band: zero STUN/TURN/SDP on direct relay connections over native
+    QUIC or WebTransport (P2P browser paths still use WebRTC signaling/ICE) +
+    QUIC migration, one protocol replacing RTMP/SRT/WebRTC/HLS, incremental
+    migration via OBS/FFmpeg + HLS & WHIP/WHEP gateways, and links to `/demo`,
+    `/voice`, `/boy`, `/carla`, and `https://doc.moq.dev`.
 
 Verify all protocol claims against `moq/doc/concept/` and
 `moq/drafts/draft-lcurley-moq-lite.md` (and `draft-lcurley-moq-timestamp.md`)
