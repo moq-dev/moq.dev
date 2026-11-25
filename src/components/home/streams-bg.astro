@@ -1,0 +1,55 @@
+---
+// Interactive QUIC multi-track stream lanes behind the Features + Libraries slice.
+---
+
+<div class="streams-stage" data-streams-bg aria-hidden="true">
+	<canvas class="streams-canvas" data-streams-canvas></canvas>
+	<div class="streams-scrim"></div>
+	<div class="streams-badge-wrap">
+		<span class="streams-badge" data-streams-dropped>click &amp; hold to stall a flight</span>
+	</div>
+</div>
+
+<script>
+	import { mount } from "./streams-bg";
+
+	for (const el of document.querySelectorAll<HTMLElement>("[data-streams-bg]")) mount(el);
+</script>
+
+<style>
+	@reference "../../layouts/global.css";
+
+	.streams-stage {
+		@apply pointer-events-none absolute inset-0 z-0 overflow-hidden;
+	}
+
+	.streams-canvas {
+		@apply absolute inset-0 h-full w-full;
+	}
+
+	/* Stronger center scrim keeps feature copy razor-sharp while letting lanes glow across the margins. */
+	.streams-scrim {
+		position: absolute;
+		inset: 0;
+		background: radial-gradient(
+			ellipse 76% 80% at 50% 48%,
+			rgba(15, 23, 42, 0.93) 0%,
+			rgba(15, 23, 42, 0.8) 56%,
+			rgba(15, 23, 42, 0.28) 88%,
+			rgba(15, 23, 42, 0.1) 100%
+		);
+	}
+
+	.streams-badge-wrap {
+		@apply absolute inset-x-0 bottom-3 mx-auto flex max-w-6xl justify-end px-5 md:px-8;
+	}
+
+	.streams-badge {
+		@apply rounded-full border border-line bg-bg/75 px-2.5 py-1 font-mono text-[0.65rem] uppercase tracking-[0.06em] text-ink-3 backdrop-blur-sm transition-colors;
+		font-feature-settings: "tnum";
+	}
+
+	.streams-badge[data-active="true"] {
+		@apply border-accent/40 text-accent-ink;
+	}
+</style>
