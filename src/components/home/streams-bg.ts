@@ -522,9 +522,18 @@ export function mount(root: HTMLElement) {
 	const isControl = (target: EventTarget | null) =>
 		target instanceof Element && Boolean(target.closest("a, button, input, [data-no-canvas]"));
 
+	function syncPausedStalls() {
+		for (const g of groups) {
+			const lane = lanes[g.lane];
+			const head = g.frames[0];
+			const headY = laneY(lane, head.x);
+			g.stalled = loss !== null && Math.hypot(head.x - loss.x, headY - loss.y) < loss.r;
+		}
+	}
+
 	function clearPausedLoss() {
 		loss = null;
-		for (const g of groups) g.stalled = false;
+		syncPausedStalls();
 		render();
 	}
 
@@ -536,6 +545,7 @@ export function mount(root: HTMLElement) {
 		if (loss?.holding && e.pointerId === loss.pointerId) {
 			loss.x = pt.x;
 			loss.y = pt.y;
+			if (!isLive) syncPausedStalls();
 		}
 		if (!isLive) render();
 	});
@@ -560,7 +570,7 @@ export function mount(root: HTMLElement) {
 		const pt = toCanvas(e);
 		loss = { pointerId: e.pointerId, x: pt.x, y: pt.y, r: 76, life: 1, holding: true };
 		if (!isLive) {
-			step(0.04);
+			syncPausedStalls();
 			render();
 		}
 	});

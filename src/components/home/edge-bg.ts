@@ -22,6 +22,7 @@ interface Pop {
 interface Pulse {
 	from: { x: number; y: number };
 	to: { x: number; y: number };
+	fromPop?: number;
 	toPop?: number;
 	t: number;
 	speed: number;
@@ -187,9 +188,17 @@ export function mount(root: HTMLElement) {
 
 	const pointer = { x: 0, y: 0, inside: false };
 	let hoveredPop = -1;
+	let pendingTap: { pointerId: number; x: number; y: number; popIdx: number; moved: boolean } | null = null;
 	const repaint = () => {
 		if (!isLive) render();
 	};
+
+	function isPulseValid(p: Pulse): boolean {
+		if (p.fromPop !== undefined && !pops[p.fromPop]?.online) return false;
+		if (p.toPop !== undefined && !pops[p.toPop]?.online) return false;
+		if (p.fromPop !== undefined && p.toPop !== undefined) return pops[p.fromPop].links.includes(p.toPop);
+		return true;
+	}
 
 	function rebuildLinks() {
 		for (const p of pops) p.links = [];
@@ -245,6 +254,7 @@ export function mount(root: HTMLElement) {
 				dfs(bestB);
 			}
 		}
+		pulses = pulses.filter(isPulseValid);
 	}
 
 	function nearestPop(x: number, y: number): { index: number; dist: number } | null {
@@ -299,7 +309,7 @@ export function mount(root: HTMLElement) {
 			visited.add(nxt);
 			const target = pops[nxt];
 			const len = Math.max(1, Math.hypot(target.x - p.x, target.y - p.y));
-			pulses.push({ from: p, to: target, toPop: nxt, t: 0, speed: 290 / len, rgb, visited });
+			pulses.push({ from: p, to: target, fromPop: index, toPop: nxt, t: 0, speed: 290 / len, rgb, visited });
 		}
 	}
 
@@ -334,7 +344,7 @@ export function mount(root: HTMLElement) {
 			const hit = nearestPop(pointer.x, pointer.y);
 			if (hit) {
 				const rtt = Math.max(6, Math.round((hit.dist / Math.max(w, 1)) * 110 + 7));
-				readoutEl.textContent = `anycast → ${pops[hit.index].code} · ${rtt} ms${offlineCount ? ` · ${offlineCount} offline` : ""}`;
+				readoutEl.textContent = `anycast → ${pops[hit.index].code} · ~${rtt} ms sim${offlineCount ? ` · ${offlineCount} offline` : ""}`;
 				readoutEl.dataset.active = "true";
 				return;
 			}
@@ -363,6 +373,7 @@ export function mount(root: HTMLElement) {
 
 		const landed: Pulse[] = [];
 		pulses = pulses.filter((p) => {
+			if (!isPulseValid(p)) return false;
 			p.t += p.speed * dt;
 			if (p.t >= 1) {
 				landed.push(p);
@@ -376,13 +387,22 @@ export function mount(root: HTMLElement) {
 			const pop = pops[p.toPop];
 			if (!pop?.online) continue;
 			pop.flash = 1;
-			rings.push({ x: pop.x, y: pop.y, r: 5, maxR: 34, a: 0.75, rgb: p.rgb });
+			pushRing({ x: pop.x, y: pop.y, r: 5, maxR: 34, a: 0.75, rgb: p.rgb });
 			for (const nxt of pop.links) {
-				if (p.visited.has(nxt)) continue;
+				if (p.visited.has(nxt) || pulses.length >= 64) continue;
 				p.visited.add(nxt);
 				const target = pops[nxt];
 				const len = Math.max(1, Math.hypot(target.x - pop.x, target.y - pop.y));
-				pulses.push({ from: pop, to: target, toPop: nxt, t: 0, speed: 290 / len, rgb: p.rgb, visited: p.visited });
+				pulses.push({
+					from: pop,
+					to: target,
+					fromPop: p.toPop,
+					toPop: nxt,
+					t: 0,
+					speed: 290 / len,
+					rgb: p.rgb,
+					visited: p.visited,
+				});
 			}
 		}
 
@@ -451,7 +471,7 @@ export function mount(root: HTMLElement) {
 			const rtt = Math.max(6, Math.round((hit.dist / Math.max(w, 1)) * 110 + 7));
 			ctx.font = '500 10.5px "DM Mono", ui-monospace, monospace';
 			ctx.fillStyle = "rgba(74, 222, 128, 0.92)";
-			ctx.fillText(`→ ${target.code} · ${rtt}ms`, pointer.x + 15, pointer.y - 10);
+			ctx.fillText(`→ ${target.code} · ~${rtt}ms sim`, pointer.x + 15, pointer.y - 10);
 		}
 
 		// 4. Traveling broadcast pulses.
@@ -597,12 +617,18 @@ export function mount(root: HTMLElement) {
 		return -1;
 	}
 
+	const isSelectableText = (target: EventTarget | null) =>
+		target instanceof Element && Boolean(target.closest("h2, h3, p, li, span, code"));
+
 	surface.addEventListener("pointermove", (e) => {
 		const pt = toCanvas(e);
 		pointer.x = pt.x;
 		pointer.y = pt.y;
 		pointer.inside = true;
-		hoveredPop = isControl(e.target) ? -1 : popAt(pt.x, pt.y);
+		if (pendingTap && e.pointerId === pendingTap.pointerId) {
+			if (Math.hypot(pt.x - pendingTap.x, pt.y - pendingTap.y) > 6) pendingTap.moved = true;
+		}
+		hoveredPop = isControl(e.target) || isSelectableText(e.target) ? -1 : popAt(pt.x, pt.y);
 		surface.style.cursor = hoveredPop !== -1 ? "pointer" : "";
 		updateReadout();
 		if (!isLive) render();
@@ -611,25 +637,35 @@ export function mount(root: HTMLElement) {
 	surface.addEventListener("pointerleave", () => {
 		pointer.inside = false;
 		hoveredPop = -1;
+		pendingTap = null;
 		surface.style.cursor = "";
 		updateReadout();
 		if (!isLive) render();
 	});
 
 	surface.addEventListener("pointerdown", (e) => {
-		if (e.button !== 0 || isControl(e.target)) return;
+		if (e.button !== 0 || isControl(e.target) || isSelectableText(e.target)) return;
 		const pt = toCanvas(e);
-		const hitIdx = popAt(pt.x, pt.y);
-		if (hitIdx !== -1) {
-			const pop = pops[hitIdx];
+		// Wait for a confirmed tap (pointerup without drag/scroll) before changing topology.
+		pendingTap = { pointerId: e.pointerId, x: pt.x, y: pt.y, popIdx: popAt(pt.x, pt.y), moved: false };
+	});
+
+	surface.addEventListener("pointerup", (e) => {
+		if (!pendingTap || e.pointerId !== pendingTap.pointerId) return;
+		const tap = pendingTap;
+		pendingTap = null;
+		if (tap.moved) return;
+
+		if (tap.popIdx !== -1) {
+			const pop = pops[tap.popIdx];
 			const onlineCount = pops.filter((p) => p.online).length;
 			if (pop.online && onlineCount <= 1) {
-				broadcastFromPop(hitIdx);
+				broadcastFromPop(tap.popIdx);
 			} else {
 				pop.online = !pop.online;
 				rebuildLinks();
 				if (pop.online) {
-					broadcastFromPop(hitIdx);
+					broadcastFromPop(tap.popIdx);
 				} else {
 					pushRing({ x: pop.x, y: pop.y, r: 5, maxR: 46, a: 0.9, rgb: "251, 113, 133" });
 					const backup = nearestPop(pop.x, pop.y);
@@ -640,10 +676,12 @@ export function mount(root: HTMLElement) {
 			if (!isLive) render();
 			return;
 		}
-		const overText = e.target instanceof Element && Boolean(e.target.closest("h2, h3, p, li, span, code"));
-		if (overText) return;
-		broadcastFromPoint(pt.x, pt.y);
+		broadcastFromPoint(tap.x, tap.y);
 		if (!isLive) render();
+	});
+
+	surface.addEventListener("pointercancel", (e) => {
+		if (pendingTap && e.pointerId === pendingTap.pointerId) pendingTap = null;
 	});
 
 	const tick = (now: number) => {

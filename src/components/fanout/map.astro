@@ -8,6 +8,11 @@ const { class: className } = Astro.props;
 ---
 
 <div class:list={["fanout-stage", className]} data-fanout>
+	<p class="sr-only">
+		Interactive live mesh: publishers and viewers connect to their nearest edge relay across a global relay mesh. Each
+		video, audio, or data frame goes up once to the publisher's edge and fans out across relays to every subscribed
+		viewer; relays automatically fail over when one goes offline.
+	</p>
 	<canvas class="fanout-canvas" data-mesh-canvas aria-hidden="true"></canvas>
 	<div class="fanout-scrim" aria-hidden="true"></div>
 
@@ -26,7 +31,18 @@ const { class: className } = Astro.props;
 				</button>
 			</div>
 			<span class="hud-sep" aria-hidden="true">·</span>
-			<span class="hud-status" data-mesh-status>9 relays</span>
+			<button
+				type="button"
+				class="kind-pill"
+				data-failover-btn
+				data-active="false"
+				aria-pressed="false"
+				aria-label="Toggle relay failover"
+			>
+				failover
+			</button>
+			<span class="hud-sep" aria-hidden="true">·</span>
+			<span class="hud-status" data-mesh-status aria-live="polite">9 relays</span>
 			<span class="hud-hint hidden sm:inline">click to publish or add · drag nodes · click relay to fail over</span>
 		</fieldset>
 	</div>

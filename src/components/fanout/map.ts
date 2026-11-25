@@ -181,6 +181,7 @@ export function mount(root: HTMLElement) {
 	// Interactive surface is the enclosing hero section so clicks in whitespace work while links/text remain usable.
 	const surface = root.closest("section") ?? root;
 	const kindButtons = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-kind]"));
+	const failoverBtn = root.querySelector<HTMLButtonElement>("[data-failover-btn]");
 	const statusEl = root.querySelector<HTMLElement>("[data-mesh-status]");
 
 	let w = 0;
@@ -214,6 +215,7 @@ export function mount(root: HTMLElement) {
 		startY: number;
 		moved: boolean;
 	} | null = null;
+	let pendingTap: { pointerId: number; x: number; y: number; moved: boolean } | null = null;
 
 	const relayById = (id: number) => relays.find((r) => r.id === id);
 	const endpointById = (id: number) => endpoints.find((e) => e.id === id);
@@ -222,12 +224,19 @@ export function mount(root: HTMLElement) {
 	};
 
 	function updateStatus() {
-		if (!statusEl) return;
-		const online = relays.filter((r) => r.online).length;
+		const offlineRelays = relays.filter((r) => !r.online);
+		const online = relays.length - offlineRelays.length;
 		const total = relays.length;
-		const offline = total - online;
-		if (offline > 0) {
-			statusEl.textContent = `${online}/${total} relays · ${offline} failed over`;
+		if (failoverBtn) {
+			const hasOffline = offlineRelays.length > 0;
+			failoverBtn.setAttribute("aria-pressed", String(hasOffline));
+			failoverBtn.dataset.active = hasOffline ? "true" : "false";
+			failoverBtn.textContent = hasOffline ? "restore" : "failover";
+		}
+		if (!statusEl) return;
+		if (offlineRelays.length > 0) {
+			const names = offlineRelays.map((r) => r.label).join(", ");
+			statusEl.textContent = `${online}/${total} relays · ${names} offline`;
 			statusEl.dataset.degraded = "true";
 		} else {
 			statusEl.textContent = `${online} relays · ${endpoints.length} peers`;
@@ -258,6 +267,21 @@ export function mount(root: HTMLElement) {
 			if (k && k in KINDS) setActiveKind(k, true);
 		});
 	}
+	failoverBtn?.addEventListener("click", (e) => {
+		e.stopPropagation();
+		const offline = relays.filter((r) => !r.online);
+		if (offline.length > 0) {
+			for (const r of offline) r.online = true;
+			computeTopology();
+			updateStatus();
+			for (const r of offline) publishFromRelay(r, activeKind, true);
+		} else if (relays.length > 1) {
+			// Pick a prominent visible relay on the right half when available.
+			const candidate = relays.find((r) => r.online && r.x > w * 0.48 && r.x < w - 60) ?? relays.find((r) => r.online);
+			if (candidate) toggleRelay(candidate);
+		}
+		if (!isLive) render();
+	});
 	setActiveKind("video", false);
 
 	function nearestOnlineRelay(pt: { x: number; y: number }, excludeId = -1): RelayNode | null {
@@ -272,6 +296,27 @@ export function mount(root: HTMLElement) {
 			}
 		}
 		return best;
+	}
+
+	function isPacketLinkValid(p: Packet): boolean {
+		const fromRelay = p.fromRef.kind === "relay" ? relayById(p.fromRef.id) : null;
+		const toRelay = p.toRef.kind === "relay" ? relayById(p.toRef.id) : null;
+		if (p.fromRef.kind === "relay" && !fromRelay?.online) return false;
+		if (p.toRef.kind === "relay" && !toRelay?.online) return false;
+		if (fromRelay && toRelay) return fromRelay.links.includes(toRelay.id);
+		if (fromRelay && p.toRef.kind === "endpoint") {
+			const e = endpointById(p.toRef.id);
+			return Boolean(e && e.relay === fromRelay.id);
+		}
+		if (p.fromRef.kind === "endpoint" && toRelay) {
+			const e = endpointById(p.fromRef.id);
+			return Boolean(e && e.relay === toRelay.id);
+		}
+		return false;
+	}
+
+	function pruneInvalidPackets() {
+		packets = packets.filter(isPacketLinkValid);
 	}
 
 	function computeTopology() {
@@ -355,6 +400,7 @@ export function mount(root: HTMLElement) {
 			}
 			e.relay = target.id;
 		}
+		pruneInvalidPackets();
 	}
 
 	function seed() {
@@ -881,9 +927,10 @@ export function mount(root: HTMLElement) {
 			routePointToPoint();
 		}
 
-		// Keep packets glued to moving/dragged node positions.
+		// Keep packets glued to moving/dragged node positions and drop any whose link vanished.
 		const arrived: Packet[] = [];
 		packets = packets.filter((p) => {
+			if (!isPacketLinkValid(p)) return false;
 			const fromNode = p.fromRef.kind === "relay" ? relayById(p.fromRef.id) : endpointById(p.fromRef.id);
 			const toNode = p.toRef.kind === "relay" ? relayById(p.toRef.id) : endpointById(p.toRef.id);
 			if (!fromNode || !toNode) return false;
@@ -1227,6 +1274,7 @@ export function mount(root: HTMLElement) {
 
 		if (prevW < 1 || Math.abs(prevW - w) > 140 || Math.abs(prevH - h) > 140) {
 			hovered = null;
+			pendingTap = null;
 			if (dragging) {
 				try {
 					surface.releasePointerCapture(dragging.pointerId);
@@ -1267,6 +1315,10 @@ export function mount(root: HTMLElement) {
 		return target instanceof Element && Boolean(target.closest("a, button, input, summary, details, [data-no-canvas]"));
 	}
 
+	function isSelectableText(target: EventTarget | null) {
+		return target instanceof Element && Boolean(target.closest("h1, h2, h3, p, span, code, pre, li"));
+	}
+
 	surface.addEventListener("pointermove", (e) => {
 		const pt = toCanvasPoint(e);
 		pointer = { x: pt.x, y: pt.y, inside: true };
@@ -1277,6 +1329,10 @@ export function mount(root: HTMLElement) {
 			const ny = ((e.clientY - srect.top) / Math.max(1, srect.height)) * 2 - 1;
 			pan.tx = -Math.max(-1, Math.min(1, nx)) * PAN;
 			pan.ty = -Math.max(-1, Math.min(1, ny)) * PAN;
+		}
+
+		if (pendingTap && e.pointerId === pendingTap.pointerId) {
+			if (Math.hypot(pt.x - pendingTap.x, pt.y - pendingTap.y) > 6) pendingTap.moved = true;
 		}
 
 		if (dragging && e.pointerId === dragging.pointerId) {
@@ -1290,7 +1346,7 @@ export function mount(root: HTMLElement) {
 			return;
 		}
 
-		if (isInteractiveControl(e.target)) {
+		if (isInteractiveControl(e.target) || isSelectableText(e.target)) {
 			hovered = null;
 			surface.style.cursor = "";
 			return;
@@ -1304,6 +1360,7 @@ export function mount(root: HTMLElement) {
 	surface.addEventListener("pointerleave", () => {
 		pointer.inside = false;
 		hovered = null;
+		pendingTap = null;
 		pan.tx = 0;
 		pan.ty = 0;
 		if (!dragging) surface.style.cursor = "";
@@ -1311,7 +1368,7 @@ export function mount(root: HTMLElement) {
 	});
 
 	surface.addEventListener("pointerdown", (e) => {
-		if (e.button !== 0 || isInteractiveControl(e.target)) return;
+		if (e.button !== 0 || isInteractiveControl(e.target) || isSelectableText(e.target)) return;
 		const pt = toCanvasPoint(e);
 		const hit = hitTest(pt.x, pt.y);
 		if (hit) {
@@ -1325,14 +1382,20 @@ export function mount(root: HTMLElement) {
 			}
 			return;
 		}
-		// Avoid spawning if user clicked directly on selectable copy text.
-		const overText = e.target instanceof Element && Boolean(e.target.closest("h1, p, span, code, pre"));
-		if (overText) return;
-		spawnUserEndpoint(pt.x, pt.y);
-		if (!isLive) render();
+		// Defer spawning until a confirmed tap (pointerup without scroll/drag).
+		pendingTap = { pointerId: e.pointerId, x: pt.x, y: pt.y, moved: false };
 	});
 
 	const finishDrag = (e: PointerEvent) => {
+		if (pendingTap && e.pointerId === pendingTap.pointerId) {
+			const tap = pendingTap;
+			pendingTap = null;
+			if (!tap.moved) {
+				spawnUserEndpoint(tap.x, tap.y);
+				if (!isLive) render();
+			}
+			return;
+		}
 		if (!dragging || e.pointerId !== dragging.pointerId) return;
 		const active = dragging;
 		dragging = null;
@@ -1354,6 +1417,7 @@ export function mount(root: HTMLElement) {
 	};
 
 	const cancelDrag = (e: PointerEvent) => {
+		if (pendingTap && e.pointerId === pendingTap.pointerId) pendingTap = null;
 		if (!dragging || e.pointerId !== dragging.pointerId) return;
 		dragging = null;
 		surface.style.cursor = hovered ? "grab" : "";
