@@ -6,9 +6,6 @@ Once TypeScript 7.1 ships stable, `package.json` moves `typescript` from the
 exact `7.1.0-beta` pin to `^7.1.0`, and `just check` still type-checks the
 `.astro` files through `@astrojs/ts-content-mapper`.
 
-This quest waits on a condition outside the repository: it is ready to
-implement once `npm view typescript dist-tags.latest` reports a 7.1.x version.
-
 ## Plan
 
 Decided 2026-10-28 in planning:
@@ -26,3 +23,9 @@ Decided 2026-10-28 in planning:
 Check that `just check` still reports an error injected into an `.astro`
 file, then remove it, the way [moq-dev/moq.dev#202](https://github.com/moq-dev/moq.dev/pull/202)
 verified the mapper.
+
+## Waiting
+
+- microsoft/TypeScript: TypeScript 7.1 ships stable; check that
+  `npm view typescript dist-tags.latest` reports a 7.1.x version (7.0.2 on
+  2026-11-25).
