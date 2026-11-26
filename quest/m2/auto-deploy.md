@@ -35,7 +35,11 @@ Recommendations:
   steps with `staging` or `live`, so the laptop path and CI share one recipe.
   Use one GitHub environment per target, each limited to its branch, holding
   the Cloudflare token. A GitHub-hosted runner fits a short deploy job.
-  Serialize runs per environment and don't cancel one mid-upload.
+  Serialize runs per environment and don't cancel one mid-upload (the
+  workflow [#102](https://github.com/moq-dev/moq.dev/pull/102) removed set `cancel-in-progress: true`). The job needs what
+  `pr.yml`'s `check` job sets up: submodules, Nix with
+  `accept-flake-config` (`bun install` builds `@moq/libav` from the `moq`
+  submodule's flake), and Bun, plus `just`.
 - Credentials: `bws` holds `cloudflare-admin-token`, which can reach the
   `moq.dev` account (`dd618f5d…`, the `account_id` in `wrangler.jsonc`).
   Try minting an account-owned token with it, scoped to deploying these
@@ -43,8 +47,16 @@ Recommendations:
   secret. If the admin token can't mint one, add a `Maintainer:` item naming
   the exact scopes.
 - Create `release` at the commit live runs now; the 2026-11-25 deploy was
-  `e67ab91`. Protect it the way moq.pro's `release` is protected, through
-  the org rulesets in dotfiles' `bin/repo-settings`, not per repo.
+  `e67ab91`. moq.pro protects its `release` with a per-repo ruleset
+  (no deletion, no force push, required checks); dotfiles'
+  `bin/repo-settings` has no `release` branch standard yet. Add one there
+  that both repos share rather than copying moq.pro's by hand.
+- This repo allows only squash merges. Squash-merging a `main` to `release`
+  PR leaves `release` off `main`'s history, so each later release PR
+  re-diffs from the old merge base and conflicts with backports. Allow merge
+  commits for PRs into `release` (moq.pro allows them; `main`'s ruleset
+  already requires linear history), and merge release PRs with a merge
+  commit.
 - `pr.yml` checks only PRs into `main`; make it check PRs into `release` too.
 - Update README's Deploy section to match.
 - The README says to deploy moq.pro's `try` project before these clients.
