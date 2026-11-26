@@ -16,6 +16,8 @@ posts.sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.d
 
 const [featured, ...rest] = posts;
 
+const years = Map.groupBy(rest, (post) => new Date(post.frontmatter.date).getUTCFullYear());
+
 const formatDate = (date: string) =>
 	new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
 ---
@@ -34,7 +36,7 @@ const formatDate = (date: string) =>
 			featured && (
 				<a
 					href={featured.url}
-					class="group mb-12 grid items-center gap-8 border-y border-line py-8 transition-colors hover:bg-tint md:grid-cols-[1.05fr_1fr] md:px-3"
+					class="group mb-14 grid items-center gap-8 border-y border-line py-8 transition-colors hover:bg-tint md:grid-cols-[1.05fr_1fr] md:px-3"
 				>
 					<div class="overflow-hidden rounded-xl border border-line bg-surface p-4 transition-colors group-hover:border-line-strong">
 						<img
@@ -44,8 +46,13 @@ const formatDate = (date: string) =>
 						/>
 					</div>
 					<div>
-						<span class="label">{formatDate(featured.frontmatter.date)}</span>
-						<h2 class="display mt-2 text-[1.8rem] transition-colors group-hover:text-accent-ink md:text-[2.2rem]">
+						<span class="label flex items-center gap-2.5">
+							<span class="rounded-full bg-accent-soft px-2.5 py-0.5 font-mono text-[0.68rem] font-medium uppercase tracking-wider text-accent-ink">
+								Latest
+							</span>
+							{formatDate(featured.frontmatter.date)}
+						</span>
+						<h2 class="display mt-2.5 text-[1.8rem] transition-colors group-hover:text-accent-ink md:text-[2.2rem]">
 							{featured.frontmatter.title}
 						</h2>
 						<p class="mt-3 text-[1rem] leading-relaxed text-ink-3">{featured.frontmatter.description}</p>
@@ -54,34 +61,47 @@ const formatDate = (date: string) =>
 			)
 		}
 
-		<ul class="border-t border-line">
+		<div class="flex flex-col gap-12">
 			{
-				rest.map((post) => (
-					<li class="border-b border-line">
-						<a
-							href={post.url}
-							class="group grid grid-cols-1 items-center gap-4 px-2 py-5 transition-colors hover:bg-tint sm:grid-cols-[9rem_1fr_auto] sm:gap-6"
-						>
-							<div class="overflow-hidden rounded-lg border border-line bg-surface p-2">
-								<img
-									class="aspect-video w-full object-contain"
-									src={post.frontmatter.cover}
-									alt=""
-									loading="lazy"
-								/>
-							</div>
-							<div>
-								<span class="label sm:hidden">{formatDate(post.frontmatter.date)}</span>
-								<h3 class="text-[1.15rem] font-semibold leading-snug text-ink transition-colors group-hover:text-accent-ink">
-									{post.frontmatter.title}
-								</h3>
-								<p class="mt-1 text-[0.9rem] leading-relaxed text-ink-3">{post.frontmatter.description}</p>
-							</div>
-							<span class="label hidden shrink-0 sm:block">{formatDate(post.frontmatter.date)}</span>
-						</a>
-					</li>
+				[...years].map(([year, list]) => (
+					<div>
+						<h2 class="mb-4 flex items-center gap-4">
+							<span class="display text-[1.5rem] text-ink-2 md:text-[1.75rem]">{year}</span>
+							<span class="h-px flex-1 bg-line" aria-hidden="true" />
+							<span class="label">
+								{list.length} {list.length === 1 ? "post" : "posts"}
+							</span>
+						</h2>
+						<ul class="border-t border-line">
+							{list.map((post) => (
+								<li class="border-b border-line">
+									<a
+										href={post.url}
+										class="group grid grid-cols-1 items-center gap-4 px-2 py-5 transition-colors hover:bg-tint sm:grid-cols-[9rem_1fr_auto] sm:gap-6"
+									>
+										<div class="overflow-hidden rounded-lg border border-line bg-surface p-2">
+											<img
+												class="aspect-video w-full object-contain"
+												src={post.frontmatter.cover}
+												alt=""
+												loading="lazy"
+											/>
+										</div>
+										<div>
+											<span class="label sm:hidden">{formatDate(post.frontmatter.date)}</span>
+											<h3 class="text-[1.15rem] font-semibold leading-snug text-ink transition-colors group-hover:text-accent-ink">
+												{post.frontmatter.title}
+											</h3>
+											<p class="mt-1 text-[0.9rem] leading-relaxed text-ink-3">{post.frontmatter.description}</p>
+										</div>
+										<span class="label hidden shrink-0 sm:block">{formatDate(post.frontmatter.date)}</span>
+									</a>
+								</li>
+							))}
+						</ul>
+					</div>
 				))
 			}
-		</ul>
+		</div>
 	</section>
 </MainLayout>

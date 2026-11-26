@@ -1,0 +1,246 @@
+---
+import Users from "@/components/users.astro";
+import Layout from "@/layouts/global.astro";
+
+interface Argument {
+	icon: string;
+	title: string;
+	body: string;
+}
+
+interface Figure {
+	title: string;
+	src: string;
+	alt: string;
+	caption: string;
+	body: string;
+	href?: string;
+	linkText?: string;
+}
+
+interface ReadingLink {
+	title: string;
+	href: string;
+}
+
+interface Props {
+	title: string;
+	description: string;
+	heading: string;
+	scribble?: string;
+	pitch: string;
+	docsHref: string;
+	demo?: { label: string; href: string; external?: boolean };
+	art: string;
+	artAlt: string;
+	chip?: { label: string; text: string; href?: string };
+	useCase?: string;
+	points: Argument[];
+	figures: Figure[];
+	yours: string;
+	reading: ReadingLink[];
+}
+
+const {
+	title,
+	description,
+	heading,
+	scribble,
+	pitch,
+	docsHref,
+	demo,
+	art,
+	artAlt,
+	chip,
+	useCase,
+	points,
+	figures,
+	yours,
+	reading,
+} = Astro.props;
+---
+
+<Layout title={title} description={description} bare>
+	<!-- Hero -->
+	<section class="relative overflow-hidden">
+		<div class="grid-wash" aria-hidden="true"></div>
+		<div class="hero-glow" aria-hidden="true"></div>
+		<div class="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-14 pt-12 md:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14 lg:pb-18 lg:pt-16">
+			<div class="min-w-0">
+				<p class="label mb-5 flex items-center gap-2.5">
+					<a href="/#use-cases" class="text-ink-2 transition-colors hover:text-accent-ink">
+						<span aria-hidden="true">←</span> Use cases
+					</a>
+				</p>
+
+				{
+					chip &&
+						(chip.href ? (
+							<a
+								href={chip.href}
+								class="group mb-5 inline-flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[0.875rem] text-ink-2 transition-colors hover:text-ink"
+							>
+								<span class="shrink-0 rounded-full bg-accent-soft px-2.5 py-0.5 font-mono text-[0.7rem] font-medium uppercase tracking-wider text-accent-ink">
+									{chip.label}
+								</span>
+								<span>{chip.text}</span>
+								<span class="text-ink-3 transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+							</a>
+						) : (
+							<p class="mb-5 inline-flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[0.875rem] text-ink-2">
+								<span class="shrink-0 rounded-full bg-accent-soft px-2.5 py-0.5 font-mono text-[0.7rem] font-medium uppercase tracking-wider text-accent-ink">
+									{chip.label}
+								</span>
+								<span>{chip.text}</span>
+							</p>
+						))
+				}
+
+				<h1 class="display text-[2.4rem] sm:text-[3.4rem] lg:text-[3.75rem]">
+					{scribble ? <span class="scribble">{scribble}</span> : heading}
+				</h1>
+
+				<p class="mt-6 max-w-xl text-[1.08rem] leading-relaxed text-ink-2 md:text-[1.18rem]">
+					{pitch}
+				</p>
+
+				<div class="mt-8 flex flex-wrap items-center gap-3">
+					{
+						demo ? (
+							<a
+								href={demo.href}
+								target={demo.external ? "_blank" : undefined}
+								rel={demo.external ? "noreferrer" : undefined}
+								class="btn-green"
+							>
+								{demo.label} <span aria-hidden="true">→</span>
+							</a>
+						) : (
+							<a href="mailto:hello@kixel.us" class="btn-green">
+								Talk to us <span aria-hidden="true">→</span>
+							</a>
+						)
+					}
+					<a href={docsHref} class="btn-line">Docs</a>
+					{demo && <a href="mailto:hello@kixel.us" class="btn-line">Talk to us</a>}
+				</div>
+			</div>
+
+			<div class="mx-auto flex w-full max-w-md items-center justify-center">
+				<img src={art} alt={artAlt} class="max-h-64 w-auto object-contain drop-shadow-[0_0_28px_rgba(34,197,94,0.08)]" />
+			</div>
+		</div>
+	</section>
+
+	<!-- In Production (up front when this use case has named or redacted production users) -->
+	{
+		useCase && (
+			<section id="in-production" class="sec-band scroll-mt-20">
+				<div class="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-16">
+					<div class="mb-7 flex items-baseline justify-between gap-6">
+						<h2 class="display text-[1.9rem] md:text-[2.2rem]">In production</h2>
+						<span class="label">live deployments</span>
+					</div>
+					<Users useCase={useCase} />
+				</div>
+			</section>
+		)
+	}
+
+	<!-- Why MoQ -->
+	<section class:list={[!useCase && "sec-band"]}>
+		<div class="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-16">
+			<div class="mb-8 flex items-baseline justify-between gap-6">
+				<h2 class="display text-[1.9rem] md:text-[2.2rem]">Why MoQ</h2>
+				<span class="label">open standard · QUIC</span>
+			</div>
+
+			<div class="grid border-t border-line md:grid-cols-2">
+				{
+					points.map((point, i) => (
+						<div
+							class:list={[
+								"group flex items-start gap-4 border-b border-line py-6",
+								i % 2 === 0 ? "md:border-r md:pr-8" : "md:pl-8",
+							]}
+						>
+							<img
+								src={`/drawn/icon-${point.icon}.svg`}
+								class="boil mt-0.5 h-7 w-7 shrink-0 object-contain"
+								alt=""
+							/>
+							<div>
+								<h3 class="text-[1.05rem] font-semibold text-ink">{point.title}</h3>
+								<p class="mt-1.5 text-[0.92rem] leading-relaxed text-ink-3">{point.body}</p>
+							</div>
+						</div>
+					))
+				}
+			</div>
+		</div>
+	</section>
+
+	<!-- Deep dives -->
+	<section class:list={[useCase && "sec-band"]}>
+		<div class="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-16">
+			<div class="mb-8 flex items-baseline justify-between gap-6">
+				<h2 class="display text-[1.9rem] md:text-[2.2rem]">How it works</h2>
+				<a href={docsHref} class="green-link shrink-0 text-[0.92rem] font-medium">Read the docs →</a>
+			</div>
+
+			<div class="grid gap-8 md:grid-cols-2">
+				{
+					figures.map((fig) => (
+						<figure class="flex flex-col overflow-hidden rounded-xl border border-line bg-bg">
+							<div class="flex aspect-video items-center justify-center border-b border-line bg-[#020617]/60 p-4">
+								<img src={fig.src} alt={fig.alt} class="max-h-full max-w-full object-contain" loading="lazy" />
+							</div>
+							<figcaption class="flex flex-1 flex-col gap-2 p-5">
+								<h3 class="text-[1.05rem] font-semibold text-ink">{fig.title}</h3>
+								<p class="text-[0.9rem] leading-relaxed text-ink-3">{fig.body}</p>
+								<p class="mt-auto pt-2 font-mono text-[0.76rem] text-ink-3">
+									{fig.caption}
+									{fig.href && (
+										<>
+											{" "}
+											<a href={fig.href} class="green-link">
+												{fig.linkText ?? "Try it →"}
+											</a>
+										</>
+									)}
+								</p>
+							</figcaption>
+						</figure>
+					))
+				}
+			</div>
+		</div>
+	</section>
+
+	<!-- Yours? + Further reading -->
+	<section class:list={[!useCase && "border-t border-line"]}>
+		<div class="mx-auto max-w-6xl px-5 pb-24 pt-14 md:px-8 md:pb-28 md:pt-16">
+			<div class="grid gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-start">
+				<div>
+					<h2 class="display text-[1.6rem] md:text-[1.9rem]">Yours?</h2>
+					<p class="mt-2 text-[0.95rem] leading-relaxed text-ink-3">
+						{yours}{" "}
+						<a href="mailto:hello@kixel.us" class="green-link">Tell us</a>, we'd love to brag about it.
+					</p>
+				</div>
+				<div>
+					<span class="label">Want the long version?</span>
+					<div class="mt-2.5 flex flex-wrap gap-x-5 gap-y-2 text-[0.94rem]">
+						{
+							reading.map((item) => (
+								<a href={item.href} class="green-link">
+									{item.title} →
+								</a>
+							))
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</Layout>

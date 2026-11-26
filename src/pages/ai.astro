@@ -1,0 +1,85 @@
+---
+import UseCasePage from "@/components/use-case-page.astro";
+---
+
+<UseCasePage
+	title="Voice and video AI"
+	description="Voice agents, faster-than-real-time TTS, instant barge-in, and on-demand inference over MoQ."
+	heading="Voice and video AI"
+	scribble="Voice and video AI"
+	pitch="Your voice AI shouldn't keep asking 'can you repeat that?' Stream audio reliably within your latency budget, burst TTS faster than real time, and interrupt cleanly."
+	docsHref="https://doc.moq.dev/concept/use-case/ai"
+	demo={{ label: "Try Voice AI", href: "/voice" }}
+	art="/blog/webrtc-is-still-the-problem/context.svg"
+	artAlt="Voice AI context over MoQ"
+	points={[
+		{
+			icon: "lock",
+			title: "No packet left behind",
+			body: "WebRTC drops audio after 30ms. MoQ keeps retransmitting until the model actually needs the audio—giving you seconds to recover 6 QUIC packets with zero extra delay.",
+		},
+		{
+			icon: "rocket",
+			title: "Faster than real time",
+			body: "TTS emits bursts with future timestamps straight into RAM. The player paces playback locally so surprise network blips never glitch a reply.",
+		},
+		{
+			icon: "back",
+			title: "Instant barge-in",
+			body: "Dynamic tracks make interruptions trivial: publish a new audio track and drop the old one, and any generic MoQ player abandons the old buffer immediately.",
+		},
+		{
+			icon: "link",
+			title: "Pick your latency budget",
+			body: "Run a 500ms real-time STS model and a 5s lossless pass on the same upstream subscription—or backfill dropped audio later for evals and training.",
+		},
+		{
+			icon: "battery",
+			title: "Inference on demand",
+			body: "Advertise tracks in the catalog before frames exist. Run Whisper captions or 1080p vision models only while someone is subscribed.",
+		},
+		{
+			icon: "stonk",
+			title: "Decouple network and compute",
+			body: "Terminate lossy first/last-mile links on cheap edge relays close to users and run GPUs wherever capacity lives—using Pipecat, Rust, or Python.",
+		},
+	]}
+	figures={[
+		{
+			title: "LLMs are blocked on context",
+			src: "/blog/webrtc-is-still-the-problem/context.svg",
+			alt: "I require context",
+			body: "What matters is the latency of the last word. Retransmitting earlier lost packets while the user finishes speaking costs zero visible latency.",
+			caption: "i require context",
+		},
+		{
+			title: "Render on timestamps, not vibes",
+			src: "/blog/webrtc-is-still-the-problem/mics.svg",
+			alt: "Not just mics",
+			body: "Instead of sleeping between TTS packets to appease WebRTC, stamp each frame with its playout time and let the browser play smoothly out of RAM.",
+			caption: "Faster-than-real-time TTS buffered in the client.",
+		},
+		{
+			title: "Track switches as the STFU signal",
+			src: "/blog/webrtc-is-still-the-problem/navi.svg",
+			alt: "Instant barge-in",
+			body: "When the user interrupts a monologue, swapping to a new audio track tells the player to drop the queued reply without bespoke signaling.",
+			caption: "Works on any generic MoQ player.",
+			href: "/voice",
+			linkText: "Try the Voice AI demo →",
+		},
+		{
+			title: "Shrink the lossy first and last mile",
+			src: "/blog/webrtc-is-the-problem/rtt.svg",
+			alt: "Edge relay RTT diagram",
+			body: "Edge relays sit close to users so QUIC retransmits lost packets in tens of milliseconds over the lossy edge hop instead of crossing the globe.",
+			caption: "Retransmissions beat FEC when the first hop is short.",
+		},
+	]}
+	yours="Shipping a voice or video AI agent on MoQ?"
+	reading={[
+		{ title: "OpenAI still has a WebRTC Problem", href: "/blog/webrtc-is-still-the-problem" },
+		{ title: "OpenAI has a WebRTC Problem", href: "/blog/webrtc-is-the-problem" },
+		{ title: "Voice AI demo", href: "/voice" },
+	]}
+/>

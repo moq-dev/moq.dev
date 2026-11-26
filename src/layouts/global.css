@@ -33,6 +33,19 @@
 	--font-code: "JetBrains Mono", ui-monospace, monospace;
 }
 
+/* Motion off: the visitor hit pause, or asked the OS for less motion and hasn't
+   pressed play since. The motion toggle (see global.astro) sets `.still` or `.moving`. */
+@custom-variant still {
+	:root.still & {
+		@slot;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		:root:not(.moving) & {
+			@slot;
+		}
+	}
+}
+
 /* Self-hosted subsetted woff2 fonts bundled into /_astro/ with immutable caching. */
 @font-face {
 	font-family: "JetBrains Mono";
@@ -228,15 +241,15 @@ table td:first-child {
 	color: var(--astro-code-token-comment);
 }
 
-/* Notebook grid wash fixed behind the page, matching moq.wtf. */
+/* Subtle notebook grid wash for accent sections (hero, framed cards), kept off dense text. */
 .grid-wash {
-	position: fixed;
+	position: absolute;
 	inset: 0;
 	z-index: 0;
 	pointer-events: none;
 	background-image:
-		linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-		linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+		linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
 	background-size: 34px 34px;
 }
 
@@ -284,20 +297,38 @@ table td:first-child {
 	@apply rounded-xl border border-line bg-surface;
 }
 
-/* A hand-drawn marker underline under a word or two of a heading. */
+/* Looping decoration holds still while it's offscreen (see global.astro). */
+.offscreen,
+.offscreen * {
+	/* biome-ignore lint/complexity/noImportantStyles: it has to beat every component's own animation shorthand. */
+	animation-play-state: paused !important;
+}
+
+/* A hand-drawn marker underline under a word or two of a heading. It draws
+   itself in once the global script marks it `.in` (see global.astro). */
 @utility scribble {
 	@apply relative inline-block whitespace-nowrap;
 
 	&::after {
 		content: "";
 		position: absolute;
-		left: 0;
-		right: 0;
-		bottom: -0.14em;
-		height: 0.22em;
-		background: url("/drawn/underline-2.svg") no-repeat;
+		left: -2%;
+		right: -2%;
+		bottom: -0.08em;
+		height: 0.2em;
+		background: url("/drawn/stroke-1.svg") no-repeat;
 		background-size: 100% 100%;
 		pointer-events: none;
+		clip-path: inset(0 0 0 0);
+		transition: clip-path 0.7s cubic-bezier(0.6, 0, 0.3, 1) 0.15s;
+	}
+	:root.js &:not(.in)::after {
+		clip-path: inset(0 100% 0 0);
+	}
+	@variant still {
+		&::after {
+			transition: none;
+		}
 	}
 }
 
@@ -317,10 +348,20 @@ table td:first-child {
 	.group:hover &:nth-of-type(3n) {
 		animation-delay: -0.4s;
 	}
-	@media (prefers-reduced-motion: reduce) {
+	@variant still {
 		.group:hover & {
 			animation: none;
 		}
+	}
+}
+
+/* The same boil, all the time. `--i` desyncs neighbours. */
+@utility boil-always {
+	animation: boil 0.6s steps(1) infinite;
+	animation-delay: calc(var(--i, 0) * -0.13s);
+
+	@variant still {
+		animation: none;
 	}
 }
 
@@ -373,12 +414,20 @@ moq-carla {
 	@apply prose-li:my-1;
 	@apply prose-img:rounded-xl;
 	@apply prose-figure:object-center prose-figure:text-center prose-img:m-auto;
+	@apply prose-figcaption:font-mono prose-figcaption:text-[0.8rem] prose-figcaption:leading-relaxed;
 	@apply prose-a:font-semibold prose-a:text-accent-ink prose-a:underline prose-a:decoration-accent-ink/40 prose-a:decoration-2 prose-a:underline-offset-4 prose-a:hover:decoration-accent-ink;
 	@apply prose-code:font-normal prose-code:before:content-none prose-code:after:content-none;
 	@apply prose-pre:rounded-xl prose-pre:border prose-pre:border-line prose-pre:text-[0.875rem];
 
 	/* Long URLs and inline `code` shouldn't push the page wider than the viewport. */
 	@apply wrap-break-word;
+
+	& :where(h1, h2, h3) {
+		text-wrap: balance;
+	}
+	& p {
+		text-wrap: pretty;
+	}
 
 	& code {
 		font-family: var(--font-code);
