@@ -37,6 +37,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version-file: package.json
+          no-cache: true
       # just from the flake's locked nixpkgs, the same one the dev shell uses.
       - run: echo "$(nix build --no-link --print-out-paths --inputs-from . 'nixpkgs#just^out')/bin" >> "$GITHUB_PATH"
 
