@@ -36,7 +36,10 @@ Recommendations:
   Use one GitHub environment per target, each limited to its branch, holding
   the Cloudflare token. A GitHub-hosted runner fits a short deploy job.
   Serialize runs per environment and don't cancel one mid-upload (the
-  workflow [#102](https://github.com/moq-dev/moq.dev/pull/102) removed set `cancel-in-progress: true`). The job needs what
+  workflow [#102](https://github.com/moq-dev/moq.dev/pull/102) removed set
+  `cancel-in-progress: true`). A concurrency group doesn't keep pushes in
+  order, so right before uploading, a run skips the upload when its commit is
+  no longer its branch's tip; the newer push's run deploys instead. The job needs what
   `pr.yml`'s `check` job sets up: submodules, Nix with
   `accept-flake-config` (`bun install` builds `@moq/libav` from the `moq`
   submodule's flake), and Bun, plus `just`.
