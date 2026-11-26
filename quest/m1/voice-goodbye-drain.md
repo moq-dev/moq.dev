@@ -15,6 +15,10 @@ record goes out whenever the connection closes. A local relay test with the
 connection closed at once delivered it every time; swapping the drain back
 to an abort lost it every time.
 
-Remaining: a real call on new.moq.dev/voice. Hang up and confirm the agent
-logs the `session-ending` record rather than a timeout. Needs a maintainer
-(Turnstile and a mic).
+## Waiting
+
+- Maintainer (PC): place a real call on new.moq.dev/voice, hang up, and
+  confirm the agent logs the `session-ending` record rather than a timeout;
+  then delete this quest. An agent cannot take it: the page needs a Turnstile
+  pass and a live mic, and a headless browser with a fake mic would not pass
+  Turnstile.

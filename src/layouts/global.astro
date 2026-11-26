@@ -1,11 +1,13 @@
 ---
 import MotionToggle from "@/components/motion-toggle.astro";
+import { SITE_DESCRIPTION } from "@/lib/site";
 import "./global.css";
 
 // NOTE: This is magically used as the type for Astro.props
 interface Props {
 	title: string;
 	description: string;
+	cover?: string;
 	// The page draws its own layout instead of sitting in the reading column.
 	bare?: boolean;
 
@@ -18,18 +20,19 @@ interface Props {
 	};
 }
 
-let { title, frontmatter, description, bare } = Astro.props;
+let { title, frontmatter, description, cover: coverProp, bare } = Astro.props;
 if (frontmatter?.title) title = frontmatter.title;
 if (frontmatter?.description) description = frontmatter.description;
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "https://moq.dev";
 const pageUrl = new URL(Astro.url.pathname, siteUrl).toString();
 const fullTitle = title ? `${title} - Media over QUIC` : "Media over QUIC";
-const fullDescription = description
-	? `Media over QUIC: ${description}`
-	: "Media over QUIC is a new live media protocol designed for simplicity and scale. It uses new browser technologies like WebTransport and WebCodecs to deliver media with latency that rivals WebRTC.";
-// An SVG cover is served as the PNG that pages/og renders from it.
-const cover = frontmatter?.cover?.replace(/^(.*)\.svg$/, "/og$1.png");
+const fullDescription = description || SITE_DESCRIPTION;
+// Blog posts use their generated 1200x675 OG card (`/og/blog/<slug>.png`) while
+// keeping `frontmatter.cover` as the raw cover art for index cards.
+const blogSlug = frontmatter?.date ? Astro.url.pathname.match(/^\/blog\/([^/]+)\/?$/)?.[1] : undefined;
+// Scrapers won't render an SVG, so a page's own cover must be a raster card.
+const cover = blogSlug ? `/og/blog/${blogSlug}.png` : (coverProp ?? frontmatter?.cover);
 const ogImage = new URL(cover ?? "/layout/og.png", siteUrl).toString();
 
 // moq.wtf for staging builds, moq.pro for live (and local dev).
