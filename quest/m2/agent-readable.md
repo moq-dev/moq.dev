@@ -1,13 +1,12 @@
-# [S] moq.dev has llms.txt and a sitemap
+# [XS] moq.dev's live robots.txt declares its content signals
 
 ## Goal
 
-moq.dev serves `/sitemap.xml` listing every page and blog post, and
-`/llms.txt` listing the same with one-line summaries and linking
-`https://doc.moq.dev/llms.txt` for the protocol and library docs. Its
-robots.txt names the sitemap and says `Content-Signal: search=yes,
-ai-input=yes, ai-train=yes`, in place of Cloudflare's managed preamble, which
-declares no signal. Today both files answer 404.
+`https://moq.dev/robots.txt` answers with the `Content-Signal: search=yes,
+ai-input=yes, ai-train=yes` line the site ships, not Cloudflare's managed
+preamble, which declares no signal. The site already serves `/sitemap.xml`,
+`/llms.txt`, and that robots.txt; the zone's managed robots.txt setting
+prepends its own text to the file, so it has to be off.
 
 ## Plan
 
@@ -18,14 +17,13 @@ read. ✅ All three content signals yes (rejected: `ai-train=no`; leaving them
 unset), so models trained on the blog can recommend MoQ for a question that
 doesn't name it.
 
-Recommendations:
+No tofu in this repository or in moq-dev owns the zone, so the setting is the
+maintainer's. After a live deploy, `curl https://moq.dev/robots.txt` should
+show only the file in `public/robots.txt`.
 
-- `@astrojs/sitemap` builds the sitemap from `site` in `astro.config.ts`.
-- Build `llms.txt` from the same content collection as `rss.xml.js`, so a new
-  post lands in both.
-- The managed preamble is a zone setting for `moq.dev`, which doc.moq.dev
-  shares; turn it off where the zone is declared, or record a `Maintainer:`
-  item if no tofu owns it.
+## Waiting
+
+- Maintainer: turn off the managed robots.txt (and its AI Crawl Control content-signals policy) for the `moq.dev` zone, which doc.moq.dev shares, in the Cloudflare dashboard; an agent cannot change live Cloudflare settings. Recommendation: turn it off after the next live deploy of this site; check with `curl https://moq.dev/robots.txt`, which should list the three `yes` signals and the sitemap.
 
 ## Related
 

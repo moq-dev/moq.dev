@@ -1,5 +1,6 @@
 ---
 import MotionToggle from "@/components/motion-toggle.astro";
+import { SITE_DESCRIPTION } from "@/lib/site";
 import "./global.css";
 
 // NOTE: This is magically used as the type for Astro.props
@@ -26,9 +27,7 @@ if (frontmatter?.description) description = frontmatter.description;
 const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "https://moq.dev";
 const pageUrl = new URL(Astro.url.pathname, siteUrl).toString();
 const fullTitle = title ? `${title} - Media over QUIC` : "Media over QUIC";
-const fullDescription =
-	description ||
-	"Real-time latency and massive scale. The open standard for streaming live video, audio, and whatever you want over QUIC.";
+const fullDescription = description || SITE_DESCRIPTION;
 // Blog posts use their generated 1200x675 OG card (`/og/blog/<slug>.png`) while
 // keeping `frontmatter.cover` as the raw cover art for index cards.
 const blogSlug = frontmatter?.date ? Astro.url.pathname.match(/^\/blog\/([^/]+)\/?$/)?.[1] : undefined;
