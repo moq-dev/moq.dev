@@ -76,6 +76,7 @@ export default function TransportDiagram() {
 	const [transport, setTransport] = createSignal<Transport>("webtransport");
 	const manual = new Set<number>();
 	const [drops, setDrops] = createSignal(0); // bumped on every click, to redraw
+	const [news, setNews] = createSignal("");
 	let auto = Number.POSITIVE_INFINITY; // sequence numbers from here on are only lost by a click
 
 	const lost = (from: number, to: number) => {
@@ -101,8 +102,17 @@ export default function TransportDiagram() {
 		if (auto === Number.POSITIVE_INFINITY) auto = next;
 		manual.add(next);
 		setDrops((n) => n + 1);
-		// With motion paused, jump to where the loss is holding packets back.
-		if (!clock?.live()) advance(FLIGHT * 0.5 + 0.6, step);
+
+		const stream = (next % STREAMS) + 1;
+		const row = TRANSPORTS[transport()];
+		const other =
+			row.order === "connection"
+				? `over ${row.title}, which also runs on TCP, every stream waits too.`
+				: `over ${row.title}, only stream ${stream} waits.`;
+		setNews(`Dropped a packet from stream ${stream}. Over HTTP/2, every stream waits for the retransmit; ${other}`);
+
+		// With motion paused, jump to after the packets behind the loss arrive and before its retransmit does.
+		if (!clock?.live()) advance((next * GAP - t() + (GAP + FLIGHT + DETECT + FLIGHT) / 2) / SPEED, step);
 	};
 
 	// Everything still on screen was sent after this.
@@ -140,6 +150,9 @@ export default function TransportDiagram() {
 							waiting on a lost packet
 						</Swatch>
 					</div>
+					<p class="min-h-5 w-full text-xs text-ink-3" aria-live="polite">
+						{news()}
+					</p>
 					<Strip value={transport()} onChange={setTransport} />
 				</>
 			}

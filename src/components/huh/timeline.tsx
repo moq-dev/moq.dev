@@ -95,7 +95,7 @@ export default function TimelineDiagram() {
 	});
 
 	const label =
-		"A video encoder writes a keyframe and then small delta frames, starting a new group at each keyframe. Each group travels on its own QUIC stream, frame by frame as it is encoded, and audio is sent first. When bandwidth runs short, resetting the old group's unsent tail keeps the viewer near the live edge; delivering everything makes it fall further behind.";
+		"A video encoder writes a keyframe and then small delta frames, starting a new group at each keyframe. Each group travels on its own QUIC stream, frame by frame as it is encoded, and audio is sent first. When bandwidth runs short, sending the newest group first and resetting the old group's unsent tail keeps the viewer near the live edge; sending every frame in order makes it fall further behind.";
 
 	return (
 		<Figure
@@ -121,7 +121,7 @@ export default function TimelineDiagram() {
 							changed();
 						}}
 					>
-						Reset stale tails
+						Skip stale frames
 					</Button>
 					<span class="ml-auto flex flex-wrap items-center gap-x-3 gap-y-1">
 						<Swatch color={COLOR.green}>arrived</Swatch>
@@ -167,7 +167,9 @@ export default function TimelineDiagram() {
 
 				<line x1={LEFT} x2={RIGHT} y1={NET_Y} y2={NET_Y} stroke={COLOR.line} stroke-dasharray="2 4" />
 				<text x={LEFT} y={NET_Y - 4} fill={COLOR.dim} font-size="10" font-family={MONO}>
-					QUIC · AUDIO FIRST, THEN THE NEWEST VIDEO GROUP
+					{reset()
+						? "QUIC · AUDIO FIRST, THEN THE NEWEST VIDEO GROUP"
+						: "QUIC · AUDIO FIRST, THEN EVERY VIDEO FRAME IN ORDER"}
 				</text>
 
 				<Ribbon

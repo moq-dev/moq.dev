@@ -61,8 +61,9 @@ const [quic, congestion, groups] = sections.map((s, i) => ({ ...s, n: i + 1 }));
 
 	<Section {...congestion}>
 		<p>
-			Every stream on a connection shares one congestion controller. Its congestion window (<code>cwnd</code>) is how
-			much the network will take right now, and when the application writes more than that, something has to wait.
+			Every stream on a connection shares one congestion controller. Its congestion window (<code>cwnd</code>) caps
+			how many bytes can be in flight, so each round trip it sets how fast the connection can send. The diagram
+			simplifies that to a send rate. When the application writes faster, something has to wait.
 		</p>
 		<p>
 			QUIC lets the sender choose whose bytes go next. MoQ ranks streams: audio above video, the newest group above
@@ -87,8 +88,9 @@ const [quic, congestion, groups] = sections.map((s, i) => ({ ...s, n: i + 1 }));
 			ended. Audio is ranked above video here, so it keeps up when video can't.
 		</p>
 		<p>
-			When the network falls behind, the old group's unsent tail is reset and the viewer skips ahead to the next
-			keyframe instead of falling further behind. Turn the reset off to see the alternative.
+			When the network falls behind, the newest group goes first, the old group's unsent tail is reset, and the
+			viewer skips ahead to the next keyframe instead of falling further behind. Turn skipping off to send every frame
+			in order instead, and old frames hold back new ones, as they do with RTMP, HLS, and SRT.
 		</p>
 		<p class="text-[0.92rem] text-ink-3">
 			One stream per group is the single-subgroup case, which is all <code>moq-lite</code> sends (subgroup 0).

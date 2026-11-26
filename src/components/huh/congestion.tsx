@@ -1,5 +1,5 @@
 // Section 2: ranked QUIC streams pouring into one congestion window. Squeeze it, rerank, open, and reset streams.
-import { createMemo, createSignal, Index, onCleanup, onMount, Show } from "solid-js";
+import { createMemo, createSignal, For, Index, onCleanup, onMount, Show } from "solid-js";
 import { advance, animate } from "./clock";
 import { MAX_QUEUE, move, STARVED, type Stream, step } from "./priority";
 import { Button, COLOR, Figure, MONO, Slider, STREAM_COLORS, Swatch } from "./ui";
@@ -11,7 +11,9 @@ const START = [
 	{ name: "upload", rate: 0.8 },
 ];
 const OPENED_RATE = 0.5;
-const CWND = { min: 0.8, max: 4, initial: 2.6 }; // slightly short of the 3.3 Mb/s everything wants
+// The rate the congestion window allows: cwnd bytes per round trip. It starts slightly short of the 3.3 Mb/s
+// everything wants.
+const CWND = { min: 0.8, max: 4, initial: 2.6 };
 const PRESEED = 5; // seconds, so the bottom stream is visibly starving on first paint
 const SETTLE = 2; // seconds to jump ahead after a control while motion is paused
 
@@ -64,9 +66,15 @@ export default function CongestionDiagram() {
 		return { t: time, streams: streams.map((s) => ({ ...s, color: colors.get(s.id) ?? COLOR.neutral })) };
 	});
 
+	let list!: HTMLOListElement;
 	const rank = (i: number, by: -1 | 1) => {
+		const { name } = streams[i];
 		move(streams, i, by);
 		changed();
+		// Moving the row takes focus off its button; put it back, or on the other arrow once this one hits the end.
+		const button = (dir: string) => list.querySelector<HTMLButtonElement>(`button[aria-label="Move ${name} ${dir}"]`);
+		const same = button(by < 0 ? "up" : "down");
+		(same?.disabled ? button(by < 0 ? "down" : "up") : same)?.focus();
 	};
 	const reset = (i: number) => {
 		const [s] = streams.splice(i, 1);
@@ -98,7 +106,7 @@ export default function CongestionDiagram() {
 			controls={
 				<>
 					<Slider
-						label="cwnd"
+						label="send rate"
 						min={CWND.min}
 						max={CWND.max}
 						step={0.1}
@@ -122,52 +130,60 @@ export default function CongestionDiagram() {
 				<Funnel streams={view().streams} cwnd={cwnd()} t={view().t} />
 			</svg>
 
-			<ol class="mt-3 flex flex-col gap-1.5" aria-label="Streams, highest priority first">
-				<Index each={view().streams}>
-					{(s, i) => (
-						<li class="grid grid-cols-[1.25rem_1fr_auto] items-center gap-x-3 gap-y-1 rounded-lg bg-surface-2/60 px-2.5 py-1.5 text-sm sm:grid-cols-[1.25rem_7rem_1fr_auto]">
-							<span class="font-mono text-xs text-ink-3">{i + 1}</span>
-							<span class="flex items-center gap-2">
-								<span class="inline-block size-2.5 rounded-full" style={{ background: s().color }} />
-								<span class="text-ink">{s().name}</span>
-							</span>
-							<span class="col-span-3 col-start-2 row-start-2 flex items-center gap-2 sm:col-span-1 sm:col-start-3 sm:row-start-1">
-								<span class="h-1.5 w-20 overflow-hidden rounded-full sm:w-28" style={{ background: COLOR.track }}>
-									<span
-										class="block h-full rounded-full"
-										style={{ width: `${(s().queued / MAX_QUEUE) * 100}%`, background: COLOR.amber }}
-									/>
+			<ol ref={list} class="mt-3 flex flex-col gap-1.5" aria-label="Streams, highest priority first">
+				{/* Keyed by stream, so each row moves with its stream as it's reranked. */}
+				<For each={view().streams.map((s) => s.id)}>
+					{(id, i) => {
+						const s = () => view().streams.find((x) => x.id === id) as View;
+						return (
+							<li class="grid grid-cols-[1.25rem_1fr_auto] items-center gap-x-3 gap-y-1 rounded-lg bg-surface-2/60 px-2.5 py-1.5 text-sm sm:grid-cols-[1.25rem_7rem_1fr_auto]">
+								<span class="font-mono text-xs text-ink-3">{i() + 1}</span>
+								<span class="flex items-center gap-2">
+									<span class="inline-block size-2.5 rounded-full" style={{ background: s().color }} />
+									<span class="text-ink">{s().name}</span>
 								</span>
-								<span class="font-mono text-xs" style={{ color: s().starved > 0.5 ? COLOR.amber : COLOR.neutral }}>
-									{s().starved > 0.5
-										? `starving ${s().starved.toFixed(0)} s`
-										: `${s().out.toFixed(1)} of ${s().rate.toFixed(1)} Mb/s`}
+								<span class="col-span-3 col-start-2 row-start-2 flex items-center gap-2 sm:col-span-1 sm:col-start-3 sm:row-start-1">
+									<span class="h-1.5 w-20 overflow-hidden rounded-full sm:w-28" style={{ background: COLOR.track }}>
+										<span
+											class="block h-full rounded-full"
+											style={{ width: `${(s().queued / MAX_QUEUE) * 100}%`, background: COLOR.amber }}
+										/>
+									</span>
+									<span class="font-mono text-xs" style={{ color: s().starved > 0.5 ? COLOR.amber : COLOR.neutral }}>
+										{s().starved > 0.5
+											? `starving ${s().starved.toFixed(0)} s`
+											: `${s().out.toFixed(1)} of ${s().rate.toFixed(1)} Mb/s`}
+									</span>
 								</span>
-							</span>
-							<span class="flex items-center gap-1">
-								<Button label={`Move ${s().name} up`} disabled={i === 0} onClick={() => rank(i, -1)} class="px-2!">
-									▲
-								</Button>
-								<Button
-									label={`Move ${s().name} down`}
-									disabled={i === view().streams.length - 1}
-									onClick={() => rank(i, 1)}
-									class="px-2!"
-								>
-									▼
-								</Button>
-								<Button
-									label={`Reset ${s().name}`}
-									onClick={() => reset(i)}
-									pressed={s().starved > 0.5}
-									class="font-mono text-xs!"
-								>
-									RESET
-								</Button>
-							</span>
-						</li>
-					)}
-				</Index>
+								<span class="flex items-center gap-1">
+									<Button
+										label={`Move ${s().name} up`}
+										disabled={i() === 0}
+										onClick={() => rank(i(), -1)}
+										class="px-2!"
+									>
+										▲
+									</Button>
+									<Button
+										label={`Move ${s().name} down`}
+										disabled={i() === view().streams.length - 1}
+										onClick={() => rank(i(), 1)}
+										class="px-2!"
+									>
+										▼
+									</Button>
+									<Button
+										label={`Reset ${s().name}`}
+										onClick={() => reset(i())}
+										class={`font-mono text-xs! ${s().starved > 0.5 ? "border-accent! text-accent-ink!" : ""}`}
+									>
+										RESET
+									</Button>
+								</span>
+							</li>
+						);
+					}}
+				</For>
 			</ol>
 			<p class="mt-2 min-h-5 text-xs text-ink-3" aria-live="polite">
 				{news()}
@@ -253,7 +269,7 @@ function Funnel(props: { streams: View[]; cwnd: number; t: number }) {
 				)}
 			</Index>
 			<text x={RX + BAR + 6} y={neck() + 14} fill={COLOR.green} font-size="11" font-family={MONO}>
-				cwnd {props.cwnd.toFixed(1)}
+				cwnd/RTT {props.cwnd.toFixed(1)}
 			</text>
 			<text x={LX + BAR / 2} y={10} text-anchor="middle" fill={COLOR.dim} font-size="11" font-family={MONO}>
 				WANTS {demand().toFixed(1)} Mb/s
