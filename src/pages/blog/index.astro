@@ -22,7 +22,12 @@ const formatDate = (date: string) =>
 	new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
 ---
 
-<MainLayout title="Blog" description="Blog posts and fun stuff" bare>
+<MainLayout
+	title="Blog"
+	description="Deep dives on Media over QUIC, QUIC transport, congestion control, and building real-time media at scale."
+	cover="/og/page/blog.png"
+	bare
+>
 	<section class="mx-auto max-w-6xl px-5 pb-24 pt-14 md:px-8">
 		<div class="mb-12 flex items-end justify-between gap-6">
 			<div>

@@ -36,16 +36,167 @@ export type Card = {
 	lang?: Lang;
 	note?: string;
 	image?: string;
+	mesh?: boolean;
+	// Path under public/ for a page OG card's hand-drawn hero artwork (circular medallion).
+	art?: string;
+	// Path under public/ for a blog post OG card's cover art (framed 16:10 showcase).
+	blogCover?: string;
+	// Footer path displayed on per-page OG cards (defaults to `moq.dev`).
+	url?: string;
+	// Destination path relative to repo root when syncing OG cards via `render.ts --og`.
+	ogOut?: string;
 };
 
-export const CARDS: Card[] = [
-	// The site's default og:image, never retired: copy out/og.png to public/layout/og.png
-	// (and moq-dev/moq's doc/public/og.png) when the homepage hero changes.
+// Per-page OG cards synced to `public/` via `bun tools/cards/render.ts --og`.
+export const OG_CARDS: Card[] = [
+	// The site's default og:image: also copy it to moq-dev/moq's doc/public/og.png
+	// when the homepage hero changes.
 	{
 		slug: "og",
-		title: "Real-time media and **massive scale.**",
+		title: "Real-time latency and **massive scale.**",
 		sub: "The open standard for streaming live video, audio, and whatever you want.",
+		mesh: true,
+		ogOut: "public/layout/og.png",
 	},
+	{
+		slug: "og-robotics",
+		eyebrow: "use case",
+		title: "**Robotics** over MoQ",
+		sub: "Stream video, telemetry, and control on terrible networks—cellular, satellite, or mesh radio.",
+		art: "icons/use-case/robotics.svg",
+		url: "moq.dev/robotics",
+		ogOut: "public/og/page/robotics.png",
+	},
+	{
+		slug: "og-distribution",
+		eyebrow: "use case",
+		title: "**Distribution** at scale",
+		sub: "Sub-second live delivery at CDN scale, without giving up HTTP's economics or legacy HLS players.",
+		art: "icons/use-case/distribution.svg",
+		url: "moq.dev/distribution",
+		ogOut: "public/og/page/distribution.png",
+	},
+	{
+		slug: "og-contribution",
+		eyebrow: "use case",
+		title: "Live **Contribution**",
+		sub: "Pull-based contribution, optional on-demand encoding, and failover—replacing RTMP, SRT, and WHIP.",
+		art: "icons/use-case/contribution.svg",
+		url: "moq.dev/contribution",
+		ogOut: "public/og/page/contribution.png",
+	},
+	{
+		slug: "og-ai",
+		eyebrow: "use case",
+		title: "Voice and **video AI**",
+		sub: "Voice agents, faster-than-real-time TTS, instant barge-in, and on-demand inference over MoQ.",
+		art: "icons/use-case/voice-video-ai.svg",
+		url: "moq.dev/ai",
+		ogOut: "public/og/page/ai.png",
+	},
+	{
+		slug: "og-interactive",
+		eyebrow: "use case",
+		title: "**Interactive** apps",
+		sub: "Media down, input up, live discovery, and on-demand encoding—all over one MoQ connection.",
+		art: "demo/moqboy.svg",
+		url: "moq.dev/interactive",
+		ogOut: "public/og/page/interactive.png",
+	},
+	{
+		slug: "og-conferencing",
+		eyebrow: "use case",
+		title: "**Conferencing**",
+		sub: "Browser publish and watch with live room discovery, WebCodecs control, and zero SDP or STUN/TURN.",
+		art: "icons/use-case/conferencing.svg",
+		url: "moq.dev/conferencing",
+		ogOut: "public/og/page/conferencing.png",
+	},
+	{
+		slug: "og-demo",
+		eyebrow: "live demos",
+		title: "Try **MoQ** live.",
+		sub: "Multiplayer Game Boy, CARLA teleoperation, Voice AI, browser publish, and live video in your browser.",
+		art: "demo/moqboy.svg",
+		url: "moq.dev/demo",
+		ogOut: "public/og/page/demo.png",
+	},
+	{
+		slug: "og-boy",
+		eyebrow: "live demo",
+		title: "**MoQ Boy**",
+		sub: "Multiplayer Game Boy emulation on a remote server, using MoQ tracks for everything.",
+		art: "demo/moqboy.svg",
+		url: "moq.dev/boy",
+		ogOut: "public/og/page/boy.png",
+	},
+	{
+		slug: "og-carla",
+		eyebrow: "live demo",
+		title: "**CARLA** over MoQ",
+		sub: "Steer simulated vehicles in CARLA over MoQ—cameras on demand, controls and telemetry on one link.",
+		art: "demo/carla.svg",
+		url: "moq.dev/carla",
+		ogOut: "public/og/page/carla.png",
+	},
+	{
+		slug: "og-voice",
+		eyebrow: "live demo",
+		title: "**Voice AI**",
+		sub: "Talk to a Pipecat voice agent over MoQ with faster-than-real-time reply and instant barge-in.",
+		art: "voice/ai.svg",
+		url: "moq.dev/voice",
+		ogOut: "public/og/page/voice.png",
+	},
+	{
+		slug: "og-publish",
+		eyebrow: "live demo",
+		title: "**Publish** live",
+		sub: "Go live from your browser—share your camera, mic, or screen over MoQ with a private watch link.",
+		art: "icons/use-case/contribution.svg",
+		url: "moq.dev/publish",
+		ogOut: "public/og/page/publish.png",
+	},
+	{
+		slug: "og-watch",
+		eyebrow: "live demo",
+		title: "**Watch** live",
+		sub: "Watch a live broadcast over Media over QUIC using WebTransport and WebCodecs.",
+		art: "demo/bunny.svg",
+		url: "moq.dev/watch",
+		ogOut: "public/og/page/watch.png",
+	},
+	{
+		slug: "og-blog",
+		eyebrow: "engineering",
+		title: "Media over QUIC **Blog**",
+		sub: "Deep dives on MoQ, QUIC transport, congestion control, and building real-time media at scale.",
+		art: "blog/open-for-business/viewers-1.svg",
+		url: "moq.dev/blog",
+		ogOut: "public/og/page/blog.png",
+	},
+	{
+		slug: "og-source",
+		eyebrow: "MIT / Apache 2.0",
+		title: "**Open Source**",
+		sub: "Open-source Media over QUIC libraries, relays, CLI, and demos in Rust, TypeScript, and FFI bindings.",
+		art: "layout/github-icon.svg",
+		url: "moq.dev/source",
+		ogOut: "public/og/page/source.png",
+	},
+	{
+		slug: "og-issues",
+		eyebrow: "roadmap",
+		title: "Known **Issues**",
+		sub: "Current limitations and open engineering work across the Media over QUIC stack.",
+		art: "issues/warning.svg",
+		url: "moq.dev/issues",
+		ogOut: "public/og/page/issues.png",
+	},
+];
+
+export const CARDS: Card[] = [
+	...OG_CARDS,
 	{
 		slug: "install",
 		eyebrow: "moq-cli 0.14",
