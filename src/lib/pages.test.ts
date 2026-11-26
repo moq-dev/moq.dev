@@ -27,9 +27,9 @@ test("sitemap.xml and llms.txt list every page file once, and no 404", async () 
 		const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]).sort();
 		expect(locs).toEqual(expected);
 
-		const links = [...llms.matchAll(/^- \[.+\]\((\S+)\)/gm)].map((match) => match[1]).sort();
+		const links = [...llms.matchAll(/^- \[.+\]\((https:\/\/moq\.dev\/\S*)\)/gm)].map((match) => match[1]).sort();
 		expect(links).toEqual(expected);
-		expect(llms).toContain("https://doc.moq.dev/llms.txt");
+		expect(llms).toContain("- [doc.moq.dev](https://doc.moq.dev/llms.txt)");
 	} finally {
 		await vite.close();
 	}

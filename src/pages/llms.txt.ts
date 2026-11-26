@@ -15,7 +15,9 @@ export function GET() {
 
 > ${SITE_DESCRIPTION}
 
-The protocol and library documentation is at https://doc.moq.dev, with its own index at https://doc.moq.dev/llms.txt.
+## Docs
+
+- [doc.moq.dev](https://doc.moq.dev/llms.txt): The protocol and library documentation, with its own llms.txt.
 
 ## Pages
 

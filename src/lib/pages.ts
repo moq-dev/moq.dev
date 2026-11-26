@@ -13,7 +13,7 @@ export interface Page {
 	url: string;
 	title: string;
 	description?: string;
-	/** ISO date; blog posts only. */
+	/** Publication date, used to order blog posts. */
 	date?: string;
 	blog: boolean;
 }
