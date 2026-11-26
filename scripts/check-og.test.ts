@@ -40,7 +40,7 @@ describe("blog OG cards", () => {
 				continue;
 			}
 			const size = dimensions(card, ".png");
-			if (!size || size.width !== 1200 || size.height !== 675) {
+			if (size?.width !== 1200 || size?.height !== 675) {
 				badSize.push(`${card} (${size ? `${size.width}x${size.height}` : "invalid PNG"})`);
 			}
 		}
