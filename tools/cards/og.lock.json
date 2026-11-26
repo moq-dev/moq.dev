@@ -147,6 +147,10 @@
 		"inputs": "de76664d0adf66087cad3a594cb6fc089226b505b166fc21b5334e50031f745f",
 		"png": "580bcdc5b0fcd943297f8713acc43f825f7d1efb97775fb7ca2de05cd7a6f8b8"
 	},
+	"public/og/page/huh.png": {
+		"inputs": "7b973c7bfd01aefaf5ab7c971f35f35332a13753eaa70e34fd85e79a460ef369",
+		"png": "e8d75433ba27f0caa9118f63d6f4dc7a497b443b244b90e8a549f255e684330b"
+	},
 	"public/og/page/interactive.png": {
 		"inputs": "5e4dd28d0d8ae944cc9597df5d14fb923b28f537a21fb3a203fb9758e088f7fb",
 		"png": "5110caf7ad0ab109c17cf8aa34211f6b97c70167f376921283010f0fe36ebab9"

@@ -36,7 +36,8 @@ relay connections over native QUIC or WebTransport—not browser P2P paths, whic
 still use application-provided WebRTC signaling and ICE—plus QUIC migration,
 one protocol replacing RTMP/SRT/WebRTC/HLS, incremental migration via
 OBS/FFmpeg + HLS & WHIP/WHEP gateways, links to demos and `doc.moq.dev`), the
-reactive `huh?` cat companion using the traced SVGs from `public/huh/`, and
+reactive `huh?` cat companion and the drawn `huh?` heading (replacing the
+plain-text `<h1>`) using the traced SVGs from `public/huh/`, and
 `Huh?` links in the top header nav, footer (`src/layouts/global.astro`), and
 homepage hero button row (`src/pages/index.astro`, keeping existing hero copy
 untouched).

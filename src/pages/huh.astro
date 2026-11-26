@@ -17,9 +17,14 @@ const sections: { id: string; title: string; badge: string; kind: BadgeProps["ki
 const [quic, congestion, groups] = sections.map((s, i) => ({ ...s, n: i + 1 }));
 ---
 
-<Layout title="Huh?" description="An interactive explainer of how Media over QUIC works." bare>
+<Layout
+	title="Huh?"
+	description="An interactive explainer of how Media over QUIC works."
+	cover="/og/page/huh.png"
+	bare
+>
 	<header class="mx-auto max-w-4xl px-5 pb-12 pt-14 md:px-8 md:pt-20">
-		<!-- Placeholder for the drawn huh? heading and cat from /quest/m2/huh/art.md. -->
+		<!-- Plain text until /quest/m2/huh/routing-and-timestamps.md swaps in public/huh/huh.svg and the cat. -->
 		<h1 class="display text-[3.5rem] md:text-[5rem]">huh?</h1>
 		<p class="mt-4 max-w-2xl text-[1.1rem] leading-relaxed text-ink-2">
 			How Media over QUIC works, from the transport up. Every diagram runs in your browser, so poke at it.
