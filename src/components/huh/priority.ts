@@ -31,6 +31,8 @@ export function allocate(demand: readonly number[], capacity: number): number[] 
 
 // Advances every stream by `dt` seconds over a congestion window of `cwnd` Mb/s.
 export function step(streams: Stream[], cwnd: number, dt: number) {
+	// Coarsened animation timestamps can repeat, and a zero step has no rate to measure.
+	if (dt <= 0) return;
 	for (const s of streams) s.queued = Math.min(MAX_QUEUE, s.queued + s.rate * dt);
 	const sent = allocate(
 		streams.map((s) => s.queued),

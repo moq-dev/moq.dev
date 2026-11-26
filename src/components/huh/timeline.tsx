@@ -55,9 +55,30 @@ export default function TimelineDiagram() {
 		clock = animate(root, tick);
 		onCleanup(() => clock?.stop());
 	});
+	// What the diagram shows, as text for screen readers, written once a control's effect has played out rather
+	// than on every frame.
+	const [news, setNews] = createSignal("");
+	let report: ReturnType<typeof setTimeout> | undefined;
+	onCleanup(() => clearTimeout(report));
+	const describe = () => {
+		const video = sim.latency("video").toFixed(1);
+		const audio = sim.latency("audio").toFixed(1);
+		const dropped = sim.frames.filter((f) => f.reset !== undefined && f.ts > sim.t - WINDOW).length;
+		const policy = reset()
+			? `${dropped} stale video frames reset in the last ${WINDOW} seconds.`
+			: "Every video frame is sent, oldest first.";
+		setNews(`Video is ${video} s behind live and audio ${audio} s. ${policy}`);
+	};
+
 	const changed = () => {
-		if (clock?.live()) redraw();
-		else advance(SETTLE / SPEED, tick);
+		clearTimeout(report);
+		if (clock?.live()) {
+			redraw();
+			report = setTimeout(describe, (SETTLE / SPEED) * 1000);
+		} else {
+			advance(SETTLE / SPEED, tick);
+			describe();
+		}
 	};
 
 	const x = (ts: number) => RIGHT - (sim.t - ts) * PXS;
@@ -194,6 +215,9 @@ export default function TimelineDiagram() {
 					hatch={`url(#${id}-reset)`}
 				/>
 			</svg>
+			<p class="mt-3 min-h-5 text-xs text-ink-3" aria-live="polite">
+				{news()}
+			</p>
 		</Figure>
 	);
 }

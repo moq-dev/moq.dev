@@ -47,6 +47,14 @@ describe("step", () => {
 		const after = streams.reduce((n, s) => n + s.queued, 0);
 		expect(before + 6 * 0.5 - after).toBeCloseTo(2 * 0.5);
 	});
+
+	test("a zero-length step changes nothing", () => {
+		const streams = [stream(0, 1)];
+		step(streams, 2, 0.1);
+		const before = { ...streams[0] };
+		step(streams, 2, 0);
+		expect(streams[0]).toEqual(before);
+	});
 });
 
 describe("move", () => {

@@ -30,13 +30,16 @@ export function setStill(still: boolean) {
 export function whileLive(el: Element, run: (live: boolean) => void): () => void {
 	let visible = false;
 	let live: boolean | undefined;
+	let stopped = false;
 	const sync = () => {
 		const next = visible && !document.hidden && !isStill();
 		if (next === live) return;
 		live = next;
 		run(next);
 	};
+	// disconnect() doesn't drop entries already queued, so ignore any that arrive after cleanup.
 	const observer = new IntersectionObserver(([entry]) => {
+		if (stopped) return;
 		visible = entry.isIntersecting;
 		sync();
 	});
@@ -47,6 +50,7 @@ export function whileLive(el: Element, run: (live: boolean) => void): () => void
 	reduced?.addEventListener("change", sync);
 	sync();
 	return () => {
+		stopped = true;
 		observer.disconnect();
 		document.removeEventListener("visibilitychange", sync);
 		document.removeEventListener("motion", sync);
