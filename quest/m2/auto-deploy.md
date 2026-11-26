@@ -15,20 +15,17 @@ staging and not live), and moq.pro's deploys.
 [#305](https://github.com/moq-dev/moq.dev/pull/305) added
 `.github/workflows/deploy.yml` and
 [kixel-ai/dotfiles#362](https://github.com/kixel-ai/dotfiles/pull/362) the
-`release` branch standard. What remains is the one-time repository setup
-under `Waiting`, then checking each half on its real surface: a merge to
-`main` updates new.moq.dev, new.moq.pub and new.moq.watch, and a release PR's
-merge updates moq.dev, moq.pub and moq.watch. Delete this quest once both
-have deployed.
+`release` branch standard, and the environments, their tokens and the
+`release` branch were set up on 2026-11-25. What remains is protecting
+`release` under `Waiting`, then checking each half on its real surface: a
+merge to `main` updates new.moq.dev, new.moq.pub and new.moq.watch, and a
+release PR's merge updates moq.dev, moq.pub and moq.watch. Delete this quest
+once both have deployed.
 
 ## Waiting
 
-- Maintainer: create the `staging` and `live` environments, each limited to
-  its branch and holding a `CLOUDFLARE_API_TOKEN` secret minted from
-  `cloudflare-admin-token` with the scopes in
-  [#305](https://github.com/moq-dev/moq.dev/pull/305)'s body; an agent may
-  not change live repository settings. Check with
-  `gh api repos/moq-dev/moq.dev/environments --jq '.environments[].name'`.
-- Maintainer: create `release` at `e67ab91` (live's 2026-11-25 deploy) and
-  run `repo-settings apply` once dotfiles' standard merges, which protects it
-  and allows merge commits. Check with `repo-settings check`.
+- Maintainer: once
+  [kixel-ai/dotfiles#362](https://github.com/kixel-ai/dotfiles/pull/362)
+  merges, run `repo-settings apply`, which protects `release` and allows merge
+  commits; an agent may not change live repository settings. Check with
+  `repo-settings check`, which should print nothing for moq-dev/moq.dev.
