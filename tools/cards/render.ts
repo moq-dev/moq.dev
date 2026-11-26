@@ -7,8 +7,9 @@
 //   just cards --html     # also keep the HTML, to tweak in a browser
 //
 // The look is moq.pro's splash page, shared with moq.pro's copy of this tool:
-// slate grid wash, bold system-font headline with moq.dev's hand-drawn
-// green stroke, JetBrains Mono for code.
+// slate grid wash, bold system-font headline, JetBrains Mono for code.
+//
+//   just og               # every OG card -> public/og/ and public/layout/og.png
 
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -63,21 +64,11 @@ function publicDataUrl(relPath: string): string {
 	return dataUrl(join(ROOT, "public", clean), mime);
 }
 
-function parseFrontmatter(source: string): Record<string, string> {
+// A post's frontmatter block, parsed as the YAML it is.
+function parseFrontmatter(source: string): Record<string, string | undefined> {
 	const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-	if (!match) return {};
-	const out: Record<string, string> = {};
-	for (const line of match[1].split(/\r?\n/)) {
-		const kv = line.match(/^([a-zA-Z0-9_-]+):\s*(.+)$/);
-		if (!kv) continue;
-		const key = kv[1];
-		let val = kv[2].trim();
-		if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
-			val = val.slice(1, -1).replace(/\\"/g, '"');
-		}
-		out[key] = val;
-	}
-	return out;
+	if (!match) throw new Error("blog post has no frontmatter");
+	return Bun.YAML.parse(match[1]) as Record<string, string | undefined>;
 }
 
 function blogOgCards(): Card[] {
@@ -713,12 +704,9 @@ ${pageOg || blogOg ? '<div class="page-art-aura"></div>' : ""}
 </html>`;
 }
 
+// The devshell's ImageMagick strips metadata and recompresses losslessly.
 function optimizePng(filePath: string) {
-	try {
-		execFileSync("magick", [filePath, "-strip", "-define", "png:compression-level=9", filePath], { stdio: "ignore" });
-	} catch {
-		// Keep Playwright's PNG as-is when ImageMagick is unavailable.
-	}
+	execFileSync("magick", [filePath, "-strip", "-define", "png:compression-level=9", filePath], { stdio: "inherit" });
 }
 
 async function main() {

@@ -49,6 +49,8 @@ export type Card = {
 
 // Per-page OG cards synced to `public/` via `bun tools/cards/render.ts --og`.
 export const OG_CARDS: Card[] = [
+	// The site's default og:image: also copy it to moq-dev/moq's doc/public/og.png
+	// when the homepage hero changes.
 	{
 		slug: "og",
 		title: "Real-time latency and **massive scale.**",

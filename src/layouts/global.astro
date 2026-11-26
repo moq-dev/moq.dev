@@ -32,8 +32,8 @@ const fullDescription =
 // Blog posts use their generated 1200x675 OG card (`/og/blog/<slug>.png`) while
 // keeping `frontmatter.cover` as the raw cover art for index cards.
 const blogSlug = frontmatter?.date ? Astro.url.pathname.match(/^\/blog\/([^/]+)\/?$/)?.[1] : undefined;
-const rawCover = blogSlug ? `/og/blog/${blogSlug}.png` : (coverProp ?? frontmatter?.cover);
-const cover = rawCover?.replace(/^(.*)\.svg$/, "/og$1.png");
+// Scrapers won't render an SVG, so a page's own cover must be a raster card.
+const cover = blogSlug ? `/og/blog/${blogSlug}.png` : (coverProp ?? frontmatter?.cover);
 const ogImage = new URL(cover ?? "/layout/og.png", siteUrl).toString();
 
 // moq.wtf for staging builds, moq.pro for live (and local dev).
