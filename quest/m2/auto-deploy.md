@@ -38,8 +38,10 @@ Recommendations:
   Serialize runs per environment and don't cancel one mid-upload (the
   workflow [#102](https://github.com/moq-dev/moq.dev/pull/102) removed set
   `cancel-in-progress: true`). A concurrency group doesn't keep pushes in
-  order, so right before uploading, a run skips the upload when its commit is
-  no longer its branch's tip; the newer push's run deploys instead. The job needs what
+  order, and its default single pending slot lets a late run for an older
+  push evict the tip's queued run. So queue every pending run, and right
+  before uploading, skip the upload when the run's commit is no longer its
+  branch's tip; the tip's run then always deploys last. The job needs what
   `pr.yml`'s `check` job sets up: submodules, Nix with
   `accept-flake-config` (`bun install` builds `@moq/libav` from the `moq`
   submodule's flake), and Bun, plus `just`.
