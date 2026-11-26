@@ -89,8 +89,9 @@ const [quic, congestion, groups] = sections.map((s, i) => ({ ...s, n: i + 1 }));
 		</p>
 		<p>
 			When the network falls behind, the newest group goes first, the old group's unsent tail is reset, and the
-			viewer skips ahead to the next keyframe instead of falling further behind. Turn skipping off to send every frame
-			in order instead, and old frames hold back new ones, as they do with RTMP, HLS, and SRT.
+			viewer skips ahead to the next keyframe instead of falling further behind. Turn skipping off to send video oldest
+			first instead, and old frames hold back new ones, as they do with RTMP, HLS, and SRT, until the viewer gives up
+			and skips ahead 10 seconds behind.
 		</p>
 		<p class="text-[0.92rem] text-ink-3">
 			One stream per group is the single-subgroup case, which is all <code>moq-lite</code> sends (subgroup 0).

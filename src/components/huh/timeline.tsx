@@ -2,7 +2,7 @@
 // audio ribbons. Squeeze the bandwidth, and choose whether stale group tails are reset or delivered late.
 import { createMemo, createSignal, createUniqueId, Index, onCleanup, onMount, Show } from "solid-js";
 import { advance, animate } from "./clock";
-import { FPS, type Frame, GOP, I_SIZE, type Kind, RATE, Sim } from "./groups";
+import { BEHIND, FPS, type Frame, GOP, I_SIZE, type Kind, RATE, Sim } from "./groups";
 import { Button, COLOR, Figure, MONO, Slider, Swatch } from "./ui";
 
 const SPEED = 0.7; // slowed down so each frame can be followed
@@ -167,10 +167,13 @@ export default function TimelineDiagram() {
 
 				<line x1={LEFT} x2={RIGHT} y1={NET_Y} y2={NET_Y} stroke={COLOR.line} stroke-dasharray="2 4" />
 				<text x={LEFT} y={NET_Y - 4} fill={COLOR.dim} font-size="10" font-family={MONO}>
-					{reset()
-						? "QUIC · AUDIO FIRST, THEN THE NEWEST VIDEO GROUP"
-						: "QUIC · AUDIO FIRST, THEN EVERY VIDEO FRAME IN ORDER"}
+					{reset() ? "QUIC · AUDIO FIRST, THEN THE NEWEST VIDEO GROUP" : "QUIC · AUDIO FIRST, THEN VIDEO OLDEST FIRST"}
 				</text>
+				<Show when={!reset()}>
+					<text x={RIGHT} y={NET_Y - 4} text-anchor="end" fill={COLOR.dim} font-size="10" font-family={MONO}>
+						{`SKIPS AHEAD PAST ${BEHIND} S BEHIND`}
+					</text>
+				</Show>
 
 				<Ribbon
 					kind="video"

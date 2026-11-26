@@ -109,7 +109,9 @@ export default function TransportDiagram() {
 			row.order === "connection"
 				? `over ${row.title}, which also runs on TCP, every stream waits too.`
 				: `over ${row.title}, only stream ${stream} waits.`;
-		setNews(`Dropped a packet from stream ${stream}. Over HTTP/2, every stream waits for the retransmit; ${other}`);
+		setNews(
+			`Dropped packet ${next + 1}, from stream ${stream}. Over HTTP/2, every stream waits for the retransmit; ${other}`,
+		);
 
 		// With motion paused, jump to after the packets behind the loss arrive and before its retransmit does.
 		if (!clock?.live()) advance((next * GAP - t() + (GAP + FLIGHT + DETECT + FLIGHT) / 2) / SPEED, step);

@@ -71,10 +71,8 @@ export default function CongestionDiagram() {
 		const { name } = streams[i];
 		move(streams, i, by);
 		changed();
-		// Moving the row takes focus off its button; put it back, or on the other arrow once this one hits the end.
-		const button = (dir: string) => list.querySelector<HTMLButtonElement>(`button[aria-label="Move ${name} ${dir}"]`);
-		const same = button(by < 0 ? "up" : "down");
-		(same?.disabled ? button(by < 0 ? "down" : "up") : same)?.focus();
+		// Moving the row takes focus off its button, so put it back.
+		list.querySelector<HTMLButtonElement>(`button[aria-label="Move ${name} ${by < 0 ? "up" : "down"}"]`)?.focus();
 	};
 	const reset = (i: number) => {
 		const [s] = streams.splice(i, 1);

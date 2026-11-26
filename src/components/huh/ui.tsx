@@ -41,15 +41,16 @@ export function Button(props: {
 	return (
 		<button
 			type="button"
-			class={`inline-flex min-h-8 items-center gap-1.5 rounded-lg border px-3 py-1 font-medium transition-colors disabled:opacity-40 ${
+			class={`inline-flex min-h-8 items-center gap-1.5 rounded-lg border px-3 py-1 font-medium transition-colors aria-disabled:cursor-default aria-disabled:opacity-40 ${
 				props.pressed
 					? "border-accent bg-accent-soft text-accent-ink"
 					: "border-line-strong bg-surface-2 text-ink hover:border-ink-3"
 			} ${props.class ?? ""}`}
 			aria-pressed={props.pressed}
 			aria-label={props.label}
-			disabled={props.disabled}
-			onClick={() => props.onClick()}
+			// aria-disabled rather than disabled, so focus stays put when a repeated press reaches a limit.
+			aria-disabled={props.disabled}
+			onClick={() => props.disabled || props.onClick()}
 		>
 			{props.children}
 		</button>
