@@ -73,9 +73,13 @@ export default function TimelineDiagram() {
 	});
 
 	const changed = () => {
-		reportAt = sim.t + SETTLE;
-		if (clock?.live()) redraw();
-		else advance(SETTLE / SPEED, tick);
+		if (clock?.live()) {
+			reportAt = sim.t + SETTLE;
+			redraw();
+		} else {
+			advance(SETTLE / SPEED, tick);
+			describe();
+		}
 	};
 
 	const x = (ts: number) => RIGHT - (sim.t - ts) * PXS;

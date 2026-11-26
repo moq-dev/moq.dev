@@ -16,7 +16,7 @@ row without changing existing hero copy.
 
 Until its final quest ([Sections 6–8 and site
 links](/quest/m2/huh/routing-and-timestamps.md)) lands, the page is gated out
-of live builds (`UNRELEASED` in `astro.config.ts`): dev and staging serve it,
+of every build but dev and staging (`UNRELEASED` in `astro.config.ts`), so
 production 404s it, and live `sitemap.xml`, `llms.txt`, and OG cards leave it
 out. That quest removes the gate.
 
