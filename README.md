@@ -71,9 +71,16 @@ URLs together. For a local moq.pro stack, override `PUBLIC_API_URL` and
 
 ## Deploy
 
-`just deploy` builds and uploads all three sites to Cloudflare, staging by
-default; `just deploy live` goes to production. Deploy and seed the private
-`try` project in the matching moq.pro environment before deploying these clients.
+GitHub Actions (`.github/workflows/deploy.yml`) deploys all three sites to
+Cloudflare: every push to `main` deploys staging (new.moq.dev, new.moq.pub,
+new.moq.watch), and every push to the protected `release` branch deploys
+production. To release, open a PR from `main` into `release` and land it as a
+merge commit; backports are PRs onto `release`. Before merging a release PR,
+check that the private `try` project in moq.pro's live environment is deployed
+and seeded for these clients.
+
+`just deploy` builds and uploads from a laptop instead, staging by default;
+`just deploy live` goes to production.
 
 ## License
 
