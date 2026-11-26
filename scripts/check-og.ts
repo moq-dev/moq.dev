@@ -159,7 +159,8 @@ function checkImage(key: string, value: string): { errors: string[]; warnings: s
 	// fetching instead, and none exists yet.
 	const path = join(DIST, url.pathname);
 	if (!existsSync(path) || !statSync(path).isFile()) {
-		return { ...none, errors: [`${key} has no file at ${path}: ${value}`] };
+		const hint = url.pathname.startsWith("/og/") ? " (run `just og` to generate)" : "";
+		return { ...none, errors: [`${key} has no file at ${path}: ${value}${hint}`] };
 	}
 
 	const size = dimensions(path, ext);
