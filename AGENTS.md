@@ -2,7 +2,7 @@ Read `README.md` for the three sites (moq.dev, moq.pub, moq.watch), setup, and t
 
 # Rules
 
-- Merging to main deploys staging. Ask before merging into or pushing to `release`, or running `just deploy`.
+- Merging to main deploys staging. Ask before merging into or pushing to `release`, or deploying by hand (`just deploy*`, `wrangler deploy`).
 - Protocol, player, and publisher fixes belong upstream in moq-dev/moq (`@moq/publish`, `@moq/watch`, ...). Fix them there first, then bump the `moq` submodule here; the `@moq/*` packages build from it.
 
 # Development
