@@ -26,22 +26,34 @@ export function setStill(still: boolean) {
 
 // Calls `run(true)` while `el` is on screen, the tab is visible, and motion is on, and
 // `run(false)` as soon as any of those stops being true. It also calls `run(false)` right
-// away, so something that starts offscreen is paused before it's ever seen.
-export function whileLive(el: Element, run: (live: boolean) => void) {
+// away, so something that starts offscreen is paused before it's ever seen. Returns a function that stops watching.
+export function whileLive(el: Element, run: (live: boolean) => void): () => void {
 	let visible = false;
 	let live: boolean | undefined;
+	let stopped = false;
 	const sync = () => {
 		const next = visible && !document.hidden && !isStill();
 		if (next === live) return;
 		live = next;
 		run(next);
 	};
-	new IntersectionObserver(([entry]) => {
+	// disconnect() doesn't drop entries already queued, so ignore any that arrive after cleanup.
+	const observer = new IntersectionObserver(([entry]) => {
+		if (stopped) return;
 		visible = entry.isIntersecting;
 		sync();
-	}).observe(el);
+	});
+	observer.observe(el);
+	const reduced = reducedMotion();
 	document.addEventListener("visibilitychange", sync);
 	document.addEventListener("motion", sync);
-	reducedMotion()?.addEventListener("change", sync);
+	reduced?.addEventListener("change", sync);
 	sync();
+	return () => {
+		stopped = true;
+		observer.disconnect();
+		document.removeEventListener("visibilitychange", sync);
+		document.removeEventListener("motion", sync);
+		reduced?.removeEventListener("change", sync);
+	};
 }

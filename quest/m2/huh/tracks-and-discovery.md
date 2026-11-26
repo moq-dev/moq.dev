@@ -2,7 +2,8 @@
 
 ## Goal
 
-`src/pages/huh.astro` includes interactive SolidJS visuals for Sections 4 and 5:
+The `/huh` page (`src/unreleased/huh.astro`, served only in dev and staging, not
+other builds) includes interactive SolidJS visuals for Sections 4 and 5:
 
 4. **Tracks: Media & Arbitrary Data on Demand** (`Standard + hang`) — an
    interactive broadcast track rack (`video/1080p`, `video/480p`, second camera
@@ -37,13 +38,13 @@ Decided 2026-11-24 in [the epic](/quest/m2/huh/README.md):
 
 Recommendations:
 
-- Reuse the section shell and badge patterns established in
-  `/quest/m2/huh/transport-and-groups.md`.
+- Reuse the section shell (`src/components/huh/section.astro`), standards
+  badge (`badge.astro`), and diagram helpers (`clock.ts` for the motion-aware
+  animation loop and pre-seeding, `ui.tsx` for the figure card, buttons,
+  sliders, and palette) that Sections 1–3 established, with pure simulation
+  math beside each diagram and unit-tested like `hol.ts` / `priority.ts` /
+  `groups.ts`.
 - Keep the Standards badge accurate against `moq/doc/concept/standard.md`
   (pull-on-demand tracks and namespace announcements are IETF `moq-transport`;
   the `hang` catalog and prefix-route gossip / `solicit` / `active-count`
   extensions are project drafts).
-
-## Required
-
-- [Build /huh page shell and Sections 1–3](/quest/m2/huh/transport-and-groups.md) - establishes `src/pages/huh.astro`, the section shell, and shared `src/components/huh/` primitives

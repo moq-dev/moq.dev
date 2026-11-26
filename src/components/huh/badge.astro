@@ -1,0 +1,24 @@
+---
+// Flags a /huh feature as IETF standard or as one of this project's own drafts, which the page must never pass off
+// as standard.
+export interface Props {
+	kind: "standard" | "extension";
+}
+const { kind } = Astro.props;
+---
+
+<span class:list={["badge", kind]}><slot /></span>
+
+<style>
+	@reference "../../layouts/global.css";
+
+	.badge {
+		@apply inline-block rounded-full px-2.5 py-1 font-mono text-[0.68rem] leading-none font-medium tracking-wider whitespace-nowrap uppercase;
+	}
+	.standard {
+		@apply bg-accent-soft text-accent-ink;
+	}
+	.extension {
+		@apply bg-amber-500/15 text-amber-300;
+	}
+</style>
