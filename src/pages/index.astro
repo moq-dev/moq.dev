@@ -1,5 +1,7 @@
 ---
 import FanoutMap from "@/components/fanout/map.astro";
+import EdgeBg from "@/components/home/edge-bg.astro";
+import StreamsBg from "@/components/home/streams-bg.astro";
 import Cat from "@/components/voice/cat";
 import Layout from "@/layouts/global.astro";
 
@@ -137,10 +139,10 @@ const useCases = [
 <Layout title="" description="" bare>
 	<!-- Hero -->
 	<section class="relative overflow-hidden">
-		<div class="grid-wash" aria-hidden="true"></div>
-		<div class="hero-glow" aria-hidden="true"></div>
-		<div class="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-14 pt-12 md:px-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-12 lg:pb-18 lg:pt-16">
-			<div class="min-w-0">
+		<FanoutMap />
+		<div class="hero-glow z-1" aria-hidden="true"></div>
+		<div class="relative z-10 mx-auto max-w-6xl px-5 pb-20 pt-14 md:px-8 lg:pb-24 lg:pt-20">
+			<div class="max-w-xl min-w-0">
 				<a
 					href="/robotics"
 					class="group mb-6 inline-flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[0.875rem] text-ink-2 transition-colors hover:text-ink"
@@ -152,8 +154,8 @@ const useCases = [
 					<span class="text-ink-3 transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
 				</a>
 
-				<h1 class="display text-[2.25rem] sm:text-[3.5rem] lg:text-[3.85rem]">
-					Real-time media <span class="whitespace-nowrap">and <span class="scribble">massive scale.</span></span>
+				<h1 class="display text-[2.25rem] sm:text-[3.5rem] lg:text-[4rem]">
+					Real-time latency <span class="whitespace-nowrap">and <span class="scribble">massive scale.</span></span>
 				</h1>
 
 				<p class="mt-6 max-w-xl text-[1.1rem] leading-relaxed text-ink-2 md:text-[1.22rem]">
@@ -165,15 +167,10 @@ const useCases = [
 					<a href="https://doc.moq.dev" class="btn-line">Docs</a>
 					<a href="/blog" class="btn-line">Blog</a>
 				</div>
-			</div>
-
-			<!-- Live relay fan-out map (md+) floating directly on the grid wash, paired with the player snippet. -->
-			<div class="mx-auto flex w-full min-w-0 max-w-lg flex-col gap-4">
-				<FanoutMap class="hidden md:flex" />
 
 				<a
 					href="/watch?project=demo&name=bbb.hang"
-					class="flex items-center justify-between gap-3 rounded-lg border border-line bg-[#020617]/75 px-3.5 py-2.5 text-[0.78rem] transition-colors hover:border-line-strong"
+					class="mt-7 flex max-w-lg items-center justify-between gap-3 rounded-lg border border-line bg-[#020617]/80 px-3.5 py-2.5 text-[0.78rem] backdrop-blur-sm transition-colors hover:border-line-strong"
 					style="font-family: var(--font-code);"
 				>
 					<span class="truncate text-ink-2">
@@ -245,8 +242,9 @@ const useCases = [
 	</section>
 
 	<!-- Features + Libraries -->
-	<section>
-		<div class="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-16">
+	<section class="relative overflow-hidden">
+		<StreamsBg />
+		<div class="relative z-10 mx-auto max-w-6xl px-5 pb-16 pt-14 md:px-8 md:pb-20 md:pt-16">
 			<div class="grid gap-10 lg:grid-cols-[200px_1fr] lg:gap-14">
 				<div>
 					<h2 class="sr-only">What you get</h2>
@@ -444,8 +442,9 @@ const useCases = [
 	</section>
 
 	<!-- Self-host or managed: vertical hairline split (extra bottom padding gives the peeking footer cat room) -->
-	<section>
-		<div class="mx-auto max-w-6xl px-5 pb-24 pt-14 md:px-8 md:pb-28 md:pt-16">
+	<section class="relative overflow-hidden">
+		<EdgeBg />
+		<div class="relative z-10 mx-auto max-w-6xl px-5 pb-24 pt-14 md:px-8 md:pb-28 md:pt-16">
 			<div class="mb-10 flex flex-wrap items-end justify-between gap-4">
 				<div>
 					<img src="/drawn/open.svg" class="mb-1.5 h-8 w-auto -rotate-2" alt="open and optional" />

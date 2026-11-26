@@ -1,123 +1,159 @@
 ---
-// The hero's live fan-out map. The script in map.ts draws and runs it.
+// Full-bleed interactive relay mesh behind the hero section, with a compact HUD
+// for switching publish media types and seeing live topology status.
 interface Props {
 	class?: string;
 }
 const { class: className } = Astro.props;
 ---
 
-<figure
-	class:list={["fanout", className]}
-	data-fanout
-	role="img"
-	aria-label="Illustration: publishers and viewers connect to their nearest edge relay across a 3-relay mesh. Each frame goes up once to the publisher's edge and is copied across relays to every subscribed viewer."
->
-	<svg class="fanout-svg" aria-hidden="true" />
-	<figcaption class="fanout-legend" aria-hidden="true">
-		<span><i class="key-frame" />video</span>
-		<span><i class="key-frame audio" />audio</span>
-		<span><i class="key-sub" />message</span>
-		<span><img src="/drawn/icon-globe.svg" alt="" />relay</span>
-	</figcaption>
-</figure>
+<div class:list={["fanout-stage", className]} data-fanout>
+	<p class="sr-only">
+		Interactive live mesh: publishers and viewers connect to their nearest edge relay across a global relay mesh. Each
+		video, audio, or data frame goes up once to the publisher's edge and fans out across relays to every subscribed
+		viewer; relays automatically fail over when one goes offline.
+	</p>
+	<canvas class="fanout-canvas" data-mesh-canvas aria-hidden="true"></canvas>
+	<div class="fanout-scrim" aria-hidden="true"></div>
+
+	<div class="fanout-hud-wrap">
+		<fieldset class="fanout-hud" data-no-canvas>
+			<legend class="sr-only">Interactive mesh controls</legend>
+			<div class="fanout-kinds">
+				<button type="button" class="kind-pill" data-kind="video" data-active="true" aria-pressed="true">
+					<i class="swatch video" aria-hidden="true" />video
+				</button>
+				<button type="button" class="kind-pill" data-kind="audio" data-active="false" aria-pressed="false">
+					<i class="swatch audio" aria-hidden="true" />audio
+				</button>
+				<button type="button" class="kind-pill" data-kind="data" data-active="false" aria-pressed="false">
+					<i class="swatch data" aria-hidden="true" />data
+				</button>
+			</div>
+			<span class="hud-sep" aria-hidden="true">·</span>
+			<button
+				type="button"
+				class="kind-pill"
+				data-failover-btn
+				data-active="false"
+				aria-pressed="false"
+			>
+				failover
+			</button>
+			<span class="hud-sep" aria-hidden="true">·</span>
+			<span class="hud-status" data-mesh-status aria-live="polite">9 relays</span>
+			<span class="hud-hint hidden sm:inline">click to publish or add · drag nodes · click relay to fail over</span>
+		</fieldset>
+	</div>
+</div>
 
 <script>
 	import { mount } from "./map";
 
-	for (const figure of document.querySelectorAll<HTMLElement>("[data-fanout]")) mount(figure);
+	for (const stage of document.querySelectorAll<HTMLElement>("[data-fanout]")) mount(stage);
 </script>
 
 <style>
 	@reference "../../layouts/global.css";
 
-	.fanout {
-		@apply relative w-full flex-col;
-	}
-	.fanout-svg {
-		@apply block w-full overflow-visible;
-		aspect-ratio: 16 / 10;
-	}
-	.fanout-legend {
-		@apply label mt-2 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.68rem] text-ink-3;
-	}
-	.fanout-legend span {
-		@apply flex items-center gap-2;
-	}
-	.fanout-legend i {
-		@apply inline-block size-2 rounded-full;
-	}
-	.fanout-legend img {
-		@apply size-3.5;
-	}
-	.key-frame {
-		@apply rounded-[2px] bg-accent;
-	}
-	.key-frame.audio {
-		@apply rounded-full bg-sky-300;
-	}
-	.key-sub {
-		@apply bg-ink-2;
+	.fanout-stage {
+		@apply pointer-events-none absolute inset-0 overflow-hidden;
 	}
 
-	/* Everything below is drawn by map.ts, so it's styled globally within the figure.
-	   --s is the map's scale (smaller on phones); --c is the color of a broadcast. */
-	.fanout :global(.mesh-link) {
-		fill: none;
-		stroke: var(--color-slate-600);
-		stroke-width: calc(2px * var(--s, 1));
-		stroke-linecap: round;
+	/* Overhangs the hero by the pointer pan distance so parallax never reveals an edge. */
+	.fanout-canvas {
+		position: absolute;
+		z-index: 0;
+		top: -32px;
+		left: -32px;
+		width: calc(100% + 64px);
+		height: calc(100% + 64px);
+		will-change: transform;
 	}
-	.fanout :global(.access-link) {
-		fill: none;
-		stroke: var(--color-slate-700);
-		stroke-width: calc(1.5px * var(--s, 1));
-		stroke-dasharray: 1;
+
+	/* Asymmetric dark-slate scrim keeps the left hero copy crisp while leaving the right side bright. */
+	.fanout-scrim {
+		position: absolute;
+		z-index: 1;
+		inset: 0;
+		background:
+			radial-gradient(
+				ellipse 62% 80% at 26% 48%,
+				rgba(15, 23, 42, 0.98) 0%,
+				rgba(15, 23, 42, 0.92) 44%,
+				rgba(15, 23, 42, 0.45) 70%,
+				rgba(15, 23, 42, 0) 94%
+			),
+			linear-gradient(
+				to right,
+				rgba(15, 23, 42, 0.9) 0%,
+				rgba(15, 23, 42, 0.68) 34%,
+				rgba(15, 23, 42, 0) 60%
+			),
+			linear-gradient(to top, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0) 20%);
 	}
-	/* A link lights up in the color of whatever just crossed it, then cools. */
-	.fanout :global(.glow-link) {
-		fill: none;
-		stroke: var(--c);
-		stroke-width: calc(3px * var(--s, 1));
-		stroke-linecap: round;
-		opacity: 0;
-		filter: drop-shadow(0 0 4px var(--c));
+
+	@media (max-width: 900px) {
+		.fanout-scrim {
+			background: linear-gradient(
+				to bottom,
+				rgba(15, 23, 42, 0.88) 0%,
+				rgba(15, 23, 42, 0.95) 55%,
+				rgba(15, 23, 42, 0.65) 100%
+			);
+		}
 	}
-	.fanout :global(.packet) {
-		fill: var(--c);
-		stroke: var(--color-slate-950);
-		stroke-width: 1.8;
+
+	.fanout-hud-wrap {
+		@apply pointer-events-none absolute inset-x-0 bottom-4 z-20 mx-auto flex max-w-6xl justify-start px-5 md:justify-end md:px-8;
 	}
-	.fanout :global(.packet-tail) {
-		stroke: var(--c);
-		stroke-width: calc(3.5px * var(--s, 1));
-		stroke-linecap: round;
-		opacity: 0.42;
+
+	.fanout-hud {
+		@apply pointer-events-auto inline-flex flex-wrap items-center gap-x-2.5 gap-y-1.5 rounded-full border border-line-strong/80 bg-bg/80 px-3 py-1.5 font-mono text-[0.68rem] text-ink-3 backdrop-blur-md;
 	}
-	.fanout :global(.relay-pad),
-	.fanout :global(.end-pad) {
-		fill: var(--color-bg);
+
+	.fanout-kinds {
+		@apply inline-flex items-center gap-1;
 	}
-	.fanout :global(.relay-pad) {
-		stroke: var(--color-line-strong);
-		stroke-width: 1.5;
+
+	.kind-pill {
+		@apply inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 uppercase tracking-[0.06em] text-ink-3 transition-colors hover:text-ink;
 	}
-	.fanout :global(.relay-pulse) {
-		fill: none;
-		stroke: var(--c, var(--color-accent-ink));
-		stroke-width: 2.4;
-		opacity: 0;
+
+	.kind-pill[data-active="true"] {
+		@apply bg-surface-2 text-ink;
 	}
-	/* An endpoint ripples in its color as a frame leaves or lands. */
-	.fanout :global(.ripple) {
-		fill: none;
-		stroke: var(--c);
-		stroke-width: 2.2;
-		opacity: 0;
+
+	.swatch {
+		@apply inline-block size-2;
 	}
-	/* A viewer takes the color of what it watches. */
-	.fanout :global(.dot) {
-		fill: var(--c);
-		stroke: var(--color-slate-950);
-		stroke-width: 2.2;
+
+	.swatch.video {
+		@apply rounded-[2px] bg-accent-ink;
+	}
+
+	.swatch.audio {
+		@apply rounded-full bg-sky-300;
+	}
+
+	.swatch.data {
+		@apply rounded-full bg-amber-300;
+	}
+
+	.hud-sep {
+		@apply text-line-strong;
+	}
+
+	.hud-status {
+		@apply text-ink-2;
+		font-feature-settings: "tnum";
+	}
+
+	.hud-status[data-degraded="true"] {
+		@apply text-rose-300;
+	}
+
+	.hud-hint {
+		@apply border-l border-line-strong pl-2.5 text-ink-3;
 	}
 </style>
