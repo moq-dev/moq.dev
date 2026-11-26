@@ -1,20 +1,34 @@
 ---
 // The /huh explainer: how MoQ works, one interactive section at a time, each flagged as IETF standard or not.
 // Unreleased (see UNRELEASED in astro.config.ts) and unlinked from the navigation until every section has landed.
-import Badge, { type Props as BadgeProps } from "@/components/huh/badge.astro";
+import Badge from "@/components/huh/badge.astro";
 import Congestion from "@/components/huh/congestion";
-import Section from "@/components/huh/section.astro";
+import Discovery from "@/components/huh/discovery";
+import Section, { type Props as SectionProps } from "@/components/huh/section.astro";
 import Timeline from "@/components/huh/timeline";
+import Tracks from "@/components/huh/tracks";
 import Transport from "@/components/huh/transport";
 import MotionToggle from "@/components/motion-toggle.astro";
 import Layout from "@/layouts/global.astro";
 
-const sections: { id: string; title: string; badge: string; kind: BadgeProps["kind"] }[] = [
-	{ id: "quic", title: "QUIC & Multiple Streams", badge: "Standard · RFC 9000", kind: "standard" },
-	{ id: "congestion", title: "Congestion & Prioritization", badge: "Standard · QUIC / IETF", kind: "standard" },
-	{ id: "groups", title: "Frames & Groups", badge: "Standard · IETF MoQ", kind: "standard" },
+const standard = (text: string) => ({ text, kind: "standard" as const });
+const extension = (text: string) => ({ text, kind: "extension" as const });
+const sections: Omit<SectionProps, "n">[] = [
+	{ id: "quic", title: "QUIC & Multiple Streams", badges: [standard("Standard · RFC 9000")] },
+	{ id: "congestion", title: "Congestion & Prioritization", badges: [standard("Standard · QUIC / IETF")] },
+	{ id: "groups", title: "Frames & Groups", badges: [standard("Standard · IETF MoQ")] },
+	{
+		id: "tracks",
+		title: "Tracks: Media & Arbitrary Data on Demand",
+		badges: [standard("Standard · IETF MoQ"), extension("+ hang")],
+	},
+	{
+		id: "discovery",
+		title: "Broadcasts & Live Discovery",
+		badges: [standard("Standard · IETF MoQ"), extension("+ cluster")],
+	},
 ];
-const [quic, congestion, groups] = sections.map((s, i) => ({ ...s, n: i + 1 }));
+const [quic, congestion, groups, tracks, discovery] = sections.map((s, i) => ({ ...s, n: i + 1 }));
 ---
 
 <Layout title="Huh?" description="An interactive explainer of how Media over QUIC works." bare>
@@ -34,7 +48,7 @@ const [quic, congestion, groups] = sections.map((s, i) => ({ ...s, n: i + 1 }));
 								<a href={`#${s.id}`} class="group flex flex-wrap items-center gap-x-3 gap-y-1">
 									<span class="label w-5">{String(i + 1).padStart(2, "0")}</span>
 									<span class="font-medium text-ink transition-colors group-hover:text-accent-ink">{s.title}</span>
-									<Badge kind={s.kind}>{s.badge}</Badge>
+									{s.badges.map((b) => <Badge kind={b.kind}>{b.text}</Badge>)}
 								</a>
 							</li>
 						))
@@ -98,5 +112,55 @@ const [quic, congestion, groups] = sections.map((s, i) => ({ ...s, n: i + 1 }));
 			IETF <code>moq-transport</code> also lets a publisher split a group into several subgroups on separate streams.
 		</p>
 		<Timeline slot="figure" client:visible />
+	</Section>
+
+	<Section {...tracks}>
+		<p>
+			A broadcast is a bundle of named tracks: each video rendition, the audio, captions, and anything else your app
+			needs, like a <code>controls.json</code> track. Every track is the same sequence of groups, so a relay carries data
+			exactly like media.
+		</p>
+		<p>
+			Viewers pull. A relay forwards a track only to sessions subscribed to it, and merges duplicate subscriptions on
+			the way upstream, so a track nobody watches never leaves the publisher. A publisher that watches demand can go
+			further and leave that track's encoder idle: if nobody's on a big screen, nobody encodes 1080p.
+		</p>
+		<p>
+			To know what to ask for, a viewer first subscribes to <code>catalog.json</code>, a track
+			from <a class="green-link" href="https://doc.moq.dev/concept/hang">hang</a>, this project's media format. It lists every
+			rendition with its decoder config and updates live as tracks come and go. A second camera is its own
+			broadcast, listed under <code>contributions</code> and opened only when someone picks it.
+		</p>
+		<p>Pick a viewer or toggle tracks, and watch the uplink.</p>
+		<p class="text-[0.92rem] text-ink-3">
+			End-to-end encryption is a separate project draft, <code>moq-e2ee</code>, not part of hang or
+			IETF <code>moq-transport</code>. It swaps broadcast paths and track names for opaque ones and encrypts every payload,
+			so a relay routes ciphertext it can't read. Relays never parse payloads anyway; with E2EE they can't.
+		</p>
+		<Tracks slot="figure" client:visible />
+	</Section>
+
+	<Section {...discovery}>
+		<p>
+			Broadcasts are named by paths, like <code>room/alice</code> or <code>boat/cam-1</code>. A publisher announces its
+			path to its relay, and any session can ask for every announcement under a prefix like <code>room/</code>: what's
+			live now, then each change as it happens.
+		</p>
+		<p>
+			That's the whole discovery story. A room's roster is a prefix subscription: no room server, no polling, and no SDP
+			offer and answer. When Carol comes online, everyone watching <code>room/</code> hears about it as her announcement
+			crosses the relays, and when she leaves, the withdrawal follows the same way.
+		</p>
+		<p>
+			Sessions are bidirectional. Alice publishes <code>room/alice</code> and watches <code>room/</code> over the same
+			connection, so joining a call is one announcement plus one prefix subscription. Take people online and offline.
+		</p>
+		<p class="text-[0.92rem] text-ink-3">
+			IETF <code>moq-transport</code> calls these <code>PUBLISH_NAMESPACE</code> and <code>SUBSCRIBE_NAMESPACE</code>.
+			It doesn't say how to build a mesh of relays; the <code>cluster</code> project draft adds the hop lists that keep
+			announcements from looping. This diagram simplifies: each relay forwards only its own clients' announcements to
+			the others.
+		</p>
+		<Discovery slot="figure" client:visible />
 	</Section>
 </Layout>

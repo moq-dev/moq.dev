@@ -82,7 +82,3 @@ Recommendations:
   and multi-subscriber `max_age` expiration math with `bun test`.
 - Check `src/lib/landing.test.ts` (and update if it asserts the exact homepage
   hero buttons or nav links) and verify on desktop and mobile in `just dev`.
-
-## Required
-
-- [Add /huh Sections 4–5](/quest/m2/huh/tracks-and-discovery.md) - adds Sections 4–5 to the `/huh` page (`src/unreleased/huh.astro`)

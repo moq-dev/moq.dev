@@ -1,15 +1,14 @@
 ---
 import Badge, { type Props as BadgeProps } from "./badge.astro";
 
-// One /huh section: a numbered heading with its standards badge, the copy, then its interactive figure.
+// One /huh section: a numbered heading with its standards badges, the copy, then its interactive figure.
 export interface Props {
 	id: string;
 	n: number;
 	title: string;
-	badge: string;
-	kind: BadgeProps["kind"];
+	badges: { text: string; kind: BadgeProps["kind"] }[];
 }
-const { id, n, title, badge, kind } = Astro.props;
+const { id, n, title, badges } = Astro.props;
 ---
 
 <section id={id} class="scroll-mt-20 border-t border-line">
@@ -17,7 +16,7 @@ const { id, n, title, badge, kind } = Astro.props;
 		<p class="label mb-2">{String(n).padStart(2, "0")}</p>
 		<h2 class="display flex flex-wrap items-center gap-x-4 gap-y-2 text-[1.9rem] md:text-[2.3rem]">
 			<a href={`#${id}`} class="hover:text-accent-ink">{title}</a>
-			<Badge kind={kind}>{badge}</Badge>
+			<span class="flex flex-wrap gap-2">{badges.map((b) => <Badge kind={b.kind}>{b.text}</Badge>)}</span>
 		</h2>
 		<div class="mt-5 max-w-2xl space-y-4 text-[1.02rem] leading-relaxed text-ink-2 [&_code]:font-mono [&_code]:text-ink">
 			<slot />

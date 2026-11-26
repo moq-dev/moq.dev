@@ -21,6 +21,7 @@
         "@astrojs/ts-content-mapper": "^0.2.0",
         "@biomejs/biome": "^2.6.7",
         "@microsoft/api-extractor": "7.60.1",
+        "@moq/hang": "workspace:*",
         "@tailwindcss/forms": "^0.5.11",
         "@tailwindcss/typography": "^0.5.20",
         "@tailwindcss/vite": "^4.3.5",
