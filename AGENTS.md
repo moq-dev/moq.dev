@@ -2,12 +2,12 @@ Read `README.md` for the three sites (moq.dev, moq.pub, moq.watch), setup, and t
 
 # Rules
 
-- Never deploy to any environment, including staging, without the user's explicit permission for that deployment. A coding task or quest does not authorize a deploy.
+- Merging to main deploys staging. Ask before merging into or pushing to `release`, or deploying by hand (`just deploy*`, `wrangler deploy`).
 - Protocol, player, and publisher fixes belong upstream in moq-dev/moq (`@moq/publish`, `@moq/watch`, ...). Fix them there first, then bump the `moq` submodule here; the `@moq/*` packages build from it.
 
 # Development
 
-PRs target `main` and land as squash merges.
+PRs target `main` and land as squash merges. Release PRs from `main` into `release` land as merge commits.
 Dependabot PRs need no review once CI passes.
 Verify in the dev server (`just dev`, `just dev-pub`, `just dev-watch`).
 Hand-drawn art ships as SVG: `just trace` the drawn PNG, compare the two, then commit only the SVG.
