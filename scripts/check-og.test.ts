@@ -3,7 +3,7 @@ import { dimensions } from "./check-og";
 
 describe("social card image headers", () => {
 	test("reads every allowed raster format", () => {
-		expect(dimensions("public/layout/og.png", ".png")).toEqual({ width: 2400, height: 1350 });
+		expect(dimensions("public/layout/og.png", ".png")).toEqual({ width: 1200, height: 675 });
 		expect(dimensions("public/blog/you-dont-need-it/sponge.jpg", ".jpg")).toEqual({ width: 480, height: 360 });
 		expect(dimensions("public/blog/to-wasm/duck.jpeg", ".jpeg")).toEqual({ width: 413, height: 255 });
 		expect(dimensions("public/blog/replacing-hls-dash/buffering.gif", ".gif")).toEqual({ width: 498, height: 280 });
