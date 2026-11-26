@@ -1,0 +1,99 @@
+---
+// The /huh explainer: how MoQ works, one interactive section at a time, each flagged as IETF standard or not.
+// Unlinked from the navigation until every section has landed.
+import Badge, { type Props as BadgeProps } from "@/components/huh/badge.astro";
+import Congestion from "@/components/huh/congestion";
+import Section from "@/components/huh/section.astro";
+import Timeline from "@/components/huh/timeline";
+import Transport from "@/components/huh/transport";
+import MotionToggle from "@/components/motion-toggle.astro";
+import Layout from "@/layouts/global.astro";
+
+const sections: { id: string; title: string; badge: string; kind: BadgeProps["kind"] }[] = [
+	{ id: "quic", title: "QUIC & Multiple Streams", badge: "Standard · RFC 9000", kind: "standard" },
+	{ id: "congestion", title: "Congestion & Prioritization", badge: "Standard · QUIC / IETF", kind: "standard" },
+	{ id: "groups", title: "Frames & Groups", badge: "Standard · IETF MoQ", kind: "standard" },
+];
+const [quic, congestion, groups] = sections.map((s, i) => ({ ...s, n: i + 1 }));
+---
+
+<Layout title="Huh?" description="An interactive explainer of how Media over QUIC works." bare>
+	<header class="mx-auto max-w-4xl px-5 pb-12 pt-14 md:px-8 md:pt-20">
+		<!-- Placeholder for the drawn huh? heading and cat from /quest/m2/huh/art.md. -->
+		<h1 class="display text-[3.5rem] md:text-[5rem]">huh?</h1>
+		<p class="mt-4 max-w-2xl text-[1.1rem] leading-relaxed text-ink-2">
+			How Media over QUIC works, from the transport up. Every diagram runs in your browser, so poke at it.
+		</p>
+
+		<div class="mt-8 flex flex-wrap items-start justify-between gap-4">
+			<nav aria-label="Sections">
+				<ol class="flex flex-col gap-2">
+					{
+						sections.map((s, i) => (
+							<li>
+								<a href={`#${s.id}`} class="group flex flex-wrap items-center gap-x-3 gap-y-1">
+									<span class="label w-5">{String(i + 1).padStart(2, "0")}</span>
+									<span class="font-medium text-ink transition-colors group-hover:text-accent-ink">{s.title}</span>
+									<Badge kind={s.kind}>{s.badge}</Badge>
+								</a>
+							</li>
+						))
+					}
+				</ol>
+			</nav>
+			<MotionToggle />
+		</div>
+	</header>
+
+	<Section {...quic}>
+		<p>
+			HTTP/2 multiplexes many requests over one TCP connection, but TCP is a single ordered byte stream. When a packet
+			is lost, everything behind it waits for the retransmit, even data for unrelated requests. That's head-of-line
+			blocking.
+		</p>
+		<p>
+			QUIC (<a class="green-link" href="https://datatracker.ietf.org/doc/html/rfc9000">RFC 9000</a>), the transport
+			under HTTP/3 and WebTransport, gives each stream its own ordering. A lost packet only holds back the stream it
+			carried, and the rest keep flowing. Drop a packet and compare.
+		</p>
+		<Transport slot="figure" client:visible />
+	</Section>
+
+	<Section {...congestion}>
+		<p>
+			Every stream on a connection shares one congestion controller. Its congestion window (<code>cwnd</code>) is how
+			much the network will take right now, and when the application writes more than that, something has to wait.
+		</p>
+		<p>
+			QUIC lets the sender choose whose bytes go next. MoQ ranks streams: audio above video, the newest group above
+			older ones. Opening a stream costs no round trip, and a stream no longer worth finishing can be reset mid-flight
+			without disturbing the rest.
+		</p>
+		<p>
+			It starts a little congested, so the bottom stream is starving. Squeeze the window, rerank the streams, or reset
+			the one that's starving.
+		</p>
+		<Congestion slot="figure" client:visible />
+	</Section>
+
+	<Section {...groups}>
+		<p>
+			Video is mostly deltas. A keyframe (<code>I</code>) is a complete picture, and each delta frame (<code>P</code>)
+			encodes only what changed since the frame before it, so it's useless without every frame back to the keyframe.
+		</p>
+		<p>
+			MoQ calls a keyframe and its deltas a group, and sends each group on its own QUIC stream. Frames go out one by
+			one as the encoder produces them, in order within their group, and each group starts right where the last one
+			ended. Audio is ranked above video here, so it keeps up when video can't.
+		</p>
+		<p>
+			When the network falls behind, the old group's unsent tail is reset and the viewer skips ahead to the next
+			keyframe instead of falling further behind. Turn the reset off to see the alternative.
+		</p>
+		<p class="text-[0.92rem] text-ink-3">
+			One stream per group is the single-subgroup case, which is all <code>moq-lite</code> sends (subgroup 0).
+			IETF <code>moq-transport</code> also lets a publisher split a group into several subgroups on separate streams.
+		</p>
+		<Timeline slot="figure" client:visible />
+	</Section>
+</Layout>
