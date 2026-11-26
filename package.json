@@ -63,5 +63,8 @@
 		"vite": "^8.3.8",
 		"wrangler": "^4.161.0"
 	},
+	"overrides": {
+		"@emnapi/runtime": "1.11.3"
+	},
 	"packageManager": "bun@1.4.2"
 }
