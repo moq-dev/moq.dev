@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readdirSync } from "node:fs";
-import { basename, join } from "node:path";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fingerprint, LOCK, ogCards } from "../tools/cards/og.ts";
 import { dimensions } from "./check-og";
 
 describe("social card image headers", () => {
@@ -21,39 +22,27 @@ describe("social card image headers", () => {
 	});
 });
 
-describe("blog OG cards", () => {
-	test("every blog post has a 1200x675 OG card and no orphaned cards exist", () => {
-		const posts = readdirSync("src/pages/blog")
-			.filter((name) => name.endsWith(".mdx"))
-			.map((name) => basename(name, ".mdx"))
-			.sort();
+describe("committed OG cards", () => {
+	const cards = ogCards();
+	const lock: Record<string, string> = JSON.parse(readFileSync(LOCK, "utf8"));
 
-		expect(posts.length).toBeGreaterThan(0);
+	test("every card is rendered at 1200x675 from its current inputs", () => {
+		const stale = cards.filter((card) => {
+			if (!card.ogOut) return true;
+			const size = existsSync(card.ogOut) ? dimensions(card.ogOut, ".png") : undefined;
+			return size?.width !== 1200 || size?.height !== 675 || lock[card.ogOut] !== fingerprint(card);
+		});
+		expect(
+			stale.map((card) => card.slug),
+			"missing or stale OG cards; run `just og`",
+		).toEqual([]);
+	});
 
-		const missing: string[] = [];
-		const badSize: string[] = [];
-
-		for (const slug of posts) {
-			const card = join("public/og/blog", `${slug}.png`);
-			if (!existsSync(card)) {
-				missing.push(card);
-				continue;
-			}
-			const size = dimensions(card, ".png");
-			if (size?.width !== 1200 || size?.height !== 675) {
-				badSize.push(`${card} (${size ? `${size.width}x${size.height}` : "invalid PNG"})`);
-			}
-		}
-
-		expect(missing, "Missing blog OG cards — run `just og` to generate them").toEqual([]);
-		expect(badSize, "Invalid blog OG card dimensions — run `just og` to regenerate").toEqual([]);
-
-		const cards = readdirSync("public/og/blog")
-			.filter((name) => name.endsWith(".png"))
-			.map((name) => basename(name, ".png"))
-			.sort();
-		const postSet = new Set(posts);
-		const orphaned = cards.filter((slug) => !postSet.has(slug));
-		expect(orphaned, "Orphaned blog OG cards in public/og/blog/ with no matching post").toEqual([]);
+	test("no card is left over from a removed page or post", () => {
+		const live = new Set(cards.map((card) => card.ogOut));
+		const orphaned = ["public/og/blog", "public/og/page"]
+			.flatMap((dir) => readdirSync(dir).map((name) => join(dir, name)))
+			.filter((path) => !live.has(path));
+		expect(orphaned).toEqual([]);
 	});
 });

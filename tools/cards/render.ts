@@ -12,14 +12,15 @@
 //   just og               # every OG card -> public/og/ and public/layout/og.png
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { basename, dirname, extname, join } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, extname, join } from "node:path";
 import hljs from "highlight.js/lib/core";
 import bash from "highlight.js/lib/languages/bash";
 import ini from "highlight.js/lib/languages/ini";
 import rust from "highlight.js/lib/languages/rust";
 import typescript from "highlight.js/lib/languages/typescript";
-import { CARDS, type Card, type Lang, OG_CARDS } from "./cards.ts";
+import { CARDS, type Card, type Lang } from "./cards.ts";
+import { fingerprint, LOCK, ogCards } from "./og.ts";
 
 // X renders summary_large_image at 1200x675; every other network is happy with
 // 16:9 too. 2x device pixels so the text stays crisp when the network re-encodes.
@@ -62,42 +63,6 @@ function publicDataUrl(relPath: string): string {
 	const mime = MIME_BY_EXT[ext];
 	if (!mime) throw new Error(`unsupported cover format ${ext} for ${relPath}`);
 	return dataUrl(join(ROOT, "public", clean), mime);
-}
-
-// A post's frontmatter block, parsed as the YAML it is.
-function parseFrontmatter(source: string): Record<string, string | undefined> {
-	const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-	if (!match) throw new Error("blog post has no frontmatter");
-	return Bun.YAML.parse(match[1]) as Record<string, string | undefined>;
-}
-
-function blogOgCards(): Card[] {
-	const dir = join(ROOT, "src/pages/blog");
-	return readdirSync(dir)
-		.filter((name) => name.endsWith(".mdx"))
-		.sort()
-		.map((name) => {
-			const slug = basename(name, ".mdx");
-			const fm = parseFrontmatter(readFileSync(join(dir, name), "utf8"));
-			const date = fm.date
-				? new Date(fm.date).toLocaleDateString("en-US", {
-						year: "numeric",
-						month: "short",
-						day: "numeric",
-						timeZone: "UTC",
-					})
-				: undefined;
-			return {
-				slug: `og-blog-${slug}`,
-				eyebrow: date,
-				title: fm.title ?? slug,
-				sub: fm.description,
-				blogCover: fm.cover?.replace(/^\/+/, ""),
-				url: `moq.dev/blog/${slug}`,
-				note: fm.author ? `by ${fm.author}` : undefined,
-				ogOut: `public/og/blog/${slug}.png`,
-			};
-		});
 }
 
 // Deterministic hand-drawn relay mesh artwork for the site's default og:image,
@@ -717,13 +682,10 @@ async function main() {
 	const keepHtml = flags.includes("--html");
 	const syncOg = flags.includes("--og");
 	const slugs = args.filter((a) => !a.startsWith("-"));
-	const allOg = [...OG_CARDS, ...blogOgCards()];
-	const catalog = [...CARDS, ...blogOgCards()];
-	const cards = slugs.length
-		? slugs.map((s) => catalog.find((c) => c.slug === s) ?? unknown(s))
-		: syncOg
-			? allOg
-			: CARDS;
+	// --og renders only the committed OG cards, so an announcement slug fails here.
+	const catalog = syncOg ? ogCards() : CARDS;
+	const cards = slugs.length ? slugs.map((s) => catalog.find((c) => c.slug === s) ?? unknown(s)) : catalog;
+	const lock: Record<string, string> = syncOg && existsSync(LOCK) ? JSON.parse(readFileSync(LOCK, "utf8")) : {};
 
 	// The devshell's Playwright, not a node_modules copy, so the library and its
 	// Chromium come from the same nixpkgs pin.
@@ -767,6 +729,7 @@ async function main() {
 				mkdirSync(dirname(dest), { recursive: true });
 				writeFileSync(dest, raw);
 				optimizePng(dest);
+				lock[card.ogOut] = fingerprint(card);
 				const size = readFileSync(dest).length;
 				console.log(`-> ${card.ogOut} (${Math.round(size / 1024)} KB)`);
 			} else {
@@ -775,6 +738,16 @@ async function main() {
 		}
 	} finally {
 		await browser.close();
+	}
+
+	if (syncOg) {
+		// Keep only live cards, in a stable order so the diff shows what changed.
+		const live = new Set(catalog.map((c) => c.ogOut));
+		const kept = Object.keys(lock)
+			.filter((out) => live.has(out))
+			.sort()
+			.map((out) => [out, lock[out]]);
+		writeFileSync(LOCK, `${JSON.stringify(Object.fromEntries(kept), null, "\t")}\n`);
 	}
 }
 
