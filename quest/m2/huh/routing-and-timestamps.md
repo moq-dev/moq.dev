@@ -2,7 +2,7 @@
 
 ## Goal
 
-`src/pages/huh.astro` is complete and publicly linked across `moq.dev`:
+`/huh` is complete, released in live builds, and publicly linked across `moq.dev`:
 
 6. **Mesh Routing, Shortest Path & Failover** (`Non-standard · moq-lite`) — a
    multi-region voice-call mesh (`US-West`, `US-East`, `EU`, `Tokyo`) comparing
@@ -42,6 +42,15 @@ plain-text `<h1>`) using the traced SVGs from `public/huh/`, and
 homepage hero button row (`src/pages/index.astro`, keeping existing hero copy
 untouched).
 
+Launching removes the live gate: move `src/unreleased/huh.astro` into
+`src/pages/huh.astro` and delete its `UNRELEASED` entry in `astro.config.ts`
+(and the gate itself if nothing else uses it), so live builds emit `/huh` and
+list it in `sitemap.xml` and `llms.txt`. Add its OG card too: an `og-huh` entry
+in `tools/cards/cards.ts` (title and description from the page, art
+`huh/cat-huh.svg`), rendered with `just og og-huh`, passed as the page's
+`cover`. Verify `/huh` in `bun astro build --mode live` output, its sitemap,
+llms.txt, and `bun scripts/check-og.ts`.
+
 Because this PR launches `moq.dev/huh` publicly for users to try, it adds a
 follow-up quest with a `Maintainer:` item to try and promote `/huh`.
 
@@ -76,4 +85,4 @@ Recommendations:
 
 ## Required
 
-- [Add /huh Sections 4–5](/quest/m2/huh/tracks-and-discovery.md) - adds Sections 4–5 to `src/pages/huh.astro`
+- [Add /huh Sections 4–5](/quest/m2/huh/tracks-and-discovery.md) - adds Sections 4–5 to the `/huh` page (`src/unreleased/huh.astro`)

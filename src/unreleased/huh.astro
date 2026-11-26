@@ -1,6 +1,6 @@
 ---
 // The /huh explainer: how MoQ works, one interactive section at a time, each flagged as IETF standard or not.
-// Unlinked from the navigation until every section has landed.
+// Unreleased (see UNRELEASED in astro.config.ts) and unlinked from the navigation until every section has landed.
 import Badge, { type Props as BadgeProps } from "@/components/huh/badge.astro";
 import Congestion from "@/components/huh/congestion";
 import Section from "@/components/huh/section.astro";
@@ -17,12 +17,7 @@ const sections: { id: string; title: string; badge: string; kind: BadgeProps["ki
 const [quic, congestion, groups] = sections.map((s, i) => ({ ...s, n: i + 1 }));
 ---
 
-<Layout
-	title="Huh?"
-	description="An interactive explainer of how Media over QUIC works."
-	cover="/og/page/huh.png"
-	bare
->
+<Layout title="Huh?" description="An interactive explainer of how Media over QUIC works." bare>
 	<header class="mx-auto max-w-4xl px-5 pb-12 pt-14 md:px-8 md:pt-20">
 		<!-- Plain text until /quest/m2/huh/routing-and-timestamps.md swaps in public/huh/huh.svg and the cat. -->
 		<h1 class="display text-[3.5rem] md:text-[5rem]">huh?</h1>

@@ -14,6 +14,12 @@ The page works completely client-side without requiring a live relay, respects
 nav (`Huh?`), the footer, and a `Huh?` button added to the homepage hero button
 row without changing existing hero copy.
 
+Until its final quest ([Sections 6–8 and site
+links](/quest/m2/huh/routing-and-timestamps.md)) lands, the page is gated out
+of live builds (`UNRELEASED` in `astro.config.ts`): dev and staging serve it,
+production 404s it, and live `sitemap.xml`, `llms.txt`, and OG cards leave it
+out. That quest removes the gate.
+
 Out of scope: duplicating wire-level protocol specs from `doc.moq.dev`,
 rewriting `/blog/moq-onion`, and deploying.
 

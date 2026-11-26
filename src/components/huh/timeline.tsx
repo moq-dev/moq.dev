@@ -43,8 +43,24 @@ export default function TimelineDiagram() {
 	const [frame, redraw] = createSignal(undefined, { equals: false });
 	const id = createUniqueId();
 
+	// What the diagram shows, as text for screen readers, written once a control's effect has played out in
+	// simulated time rather than on every frame.
+	const [news, setNews] = createSignal("");
+	let reportAt: number | undefined;
+	const describe = () => {
+		reportAt = undefined;
+		const video = sim.latency("video").toFixed(1);
+		const audio = sim.latency("audio").toFixed(1);
+		const dropped = sim.frames.filter((f) => f.reset !== undefined && f.ts > sim.t - WINDOW).length;
+		const policy = reset()
+			? `${dropped} stale video frames in the visible timeline were reset.`
+			: `Every video frame is sent oldest first, until the viewer falls ${BEHIND} s behind and skips ahead.`;
+		setNews(`Video is ${video} s behind live and audio ${audio} s. ${policy}`);
+	};
+
 	const tick = (dt: number) => {
 		sim.step(dt * SPEED, { bandwidth: bandwidth(), reset: reset() });
+		if (reportAt !== undefined && sim.t >= reportAt) describe();
 		redraw();
 	};
 	advance(PRESEED / SPEED, tick);
@@ -55,30 +71,11 @@ export default function TimelineDiagram() {
 		clock = animate(root, tick);
 		onCleanup(() => clock?.stop());
 	});
-	// What the diagram shows, as text for screen readers, written once a control's effect has played out rather
-	// than on every frame.
-	const [news, setNews] = createSignal("");
-	let report: ReturnType<typeof setTimeout> | undefined;
-	onCleanup(() => clearTimeout(report));
-	const describe = () => {
-		const video = sim.latency("video").toFixed(1);
-		const audio = sim.latency("audio").toFixed(1);
-		const dropped = sim.frames.filter((f) => f.reset !== undefined && f.ts > sim.t - WINDOW).length;
-		const policy = reset()
-			? `${dropped} stale video frames reset in the last ${WINDOW} seconds.`
-			: "Every video frame is sent, oldest first.";
-		setNews(`Video is ${video} s behind live and audio ${audio} s. ${policy}`);
-	};
 
 	const changed = () => {
-		clearTimeout(report);
-		if (clock?.live()) {
-			redraw();
-			report = setTimeout(describe, (SETTLE / SPEED) * 1000);
-		} else {
-			advance(SETTLE / SPEED, tick);
-			describe();
-		}
+		reportAt = sim.t + SETTLE;
+		if (clock?.live()) redraw();
+		else advance(SETTLE / SPEED, tick);
 	};
 
 	const x = (ts: number) => RIGHT - (sim.t - ts) * PXS;

@@ -193,15 +193,6 @@ export const OG_CARDS: Card[] = [
 		url: "moq.dev/issues",
 		ogOut: "public/og/page/issues.png",
 	},
-	{
-		slug: "og-huh",
-		eyebrow: "explainer",
-		title: "**Huh?**",
-		sub: "An interactive explainer of how Media over QUIC works.",
-		art: "huh/cat-huh.svg",
-		url: "moq.dev/huh",
-		ogOut: "public/og/page/huh.png",
-	},
 ];
 
 export const CARDS: Card[] = [

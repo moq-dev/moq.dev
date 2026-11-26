@@ -2,7 +2,8 @@
 
 ## Goal
 
-`src/pages/huh.astro` includes interactive SolidJS visuals for Sections 4 and 5:
+The `/huh` page (`src/unreleased/huh.astro`, served in dev and staging but not
+live builds) includes interactive SolidJS visuals for Sections 4 and 5:
 
 4. **Tracks: Media & Arbitrary Data on Demand** (`Standard + hang`) — an
    interactive broadcast track rack (`video/1080p`, `video/480p`, second camera
