@@ -65,8 +65,11 @@ build mode="live":
 	bun vite build sites/pub --mode {{mode}}
 	bun vite build sites/watch --mode {{mode}}
 
-# Deploy all three sites to Cloudflare.
-deploy env="staging": (build env)
+# Build and deploy all three sites to Cloudflare.
+deploy env="staging": (build env) (upload env)
+
+# Upload the already built sites to Cloudflare.
+upload env="staging":
 	bun wrangler deploy --config sites/pub/wrangler.jsonc --env {{env}}
 	bun wrangler deploy --config sites/watch/wrangler.jsonc --env {{env}}
 	bun wrangler deploy --env {{env}}

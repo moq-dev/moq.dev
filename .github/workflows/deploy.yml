@@ -1,0 +1,62 @@
+name: deploy
+
+# main deploys staging and release deploys live, each through `just deploy`'s
+# build and upload recipes.
+on:
+  push:
+    branches: ["main", "release"]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: ${{ github.ref_name == 'release' && 'live' || 'staging' }}
+    # Never cancel a run mid-upload, and queue every pending run: the default
+    # single pending slot would let a late run for an older push evict the
+    # tip's. The queue doesn't keep pushes in order, so the tip check below
+    # makes the tip's run the last to upload.
+    concurrency:
+      group: deploy-${{ github.ref_name }}
+      cancel-in-progress: false
+      queue: max
+    env:
+      MODE: ${{ github.ref_name == 'release' && 'live' || 'staging' }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+      # bun install builds @moq/libav from the moq submodule's flake. Accepting
+      # its nixConfig pulls the build from the nix.moq.dev cache.
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31
+        with:
+          extra_nix_config: accept-flake-config = true
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      # just from the flake's locked nixpkgs, the same one the dev shell uses.
+      - run: echo "$(nix build --no-link --print-out-paths --inputs-from . 'nixpkgs#just^out')/bin" >> "$GITHUB_PATH"
+
+      - run: bun install --frozen-lockfile
+      - run: just build "$MODE"
+
+      # A newer push's run deploys after this one, so uploading now would only
+      # roll the site back until it does.
+      - id: tip
+        run: |
+          tip=$(gh api "repos/$GITHUB_REPOSITORY/branches/$GITHUB_REF_NAME" --jq .commit.sha)
+          if [ "$tip" = "$GITHUB_SHA" ]; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Skipping the upload: $GITHUB_REF_NAME moved to $tip, whose run deploys it."
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - if: steps.tip.outputs.current == 'true'
+        run: just upload "$MODE"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
