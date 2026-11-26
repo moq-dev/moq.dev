@@ -1,0 +1,57 @@
+---
+// Interactive global edge anycast constellation behind the Self-host or Managed slice.
+---
+
+<div class="edge-stage" data-edge-bg aria-hidden="true">
+	<canvas class="edge-canvas" data-edge-canvas></canvas>
+	<div class="edge-scrim"></div>
+	<div class="edge-badge-wrap">
+		<span class="edge-badge" data-edge-readout>move for nearest edge · click PoP to fail over</span>
+	</div>
+</div>
+
+<script>
+	import { mount } from "./edge-bg";
+
+	for (const el of document.querySelectorAll<HTMLElement>("[data-edge-bg]")) mount(el);
+</script>
+
+<style>
+	@reference "../../layouts/global.css";
+
+	.edge-stage {
+		@apply pointer-events-none absolute inset-0 z-0 overflow-hidden;
+	}
+
+	.edge-canvas {
+		@apply absolute inset-0 h-full w-full;
+	}
+
+	/* Deep scrim protects the two comparison columns while keeping the outer map & edge arcs visible. */
+	.edge-scrim {
+		position: absolute;
+		inset: 0;
+		background:
+			radial-gradient(
+				ellipse 78% 74% at 50% 50%,
+				rgba(15, 23, 42, 0.92) 0%,
+				rgba(15, 23, 42, 0.8) 56%,
+				rgba(15, 23, 42, 0.3) 88%,
+				rgba(15, 23, 42, 0.12) 100%
+			),
+			linear-gradient(to bottom, rgba(15, 23, 42, 0.65) 0%, rgba(15, 23, 42, 0) 20%);
+	}
+
+	.edge-badge-wrap {
+		@apply absolute inset-x-0 bottom-5 mx-auto flex max-w-6xl justify-start px-5 md:px-8;
+	}
+
+	.edge-badge {
+		@apply rounded-full border border-line bg-bg/75 px-2.5 py-1 font-mono text-[0.65rem] uppercase tracking-[0.06em] text-ink-3 backdrop-blur-sm transition-colors;
+		font-feature-settings: "tnum";
+	}
+
+	.edge-badge[data-active="true"] {
+		@apply border-accent/40 text-accent-ink;
+	}
+</style>

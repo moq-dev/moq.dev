@@ -16,14 +16,17 @@ describe("vanity", () => {
 		// The go command asks about the full import path, so the prefix in the tag
 		// has to stay the module path rather than what was requested.
 		const res = goGet("/moq-ffi/moq");
-		expect(await res?.text()).toContain(
-			`<meta name="go-import" content="moq.dev/moq-ffi git https://github.com/moq-dev/moq-go-ffi">`,
-		);
+		expect(await res?.text()).toContain(`<meta name="go-import" content="moq.dev/moq-ffi mod https://go.moq.dev">`);
+	});
+
+	test("links source only for a module in a repo", async () => {
+		expect(await goGet("/moq")?.text()).toContain(`<meta name="go-source"`);
+		expect(await goGet("/moq-ffi")?.text()).not.toContain(`<meta name="go-source"`);
 	});
 
 	test("keeps modules with a shared prefix apart", async () => {
-		expect(await goGet("/moq-ffi")?.text()).toContain("moq-go-ffi");
-		expect(await goGet("/moq")?.text()).not.toContain("moq-go-ffi");
+		expect(await goGet("/moq-ffi")?.text()).toContain("go.moq.dev");
+		expect(await goGet("/moq")?.text()).not.toContain("go.moq.dev");
 	});
 
 	test("sends people to the docs", () => {

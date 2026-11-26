@@ -1,0 +1,77 @@
+---
+import UseCasePage from "@/components/use-case-page.astro";
+---
+
+<UseCasePage
+	title="Distribution"
+	description="Sub-second live delivery at CDN scale, without giving up HTTP's economics or legacy HLS players."
+	heading="Distribution"
+	scribble="Distribution"
+	pitch="Sub-second latency at CDN scale, with every viewer choosing its own buffer—and an HLS gateway so legacy players migrate one at a time."
+	docsHref="https://doc.moq.dev/concept/use-case/distribution"
+	art="/icons/use-case/distribution.svg"
+	artAlt="Distribution over MoQ"
+	points={[
+		{
+			icon: "rocket",
+			title: "Skip, don't Buffer",
+			body: "Groups ride independent QUIC streams, newest first. Congestion costs a skip instead of the spinny boye, while audio outranks video so sound stays continuous.",
+		},
+		{
+			icon: "link",
+			title: "Pick Your Latency",
+			body: "On the same broadcast, a bettor waits 100ms and a couch viewer waits 10s—one protocol and one relay instead of HLS plus WebRTC.",
+		},
+		{
+			icon: "battery",
+			title: "Renditions on Demand",
+			body: "Switch ABR renditions at any group boundary, add new tracks to the live catalog mid-broadcast, and only transcode the rungs viewers actually pull.",
+		},
+		{
+			icon: "stonk",
+			title: "Fan Out",
+			body: "Relays merge subscriptions, route across clusters by shortest path, and interoperate across CDNs like moq.pro and Cloudflare.",
+		},
+		{
+			icon: "back",
+			title: "Keep Your HLS",
+			body: "Hang carries CMAF, and the HLS gateway serves any broadcast as HLS from the relay's cache so existing players keep working while you migrate.",
+		},
+	]}
+	figures={[
+		{
+			title: "No head-of-line blocking",
+			src: "/blog/replacing-hls-dash/buffering.gif",
+			alt: "Buffering spinner animation",
+			body: "Conventional segments queue behind TCP stalls and freeze playback. MoQ prioritizes the fresh group on a new QUIC stream and drops the stale one past your deadline.",
+			caption: "Skip past congestion instead of staring at the spinny boye.",
+		},
+		{
+			title: "One stream, every latency tier",
+			src: "/blog/cars2/speed2.svg",
+			alt: "Latency comparison diagram",
+			body: "A subscription asking for a 10s buffer behaves like HLS; one asking for 100ms behaves like a video call. Same relay, same broadcast.",
+			caption: "The viewer controls the buffer, not the segment duration.",
+		},
+		{
+			title: "Dynamic renditions and live catalogs",
+			src: "/blog/moq-boy/bren.svg",
+			alt: "Dynamic renditions diagram",
+			body: "Viewers subscribe to the catalog first, then pull only the video and audio tracks they need—switching at any group without waiting for a segment boundary.",
+			caption: "Transcode and deliver only what people watch.",
+		},
+		{
+			title: "CDN-scale fan-out",
+			src: "/blog/open-for-business/viewers-1000.svg",
+			alt: "Many viewers watching one broadcast",
+			body: "HTTP/3 CDNs already run production QUIC stacks, so relays merge millions of viewers into a single origin stream with HTTP's caching economics.",
+			caption: "One origin stream, millions of viewers.",
+		},
+	]}
+	yours="Replacing HLS or DASH in production with MoQ?"
+	reading={[
+		{ title: "Replacing HLS/DASH", href: "/blog/replacing-hls-dash" },
+		{ title: "Distribution @ Twitch", href: "/blog/distribution-at-twitch" },
+		{ title: "First CDN", href: "/blog/first-cdn" },
+	]}
+/>

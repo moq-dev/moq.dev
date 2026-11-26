@@ -10,53 +10,61 @@ import Cat from "@/components/voice/cat";
 
 Click on any of them. That's what they're here for. Everything is open source!
 
-<div class="not-prose my-10 grid gap-6 sm:grid-cols-2">
-	<a href="/boy" class="card group flex flex-col gap-4 p-5 text-white">
-		<div class="flex h-28 items-center justify-center rounded-xl bg-slate-900">
-			<img src="/demo/moqboy.svg" class="max-h-20 max-w-[70%] object-contain" alt="MoQ Boy" />
+<div class="not-prose my-10 border-t border-line">
+	<a href="/boy" class="group grid grid-cols-[5.5rem_1fr_1.25rem] items-center gap-5 border-b border-line px-2 py-5 text-ink transition-colors hover:bg-tint sm:grid-cols-[7rem_1fr_1.5rem]">
+		<img src="/demo/moqboy.svg" class="boil mx-auto max-h-16 max-w-full object-contain" alt="MoQ Boy" />
+		<div>
+			<div class="text-lg font-semibold group-hover:text-accent-ink">MoQ Boy</div>
+			<div class="mt-1 text-sm leading-relaxed text-ink-3">Multiplayer (anarchy) Game Boy emulation on a remote server, using MoQ tracks for everything. Emulation and encoding only run when at least one viewer is watching.</div>
 		</div>
-		<div class="text-xl font-semibold group-hover:text-green-500">MoQ Boy</div>
-		<div class="text-sm leading-relaxed text-slate-300">Multiplayer (anarchy) Game Boy emulation on a remote server, using MoQ tracks for everything. Emulation and encoding only run when at least one viewer is watching.</div>
+		<span class="font-mono text-sm text-accent transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
 	</a>
 
-	<a href="/carla" class="card group flex flex-col gap-4 p-5 text-white">
-		<div class="flex h-28 items-center justify-center rounded-xl bg-slate-900">
-			<img src="/demo/carla.svg" class="max-h-20 max-w-[70%] object-contain" alt="CARLA" />
+	<a href="/carla" class="group grid grid-cols-[5.5rem_1fr_1.25rem] items-center gap-5 border-b border-line px-2 py-5 text-ink transition-colors hover:bg-tint sm:grid-cols-[7rem_1fr_1.5rem]">
+		<img src="/demo/carla.svg" class="boil mx-auto max-h-16 max-w-full object-contain" alt="CARLA" />
+		<div>
+			<div class="text-lg font-semibold group-hover:text-accent-ink">CARLA</div>
+			<div class="mt-1 text-sm leading-relaxed text-ink-3">Steer simulated vehicles in CARLA over MoQ. Cameras stream on demand, with controls and telemetry on the same connection.</div>
 		</div>
-		<div class="text-xl font-semibold group-hover:text-green-500">CARLA</div>
-		<div class="text-sm leading-relaxed text-slate-300">Steer simulated vehicles in CARLA over MoQ. Cameras stream on demand, with controls and telemetry on the same connection.</div>
+		<span class="font-mono text-sm text-accent transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
 	</a>
 
-	<a href="/watch?project=demo&name=bbb.hang" class="card group flex flex-col gap-4 p-5 text-white">
-		<div class="flex h-28 items-center justify-center rounded-xl bg-slate-900">
-			<img src="/demo/bunny.svg" class="max-h-24 max-w-[70%] object-contain" alt="BBB" />
+	<a href="/watch?project=demo&name=bbb.hang" class="group grid grid-cols-[5.5rem_1fr_1.25rem] items-center gap-5 border-b border-line px-2 py-5 text-ink transition-colors hover:bg-tint sm:grid-cols-[7rem_1fr_1.5rem]">
+		<img src="/demo/bunny.svg" class="boil mx-auto max-h-20 max-w-full object-contain" alt="BBB" />
+		<div>
+			<div class="text-lg font-semibold group-hover:text-accent-ink">B I G B U C K B U N N Y</div>
+			<div class="mt-1 text-sm leading-relaxed text-ink-3">Watch a "live" broadcast of everybody's favorite rodent friend. The video player is available as a (tree-shakable) Javascript library or <code class="rounded-sm bg-surface-2 px-1 py-0.5 font-mono text-xs text-ink">&lt;moq-watch&gt;</code> web component.</div>
 		</div>
-		<div class="text-xl font-semibold group-hover:text-green-500">B I G B U C K B U N N Y</div>
-		<div class="text-sm leading-relaxed text-slate-300">Watch a "live" broadcast of everybody's favorite rodent friend. The video player is available as a (tree-shakable) Javascript library or <code>\<moq-watch\></code> web component.</div>
+		<span class="font-mono text-sm text-accent transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
 	</a>
 
-	<a href="/voice" class="card group flex flex-col gap-4 p-5 text-white">
-		<div class="flex h-28 items-center justify-center rounded-xl bg-slate-900">
-			<Cat client:visible babble class="h-24 w-24" />
+	<a href="/voice" class="group grid grid-cols-[5.5rem_1fr_1.25rem] items-center gap-5 border-b border-line px-2 py-5 text-ink transition-colors hover:bg-tint sm:grid-cols-[7rem_1fr_1.5rem]">
+		<div class="flex justify-center">
+			<Cat client:visible babble class="h-20 w-20" />
 		</div>
-		<div class="text-xl font-semibold group-hover:text-green-500">Voice AI</div>
-		<div class="text-sm leading-relaxed text-slate-300">Talk to a Pipecat voice agent over MoQ, with a live transcript of both sides. It sends its reply faster than real-time, and you can interrupt it whenever.</div>
+		<div>
+			<div class="text-lg font-semibold group-hover:text-accent-ink">Voice AI</div>
+			<div class="mt-1 text-sm leading-relaxed text-ink-3">Talk to a Pipecat voice agent over MoQ, with a live transcript of both sides. It sends its reply faster than real-time, and you can interrupt it whenever.</div>
+		</div>
+		<span class="font-mono text-sm text-accent transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
 	</a>
 
-	<a href="https://hang.live" rel="noreferrer" target="_blank" class="card group flex flex-col gap-4 p-5 text-white">
-		<div class="flex h-28 items-center justify-center rounded-xl bg-slate-900">
-			<img src="/hang.svg" class="max-h-20 max-w-[70%] object-contain" alt="hang.live" />
+	<a href="https://hang.live" rel="noreferrer" target="_blank" class="group grid grid-cols-[5.5rem_1fr_1.25rem] items-center gap-5 border-b border-line px-2 py-5 text-ink transition-colors hover:bg-tint sm:grid-cols-[7rem_1fr_1.5rem]">
+		<img src="/hang.svg" class="boil mx-auto max-h-16 max-w-full object-contain" alt="hang.live" />
+		<div>
+			<div class="text-lg font-semibold group-hover:text-accent-ink">hang.live</div>
+			<div class="mt-1 text-sm leading-relaxed text-ink-3">A full-blown conferencing app built entirely on MoQ. Includes custom WebGL rendering, WebAudio panning, markdown chat, dank memes, you name it. You'll need a friend though, or at least another tab (I won't judge).</div>
 		</div>
-		<div class="text-xl font-semibold group-hover:text-green-500">hang.live</div>
-		<div class="text-sm leading-relaxed text-slate-300">A full-blown conferencing app built entirely on MoQ. Includes custom WebGL rendering, WebAudio panning, markdown chat, dank memes, you name it. You'll need a friend though, or at least another tab (I won't judge).</div>
+		<span class="font-mono text-sm text-accent transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
 	</a>
 
-	<a href="/publish" class="card group flex flex-col gap-4 p-5 text-white">
-		<div class="flex h-28 items-center justify-center rounded-xl bg-slate-900">
-			<img src="/demo/publish.svg" class="max-h-20 max-w-[70%] object-contain" alt="Publish" />
+	<a href="/publish" class="group grid grid-cols-[5.5rem_1fr_1.25rem] items-center gap-5 border-b border-line px-2 py-5 text-ink transition-colors hover:bg-tint sm:grid-cols-[7rem_1fr_1.5rem]">
+		<img src="/icons/use-case/contribution.svg" class="boil mx-auto max-h-16 max-w-full object-contain" alt="Publish" />
+		<div>
+			<div class="text-lg font-semibold group-hover:text-accent-ink">Publish</div>
+			<div class="mt-1 text-sm leading-relaxed text-ink-3">Go live! Share your camera, microphone, or screen with anyone you give the watch link to. Browser demos use a private broadcast in the try project.</div>
 		</div>
-		<div class="text-xl font-semibold group-hover:text-green-500">Publish</div>
-		<div class="text-sm leading-relaxed text-slate-300">Go live! Share your camera, microphone, or screen with anyone you give the watch link to. Browser demos use a private broadcast in the try project.</div>
+		<span class="font-mono text-sm text-accent transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
 	</a>
 </div>
 
@@ -64,23 +72,32 @@ Click on any of them. That's what they're here for. Everything is open source!
 
 Want something you can run from a terminal? These copy-paste examples use the same MoQ stack as the browser demos.
 
-<div class="not-prose grid gap-4 sm:grid-cols-3 my-8">
-	<a href="#cli" class="card group p-5 text-white">
-		<img src="https://moq.pro/icons/box.svg" class="mb-3 h-16 transition-transform group-hover:-rotate-3" alt="Hand-drawn box" />
-		<div class="mb-2 text-xl font-semibold">MoQ CLI</div>
-		<div class="text-sm font-light text-slate-300">Pull a live broadcast out of MoQ and play it with ffplay.</div>
+<div class="not-prose my-8 border-t border-line">
+	<a href="#cli" class="group grid grid-cols-[3rem_1fr_1.25rem] items-center gap-4 border-b border-line px-2 py-4 text-ink transition-colors hover:bg-tint">
+		<img src="https://moq.pro/icons/box.svg" class="boil mx-auto h-10 w-10 object-contain" alt="Hand-drawn box" />
+		<div>
+			<div class="font-semibold group-hover:text-accent-ink">MoQ CLI</div>
+			<div class="text-sm text-ink-3">Pull a live broadcast out of MoQ and play it with ffplay.</div>
+		</div>
+		<span class="font-mono text-sm text-accent" aria-hidden="true">↓</span>
 	</a>
 
-	<a href="#ffmpeg" class="card group p-5 text-white">
-		<img src="https://moq.pro/icons/rocket.svg" class="mb-3 h-16 transition-transform group-hover:-rotate-3" alt="Hand-drawn rocket" />
-		<div class="mb-2 text-xl font-semibold">FFmpeg</div>
-		<div class="text-sm font-light text-slate-300">Encode a test pattern, webcam, or screen and publish it live.</div>
+	<a href="#ffmpeg" class="group grid grid-cols-[3rem_1fr_1.25rem] items-center gap-4 border-b border-line px-2 py-4 text-ink transition-colors hover:bg-tint">
+		<img src="https://moq.pro/icons/rocket.svg" class="boil mx-auto h-10 w-10 object-contain" alt="Hand-drawn rocket" />
+		<div>
+			<div class="font-semibold group-hover:text-accent-ink">FFmpeg</div>
+			<div class="text-sm text-ink-3">Encode a test pattern, webcam, or screen and publish it live.</div>
+		</div>
+		<span class="font-mono text-sm text-accent" aria-hidden="true">↓</span>
 	</a>
 
-	<a href="#gstreamer" class="card group p-5 text-white">
-		<img src="https://moq.pro/icons/puzzle.svg" class="mb-3 h-16 transition-transform group-hover:-rotate-3" alt="Hand-drawn puzzle piece" />
-		<div class="mb-2 text-xl font-semibold">GStreamer</div>
-		<div class="text-sm font-light text-slate-300">Drop <code>moqsrc</code> and <code>moqsink</code> into a media pipeline.</div>
+	<a href="#gstreamer" class="group grid grid-cols-[3rem_1fr_1.25rem] items-center gap-4 border-b border-line px-2 py-4 text-ink transition-colors hover:bg-tint">
+		<img src="https://moq.pro/icons/puzzle.svg" class="boil mx-auto h-10 w-10 object-contain" alt="Hand-drawn puzzle piece" />
+		<div>
+			<div class="font-semibold group-hover:text-accent-ink">GStreamer</div>
+			<div class="text-sm text-ink-3">Drop <code class="rounded-sm bg-surface-2 px-1 py-0.5 font-mono text-xs text-ink">moqsrc</code> and <code class="rounded-sm bg-surface-2 px-1 py-0.5 font-mono text-xs text-ink">moqsink</code> into a media pipeline.</div>
+		</div>
+		<span class="font-mono text-sm text-accent" aria-hidden="true">↓</span>
 	</a>
 </div>
 
