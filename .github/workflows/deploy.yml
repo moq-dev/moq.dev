@@ -57,6 +57,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - if: steps.tip.outputs.current == 'true'
-        run: just upload "$MODE"
+        run: just deploy-upload "$MODE"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
