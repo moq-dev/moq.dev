@@ -75,5 +75,4 @@ Recommendations:
 
 ## Required
 
-- [Hand-drawn SVG art and rotoscoped huh? cat for /huh](/quest/m2/huh/art.md) - provides the traced `huh?` cat poses and heading SVG under `public/huh/`
 - [Add /huh Sections 4–5](/quest/m2/huh/tracks-and-discovery.md) - adds Sections 4–5 to `src/pages/huh.astro`
