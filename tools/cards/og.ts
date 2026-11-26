@@ -9,8 +9,15 @@ import { type Card, OG_CARDS } from "./cards.ts";
 
 const ROOT = join(dirname(new URL(import.meta.url).pathname), "..", "..");
 
-// Maps each card's `ogOut` to the fingerprint of the inputs it was rendered from.
+// Maps each card's `ogOut` to the fingerprint of the inputs it was rendered
+// from and the digest of the PNG that render wrote.
 export const LOCK = join(ROOT, "tools/cards/og.lock.json");
+export type Lock = Record<string, { inputs: string; png: string }>;
+
+// A hex SHA-256 digest.
+export function sha256(data: string | Uint8Array): string {
+	return createHash("sha256").update(data).digest("hex");
+}
 
 // A post's frontmatter block, parsed as the YAML it is.
 function frontmatter(source: string): Record<string, string | undefined> {

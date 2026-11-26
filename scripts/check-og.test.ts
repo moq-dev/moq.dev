@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fingerprint, LOCK, ogCards } from "../tools/cards/og.ts";
+import { fingerprint, LOCK, type Lock, ogCards, sha256 } from "../tools/cards/og.ts";
 import { dimensions } from "./check-og";
 
 describe("social card image headers", () => {
@@ -24,13 +24,19 @@ describe("social card image headers", () => {
 
 describe("committed OG cards", () => {
 	const cards = ogCards();
-	const lock: Record<string, string> = JSON.parse(readFileSync(LOCK, "utf8"));
+	const lock: Lock = JSON.parse(readFileSync(LOCK, "utf8"));
 
-	test("every card is rendered at 1200x675 from its current inputs", () => {
+	test("every committed card is the 1200x675 render of its current inputs", () => {
 		const stale = cards.filter((card) => {
-			if (!card.ogOut) return true;
-			const size = existsSync(card.ogOut) ? dimensions(card.ogOut, ".png") : undefined;
-			return size?.width !== 1200 || size?.height !== 675 || lock[card.ogOut] !== fingerprint(card);
+			const entry = card.ogOut ? lock[card.ogOut] : undefined;
+			if (!card.ogOut || !entry || !existsSync(card.ogOut)) return true;
+			const size = dimensions(card.ogOut, ".png");
+			return (
+				size?.width !== 1200 ||
+				size?.height !== 675 ||
+				entry.inputs !== fingerprint(card) ||
+				entry.png !== sha256(readFileSync(card.ogOut))
+			);
 		});
 		expect(
 			stale.map((card) => card.slug),

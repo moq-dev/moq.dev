@@ -20,7 +20,7 @@ import ini from "highlight.js/lib/languages/ini";
 import rust from "highlight.js/lib/languages/rust";
 import typescript from "highlight.js/lib/languages/typescript";
 import { CARDS, type Card, type Lang } from "./cards.ts";
-import { fingerprint, LOCK, ogCards } from "./og.ts";
+import { fingerprint, LOCK, type Lock, ogCards, sha256 } from "./og.ts";
 
 // X renders summary_large_image at 1200x675; every other network is happy with
 // 16:9 too. 2x device pixels so the text stays crisp when the network re-encodes.
@@ -685,7 +685,7 @@ async function main() {
 	// --og renders only the committed OG cards, so an announcement slug fails here.
 	const catalog = syncOg ? ogCards() : CARDS;
 	const cards = slugs.length ? slugs.map((s) => catalog.find((c) => c.slug === s) ?? unknown(s)) : catalog;
-	const lock: Record<string, string> = syncOg && existsSync(LOCK) ? JSON.parse(readFileSync(LOCK, "utf8")) : {};
+	const lock: Lock = syncOg && existsSync(LOCK) ? JSON.parse(readFileSync(LOCK, "utf8")) : {};
 
 	// The devshell's Playwright, not a node_modules copy, so the library and its
 	// Chromium come from the same nixpkgs pin.
@@ -729,9 +729,9 @@ async function main() {
 				mkdirSync(dirname(dest), { recursive: true });
 				writeFileSync(dest, raw);
 				optimizePng(dest);
-				lock[card.ogOut] = fingerprint(card);
-				const size = readFileSync(dest).length;
-				console.log(`-> ${card.ogOut} (${Math.round(size / 1024)} KB)`);
+				const png = readFileSync(dest);
+				lock[card.ogOut] = { inputs: fingerprint(card), png: sha256(png) };
+				console.log(`-> ${card.ogOut} (${Math.round(png.length / 1024)} KB)`);
 			} else {
 				console.log(path);
 			}
