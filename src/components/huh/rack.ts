@@ -8,20 +8,40 @@ export interface Track {
 	kind: Kind;
 	kbps: number; // while someone pulls it
 	detail: string;
+	// Where the subscription actually goes, when not to a track of that name in BROADCAST.
+	route?: Route;
+}
+
+export interface Route {
+	broadcast: string;
+	track: string;
 }
 
 // The broadcast the catalog is served from, and the second camera's sibling broadcast that it lists.
 export const BROADCAST = "studio/front.hang";
-export const REAR = "rear.hang"; // relative: resolves to studio/rear.hang
+export const REAR = "rear.hang"; // as the catalog lists it, relative to BROADCAST
+export const REAR_PATH = "studio/rear.hang";
 
 export const TRACKS: readonly Track[] = [
 	{ name: "video/1080p", kind: "video", kbps: 4500, detail: "H.264 1920×1080" },
 	{ name: "video/480p", kind: "video", kbps: 900, detail: "H.264 854×480" },
-	{ name: "rear", kind: "camera", kbps: 2500, detail: "second camera, its own broadcast" },
+	{
+		name: "rear",
+		kind: "camera",
+		kbps: 2500,
+		detail: "second camera, its own broadcast",
+		// A rendition from the rear camera's own catalog.
+		route: { broadcast: REAR_PATH, track: "video/720p" },
+	},
 	{ name: "audio", kind: "audio", kbps: 128, detail: "Opus stereo" },
 	{ name: "captions", kind: "text", kbps: 2, detail: "WebVTT, English" },
 	{ name: "controls.json", kind: "data", kbps: 8, detail: "your app's own JSON" },
 ];
+
+// The broadcast and track a subscription to `t` names.
+export function route(t: Track): Route {
+	return t.route ?? { broadcast: BROADCAST, track: t.name };
+}
 
 // What a few kinds of viewer pull.
 export const PRESETS: readonly { name: string; pulls: readonly string[] }[] = [

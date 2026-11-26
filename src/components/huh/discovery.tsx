@@ -41,7 +41,8 @@ export default function DiscoveryDiagram() {
 	});
 	advance(SETTLE + FRESH, tick);
 
-	let root!: SVGSVGElement;
+	// Covers the rosters too, so they keep updating while only they are on screen.
+	let root!: HTMLDivElement;
 	let clock: ReturnType<typeof animate> | undefined;
 	onMount(() => {
 		clock = animate(root, tick);
@@ -94,157 +95,167 @@ export default function DiscoveryDiagram() {
 				</>
 			}
 		>
-			<svg ref={root} viewBox={`0 0 ${W} ${H}`} class="block w-full" aria-hidden="true">
-				{/* The mesh: every relay peers with every other. */}
-				<For each={RELAYS}>
-					{(a, i) => (
-						<For each={RELAYS.slice(i() + 1)}>
-							{(b) => (
-								<line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={COLOR.line} stroke-width="2" stroke-dasharray="5 4" />
-							)}
-						</For>
-					)}
-				</For>
-				<For each={CLIENTS}>
-					{(c) => (
-						<line
-							x1={c.x}
-							y1={c.y}
-							x2={RELAYS[c.relay].x}
-							y2={RELAYS[c.relay].y}
-							stroke={COLOR.line}
-							stroke-width="1.5"
-						/>
-					)}
-				</For>
+			<div ref={root}>
+				<svg viewBox={`0 0 ${W} ${H}`} class="block w-full" aria-hidden="true">
+					{/* The mesh: every relay peers with every other. */}
+					<For each={RELAYS}>
+						{(a, i) => (
+							<For each={RELAYS.slice(i() + 1)}>
+								{(b) => (
+									<line
+										x1={a.x}
+										y1={a.y}
+										x2={b.x}
+										y2={b.y}
+										stroke={COLOR.line}
+										stroke-width="2"
+										stroke-dasharray="5 4"
+									/>
+								)}
+							</For>
+						)}
+					</For>
+					<For each={CLIENTS}>
+						{(c) => (
+							<line
+								x1={c.x}
+								y1={c.y}
+								x2={RELAYS[c.relay].x}
+								y2={RELAYS[c.relay].y}
+								stroke={COLOR.line}
+								stroke-width="1.5"
+							/>
+						)}
+					</For>
 
-				<For each={RELAYS}>
-					{(r, i) => (
-						<g>
-							<circle cx={r.x} cy={r.y} r={RELAY_R} fill={COLOR.track} stroke={COLOR.neutral} stroke-width="1.5" />
-							<text x={r.x} y={r.y - 2} text-anchor="middle" fill={COLOR.text} font-size="12" font-weight="600">
-								{r.name}
-							</text>
-							<text x={r.x} y={r.y + 11} text-anchor="middle" fill={COLOR.dim} font-size="9" font-family={MONO}>
-								relay
-							</text>
-							<text
-								x={r.x}
-								y={r.above ? r.y - RELAY_R - 6 : r.y + RELAY_R + 13}
-								text-anchor="middle"
-								fill={COLOR.neutral}
-								font-size="10"
-								font-family={MONO}
-							>
-								{view().known[i()]} live
-							</text>
-						</g>
-					)}
-				</For>
-
-				<For each={CLIENTS}>
-					{(c, i) => {
-						const on = () => c.publishes !== undefined && view().online[i()];
-						return (
+					<For each={RELAYS}>
+						{(r, i) => (
 							<g>
-								<rect
-									x={c.x - BOX.w / 2}
-									y={c.y - BOX.h / 2}
-									width={BOX.w}
-									height={BOX.h}
-									rx="7"
-									fill={COLOR.track}
-									stroke={on() ? COLOR.green : COLOR.line}
-									stroke-width="1.5"
-								/>
-								<circle
-									cx={c.x - BOX.w / 2 + 11}
-									cy={c.y}
-									r="3.5"
-									fill={c.publishes === undefined ? COLOR.neutral : on() ? COLOR.green : COLOR.dim}
-								/>
-								<text x={c.x + 6} y={c.y + 4} text-anchor="middle" fill={COLOR.text} font-size="12">
-									{c.name}
+								<circle cx={r.x} cy={r.y} r={RELAY_R} fill={COLOR.track} stroke={COLOR.neutral} stroke-width="1.5" />
+								<text x={r.x} y={r.y - 2} text-anchor="middle" fill={COLOR.text} font-size="12" font-weight="600">
+									{r.name}
+								</text>
+								<text x={r.x} y={r.y + 11} text-anchor="middle" fill={COLOR.dim} font-size="9" font-family={MONO}>
+									relay
+								</text>
+								<text
+									x={r.x}
+									y={r.above ? r.y - RELAY_R - 6 : r.y + RELAY_R + 13}
+									text-anchor="middle"
+									fill={COLOR.neutral}
+									font-size="10"
+									font-family={MONO}
+								>
+									{view().known[i()]} live
 								</text>
 							</g>
-						);
-					}}
-				</For>
+						)}
+					</For>
 
-				{/* Fresh objects every frame, so reuse the elements by position rather than rebuilding them. */}
-				<Index each={view().messages}>
-					{(m) => {
-						const color = () => (m().kind === "announce" ? COLOR.green : COLOR.red);
-						return (
-							<g>
-								<circle cx={m().x} cy={m().y} r="4.5" fill={color()} />
-								<text x={m().x + 7} y={m().y - 6} fill={color()} font-size="10" font-family={MONO}>
-									{m().kind === "announce" ? "+" : "−"}
-									{m().path}
-								</text>
-							</g>
-						);
-					}}
-				</Index>
-			</svg>
+					<For each={CLIENTS}>
+						{(c, i) => {
+							const on = () => c.publishes !== undefined && view().online[i()];
+							return (
+								<g>
+									<rect
+										x={c.x - BOX.w / 2}
+										y={c.y - BOX.h / 2}
+										width={BOX.w}
+										height={BOX.h}
+										rx="7"
+										fill={COLOR.track}
+										stroke={on() ? COLOR.green : COLOR.line}
+										stroke-width="1.5"
+									/>
+									<circle
+										cx={c.x - BOX.w / 2 + 11}
+										cy={c.y}
+										r="3.5"
+										fill={c.publishes === undefined ? COLOR.neutral : on() ? COLOR.green : COLOR.dim}
+									/>
+									<text x={c.x + 6} y={c.y + 4} text-anchor="middle" fill={COLOR.text} font-size="12">
+										{c.name}
+									</text>
+								</g>
+							);
+						}}
+					</For>
 
-			<ul class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3" aria-label="Sessions">
-				<For each={CLIENTS}>
-					{(c, i) => {
-						const on = () => view().online[i()];
-						return (
-							<li class="flex flex-col gap-1.5 rounded-lg bg-surface-2/60 px-2.5 py-2 text-sm">
-								<span class="flex items-baseline justify-between gap-2">
-									<span class="font-medium text-ink">{c.name}</span>
-									<span class="font-mono text-xs text-ink-3">via {RELAYS[c.relay].name}</span>
-								</span>
-								<Show when={c.publishes}>
-									{(path) => (
-										<span class="flex items-center gap-2">
-											<span class="label w-16">publishes</span>
-											<Button
-												onClick={() => toggle(i())}
-												pressed={on()}
-												label={`${c.name} publishes ${path()}`}
-												class="px-2! font-mono text-xs!"
-											>
-												{path()} · {on() ? "online" : "offline"}
-											</Button>
-										</span>
-									)}
-								</Show>
-								<Show when={c.watches}>
-									{(prefix) => (
-										<span class="flex items-start gap-2">
-											<span class="label w-16 pt-0.5">watches</span>
-											<span class="flex flex-col font-mono text-xs">
-												<span class="text-ink-3">{pattern(prefix())}</span>
-												<Show when={on() && c.publishes?.startsWith(prefix())}>
-													<span class="text-ink-3">{c.publishes} (you)</span>
-												</Show>
-												<Index
-													each={view().rosters[i()]}
-													fallback={
-														<Show when={!(on() && c.publishes?.startsWith(prefix()))}>
-															<span class="text-ink-3">nobody yet</span>
-														</Show>
-													}
+					{/* Fresh objects every frame, so reuse the elements by position rather than rebuilding them. */}
+					<Index each={view().messages}>
+						{(m) => {
+							const color = () => (m().kind === "announce" ? COLOR.green : COLOR.red);
+							return (
+								<g>
+									<circle cx={m().x} cy={m().y} r="4.5" fill={color()} />
+									<text x={m().x + 7} y={m().y - 6} fill={color()} font-size="10" font-family={MONO}>
+										{m().kind === "announce" ? "+" : "−"}
+										{m().path}
+									</text>
+								</g>
+							);
+						}}
+					</Index>
+				</svg>
+
+				<ul class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3" aria-label="Sessions">
+					<For each={CLIENTS}>
+						{(c, i) => {
+							const on = () => view().online[i()];
+							return (
+								<li class="flex flex-col gap-1.5 rounded-lg bg-surface-2/60 px-2.5 py-2 text-sm">
+									<span class="flex items-baseline justify-between gap-2">
+										<span class="font-medium text-ink">{c.name}</span>
+										<span class="font-mono text-xs text-ink-3">via {RELAYS[c.relay].name}</span>
+									</span>
+									<Show when={c.publishes}>
+										{(path) => (
+											<span class="flex items-center gap-2">
+												<span class="label w-16">publishes</span>
+												<Button
+													onClick={() => toggle(i())}
+													pressed={on()}
+													label={`${c.name} publishes ${path()}`}
+													class="px-2! font-mono text-xs!"
 												>
-													{(entry) => (
-														<span style={{ color: view().t - entry()[1] < FRESH ? COLOR.green : COLOR.text }}>
-															{entry()[0]}
-														</span>
-													)}
-												</Index>
+													{path()} · {on() ? "online" : "offline"}
+												</Button>
 											</span>
-										</span>
-									)}
-								</Show>
-							</li>
-						);
-					}}
-				</For>
-			</ul>
+										)}
+									</Show>
+									<Show when={c.watches}>
+										{(prefix) => (
+											<span class="flex items-start gap-2">
+												<span class="label w-16 pt-0.5">watches</span>
+												<span class="flex flex-col font-mono text-xs">
+													<span class="text-ink-3">{pattern(prefix())}</span>
+													<Show when={on() && c.publishes?.startsWith(prefix())}>
+														<span class="text-ink-3">{c.publishes} (you)</span>
+													</Show>
+													<Index
+														each={view().rosters[i()]}
+														fallback={
+															<Show when={!(on() && c.publishes?.startsWith(prefix()))}>
+																<span class="text-ink-3">nobody yet</span>
+															</Show>
+														}
+													>
+														{(entry) => (
+															<span style={{ color: view().t - entry()[1] < FRESH ? COLOR.green : COLOR.text }}>
+																{entry()[0]}
+															</span>
+														)}
+													</Index>
+												</span>
+											</span>
+										)}
+									</Show>
+								</li>
+							);
+						}}
+					</For>
+				</ul>
+			</div>
 		</Figure>
 	);
 }

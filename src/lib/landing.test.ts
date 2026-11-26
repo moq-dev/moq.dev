@@ -42,6 +42,8 @@ test("/huh renders every section with its diagram", async () => {
 	const response = await fetch(url("/huh"));
 	expect(response.status).toBe(200);
 	const html = await response.text();
-	for (const id of ["quic", "congestion", "groups"]) expect(html).toContain(`id="${id}"`);
-	for (const drawn of ["over TCP", "SENT", "behind live"]) expect(html).toContain(drawn);
+	for (const id of ["quic", "congestion", "groups", "tracks", "discovery"]) expect(html).toContain(`id="${id}"`);
+	for (const drawn of ["over TCP", "SENT", "behind live", "pushing every track", "take it online or offline"]) {
+		expect(html).toContain(drawn);
+	}
 }, 30_000);

@@ -2,7 +2,7 @@
 // routes names and payloads it cannot read.
 import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { animate } from "./clock";
-import { BROADCAST, catalog, type Kind, opaque, PRESETS, PUSH_ALL, REAR, TRACKS, uplink } from "./rack";
+import { BROADCAST, catalog, type Kind, opaque, PRESETS, PUSH_ALL, REAR_PATH, route, TRACKS, uplink } from "./rack";
 import { Button, COLOR, Figure } from "./ui";
 
 const KIND: Record<Kind, string> = {
@@ -17,9 +17,6 @@ const SPEED = 40; // px per second the packets drift along a wire
 const START = ["video/1080p", "audio", "captions"]; // the TV preset, so a few encoders sleep on first paint
 
 const rate = (kbps: number) => (kbps >= 1000 ? `${(kbps / 1000).toFixed(1)} Mbps` : `${kbps} kbps`);
-
-// The broadcast each track lives in, as the relay sees it.
-const broadcast = (name: string) => (name === "rear" ? BROADCAST.replace(/[^/]+$/, REAR) : BROADCAST);
 
 export default function TracksDiagram() {
 	const [pulled, setPulled] = createSignal<ReadonlySet<string>>(new Set(START));
@@ -56,6 +53,7 @@ export default function TracksDiagram() {
 	};
 	const same = (a: ReadonlySet<string>, b: readonly string[]) => a.size === b.length && b.every((n) => a.has(n));
 
+	// A name as the relay sees it.
 	const seen = (name: string) => (e2ee() ? opaque(name) : name);
 
 	const label =
@@ -164,12 +162,16 @@ export default function TracksDiagram() {
 									<span class="flex min-w-[15rem] flex-1 items-center gap-2">
 										<span class="h-1 flex-1 rounded-full" style={wire()} />
 										<span
-											class="w-[6.5rem] truncate text-center font-mono text-xs"
+											class="flex w-[6.5rem] flex-col text-center font-mono text-xs leading-tight"
 											style={{ color: e2ee() ? COLOR.violet : COLOR.neutral }}
-											title={on() ? `${broadcast(track.name)} / ${track.name}` : undefined}
+											title={on() ? `${seen(route(track).broadcast)} / ${seen(route(track).track)}` : undefined}
 										>
 											<Show when={on()} fallback={<span style={{ color: COLOR.dim }}>·</span>}>
-												{seen(track.name)}
+												{/* Only the second camera lives outside the broadcast named above the rack. */}
+												<Show when={route(track).broadcast !== BROADCAST}>
+													<span class="truncate text-[0.6rem]">{seen(route(track).broadcast)}</span>
+												</Show>
+												<span class="truncate">{seen(route(track).track)}</span>
 											</Show>
 										</span>
 										<span class="h-1 flex-1 rounded-full" style={wire()} />
@@ -189,13 +191,13 @@ export default function TracksDiagram() {
 							fallback={
 								<>
 									The relay routes by broadcast and track name and never parses a payload. The second camera is its own
-									broadcast, <code class="font-mono">{broadcast("rear")}</code>, listed under{" "}
+									broadcast, <code class="font-mono">{REAR_PATH}</code>, listed under{" "}
 									<code class="font-mono">contributions</code>.
 								</>
 							}
 						>
-							With E2EE, paths, track names, and every group are ciphertext. The relay still routes each subscription by
-							its opaque name; only the viewer holds the key.
+							With E2EE, the relay sees opaque paths and track names and encrypted payloads, though still the group and
+							frame boundaries it forwards by. Only the publisher and viewers holding the credential can read them.
 						</Show>
 					</p>
 				</div>
@@ -221,7 +223,7 @@ function Meter(props: { kbps: number }) {
 				aria-hidden="true"
 			>
 				<div
-					class="h-full rounded-full transition-[width] duration-300"
+					class="h-full rounded-full transition-[width] duration-300 still:transition-none"
 					style={{ width: `${(props.kbps / PUSH_ALL) * 100}%`, background: COLOR.green }}
 				/>
 			</div>
