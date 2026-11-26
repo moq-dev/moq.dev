@@ -40,6 +40,11 @@ cards *args:
 	bun i
 	bun tools/cards/render.ts {{args}}
 
+# Regenerate every per-page and per-blog-post OG card under public/og/ and public/layout/og.png.
+og *args:
+	bun i
+	bun tools/cards/render.ts --og {{args}}
+
 # Trace hand-drawn PNGs into SVGs beside them (tools/drawn/trace.ts). Then delete
 # each PNG and point its references at the SVG; a cover still gets a PNG og:image.
 trace *args:

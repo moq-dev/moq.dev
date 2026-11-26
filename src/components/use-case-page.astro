@@ -26,6 +26,7 @@ interface ReadingLink {
 interface Props {
 	title: string;
 	description: string;
+	cover?: string;
 	heading: string;
 	scribble?: string;
 	pitch: string;
@@ -44,6 +45,7 @@ interface Props {
 const {
 	title,
 	description,
+	cover,
 	heading,
 	scribble,
 	pitch,
@@ -60,7 +62,7 @@ const {
 } = Astro.props;
 ---
 
-<Layout title={title} description={description} bare>
+<Layout title={title} description={description} cover={cover} bare>
 	<!-- Hero -->
 	<section class="relative overflow-hidden">
 		<div class="grid-wash" aria-hidden="true"></div>
