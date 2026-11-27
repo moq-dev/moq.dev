@@ -9,7 +9,7 @@ Read `README.md` for the three sites (moq.dev, moq.pub, moq.watch), setup, and t
 
 PRs target `main` and land as squash merges. Release PRs from `main` into `release` land as merge commits.
 No CI runs on pull requests: run `just check`, `just test`, and `just build` before pushing.
-Dependabot PRs need no review once those pass.
+Nobody pushes a Dependabot PR, so whoever merges one runs those three on its head first; it needs no review once they pass.
 Verify in the dev server (`just dev`, `just dev-pub`, `just dev-watch`).
 Hand-drawn art ships as SVG: `just trace` the drawn PNG, compare the two, then commit only the SVG.
 A redesign keeps the live site's copy: never write new taglines or marketing lines, and offer plain options when a heading must change.
