@@ -39,23 +39,26 @@ Repository window:
 Steps:
 
 1. Enumerate every non-bot PR merged in `moq-dev/moq.dev` starting at
-   PR #294 (`chore(nix): bump quest to 556d816002`, merged `2026-11-25T07:42Z`) and continuing through `chore: bump quest to v0.30.0` and reviewer adoption of `v0.30.0` (using actual recorded review runs near both transitions, and recording open PRs at cutover whose `v0.27.0`–`v0.29.0` reviews carry past the pin bump so they are audited on merge unless re-reviewed under `v0.30.0` first).
-2. Inspect each PR's `quest review` commit statuses (across all of its
-   commits, not only its final head SHA), `## Review` body record, and Kixel
-   Quest review runs to compare its actual recorded seats and efforts against
-   its `v0.30.0` `(size, risk)` rung:
-   - Rung 0 (`XS low`): Sol `medium`
-   - Rung 1 (`XS med`, `S low`): Sol `high`
-   - Rung 2 (`XS high`, `S med`, `M low`): Sol `xhigh`
+   PR #294 (`chore(nix): bump quest to 556d816002`, merged `2026-11-25T07:42Z`) and continuing through `chore: bump quest to v0.30.0` and the last confirmed reviewer-host upgrade to `v0.30.0` (classifying PRs near both transitions by their recorded review runs). At cutover, also record every open PR carrying reviews from any in-scope flat-policy pin (`556d816002` or `v0.27.0`–`v0.29.0`) and keep it on the audit list through merge until recorded reviews verified to cover the merged diff satisfy every required seat and effort of its final `v0.30.0` rung.
+2. For each enumerated PR, apply `v0.30.0`'s risk rules to its merged diff
+   (including the rule that any change adding or editing lines under `quest/`
+   is at least `medium`, even if historically classified `low` before
+   `v0.28.1`) to determine its target `v0.30.0` `(size, risk)` rung:
+   - Rung 0 (`XS low`): Sol `medium` (or fallback Opus `medium`)
+   - Rung 1 (`XS med`, `S low`): Sol `high` (or fallback Opus `medium`)
+   - Rung 2 (`XS high`, `S med`, `M low`): Sol `xhigh` (or fallback Opus `high`)
    - Rung 3 (`S high`, `M med`, `L low`): Sol `xhigh` + Opus `medium`
    - Rung 4 (`M high`, `L med`, `XL low`): Sol `xhigh` + Opus `high`
    - Rung 5 (`L high`, `XL med`): Sol `xhigh` + Opus `high`
    - Rung 6 (`XL high`): Sol `xhigh` + Opus `xhigh`
 
+   Inspect the PR's `quest review` commit statuses, `## Review` body record,
+   and Kixel Quest review runs, using each run's recorded base and head to
+   credit only runs that covered the merged diff (or an identical diff).
    Exclude only `moq-bot` pin bumps, pure `quest/` plan deletions (keep active
    quest/plan additions and edits), diffs already reverted or superseded on
-   `main`, and any PR whose shortfall was already covered by an equivalent
-   prior replay.
+   `main`, and any PR whose merged diff already has qualifying coverage at its
+   target rung (from recorded runs or equivalent prior replays).
 3. Schedule every PR retained by step 2 for the exact missing reviewer seat(s)
    and/or effort upgrade its `v0.30.0` rung requires (read-only against its
    merged diff). Use the following priority order solely to order the queue,
@@ -73,4 +76,4 @@ Steps:
 
 ## Waiting
 
-- kixel-ai/quest: `v0.30.0` (the 7-rung reviewer ladder from https://github.com/kixel-ai/quest/pull/957) is published, this repository has merged `chore: bump quest to v0.30.0`, and reviewers have adopted `v0.30.0`. Check `flake.lock` and `gh release list --repo kixel-ai/quest` for `v0.30.0`.
+- kixel-ai/quest: `v0.30.0` (the 7-rung reviewer ladder from https://github.com/kixel-ai/quest/pull/957) is published, this repository has merged `chore: bump quest to v0.30.0`, and every reviewer host's installed `quest` binary is confirmed at `>= v0.30.0`. Check `flake.lock` and `quest --version` on each reviewer host.
