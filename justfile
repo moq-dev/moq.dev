@@ -6,7 +6,8 @@
 default:
   just --list
 
-# Run the CI checks
+# Run the checks. No CI runs on pull requests, so run this, `just test`, and
+# `just build` before pushing.
 check:
 	bun i
 
@@ -27,7 +28,7 @@ fix:
 	# Format and lint
 	bunx biome check --fix
 
-# Run any CI tests
+# Run the tests.
 test:
 	# Run the JS tests via node.
 	bun test
@@ -60,6 +61,9 @@ upgrade:
 build mode="live":
 	bun i
 	bun astro build --mode {{mode}}
+
+	# Only the built HTML shows whether each page's social card renders.
+	bun scripts/check-og.ts
 
 	# The moq.pub and moq.watch player sites, which share these .env files.
 	bun vite build sites/pub --mode {{mode}}

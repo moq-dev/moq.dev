@@ -34,9 +34,6 @@
           quest-cli = quest.packages.${system}.default;
         in
         {
-          # The quest CLI alone, so CI can validate the tree without the dev shell.
-          packages.quest = quest-cli;
-
           devShells.default =
             assert pkgs.lib.assertMsg
               ((builtins.fromJSON (builtins.readFile ./package.json)).packageManager == "bun@${pkgs.bun.version}")
@@ -47,8 +44,8 @@
                   # Everything in the justfile runs through bun: astro, vite, biome,
                   # tsc, and wrangler are all `bun run` or `bunx`.
                   #
-                  # Keep package.json aligned when nixpkgs changes Bun. CI reads
-                  # package.json and evaluates the assertion above.
+                  # Keep package.json aligned when nixpkgs changes Bun. The deploy
+                  # workflow reads package.json; entering this shell checks the assertion above.
                   bun
 
                   # Astro and Vite target node, and parts of their toolchains shell
