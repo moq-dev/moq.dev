@@ -13,8 +13,9 @@ check:
 	bun install --frozen-lockfile
 
 	# This revision's dev shell, whose evaluation checks the Nix and package.json
-	# Bun pins, even from a shell entered at an older revision.
-	nix eval --raw ".#devShells.$(nix eval --impure --raw --expr builtins.currentSystem).default.drvPath" > /dev/null
+	# Bun pins, even from a shell entered at an older revision. Evaluating the
+	# Linux shell builds nothing, so it works from any host.
+	nix eval --raw .#devShells.x86_64-linux.default.drvPath > /dev/null
 
 	# Lint the JS packages
 	bunx biome check
