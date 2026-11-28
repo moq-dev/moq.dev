@@ -8,7 +8,7 @@ default:
 
 # Run the CI checks
 check:
-	bun i
+	bun install --frozen-lockfile
 
 	# Lint the JS packages
 	bunx biome check
