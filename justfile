@@ -19,6 +19,12 @@ check:
 	# Validate the quest tree
 	quest check
 
+# Run what CI runs: the checks and tests, a live build with its social cards checked, and the dev shell's pins.
+ci: check test
+	bun astro build --mode live
+	bun scripts/check-og.ts
+	nix eval --raw ".#devShells.$(nix eval --impure --raw --expr builtins.currentSystem).default.drvPath" > /dev/null
+
 # Automatically fix some issues.
 fix:
 	# Fix the JS packages
