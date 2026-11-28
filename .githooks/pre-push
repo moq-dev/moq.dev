@@ -1,0 +1,19 @@
+#!/bin/sh
+# Run the repository's CI before every push, so a failure surfaces here instead of in the merge queue.
+# Delete this hook once this repository's kixel.quest merge queue is live.
+set -e
+# A push that only deletes refs carries no commits to check.
+pushes=false
+while read -r _ sha _ _; do
+	case $sha in *[!0]*) pushes=true ;; esac
+done
+$pushes || exit 0
+# A branch from before the recipe, which pull request CI still checks, has none to run.
+if ! grep -Eq '^ci([[:space:]]|:)' justfile 2>/dev/null; then
+	echo "pre-push: this checkout has no just ci recipe; merge the default branch to check pushes here" >&2
+	exit 0
+fi
+if [ -f flake.nix ]; then
+	exec nix develop --command just ci
+fi
+exec just ci
