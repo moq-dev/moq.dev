@@ -1,0 +1,118 @@
+---
+layout: "@/layouts/global.astro"
+title: "TODO: Quest"
+author: kixelated
+description: "TODO: how one person runs thousands of agent PRs a month: plans checked into the repo, and a lot of multiple choice."
+cover: "/blog/be-the-outlier/narwhal.png"
+date: 2026-11-20
+---
+
+import Author from "@/components/author.astro";
+import Backlog from "@/components/quest/backlog";
+import Firehose from "@/components/quest/firehose";
+import Squares from "@/components/quest/squares";
+
+# TODO: Title
+
+{/* SKELETON: headings are the outline, bullets are notes and facts to write from. Delete the bullets as you go.
+    Numbers: quest launched in moq-dev/moq#3239 on 2026-08-31. Window is 2026-08-31 to 2026-11-20 (82 days) unless noted.
+    Decisions and typed messages: `quest messages --json` on fedora, nixos, desktop, kixtop (reads T3 Code's own state, so it reaches back further than pruned transcripts).
+    PRs and reviews: GitHub GraphQL over every repo with 20+ PRs in the window.
+    Agent sessions and spend: `token-max sessions` on the same four machines. Claude Code and Codex prune old logs, so sessions undercount before ~Oct 20.
+    Re-pull all of it right before publishing: `bun tools/quest/refresh.ts` (logs, github, aggregate).
+    TODO: private repos are pooled and unnamed in every total; decide whether they count at all. */}
+
+## The Numbers
+
+- Lead with the volume, not the tool. The graphics carry this section.
+- Since Aug 31, across four machines:
+  - **28,275** answers to agents' multiple-choice questions, ~345 a day.
+  - **7,422** messages typed by hand, ~90 a day. Decisions outnumber typing almost 4 to 1.
+  - **12,053** PRs merged across 15 repos (moq-dev/moq alone: 5,801 opened). Busiest day: 436 merged on Nov 7.
+  - **~44k** reviews on those PRs: Pullfrog 7.5k, CodeRabbit 7.1k, the Codex connector 6.6k, and ~23k thread replies agents posted under my account.
+  - **4,151** quests written in moq-dev/moq, **3,646** finished or abandoned (deleted). 505 open today.
+  - **29,010** agent sessions still in the logs (15,347 of them subagents), 1.7M requests, 263B tokens (97% cache reads).
+  - **~$110k** at API list prices, a lower bound since early logs are pruned. Paid for by Claude and ChatGPT subscriptions; TODO: what they actually cost.
+- The point: I don't write code anymore and I barely review it. My job is answering questions.
+
+<Squares client:visible />
+
+<Firehose client:visible />
+
+## The Problem
+
+- Agents are great at starting work and terrible at remembering why the last one stopped.
+- The plan lived in chat scrollback: nobody can read it, link to it, or review it.
+- GitHub issues are where plans go to die: no ordering, no "blocked on", nobody grooms them.
+- With 10+ sessions in flight, the bottleneck moved from writing code to deciding what to write and whether to accept it.
+- Callback to [Be The Outlier](/blog/be-the-outlier).
+
+## What's a Quest?
+
+- One line: a GitHub issue checked into the repo. A Markdown file under `quest/`, completed in one PR.
+- Paste a real, short quest file from moq-dev/moq. `Goal`, `Plan`, `Waiting`, `Required`, `Closes`.
+- Epics are directories; milestones (`m0`..`m3`) are the top directories, a priority horizon that shifts every release.
+- Sized `[XS]`..`[XL]` like loot rarity, by the agent's effort, not lines of code.
+- Finished quests are **deleted**. Git history keeps them. The tree is only pending work.
+- `Required` is a real graph: `quest check` keeps it acyclic, `quest unblocked` ranks ready work by what it unblocks.
+- Claiming: `quest start` pushes an empty commit to branch `quest/m1/foo` (the path) and opens a draft PR. The earliest open PR holds the claim, so two agents never do the same work.
+
+{/* FIGURE: "Delete to unblock". The live quest graph from moq-dev/moq (or one epic of it). Click a ready quest to finish it: it disappears, its edges go, and the quests it blocked light up as ready. */}
+
+### Why not an issue tracker?
+
+- The plan gets reviewed in a PR before any code is written. Cheapest place to catch a bad plan.
+- Versioned next to the code; a refactor that invalidates a plan shows up as a conflict, not a stale issue.
+- A directory of short Markdown files is the format agents are best at. No API, no MCP server.
+- Issues stay as the untrusted public front door; `/quest-import` turns them into quests.
+
+<Backlog client:visible />
+
+{/* TODO: open GitHub issues over the same window, for contrast? */}
+
+## The Loop
+
+- Skills, one per step. Each is a thing I used to type at the start or end of a session (keep one sentence of the old skills-vs-context rule here).
+  - `/quest-plan`: an interview that ends in a PR of new quests.
+  - `/quest-start`, `/quest-spawn`: claim ready work, one or many in parallel.
+  - `/quest-review`: a model other than the latest writer reviews locally (Claude reviews Codex, Codex reviews Claude).
+  - `/quest-iterate`: settle decisions, fix CI and review findings, push.
+  - `/quest-merge`, `/quest-complete`: pick what lands; the merge queue lands it.
+  - `/quest-run`, `/quest-afk`: run the whole loop until only my decisions remain.
+- Every PR also gets an online review from [Pullfrog](/blog/pullfrog), a third model family. TODO: link once that post is out.
+- Breakages close the loop: a fix PR names its culprit under `## Caused by`, and `quest eval` scores the reviewer on past culprits.
+
+{/* FIGURE: "One PR's life". A real moq-dev/moq PR as a timeline: claim → commits → local review rounds (findings per round) → Pullfrog review → decision → merge queue. Pick a medium one with a caught bug. Source: `quest usage --pr <n> --json`. */}
+
+{/* FIGURE: "Who did the work". Spend by role (planning, implementing, reviewing, iterating, merging, coordinating) from `quest usage --json`, as a stacked bar. Shows how much of the cost is review. */}
+
+## Decisions Are the Job
+
+- Every quest skill ends in multiple choice with a recommendation, asked with a blocking question tool, never buried in a progress update.
+- Questions open with the context to answer without opening the PR: what the work is, the problem, what each option changes.
+- I take the recommendation **76%** of the time. Pick another option 11%. Type my own answer 13%.
+  - The 24% is the job. The 76% is why it's sustainable.
+  - TODO: does the take rate change over time? By skill? (`quest-run` vs `quest-plan`)
+- Decisions an agent can't make become `Maintainer:` items under `## Waiting`, so they resurface instead of rotting; `quest waiting` ranks them by what they unblock.
+- Answers get posted on the PR as a `Maintainer decision` comment, and `quest merge` refuses a head that doesn't answer it.
+
+{/* FIGURE: "Took the recommendation". Take rate per week, or per skill. Small multiples, one per skill, if the skills differ. */}
+
+## The Honest Downsides
+
+- Merge conflicts are constant. By design (you resolve them by aligning plans), still friction.
+- Shared rate limits: every parallel session draws from the same GitHub GraphQL quota and the same model usage limits.
+- The rules grew. The guide agents read is long, and every line costs every turn. TODO: number of lines in `quest guide` + `quest context`.
+- Agents still break things. TODO: count of `## Caused by` culprits and who found them (check / reviewer / queue / person).
+- I answer ~345 questions a day. That's a lot of clicking.
+
+## Try It
+
+- [moq-dev/quest](https://github.com/moq-dev/quest), standalone. `nix run github:moq-dev/quest -- --help`.
+- Early days. Built with itself: TODO PRs on moq-dev/quest since it split out.
+
+## FIN
+
+- Refuse to start a newsletter.
+
+<Author />
