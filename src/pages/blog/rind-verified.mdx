@@ -1,0 +1,126 @@
+---
+layout: "@/layouts/global.astro"
+title: "TODO: rind, but formally verified"
+author: kixelated
+description: "TODO: rind, but formally verified this time."
+cover: "/blog/rind/cover.svg"
+date: 2026-11-12
+---
+
+import Coverage from "@/components/rind/coverage";
+import Author from "@/components/author.astro";
+
+# TODO: Title
+
+{/* SKELETON: headings are the outline, bullets are notes and facts to write from. Delete the bullets as you go.
+    Source of truth: rind origin/main 0f4e45f0 (2026-11-12), proofs/README.md, TESTING.md, quest/. Re-check before publishing. */}
+
+## Last Time
+- The [launch post](/blog/rind) was mostly perf. "Lean into Lean" was one section and hand-wavy ("at least according to Claude so grain of salt").
+- It said AES-GCM was faster AND verified. Caveat it here: proven on x86_64 AES-NI (Vale tier + rind's by-8), **not** on VAES CPUs (Zen 3+, Ice Lake+, Alder Lake+), not aarch64, only 12-byte IVs and full tags.
+- This post: what "verified" actually means, and everything else we do because proofs aren't enough.
+
+## What Does "Verified" Mean?
+- Functional correctness: the API's output equals the RFC/FIPS spec. Glue included, not just the hot loop.
+  - The bar is in `benchmarks/verified.toml`: the whole computation, excluding DER parsing and randomness.
+- At the first audit ([rind#318](https://github.com/moq-dev/rind/pull/318), Nov 3) under that strict rule, **zero** operations earned a ✓. Good hook.
+- NOT proven: memory safety, panic-freedom, constant time (except the asm compares and s2n-bignum's `_SAFE` routines). Say this loudly.
+
+## The Stack
+- Rust → Lean 4 via [Charon](https://github.com/AeneasVerif/charon) + [Aeneas](https://github.com/AeneasVerif/aeneas). Picked over hax in [rind#326](https://github.com/moq-dev/rind/pull/326). TODO: why.
+- rind's own assembly: HOL Light on [s2n-bignum](https://github.com/awslabs/s2n-bignum)'s instruction models.
+- Borrowed proofs imported as one axiom per routine: s2n-bignum (HOL Light), Vale via HACL\* (F\*), aws-lc-verification (SAW/NSym).
+- Specs: vendored SymCrypt FIPS 202/203 specs, a restatement of cryptol-specs' SHA-512.
+- TODO: diagram. Rust → Charon → Aeneas → Lean ← spec; asm → HOL Light; imported axioms in the middle.
+
+## Proving the Bytes You Ship
+- A proof about source is worthless if the compiler/assembler emits something else.
+- `admin/prove bytes` ([rind#551](https://github.com/moq-dev/rind/pull/551)) checks the release build's bytes equal the proven object code: 192 s2n-bignum blocks, plus Vale and aws-lc.
+- HOL Light proofs extract rind's own emitted bytes.
+- Runs in CI (`prove.yml`, nightly + PRs touching proofs/source): `bytes`, `hol-light`, `cosim`, `lean`.
+
+## The Trust Base
+- What you still have to believe: Lean's kernel, Charon/Aeneas's translation and `core` models, spec transliterations, imported theorems-as-axioms.
+- Hand-written Lean models for Rust Aeneas can't translate (fn pointers, intrinsics, `dyn`). `admin/prove` fails when the quoted source drifts.
+- SIMD intrinsic models are tested against the real CPU ([rind#588](https://github.com/moq-dev/rind/pull/588)); rind's x86 model additions checked by cosimulation.
+- `Axioms.lean` pins every theorem's axioms with `#guard_msgs` so the trust base can't grow silently. Nice detail.
+
+## The Scoreboard
+<figure>
+	<Coverage client:visible />
+	<figcaption>TODO: refresh libraries.json from current rind main</figcaption>
+</figure>
+
+- Proven end to end today:
+  - X25519 (x86_64 + aarch64), Ed25519
+  - P-256 ECDH/ECDSA (aarch64 only), P-384 ECDH
+  - AES-GCM (x86_64 AES-NI), AES-128/256 + ChaCha20 header protection
+  - SHA-384/512 (only Intel AVX-without-AVX2 and aarch64 without SHA-512 instructions), SHA-1/256 padding, HMAC/HKDF/PBKDF2 glue, aarch64 SHA-256 block (HOL Light)
+  - SHA-3/SHAKE sponge, portable Keccak-f
+  - RSA PKCS#1 v1.5 + PSS verify with SHA-256 (x86_64)
+  - ChaCha20-Poly1305 glue (x86_64; the one-pass asm is assumed)
+  - `ct_equal` and the asm compares
+  - ML-KEM: only that the NTT specs equal FIPS 203
+- TODO: update this list right before publishing; it changes daily.
+
+## Proofs Aren't Enough
+- Most of rind is still unproven, and proofs don't cover timing or memory. So every primitive gets five kinds of check, and `admin/testing` fails `just ci` if any primitive is missing one (see `TESTING.md`).
+
+### Test Vectors
+- Wycheproof, NIST CAVP, ACVP samples ([rind#555](https://github.com/moq-dev/rind/pull/555)), RFC vectors, CCTV (incl. the 1M-case ML-KEM accumulation), aws-lc + BoringSSL vectors on every CPU tier.
+
+### Differential Fuzzing
+- 23 targets fuzzed against aws-lc-rs ([rind#303](https://github.com/moq-dev/rind/pull/303), [rind#535](https://github.com/moq-dev/rind/pull/535)), plus `tests/crosschecks.rs`.
+- Hostile-peer bytes through the rustls, dimpl, and str0m adapters ([rind#561](https://github.com/moq-dev/rind/pull/561)).
+- Nightly, then the corpus replays on every tier.
+
+### Constant Time
+- Taint tracking: ctgrind under valgrind, plus Intel SDE and qemu variants for code valgrind can't run.
+- [BINSEC](https://binsec.github.io/) symbolic checks on secret paths no proof covers ([rind#576](https://github.com/moq-dev/rind/pull/576)).
+- Static scan of release builds for divisions and floating point on every arch ([rind#586](https://github.com/moq-dev/rind/pull/586)).
+- Statistical timing on real hardware: dudect, plus the Marvin toolkit on RSA-OAEP ([rind#483](https://github.com/moq-dev/rind/pull/483)). TODO: a chart from the timing runs?
+
+### Zeroing
+- Tests check every byte of every secret type is wiped, on every tier and Windows ([rind#550](https://github.com/moq-dev/rind/pull/550)).
+
+### Memory Safety
+- Guard-page tests catch out-of-bounds asm reads/writes; the only bounds check on the fastest tiers ([rind#568](https://github.com/moq-dev/rind/pull/568)).
+- Nightly Miri (portable, x86_64, big-endian s390x), ASan (doesn't see asm).
+- ABI harness: every asm routine preserves callee-saved registers ([rind#564](https://github.com/moq-dev/rind/pull/564)).
+- Safe asm wrappers enforce preconditions in release builds ([rind#583](https://github.com/moq-dev/rind/pull/583)).
+
+### Every CPU
+- Intel SDE runs every x86_64 dispatch path, Prescott to Diamond Rapids.
+- `RIND_CPU_DISABLE_*` forces the fallback tiers.
+- qemu: armv7, s390x, riscv64, PowerPC, armv6, loongarch64. Native arm64, wasm32, iOS sim, Android.
+
+### Testing the Tests
+- cargo-mutants nightly, incl. AVX-512 and armv7 ([rind#570](https://github.com/moq-dev/rind/pull/570)); surviving mutants killed in [rind#603](https://github.com/moq-dev/rind/pull/603).
+
+### Process
+- An adversarial reviewer's brief (`REVIEW.md`) read from the base branch, so a PR can't soften its own review.
+- `AGENTS.md`: Wycheproof + aws-lc-rs differential for every primitive, ctgrind for new secret paths, hostile input errors and never panics, a correctness argument for new arithmetic.
+- TODO: tie back to the vibe-slop framing. The agents wrote the checks too; why that's OK (or not).
+
+## What's Not Verified (Yet)
+- AES-GCM on VAES and aarch64; AES-192.
+- SHA-256 block on x86_64 (assumed), SHA-1 blocks everywhere.
+- SHA-512/Ed25519 on AVX2/AMD and aarch64-with-SHA512, i.e. most modern hardware.
+- ChaCha20-Poly1305 one-pass asm.
+- P-256 on x86_64, P-384 keygen, P-521. RSA signing/decrypt/keygen, all RSA on aarch64.
+- ML-KEM construction, ML-DSA, SLH-DSA.
+- armv7, the portable backend (except Keccak).
+- No proofs of memory safety, panic-freedom, or general constant time.
+- Some theorems are conditional (CPU-feature checks pass, hand models faithful). ECDSA signing proves a returned signature is correct, not that it terminates.
+
+## The Roadmap
+- m3: x86_64 SHA-NI SHA-256 (HOL Light + Lean); asm frozen in [rind#626](https://github.com/moq-dev/rind/pull/626).
+- m4 hot tiers (24 quests): AES-GCM aarch64/VAES, ChaCha20-Poly1305 x86+aarch64, P-256 x86, P-384 keygen, P-521, RSA aarch64/IFMA/signing, SHA-256/512 AVX2 + hardware, Ed25519 AVX2, ML-KEM construction, the portable backend, retiring the hand models, a recurring re-audit.
+- m4 other: OSS-Fuzz, ACVP module wrapper, FIPS 140-3.
+- m5 cold tiers: AArch32 model + armv7, aarch64 without crypto ext, x86 without AES-NI.
+- Blockers worth naming: Aeneas function-pointer support (to retire hand models); s2n-bignum specs pinned to unmerged upstream PRs.
+- TODO: the ask. Tokens, reviewers who actually know HOL Light, a frontier lab that wants the press.
+
+## FIN
+
+<Author />
