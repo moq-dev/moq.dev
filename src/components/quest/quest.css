@@ -1,0 +1,117 @@
+/* The quest post's figures: the rind frame, recolored to quest's amber, plus squares and lanes. */
+.quest-fig {
+	--rind: #ffc53d;
+	/* Categorical series, validated for CVD and contrast on --frame (dataviz validate_palette, all pairs) */
+	--took: #3987e5;
+	--other: #d95926;
+	--own: #199e70;
+	--plain: #64748b;
+	position: relative;
+}
+
+.quest-fig .key {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 16px;
+	margin-top: 14px;
+	font-family: var(--mono);
+	font-size: 11.5px;
+	color: var(--ink-2);
+}
+.quest-fig .key i {
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	margin-right: 6px;
+	border-radius: 2px;
+	vertical-align: -1px;
+}
+
+/* Squares: one per thing, in blocks of the same scale */
+.quest-fig .blocks {
+	display: grid;
+	gap: 16px;
+	margin-top: 22px;
+}
+.quest-fig .block .label {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 6px;
+	font-family: var(--mono);
+	font-size: 12px;
+	color: var(--ink-2);
+}
+.quest-fig .block .label strong {
+	font-family: var(--display);
+	font-weight: 900;
+	font-size: 22px;
+	line-height: 1;
+	color: var(--ink);
+	font-variant-numeric: tabular-nums;
+}
+.quest-fig .block canvas {
+	display: block;
+	width: 100%;
+}
+
+/* Lanes: one measure per row, sharing the date axis */
+.quest-fig .lanes {
+	display: grid;
+	gap: 14px;
+	margin-top: 22px;
+}
+.quest-fig .lane .label {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	font-family: var(--mono);
+	font-size: 12px;
+	color: var(--ink-2);
+}
+.quest-fig .lane .label strong {
+	color: var(--ink);
+	font-variant-numeric: tabular-nums;
+}
+.quest-fig svg {
+	display: block;
+	width: 100%;
+	overflow: visible;
+}
+.quest-fig .axis {
+	font-family: var(--mono);
+	font-size: 10.5px;
+	fill: var(--ink-3);
+	color: var(--ink-3);
+}
+.quest-fig .grid {
+	stroke: var(--line);
+}
+.quest-fig .cursor {
+	stroke: var(--ink-2);
+	stroke-width: 1;
+}
+
+.quest-fig .tip {
+	position: absolute;
+	z-index: 1;
+	padding: 6px 9px;
+	border: 1px solid var(--line);
+	border-radius: 6px;
+	background: var(--frame-2);
+	font-family: var(--mono);
+	font-size: 11.5px;
+	line-height: 1.45;
+	color: var(--ink);
+	pointer-events: none;
+	white-space: nowrap;
+	transform: translate(-50%, calc(-100% - 10px));
+}
+.quest-fig .tip span {
+	color: var(--ink-2);
+}
+.quest-fig .clock {
+	font-family: var(--mono);
+	font-size: 12px;
+	color: var(--ink-2);
+}
