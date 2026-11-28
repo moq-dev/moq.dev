@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 // Asserts every built page carries a social card that scrapers can actually render.
 //
-// Run in CI after `astro build`. It reads dist/, not src/, because the tags are
-// assembled in the layout from frontmatter and only the built HTML shows what a
-// scraper will really see.
+// `just build` runs it after `astro build`, so a deploy fails before uploading.
+// It reads dist/, not src/, because the tags are assembled in the layout from
+// frontmatter and only the built HTML shows what a scraper will really see.
 //
 // The bug that prompted this: a post shipped with `cover: ".../viewers-1000.svg"`.
 // Nothing complained -- the file existed, the path was right, the page rendered --
